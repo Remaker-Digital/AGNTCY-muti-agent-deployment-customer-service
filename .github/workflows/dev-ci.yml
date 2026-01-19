@@ -1,0 +1,128 @@
+name: Phase 1 Development CI/CD
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        python-version: ['3.12', '3.13']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Lint with flake8
+        run: |
+          # Stop the build if there are Python syntax errors or undefined names
+          flake8 agents/ shared/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all errors as warnings
+          flake8 agents/ shared/ --count --exit-zero --max-complexity=10 --max-line-length=100 --statistics
+
+      - name: Format check with black
+        run: |
+          black --check --line-length=100 agents/ shared/ || true
+
+      - name: Security check with bandit
+        run: |
+          bandit -r agents/ shared/ -ll -v 2>/dev/null || echo "Bandit check completed"
+
+      - name: Run tests with pytest
+        run: |
+          pytest tests/ -v --cov=shared --cov=agents --cov-report=term-missing --cov-report=xml --cov-fail-under=46
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
+
+  docker-build:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Validate docker-compose.yml
+        run: |
+          docker-compose config --quiet
+
+      - name: Build mock API images
+        run: |
+          docker-compose build --no-cache shopify-mock zendesk-mock mailchimp-mock google-analytics-mock
+
+  code-quality:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check code complexity
+        run: |
+          flake8 agents/ shared/ --count --max-complexity=10 --max-line-length=100 --exit-zero
+
+      - name: Generate coverage report
+        run: |
+          pytest tests/ -v --cov=shared --cov=agents --cov-report=html --cov-report=term-missing || true
+
+  validate-structure:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate project structure
+        run: |
+          # Check required directories
+          test -d agents && echo "✓ agents/" || (echo "✗ agents/ missing" && exit 1)
+          test -d shared && echo "✓ shared/" || (echo "✗ shared/ missing" && exit 1)
+          test -d tests && echo "✓ tests/" || (echo "✗ tests/ missing" && exit 1)
+          test -d mocks && echo "✓ mocks/" || (echo "✗ mocks/ missing" && exit 1)
+          test -d config && echo "✓ config/" || (echo "✗ config/ missing" && exit 1)
+
+      - name: Validate required files
+        run: |
+          # Check Python files
+          test -f requirements.txt && echo "✓ requirements.txt" || (echo "✗ requirements.txt missing" && exit 1)
+          test -f pytest.ini && echo "✓ pytest.ini" || (echo "✗ pytest.ini missing" && exit 1)
+          test -f docker-compose.yml && echo "✓ docker-compose.yml" || (echo "✗ docker-compose.yml missing" && exit 1)
+          test -f setup.ps1 && echo "✓ setup.ps1" || (echo "✗ setup.ps1 missing" && exit 1)
+
+      - name: Validate documentation
+        run: |
+          test -f README.md && echo "✓ README.md" || (echo "✗ README.md missing" && exit 1)
+          test -f SETUP-GUIDE.md && echo "✓ SETUP-GUIDE.md" || (echo "✗ SETUP-GUIDE.md missing" && exit 1)
+          test -f PHASE1-STATUS.md && echo "✓ PHASE1-STATUS.md" || (echo "✗ PHASE1-STATUS.md missing" && exit 1)
+          test -f PROJECT-SUMMARY.md && echo "✓ PROJECT-SUMMARY.md" || (echo "✗ PROJECT-SUMMARY.md missing" && exit 1)

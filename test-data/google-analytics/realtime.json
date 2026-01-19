@@ -1,0 +1,112 @@
+{
+  "realtime_report": {
+    "dimensionHeaders": [
+      {"name": "country"},
+      {"name": "city"}
+    ],
+    "metricHeaders": [
+      {"name": "activeUsers", "type": "TYPE_INTEGER"},
+      {"name": "screenPageViews", "type": "TYPE_INTEGER"}
+    ],
+    "rows": [
+      {
+        "dimensionValues": [
+          {"value": "United States"},
+          {"value": "New York"}
+        ],
+        "metricValues": [
+          {"value": "42"},
+          {"value": "156"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "United States"},
+          {"value": "Los Angeles"}
+        ],
+        "metricValues": [
+          {"value": "38"},
+          {"value": "134"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "Canada"},
+          {"value": "Toronto"}
+        ],
+        "metricValues": [
+          {"value": "15"},
+          {"value": "47"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "United Kingdom"},
+          {"value": "London"}
+        ],
+        "metricValues": [
+          {"value": "12"},
+          {"value": "38"}
+        ]
+      }
+    ],
+    "rowCount": 4,
+    "metadata": {
+      "dataLossFromOtherRow": false
+    }
+  },
+  "realtime_events": {
+    "dimensionHeaders": [
+      {"name": "eventName"}
+    ],
+    "metricHeaders": [
+      {"name": "eventCount", "type": "TYPE_INTEGER"}
+    ],
+    "rows": [
+      {
+        "dimensionValues": [
+          {"value": "page_view"}
+        ],
+        "metricValues": [
+          {"value": "375"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "add_to_cart"}
+        ],
+        "metricValues": [
+          {"value": "89"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "begin_checkout"}
+        ],
+        "metricValues": [
+          {"value": "34"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "purchase"}
+        ],
+        "metricValues": [
+          {"value": "12"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "view_item"}
+        ],
+        "metricValues": [
+          {"value": "267"}
+        ]
+      }
+    ],
+    "rowCount": 5,
+    "metadata": {
+      "dataLossFromOtherRow": false
+    }
+  }
+}

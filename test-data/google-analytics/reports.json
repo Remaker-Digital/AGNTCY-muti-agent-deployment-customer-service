@@ -1,0 +1,196 @@
+{
+  "standard_report": {
+    "dimensionHeaders": [
+      {"name": "date"},
+      {"name": "pagePath"}
+    ],
+    "metricHeaders": [
+      {"name": "activeUsers", "type": "TYPE_INTEGER"},
+      {"name": "sessions", "type": "TYPE_INTEGER"},
+      {"name": "totalUsers", "type": "TYPE_INTEGER"},
+      {"name": "screenPageViews", "type": "TYPE_INTEGER"},
+      {"name": "averageSessionDuration", "type": "TYPE_SECONDS"},
+      {"name": "bounceRate", "type": "TYPE_FLOAT"}
+    ],
+    "rows": [
+      {
+        "dimensionValues": [
+          {"value": "20240118"},
+          {"value": "/products"}
+        ],
+        "metricValues": [
+          {"value": "342"},
+          {"value": "412"},
+          {"value": "389"},
+          {"value": "1247"},
+          {"value": "185.3"},
+          {"value": "0.42"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "20240118"},
+          {"value": "/cart"}
+        ],
+        "metricValues": [
+          {"value": "156"},
+          {"value": "178"},
+          {"value": "167"},
+          {"value": "445"},
+          {"value": "92.1"},
+          {"value": "0.38"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "20240118"},
+          {"value": "/checkout"}
+        ],
+        "metricValues": [
+          {"value": "89"},
+          {"value": "95"},
+          {"value": "91"},
+          {"value": "203"},
+          {"value": "156.7"},
+          {"value": "0.15"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "20240117"},
+          {"value": "/products"}
+        ],
+        "metricValues": [
+          {"value": "318"},
+          {"value": "387"},
+          {"value": "365"},
+          {"value": "1189"},
+          {"value": "178.9"},
+          {"value": "0.44"}
+        ]
+      }
+    ],
+    "rowCount": 4,
+    "metadata": {
+      "dataLossFromOtherRow": false,
+      "currencyCode": "USD",
+      "timeZone": "America/New_York"
+    }
+  },
+  "ecommerce_report": {
+    "dimensionHeaders": [
+      {"name": "date"},
+      {"name": "sessionSource"}
+    ],
+    "metricHeaders": [
+      {"name": "ecommercePurchases", "type": "TYPE_INTEGER"},
+      {"name": "purchaseRevenue", "type": "TYPE_CURRENCY"},
+      {"name": "itemsViewed", "type": "TYPE_INTEGER"},
+      {"name": "itemsAddedToCart", "type": "TYPE_INTEGER"},
+      {"name": "cartToViewRate", "type": "TYPE_FLOAT"}
+    ],
+    "rows": [
+      {
+        "dimensionValues": [
+          {"value": "20240118"},
+          {"value": "google"}
+        ],
+        "metricValues": [
+          {"value": "45"},
+          {"value": "8934.50"},
+          {"value": "567"},
+          {"value": "189"},
+          {"value": "0.333"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "20240118"},
+          {"value": "email"}
+        ],
+        "metricValues": [
+          {"value": "32"},
+          {"value": "6421.75"},
+          {"value": "234"},
+          {"value": "98"},
+          {"value": "0.419"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "20240118"},
+          {"value": "direct"}
+        ],
+        "metricValues": [
+          {"value": "28"},
+          {"value": "5678.25"},
+          {"value": "412"},
+          {"value": "134"},
+          {"value": "0.325"}
+        ]
+      }
+    ],
+    "rowCount": 3,
+    "metadata": {
+      "dataLossFromOtherRow": false,
+      "currencyCode": "USD",
+      "timeZone": "America/New_York"
+    }
+  },
+  "customer_journey_report": {
+    "dimensionHeaders": [
+      {"name": "sessionDefaultChannelGroup"},
+      {"name": "landingPage"}
+    ],
+    "metricHeaders": [
+      {"name": "sessions", "type": "TYPE_INTEGER"},
+      {"name": "conversions", "type": "TYPE_INTEGER"},
+      {"name": "conversionRate", "type": "TYPE_FLOAT"},
+      {"name": "totalRevenue", "type": "TYPE_CURRENCY"}
+    ],
+    "rows": [
+      {
+        "dimensionValues": [
+          {"value": "Organic Search"},
+          {"value": "/products/spring-collection"}
+        ],
+        "metricValues": [
+          {"value": "234"},
+          {"value": "28"},
+          {"value": "0.120"},
+          {"value": "5234.00"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "Email"},
+          {"value": "/campaign/spring-sale"}
+        ],
+        "metricValues": [
+          {"value": "187"},
+          {"value": "32"},
+          {"value": "0.171"},
+          {"value": "6421.75"}
+        ]
+      },
+      {
+        "dimensionValues": [
+          {"value": "Direct"},
+          {"value": "/"}
+        ],
+        "metricValues": [
+          {"value": "412"},
+          {"value": "45"},
+          {"value": "0.109"},
+          {"value": "8934.50"}
+        ]
+      }
+    ],
+    "rowCount": 3,
+    "metadata": {
+      "dataLossFromOtherRow": false,
+      "currencyCode": "USD",
+      "timeZone": "America/New_York"
+    }
+  }
+}

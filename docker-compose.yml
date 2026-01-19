@@ -1,0 +1,309 @@
+# AGNTCY Multi-Agent Customer Service Platform - Phase 1-3 Local Development
+# Docker Compose configuration for local development and testing
+#
+# This configuration includes:
+# - AGNTCY infrastructure services (NATS, SLIM, ClickHouse, OpenTelemetry, Grafana)
+# - Mock APIs (Shopify, Zendesk, Mailchimp, Google Analytics)
+# - Agent containers (Intent, Knowledge, Response, Escalation, Analytics)
+#
+# Usage:
+#   docker-compose up -d           # Start all services
+#   docker-compose logs -f [service]  # View logs
+#   docker-compose down            # Stop all services
+#   docker-compose down -v         # Stop and remove volumes
+
+version: '3.9'
+
+services:
+  # ==========================================================================
+  # AGNTCY Infrastructure Services (from AGNTCY SDK)
+  # ==========================================================================
+
+  # NATS - High-performance messaging system
+  nats:
+    image: nats:latest
+    container_name: agntcy-nats
+    ports:
+      - "4222:4222"  # Client connections
+      - "4223:4223"  # Route connections
+      - "6222:6222"  # Cluster connections
+      - "8222:8222"  # Monitoring
+    networks:
+      - agntcy-network
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+    restart: unless-stopped
+
+  # SLIM - Secure Low-Latency Interactive Messaging (AGNTCY messaging backbone)
+  slim:
+    image: ghcr.io/agntcy/slim:0.6.1
+    container_name: agntcy-slim
+    ports:
+      - "46357:46357"
+    networks:
+      - agntcy-network
+    volumes:
+      - ./config/slim/server-config.yaml:/config.yaml:ro
+    environment:
+      - SLIM_GATEWAY_PASSWORD=${SLIM_GATEWAY_PASSWORD:-changeme_local_dev_password}
+    restart: unless-stopped
+    depends_on:
+      - nats
+
+  # ClickHouse - Database for observability data
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: agntcy-clickhouse
+    ports:
+      - "9000:9000"  # Native protocol
+      - "8123:8123"  # HTTP interface
+    networks:
+      - agntcy-network
+    environment:
+      - CLICKHOUSE_USER=admin
+      - CLICKHOUSE_PASSWORD=admin
+      - CLICKHOUSE_DEFAULT_ACCESS_MANAGEMENT=1
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    healthcheck:
+      test: ["CMD", "wget", "--spider", "-q", "localhost:8123/ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+
+  # OpenTelemetry Collector - Telemetry aggregation
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:latest
+    container_name: agntcy-otel-collector
+    ports:
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+    networks:
+      - agntcy-network
+    volumes:
+      - ./config/otel/otel-collector-config.yaml:/etc/otel-collector-config.yaml:ro
+    command: ["--config=/etc/otel-collector-config.yaml"]
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # Grafana - Observability dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: agntcy-grafana
+    ports:
+      - "3001:3000"
+    networks:
+      - agntcy-network
+    environment:
+      - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./config/grafana/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml:ro
+    depends_on:
+      clickhouse:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ==========================================================================
+  # Mock APIs for Phase 1-3 Development
+  # ==========================================================================
+
+  # Mock Shopify API
+  mock-shopify:
+    build:
+      context: ./mocks/shopify
+      dockerfile: Dockerfile
+    container_name: agntcy-mock-shopify
+    ports:
+      - "8001:8000"
+    networks:
+      - agntcy-network
+    volumes:
+      - ./test-data/shopify:/app/data:ro
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    restart: unless-stopped
+
+  # Mock Zendesk API
+  mock-zendesk:
+    build:
+      context: ./mocks/zendesk
+      dockerfile: Dockerfile
+    container_name: agntcy-mock-zendesk
+    ports:
+      - "8002:8000"
+    networks:
+      - agntcy-network
+    volumes:
+      - ./test-data/zendesk:/app/data:ro
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    restart: unless-stopped
+
+  # Mock Mailchimp API
+  mock-mailchimp:
+    build:
+      context: ./mocks/mailchimp
+      dockerfile: Dockerfile
+    container_name: agntcy-mock-mailchimp
+    ports:
+      - "8003:8000"
+    networks:
+      - agntcy-network
+    volumes:
+      - ./test-data/mailchimp:/app/data:ro
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    restart: unless-stopped
+
+  # Mock Google Analytics API
+  mock-google-analytics:
+    build:
+      context: ./mocks/google-analytics
+      dockerfile: Dockerfile
+    container_name: agntcy-mock-google-analytics
+    ports:
+      - "8004:8000"
+    networks:
+      - agntcy-network
+    volumes:
+      - ./test-data/google-analytics:/app/data:ro
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    restart: unless-stopped
+
+  # ==========================================================================
+  # Agent Containers (Phase 1: Skeletons, Phase 2: Full Implementation)
+  # ==========================================================================
+
+  # Intent Classification Agent - Routes incoming requests
+  agent-intent-classification:
+    build:
+      context: .
+      dockerfile: agents/intent_classification/Dockerfile
+    container_name: agntcy-agent-intent
+    networks:
+      - agntcy-network
+    environment:
+      - AGENT_TOPIC=${INTENT_CLASSIFICATION_TOPIC:-intent-classifier}
+      - SLIM_ENDPOINT=http://slim:46357
+      - SLIM_GATEWAY_PASSWORD=${SLIM_GATEWAY_PASSWORD:-changeme_local_dev_password}
+      - OTLP_HTTP_ENDPOINT=http://otel-collector:4318
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AGNTCY_ENABLE_TRACING=${AGNTCY_ENABLE_TRACING:-true}
+    depends_on:
+      - slim
+      - otel-collector
+    restart: unless-stopped
+
+  # Knowledge Retrieval Agent - Searches documentation and knowledge bases
+  agent-knowledge-retrieval:
+    build:
+      context: .
+      dockerfile: agents/knowledge_retrieval/Dockerfile
+    container_name: agntcy-agent-knowledge
+    networks:
+      - agntcy-network
+    environment:
+      - AGENT_TOPIC=${KNOWLEDGE_RETRIEVAL_TOPIC:-knowledge-retrieval}
+      - SLIM_ENDPOINT=http://slim:46357
+      - SLIM_GATEWAY_PASSWORD=${SLIM_GATEWAY_PASSWORD:-changeme_local_dev_password}
+      - OTLP_HTTP_ENDPOINT=http://otel-collector:4318
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AGNTCY_ENABLE_TRACING=${AGNTCY_ENABLE_TRACING:-true}
+    depends_on:
+      - slim
+      - otel-collector
+    restart: unless-stopped
+
+  # Response Generation Agent - Crafts contextually appropriate responses
+  agent-response-generation:
+    build:
+      context: .
+      dockerfile: agents/response_generation/Dockerfile
+    container_name: agntcy-agent-response
+    networks:
+      - agntcy-network
+    environment:
+      - AGENT_TOPIC=${RESPONSE_GENERATION_TOPIC:-response-generator-en}
+      - SLIM_ENDPOINT=http://slim:46357
+      - SLIM_GATEWAY_PASSWORD=${SLIM_GATEWAY_PASSWORD:-changeme_local_dev_password}
+      - OTLP_HTTP_ENDPOINT=http://otel-collector:4318
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AGNTCY_ENABLE_TRACING=${AGNTCY_ENABLE_TRACING:-true}
+    depends_on:
+      - slim
+      - otel-collector
+    restart: unless-stopped
+
+  # Escalation Agent - Identifies cases requiring human intervention
+  agent-escalation:
+    build:
+      context: .
+      dockerfile: agents/escalation/Dockerfile
+    container_name: agntcy-agent-escalation
+    networks:
+      - agntcy-network
+    environment:
+      - AGENT_TOPIC=${ESCALATION_TOPIC:-escalation-handler}
+      - SLIM_ENDPOINT=http://slim:46357
+      - SLIM_GATEWAY_PASSWORD=${SLIM_GATEWAY_PASSWORD:-changeme_local_dev_password}
+      - OTLP_HTTP_ENDPOINT=http://otel-collector:4318
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AGNTCY_ENABLE_TRACING=${AGNTCY_ENABLE_TRACING:-true}
+      - MOCK_ZENDESK_URL=http://mock-zendesk:8000
+    depends_on:
+      - slim
+      - otel-collector
+      - mock-zendesk
+    restart: unless-stopped
+
+  # Analytics Agent - Monitors performance and identifies improvements
+  agent-analytics:
+    build:
+      context: .
+      dockerfile: agents/analytics/Dockerfile
+    container_name: agntcy-agent-analytics
+    networks:
+      - agntcy-network
+    environment:
+      - AGENT_TOPIC=${ANALYTICS_TOPIC:-analytics-collector}
+      - SLIM_ENDPOINT=http://slim:46357
+      - SLIM_GATEWAY_PASSWORD=${SLIM_GATEWAY_PASSWORD:-changeme_local_dev_password}
+      - OTLP_HTTP_ENDPOINT=http://otel-collector:4318
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AGNTCY_ENABLE_TRACING=${AGNTCY_ENABLE_TRACING:-true}
+      - MOCK_GOOGLE_ANALYTICS_URL=http://mock-google-analytics:8000
+    depends_on:
+      - slim
+      - otel-collector
+      - mock-google-analytics
+    restart: unless-stopped
+
+# ==========================================================================
+# Networks
+# ==========================================================================
+networks:
+  agntcy-network:
+    driver: bridge
+    name: agntcy-network
+
+# ==========================================================================
+# Volumes for persistent data
+# ==========================================================================
+volumes:
+  clickhouse-data:
+    name: agntcy-clickhouse-data
+  grafana-data:
+    name: agntcy-grafana-data

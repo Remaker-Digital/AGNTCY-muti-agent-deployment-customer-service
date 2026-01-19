@@ -1,0 +1,44 @@
+{
+  "tickets": [
+    {
+      "id": 1001,
+      "subject": "Order #12345 not received",
+      "description": "I placed an order 2 weeks ago but haven't received it yet. Order number is 12345. Can you help?",
+      "status": "open",
+      "priority": "high",
+      "type": "problem",
+      "requester_id": 5001,
+      "assignee_id": null,
+      "created_at": "2024-01-15T10:30:00Z",
+      "updated_at": "2024-01-15T10:30:00Z",
+      "tags": ["shipping", "order_issue"]
+    },
+    {
+      "id": 1002,
+      "subject": "Product return request",
+      "description": "I'd like to return the blue sweater I ordered. It doesn't fit properly.",
+      "status": "pending",
+      "priority": "normal",
+      "type": "question",
+      "requester_id": 5002,
+      "assignee_id": 6001,
+      "created_at": "2024-01-16T14:20:00Z",
+      "updated_at": "2024-01-17T09:15:00Z",
+      "tags": ["returns", "product_issue"]
+    },
+    {
+      "id": 1003,
+      "subject": "Loyalty points not credited",
+      "description": "My recent purchase should have given me 500 loyalty points but I don't see them in my account.",
+      "status": "solved",
+      "priority": "low",
+      "type": "question",
+      "requester_id": 5003,
+      "assignee_id": 6001,
+      "created_at": "2024-01-10T08:00:00Z",
+      "updated_at": "2024-01-11T16:45:00Z",
+      "tags": ["loyalty", "account"]
+    }
+  ],
+  "count": 3
+}

@@ -1,0 +1,44 @@
+{
+  "users": [
+    {
+      "id": 5001,
+      "name": "Sarah Johnson",
+      "email": "sarah.j@email.com",
+      "phone": "+1-555-0101",
+      "role": "end-user",
+      "created_at": "2023-06-15T12:00:00Z",
+      "updated_at": "2024-01-15T10:30:00Z",
+      "tags": ["vip", "frequent_buyer"]
+    },
+    {
+      "id": 5002,
+      "name": "Michael Chen",
+      "email": "m.chen@email.com",
+      "phone": "+1-555-0102",
+      "role": "end-user",
+      "created_at": "2023-09-20T14:30:00Z",
+      "updated_at": "2024-01-16T14:20:00Z",
+      "tags": ["new_customer"]
+    },
+    {
+      "id": 5003,
+      "name": "Emily Rodriguez",
+      "email": "emily.r@email.com",
+      "phone": "+1-555-0103",
+      "role": "end-user",
+      "created_at": "2022-03-10T09:00:00Z",
+      "updated_at": "2024-01-10T08:00:00Z",
+      "tags": ["loyalty_member", "vip"]
+    },
+    {
+      "id": 6001,
+      "name": "Support Agent",
+      "email": "support@company.com",
+      "role": "agent",
+      "created_at": "2022-01-01T00:00:00Z",
+      "updated_at": "2024-01-17T09:15:00Z",
+      "tags": ["tier1_support"]
+    }
+  ],
+  "count": 4
+}

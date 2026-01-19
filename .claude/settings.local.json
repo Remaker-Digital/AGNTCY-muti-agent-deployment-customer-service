@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker-compose up:*)",
+      "Bash(curl:*)",
+      "Bash(python -m json.tool:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker-compose down:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(wc:*)",
+      "Bash(pytest:*)",
+      "Bash(pip install:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(for agent in knowledge_retrieval response_generation escalation analytics)",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(done)"
+    ]
+  }
+}

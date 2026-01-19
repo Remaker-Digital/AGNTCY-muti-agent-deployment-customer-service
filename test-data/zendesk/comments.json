@@ -1,0 +1,29 @@
+{
+  "comments": [
+    {
+      "id": 2001,
+      "ticket_id": 1001,
+      "author_id": 5001,
+      "body": "I placed an order 2 weeks ago but haven't received it yet. Order number is 12345. Can you help?",
+      "public": true,
+      "created_at": "2024-01-15T10:30:00Z"
+    },
+    {
+      "id": 2002,
+      "ticket_id": 1002,
+      "author_id": 5002,
+      "body": "I'd like to return the blue sweater I ordered. It doesn't fit properly.",
+      "public": true,
+      "created_at": "2024-01-16T14:20:00Z"
+    },
+    {
+      "id": 2003,
+      "ticket_id": 1002,
+      "author_id": 6001,
+      "body": "I can help you with that return. I've sent you a return label to your email address.",
+      "public": true,
+      "created_at": "2024-01-17T09:15:00Z"
+    }
+  ],
+  "count": 3
+}

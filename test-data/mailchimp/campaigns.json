@@ -1,0 +1,67 @@
+{
+  "campaigns": [
+    {
+      "id": "c001",
+      "type": "regular",
+      "create_time": "2024-01-10T10:00:00Z",
+      "archive_url": "https://mock.mailchimp.com/campaigns/c001",
+      "status": "sent",
+      "emails_sent": 5420,
+      "send_time": "2024-01-12T09:00:00Z",
+      "settings": {
+        "subject_line": "New Spring Collection - 30% Off!",
+        "title": "Spring Sale 2024",
+        "from_name": "Company Store",
+        "reply_to": "sales@company.com"
+      },
+      "report_summary": {
+        "opens": 2167,
+        "unique_opens": 1894,
+        "open_rate": 0.35,
+        "clicks": 543,
+        "subscriber_clicks": 487,
+        "click_rate": 0.09
+      }
+    },
+    {
+      "id": "c002",
+      "type": "regular",
+      "create_time": "2024-01-05T14:30:00Z",
+      "archive_url": "https://mock.mailchimp.com/campaigns/c002",
+      "status": "sent",
+      "emails_sent": 5398,
+      "send_time": "2024-01-06T12:00:00Z",
+      "settings": {
+        "subject_line": "Exclusive Loyalty Member Benefits",
+        "title": "Loyalty Program January",
+        "from_name": "Company Rewards",
+        "reply_to": "rewards@company.com"
+      },
+      "report_summary": {
+        "opens": 2051,
+        "unique_opens": 1782,
+        "open_rate": 0.33,
+        "clicks": 412,
+        "subscriber_clicks": 378,
+        "click_rate": 0.07
+      }
+    },
+    {
+      "id": "c003",
+      "type": "regular",
+      "create_time": "2024-01-15T08:00:00Z",
+      "archive_url": "https://mock.mailchimp.com/campaigns/c003",
+      "status": "scheduled",
+      "emails_sent": 0,
+      "send_time": "2024-01-20T10:00:00Z",
+      "settings": {
+        "subject_line": "Your Cart Is Waiting - Complete Your Order",
+        "title": "Cart Abandonment Campaign",
+        "from_name": "Company Store",
+        "reply_to": "sales@company.com"
+      },
+      "report_summary": null
+    }
+  ],
+  "total_items": 3
+}

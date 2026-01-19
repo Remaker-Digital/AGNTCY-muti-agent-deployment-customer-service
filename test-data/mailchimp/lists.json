@@ -1,0 +1,85 @@
+{
+  "lists": [
+    {
+      "id": "list001",
+      "name": "Main Subscriber List",
+      "contact": {
+        "company": "Company Store",
+        "address1": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "zip": "10001",
+        "country": "US"
+      },
+      "permission_reminder": "You signed up for updates from Company Store",
+      "campaign_defaults": {
+        "from_name": "Company Store",
+        "from_email": "hello@company.com",
+        "subject": "",
+        "language": "en"
+      },
+      "email_type_option": true,
+      "date_created": "2023-01-15T12:00:00Z",
+      "list_rating": 4,
+      "stats": {
+        "member_count": 5420,
+        "unsubscribe_count": 142,
+        "cleaned_count": 38,
+        "member_count_since_send": 5420,
+        "unsubscribe_count_since_send": 12,
+        "cleaned_count_since_send": 3,
+        "campaign_count": 24,
+        "campaign_last_sent": "2024-01-12T09:00:00Z",
+        "merge_field_count": 4,
+        "avg_sub_rate": 125,
+        "avg_unsub_rate": 8,
+        "target_sub_rate": 150,
+        "open_rate": 34.5,
+        "click_rate": 8.7,
+        "last_sub_date": "2024-01-17T16:20:00Z",
+        "last_unsub_date": "2024-01-16T11:30:00Z"
+      }
+    },
+    {
+      "id": "list002",
+      "name": "VIP Customers",
+      "contact": {
+        "company": "Company Store",
+        "address1": "123 Main St",
+        "city": "New York",
+        "state": "NY",
+        "zip": "10001",
+        "country": "US"
+      },
+      "permission_reminder": "You're part of our VIP program",
+      "campaign_defaults": {
+        "from_name": "Company VIP Team",
+        "from_email": "vip@company.com",
+        "subject": "",
+        "language": "en"
+      },
+      "email_type_option": true,
+      "date_created": "2023-03-20T10:00:00Z",
+      "list_rating": 5,
+      "stats": {
+        "member_count": 487,
+        "unsubscribe_count": 5,
+        "cleaned_count": 2,
+        "member_count_since_send": 487,
+        "unsubscribe_count_since_send": 1,
+        "cleaned_count_since_send": 0,
+        "campaign_count": 12,
+        "campaign_last_sent": "2024-01-10T14:00:00Z",
+        "merge_field_count": 6,
+        "avg_sub_rate": 15,
+        "avg_unsub_rate": 1,
+        "target_sub_rate": 20,
+        "open_rate": 52.3,
+        "click_rate": 18.9,
+        "last_sub_date": "2024-01-15T09:00:00Z",
+        "last_unsub_date": "2024-01-02T14:20:00Z"
+      }
+    }
+  ],
+  "total_items": 2
+}

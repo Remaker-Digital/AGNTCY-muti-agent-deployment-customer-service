@@ -1,0 +1,99 @@
+{
+  "automations": [
+    {
+      "id": "auto001",
+      "create_time": "2023-06-15T10:00:00Z",
+      "start_time": "2023-06-20T00:00:00Z",
+      "status": "sending",
+      "emails_sent": 1247,
+      "recipients": {
+        "list_id": "list001",
+        "list_name": "Main Subscriber List"
+      },
+      "settings": {
+        "title": "Welcome Series",
+        "from_name": "Company Store",
+        "reply_to": "hello@company.com"
+      },
+      "tracking": {
+        "opens": true,
+        "html_clicks": true,
+        "text_clicks": false,
+        "goal_tracking": true
+      },
+      "report_summary": {
+        "opens": 892,
+        "unique_opens": 784,
+        "open_rate": 0.629,
+        "clicks": 312,
+        "subscriber_clicks": 289,
+        "click_rate": 0.232
+      }
+    },
+    {
+      "id": "auto002",
+      "create_time": "2023-08-10T14:00:00Z",
+      "start_time": "2023-08-15T00:00:00Z",
+      "status": "sending",
+      "emails_sent": 342,
+      "recipients": {
+        "list_id": "list001",
+        "list_name": "Main Subscriber List"
+      },
+      "settings": {
+        "title": "Abandoned Cart Recovery",
+        "from_name": "Company Store",
+        "reply_to": "sales@company.com"
+      },
+      "tracking": {
+        "opens": true,
+        "html_clicks": true,
+        "text_clicks": false,
+        "goal_tracking": true,
+        "ecomm360": true
+      },
+      "report_summary": {
+        "opens": 218,
+        "unique_opens": 195,
+        "open_rate": 0.570,
+        "clicks": 87,
+        "subscriber_clicks": 78,
+        "click_rate": 0.228,
+        "revenue": 4256.50
+      }
+    },
+    {
+      "id": "auto003",
+      "create_time": "2023-10-01T09:00:00Z",
+      "start_time": "2023-10-05T00:00:00Z",
+      "status": "sending",
+      "emails_sent": 156,
+      "recipients": {
+        "list_id": "list002",
+        "list_name": "VIP Customers"
+      },
+      "settings": {
+        "title": "VIP Birthday Rewards",
+        "from_name": "Company VIP Team",
+        "reply_to": "vip@company.com"
+      },
+      "tracking": {
+        "opens": true,
+        "html_clicks": true,
+        "text_clicks": false,
+        "goal_tracking": true,
+        "ecomm360": true
+      },
+      "report_summary": {
+        "opens": 134,
+        "unique_opens": 128,
+        "open_rate": 0.821,
+        "clicks": 89,
+        "subscriber_clicks": 85,
+        "click_rate": 0.570,
+        "revenue": 2890.00
+      }
+    }
+  ],
+  "total_items": 3
+}

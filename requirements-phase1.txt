@@ -1,0 +1,69 @@
+# AGNTCY Multi-Agent Customer Service Platform - Phase 1 Dependencies
+# Minimal requirements for local development without Rust compilation
+# Full AGNTCY SDK will be installed in Docker containers
+
+# ============================================================================
+# Core Dependencies (Phase 1 - Development Tools Only)
+# ============================================================================
+
+# Environment variable management
+python-dotenv>=1.0.0
+
+# ============================================================================
+# Web Framework for Mock APIs
+# ============================================================================
+
+# FastAPI for mock API implementations
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.5.0
+
+# ============================================================================
+# Testing Dependencies
+# ============================================================================
+
+# Testing framework
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+pytest-cov>=4.1.0
+pytest-mock>=3.12.0
+
+# Code quality
+flake8>=7.0.0
+black>=24.0.0
+bandit>=1.7.0
+
+# ============================================================================
+# Utilities
+# ============================================================================
+
+# HTTP client for integration tests
+httpx>=0.26.0
+requests>=2.31.0
+
+# JSON handling
+orjson>=3.9.0
+
+# Logging
+structlog>=24.1.0
+
+# ============================================================================
+# Development Tools
+# ============================================================================
+
+# Pre-commit hooks for security
+pre-commit>=3.6.0
+
+# Load testing (Phase 3)
+locust>=2.20.0
+
+# UI testing (Phase 3)
+playwright>=1.41.0
+
+# ============================================================================
+# Notes
+# ============================================================================
+
+# AGNTCY SDK will be installed in Docker containers where Rust is available
+# For Phase 1, we're developing mock APIs and tests - no direct SDK usage needed
+# Phase 2 will use AGNTCY SDK within containerized agents

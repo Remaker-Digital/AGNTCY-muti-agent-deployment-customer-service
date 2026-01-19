@@ -1,0 +1,102 @@
+# Python cache and artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Testing and coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.cover
+.hypothesis/
+tests/
+test-data/
+
+# Git
+.git/
+.gitignore
+.github/
+
+# Documentation and markdown files
+*.md
+CONTRIBUTING.md
+LICENSE
+PROJECT-README.txt
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Docker
+docker-compose*.yml
+Dockerfile*
+.dockerignore
+
+# Logs and temporary files
+logs/
+*.log
+tmp/
+temp/
+*.tmp
+tmpclaude-*
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# CI/CD
+.github/
+
+# Configuration files
+pytest.ini
+setup.ps1
+*.ps1
+
+# Azure and Terraform
+.azure/
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfvars
+
+# Secrets
+secrets/
+credentials/
+*.key
+*.pem
+*.crt
+
+# Claude assistant files
+.claude/

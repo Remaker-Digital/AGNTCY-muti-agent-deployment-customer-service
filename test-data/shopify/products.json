@@ -1,0 +1,127 @@
+{
+  "products": [
+    {
+      "id": 1001,
+      "title": "Premium Wireless Headphones",
+      "body_html": "<p>High-quality wireless headphones with noise cancellation and 30-hour battery life.</p>",
+      "vendor": "AudioTech",
+      "product_type": "Electronics",
+      "tags": ["electronics", "audio", "wireless", "premium"],
+      "variants": [
+        {
+          "id": 10011,
+          "product_id": 1001,
+          "title": "Black",
+          "price": "299.99",
+          "sku": "HEADPHONE-BLK-001",
+          "inventory_quantity": 45,
+          "inventory_management": "shopify"
+        },
+        {
+          "id": 10012,
+          "product_id": 1001,
+          "title": "Silver",
+          "price": "299.99",
+          "sku": "HEADPHONE-SLV-001",
+          "inventory_quantity": 32,
+          "inventory_management": "shopify"
+        }
+      ],
+      "images": [
+        {
+          "id": 20001,
+          "src": "https://example.com/images/headphones-black.jpg",
+          "alt": "Premium Wireless Headphones - Black"
+        }
+      ],
+      "status": "active"
+    },
+    {
+      "id": 1002,
+      "title": "Organic Cotton T-Shirt",
+      "body_html": "<p>Comfortable organic cotton t-shirt. Available in multiple sizes and colors.</p>",
+      "vendor": "EcoWear",
+      "product_type": "Apparel",
+      "tags": ["clothing", "organic", "sustainable", "cotton"],
+      "variants": [
+        {
+          "id": 10021,
+          "product_id": 1002,
+          "title": "Small / White",
+          "price": "29.99",
+          "sku": "TSHIRT-WHT-S",
+          "inventory_quantity": 120,
+          "inventory_management": "shopify"
+        },
+        {
+          "id": 10022,
+          "product_id": 1002,
+          "title": "Medium / White",
+          "price": "29.99",
+          "sku": "TSHIRT-WHT-M",
+          "inventory_quantity": 150,
+          "inventory_management": "shopify"
+        },
+        {
+          "id": 10023,
+          "product_id": 1002,
+          "title": "Large / White",
+          "price": "29.99",
+          "sku": "TSHIRT-WHT-L",
+          "inventory_quantity": 98,
+          "inventory_management": "shopify"
+        }
+      ],
+      "status": "active"
+    },
+    {
+      "id": 1003,
+      "title": "Stainless Steel Water Bottle",
+      "body_html": "<p>Insulated stainless steel water bottle keeps drinks cold for 24 hours or hot for 12 hours. 32oz capacity.</p>",
+      "vendor": "HydroLife",
+      "product_type": "Accessories",
+      "tags": ["accessories", "drinkware", "sustainable", "insulated"],
+      "variants": [
+        {
+          "id": 10031,
+          "product_id": 1003,
+          "title": "Blue",
+          "price": "39.99",
+          "sku": "BOTTLE-BLU-32OZ",
+          "inventory_quantity": 75,
+          "inventory_management": "shopify"
+        },
+        {
+          "id": 10032,
+          "product_id": 1003,
+          "title": "Black",
+          "price": "39.99",
+          "sku": "BOTTLE-BLK-32OZ",
+          "inventory_quantity": 5,
+          "inventory_management": "shopify"
+        }
+      ],
+      "status": "active"
+    },
+    {
+      "id": 1004,
+      "title": "Yoga Mat Premium",
+      "body_html": "<p>Non-slip premium yoga mat with extra cushioning. Perfect for all types of yoga and fitness activities.</p>",
+      "vendor": "FitnessPro",
+      "product_type": "Fitness",
+      "tags": ["fitness", "yoga", "exercise", "wellness"],
+      "variants": [
+        {
+          "id": 10041,
+          "product_id": 1004,
+          "title": "Purple",
+          "price": "49.99",
+          "sku": "YOGAMAT-PUR-STD",
+          "inventory_quantity": 0,
+          "inventory_management": "shopify"
+        }
+      ],
+      "status": "active"
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+# Grafana Datasources Configuration
+# Connects Grafana to ClickHouse for observability dashboards
+
+apiVersion: 1
+
+datasources:
+  # ClickHouse datasource for traces, metrics, and logs
+  - name: ClickHouse
+    type: grafana-clickhouse-datasource
+    access: proxy
+    url: http://clickhouse:8123
+    jsonData:
+      defaultDatabase: otel
+      port: 9000
+      protocol: native
+      secure: false
+      username: admin
+    secureJsonData:
+      password: admin
+    isDefault: true
+    editable: true
