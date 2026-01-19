@@ -13,6 +13,27 @@ sys.path.insert(0, str(project_root))
 
 
 # =============================================================================
+# Windows Compatibility Fix
+# =============================================================================
+
+@pytest.fixture(scope="session", autouse=True)
+def configure_windows_event_loop():
+    """
+    Configure Windows event loop policy for async tests.
+
+    Windows has different default event loop behavior than Unix systems.
+    This fixture ensures async tests run correctly on Windows by using
+    the ProactorEventLoopPolicy instead of the default SelectorEventLoopPolicy.
+
+    This is automatically applied to all test sessions on Windows.
+    """
+    if sys.platform == "win32":
+        import asyncio
+        # Set Windows-specific event loop policy for better async compatibility
+        asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
+
+
+# =============================================================================
 # Shared Fixtures
 # =============================================================================
 

@@ -1,2 +1,42 @@
-# Auto detect text files and perform LF normalization
+# Git Attributes - Cross-Platform Compatibility
+# Ensures consistent line endings across Windows, macOS, and Linux
+
+# Auto-normalize line endings (convert to LF on checkin, appropriate on checkout)
 * text=auto
+
+# Python source files - always use LF
+*.py text eol=lf
+
+# Shell scripts - always use LF
+*.sh text eol=lf
+
+# PowerShell scripts - always use CRLF (Windows native)
+*.ps1 text eol=crlf
+
+# Configuration files - always use LF
+*.yml text eol=lf
+*.yaml text eol=lf
+*.json text eol=lf
+*.toml text eol=lf
+*.ini text eol=lf
+*.cfg text eol=lf
+.env* text eol=lf
+
+# Documentation - always use LF
+*.md text eol=lf
+*.txt text eol=lf
+
+# Docker files - always use LF
+Dockerfile* text eol=lf
+docker-compose*.yml text eol=lf
+
+# Terraform files - always use LF
+*.tf text eol=lf
+
+# Binary files - never modify
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.pdf binary
+*.zip binary
