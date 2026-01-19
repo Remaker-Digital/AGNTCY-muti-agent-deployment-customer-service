@@ -349,8 +349,7 @@ If ports are already in use, edit `docker-compose.yml` to change mappings.
 
 - **AGNTCY SDK**: https://github.com/agntcy/app-sdk
 - **Azure Architecture**: https://learn.microsoft.com/azure/architecture/
-- **Multi-Agent Systems**: _(blog post link)_
-- **Cost Optimization**: _(blog post link)_
+- **Multi-Agent Systems**: https://remakerdigital.com/blog/
 
 ## 📄 License
 
@@ -366,8 +365,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues**: Open a GitHub issue
 - **Discussions**: GitHub Discussions
-- **Blog**: _(blog link)_
-- **Email**: _(your email)_
+- **Blog**: https://www.remakerdigital.com/home/blog/
+- **Email**: mike@remakerdigital.com
 
 ---
 
