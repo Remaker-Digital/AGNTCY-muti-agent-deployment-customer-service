@@ -12,8 +12,6 @@
 #   docker-compose down            # Stop all services
 #   docker-compose down -v         # Stop and remove volumes
 
-version: '3.9'
-
 services:
   # ==========================================================================
   # AGNTCY Infrastructure Services (from AGNTCY SDK)

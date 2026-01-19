@@ -71,7 +71,7 @@ jobs:
 
       - name: Build mock API images
         run: |
-          docker-compose build --no-cache shopify-mock zendesk-mock mailchimp-mock google-analytics-mock
+          docker-compose build --no-cache mock-shopify mock-zendesk mock-mailchimp mock-google-analytics
 
   code-quality:
     runs-on: ubuntu-latest

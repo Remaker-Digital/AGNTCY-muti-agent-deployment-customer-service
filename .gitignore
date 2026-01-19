@@ -68,6 +68,7 @@ logs/
 tmp/
 temp/
 *.tmp
+tmpclaude-*
 
 # Azure
 .azure/
