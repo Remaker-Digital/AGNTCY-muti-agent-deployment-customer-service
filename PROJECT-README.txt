@@ -1,6 +1,6 @@
 # This document was written by me based on iterative evaluations and questioning by Claude Code over several iterations.
 # Once I was satisfied with the content, I started a new session and asked Claude Code to examine the PROJECT-README.txt and create a CLAUDE.md file.
-# Once the Claude.md file was ready, I reviewed it in detail and made manual changes or called out TODO items where I felt that important details were mising.
+# Once the Claude.md file was ready, I reviewed it in detail and made manual changes or called out TODO items where I felt that important details were missing.
 
 PROJECT PURPOSE:
 This is an educational example project demonstrating how to build a multi-agent AI system on Azure using the AGNTCY SDK. This project will be publicly available on GitHub as a companion to a blog post series, serving as a hands-on learning tool for developers interested in multi-agent architectures, Azure deployment, and cost-effective cloud solutions.
