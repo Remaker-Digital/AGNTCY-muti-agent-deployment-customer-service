@@ -22,7 +22,24 @@
       "Bash(git add:*)",
       "Bash(git commit:*)",
       "Bash(gh run list:*)",
-      "Bash(test:*)"
+      "Bash(test:*)",
+      "Bash(powershell.exe -Command \"gh auth status\")",
+      "Bash(powershell.exe -Command \"Get-Command gh -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source\")",
+      "Bash(powershell.exe -Command \"\\(Get-Item ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' -ErrorAction SilentlyContinue\\).FullName\")",
+      "Bash(powershell.exe -Command \"winget show GitHub.cli | Select-String ''Install Location''\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"C:\\\\Users\\\\micha\\\\OneDrive\\\\Desktop\\\\AGNTCY-muti-agent-deployment-customer-service\\\\setup-github-cli.ps1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"setup-github-cli.ps1\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' auth status\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' project list --owner Remaker-Digital --format json --limit 10\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' auth refresh -s read:project -s write:project -s project\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' auth refresh -h github.com -s read:project -s write:project -s project\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' auth refresh -h github.com -s project\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' project view 1 --owner Remaker-Digital --format json\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"generate-all-user-stories.ps1\")",
+      "Bash(powershell.exe -ExecutionPolicy Bypass -File \"create-labels.ps1\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' label create ''type: epic'' --description ''Top-level actor epic'' --color ''5319e7'' --repo Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service\")",
+      "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' api repos/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/milestones -f title=''Phase 1 - Infrastructure'' -f description=''Create infrastructure and deployable containers. Budget: $0/month'' -f due_on=''2026-02-28T23:59:59Z'' --method POST\")",
+      "Bash(powershell.exe:*)"
     ]
   }
 }
