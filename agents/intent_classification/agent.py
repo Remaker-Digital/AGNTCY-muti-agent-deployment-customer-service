@@ -184,8 +184,8 @@ class IntentClassificationAgent:
         """
         Mock intent classification using simple keyword matching.
 
-        Phase 1: Basic keyword rules
-        Phase 2: Replace with real NLP model (Azure Language Service, OpenAI, etc.)
+        Phase 2 implementation with coffee/brewing specific intents.
+        Phase 3+: Replace with real NLP model (Azure Language Service, OpenAI, etc.)
 
         Args:
             message_text: Customer message content
@@ -195,46 +195,135 @@ class IntentClassificationAgent:
         """
         message_lower = message_text.lower()
         entities = {}
+        import re
 
-        # Order status keywords
-        if any(word in message_lower for word in ["order", "tracking", "shipment", "delivery"]):
-            # Try to extract order number
-            import re
-            order_match = re.search(r'#?(\d{4,6})', message_text)
+        # Priority 1: Escalation triggers (health & safety)
+        if any(word in message_lower for word in [
+            "allerg", "rash", "medical", "sick", "poison", "reaction", "emergency"
+        ]):
+            self.logger.warning(f"CRITICAL: Health/safety escalation detected in message")
+            return Intent.ESCALATION_NEEDED, 0.95, {"escalation_reason": "health_safety"}
+
+        # Priority 2: Frustration detection (after 3 attempts - Phase 2 TODO: track conversation history)
+        frustration_words = ["frustrated", "angry", "upset", "annoyed", "ridiculous", "terrible", "awful", "hate"]
+        if any(word in message_lower for word in frustration_words):
+            entities["escalation_reason"] = "customer_frustration"
+            return Intent.ESCALATION_NEEDED, 0.85, entities
+
+        # Order status queries (highest priority for Week 1-2 demo)
+        if any(word in message_lower for word in [
+            "where is my order", "track", "tracking", "shipment", "delivery", "shipped", "arrive"
+        ]):
+            # Extract order number - support formats: ORD-10234, #10234, 10234
+            order_match = re.search(r'(?:ORD-|#)?(\d{4,6})', message_text, re.IGNORECASE)
             if order_match:
                 entities["order_number"] = order_match.group(1)
-            return Intent.ORDER_STATUS, 0.85, entities
+            return Intent.ORDER_STATUS, 0.90, entities
 
-        # Return/refund keywords
-        if any(word in message_lower for word in ["return", "refund", "exchange", "send back"]):
-            return Intent.RETURN_REQUEST, 0.80, entities
+        # Brewer support/troubleshooting
+        if any(word in message_lower for word in [
+            "brewer", "machine", "won't turn on", "not working", "broken", "red light",
+            "error", "beeping", "clean", "descale", "maintenance"
+        ]):
+            # Check if it's a defect (escalate) vs. general support
+            if any(word in message_lower for word in [
+                "broken", "defect", "stopped working", "never worked", "won't turn on"
+            ]):
+                entities["escalation_reason"] = "brewer_defect"
+                return Intent.ESCALATION_NEEDED, 0.85, entities
+            return Intent.BREWER_SUPPORT, 0.80, entities
 
-        # Product inquiry keywords
-        if any(word in message_lower for word in ["product", "item", "available", "stock", "price"]):
-            return Intent.PRODUCT_INQUIRY, 0.75, entities
+        # Return/refund requests
+        if any(word in message_lower for word in ["return", "refund", "send back", "money back", "exchange"]):
+            # Try to extract amount for auto-approval logic
+            amount_match = re.search(r'\$?(\d+(?:\.\d{2})?)', message_text)
+            if amount_match:
+                entities["refund_amount"] = float(amount_match.group(1))
+            return Intent.RETURN_REQUEST, 0.85, entities
 
-        # Shipping keywords
-        if any(word in message_lower for word in ["shipping", "delivery time", "when will"]):
-            return Intent.SHIPPING_QUESTION, 0.70, entities
+        # Damaged delivery
+        if any(word in message_lower for word in [
+            "damaged", "crushed", "broken box", "leaked", "spilled", "missing items"
+        ]):
+            entities["escalation_reason"] = "damaged_delivery"
+            return Intent.ESCALATION_NEEDED, 0.90, entities
 
-        # Payment keywords
-        if any(word in message_lower for word in ["payment", "credit card", "charged", "billing"]):
-            return Intent.PAYMENT_ISSUE, 0.75, entities
+        # Product defect/quality issues
+        if any(word in message_lower for word in [
+            "defect", "quality", "stale", "taste", "bad coffee", "weak coffee", "expired"
+        ]):
+            entities["escalation_reason"] = "product_quality"
+            return Intent.ESCALATION_NEEDED, 0.85, entities
 
-        # Account keywords
-        if any(word in message_lower for word in ["account", "login", "password", "profile"]):
-            return Intent.ACCOUNT_SUPPORT, 0.70, entities
+        # Auto-delivery/subscription management
+        if any(word in message_lower for word in [
+            "subscription", "auto-delivery", "auto delivery", "pause", "skip", "cancel subscription",
+            "change frequency", "add to next order"
+        ]):
+            return Intent.AUTO_DELIVERY_MANAGEMENT, 0.85, entities
 
-        # Complaint keywords
-        if any(word in message_lower for word in ["complaint", "problem", "issue", "angry", "upset"]):
-            return Intent.COMPLAINT, 0.80, entities
+        # Product information (biodegradable pods, roasts, ingredients)
+        if any(word in message_lower for word in [
+            "biodegradable", "eco-friendly", "guilt free toss", "roast", "light roast", "dark roast",
+            "medium roast", "ingredients", "organic", "fair trade", "caffeine", "decaf"
+        ]):
+            return Intent.PRODUCT_INFO, 0.80, entities
 
-        # Default to general inquiry
+        # Product recommendations
+        if any(word in message_lower for word in [
+            "recommend", "suggestion", "best", "good for", "which", "what's good", "favorite",
+            "popular", "best seller"
+        ]):
+            return Intent.PRODUCT_RECOMMENDATION, 0.75, entities
+
+        # Product comparison
+        if any(word in message_lower for word in [
+            "difference between", "compare", "vs", "versus", "better than", "which one"
+        ]):
+            return Intent.PRODUCT_COMPARISON, 0.80, entities
+
+        # Shipping questions
+        if any(word in message_lower for word in [
+            "shipping", "ship to", "how fast", "delivery time", "free shipping", "international"
+        ]):
+            return Intent.SHIPPING_QUESTION, 0.75, entities
+
+        # Order modifications
+        if any(word in message_lower for word in [
+            "cancel order", "change address", "update order", "modify order"
+        ]):
+            return Intent.ORDER_MODIFICATION, 0.85, entities
+
+        # Gift cards
+        if any(word in message_lower for word in ["gift card", "gift certificate", "balance"]):
+            return Intent.GIFT_CARD, 0.80, entities
+
+        # Loyalty program
+        if any(word in message_lower for word in [
+            "loyalty", "points", "rewards", "credit", "glow rewards"
+        ]):
+            return Intent.LOYALTY_PROGRAM, 0.80, entities
+
+        # Wholesale/B2B inquiries (escalate to sales)
+        if any(word in message_lower for word in [
+            "wholesale", "bulk order", "office", "business", "commercial", "net 30",
+            "volume discount", "corporate"
+        ]):
+            entities["escalation_reason"] = "b2b_sales_opportunity"
+            return Intent.ESCALATION_NEEDED, 0.90, entities
+
+        # Refund status
+        if any(word in message_lower for word in ["refund status", "where's my refund", "refund processed"]):
+            return Intent.REFUND_STATUS, 0.85, entities
+
+        # General inquiry - catch-all
         return Intent.GENERAL_INQUIRY, 0.50, entities
 
     def _determine_routing(self, intent: Intent) -> str:
         """
         Determine which agent topic to route to based on intent.
+
+        Phase 2: Route based on intent type for optimized handling.
 
         Args:
             intent: Classified intent
@@ -242,8 +331,33 @@ class IntentClassificationAgent:
         Returns:
             Target agent topic name
         """
-        # All intents route to knowledge retrieval first for context
-        # In Phase 2, this can be more sophisticated
+        # Immediate escalation intents
+        if intent == Intent.ESCALATION_NEEDED:
+            return "escalation"
+
+        # Intents requiring knowledge retrieval (most common path)
+        knowledge_intents = [
+            Intent.ORDER_STATUS,
+            Intent.PRODUCT_INFO,
+            Intent.PRODUCT_RECOMMENDATION,
+            Intent.PRODUCT_COMPARISON,
+            Intent.SHIPPING_QUESTION,
+            Intent.RETURN_REQUEST,
+            Intent.REFUND_STATUS,
+            Intent.AUTO_DELIVERY_MANAGEMENT,
+            Intent.BREWER_SUPPORT,
+            Intent.GIFT_CARD,
+            Intent.LOYALTY_PROGRAM
+        ]
+
+        if intent in knowledge_intents:
+            return "knowledge-retrieval"
+
+        # Order modifications may need escalation but check knowledge base first
+        if intent == Intent.ORDER_MODIFICATION:
+            return "knowledge-retrieval"
+
+        # General inquiries go to knowledge retrieval
         return "knowledge-retrieval"
 
     def cleanup(self):

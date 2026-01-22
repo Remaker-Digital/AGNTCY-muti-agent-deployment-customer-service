@@ -89,15 +89,16 @@ async def get_products(
 
 @app.get("/admin/api/2024-01/products/{product_id}.json")
 async def get_product(
-    product_id: int,
+    product_id: str,
     x_shopify_access_token: str = Header(None)
 ):
-    """Get single product by ID."""
+    """Get single product by ID (supports both string and numeric IDs)."""
     products_data = load_fixture("products.json")
     products = products_data.get("products", [])
 
     for product in products:
-        if product.get("id") == product_id:
+        # Support both string IDs (like "PROD-001") and numeric IDs
+        if str(product.get("id")) == str(product_id):
             return {"product": product}
 
     raise HTTPException(status_code=404, detail="Product not found")
@@ -120,28 +121,50 @@ async def get_inventory_levels(
 @app.get("/admin/api/2024-01/orders.json")
 async def get_orders(
     status: Optional[str] = Query("any"),
+    customer_email: Optional[str] = Query(None),
     limit: int = Query(50, ge=1, le=250),
     x_shopify_access_token: str = Header(None)
 ):
     """
-    Get orders list.
+    Get orders list with optional filtering by customer email.
     Mock response with sample customer orders.
     """
     orders_data = load_fixture("orders.json")
-    return orders_data
+    all_orders = orders_data.get("orders", [])
+
+    # Filter by customer email if provided
+    if customer_email:
+        filtered_orders = [
+            order for order in all_orders
+            if order.get("customer_email", "").lower() == customer_email.lower()
+        ]
+        return {"orders": filtered_orders[:limit]}
+
+    # Filter by status if not "any"
+    if status and status != "any":
+        filtered_orders = [
+            order for order in all_orders
+            if order.get("status", "").lower() == status.lower()
+        ]
+        return {"orders": filtered_orders[:limit]}
+
+    return {"orders": all_orders[:limit]}
 
 
 @app.get("/admin/api/2024-01/orders/{order_id}.json")
 async def get_order(
-    order_id: int,
+    order_id: str,
     x_shopify_access_token: str = Header(None)
 ):
-    """Get single order by ID."""
+    """Get single order by ID or order number (supports formats like 'ORD-10234' or '10234')."""
     orders_data = load_fixture("orders.json")
     orders = orders_data.get("orders", [])
 
     for order in orders:
-        if order.get("id") == order_id:
+        # Match by order_id, order_number, or just the numeric part
+        if (str(order.get("order_id")) == str(order_id) or
+            str(order.get("order_number")) == str(order_id) or
+            str(order.get("order_id")).replace("ORD-", "") == str(order_id)):
             return {"order": order}
 
     raise HTTPException(status_code=404, detail="Order not found")

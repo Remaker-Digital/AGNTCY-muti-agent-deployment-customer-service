@@ -1,0 +1,280 @@
+{
+  "personas": [
+    {
+      "id": "persona_001",
+      "name": "Sarah Martinez",
+      "email": "sarah.martinez@email.com",
+      "phone": "+1-555-0101",
+      "persona_type": "coffee_enthusiast",
+      "profile": {
+        "customer_since": "2025-07-15",
+        "lifetime_value": 680.50,
+        "total_orders": 8,
+        "average_order_value": 85.06,
+        "preferred_contact": "email",
+        "auto_delivery_subscriber": true,
+        "loyalty_points_balance": 13.61
+      },
+      "preferences": {
+        "favorite_products": [
+          "Lamill Signature Blend (Medium Roast)",
+          "Joyride Double Shot Espresso",
+          "Equator Guatemala Huehuetenango (Light Roast)"
+        ],
+        "delivery_frequency": "monthly",
+        "typical_order_size": "3 boxes of pods per order",
+        "communication_style": "friendly, appreciates detailed responses"
+      },
+      "purchase_history": [
+        {
+          "order_id": "ORD-10234",
+          "date": "2026-01-15",
+          "items": [
+            {"product": "Lamill Signature Blend 24ct", "quantity": 2, "price": 24.99},
+            {"product": "Joyride Double Shot Espresso 24ct", "quantity": 1, "price": 29.99}
+          ],
+          "total": 79.97,
+          "status": "shipped",
+          "tracking": "9400123456789",
+          "carrier": "USPS Priority Mail",
+          "shipped_date": "2026-01-20",
+          "expected_delivery": "2026-01-25"
+        },
+        {
+          "order_id": "ORD-10156",
+          "date": "2025-12-10",
+          "items": [
+            {"product": "The Explorer Pack Variety", "quantity": 1, "price": 34.99},
+            {"product": "Descaling Solution 3-pack", "quantity": 1, "price": 14.99}
+          ],
+          "total": 49.98,
+          "status": "delivered",
+          "delivered_date": "2025-12-15"
+        }
+      ],
+      "typical_inquiries": [
+        "When will my pod order ship?",
+        "Can I try the new cold brew pods in my next delivery?",
+        "How do I clean my brewer?",
+        "What's the difference between the coffee and espresso pods?"
+      ],
+      "behavior_notes": "Loyal customer, participates in auto-delivery, values quality and sustainability. Low-maintenance, predictable order patterns, trusts brand."
+    },
+    {
+      "id": "persona_002",
+      "name": "Jessica Chen",
+      "email": "jessica.chen@email.com",
+      "phone": "+1-555-0202",
+      "persona_type": "eco_conscious_newbie",
+      "profile": {
+        "customer_since": null,
+        "lifetime_value": 0,
+        "total_orders": 0,
+        "average_order_value": 0,
+        "preferred_contact": "email",
+        "auto_delivery_subscriber": false,
+        "loyalty_points_balance": 0
+      },
+      "preferences": {
+        "favorite_products": [],
+        "interests": [
+          "sustainability",
+          "biodegradable pods",
+          "organic coffee",
+          "fair trade"
+        ],
+        "communication_style": "detail-oriented, asks many questions before purchasing"
+      },
+      "purchase_history": [],
+      "typical_inquiries": [
+        "Are your pods really biodegradable?",
+        "How long do they take to decompose?",
+        "Can I recycle them?",
+        "How does this compare to Keurig waste?",
+        "What coffee brands do you offer?",
+        "Is the coffee organic and fair trade?",
+        "How much coffee is in each pod compared to K-Cups?"
+      ],
+      "behavior_notes": "First-time buyer, concerned about pod waste. Asks detailed questions, compares to competitors, wants sustainability information. Price-sensitive, researches thoroughly before committing."
+    },
+    {
+      "id": "persona_003",
+      "name": "Michael Torres",
+      "email": "michael.torres@email.com",
+      "phone": "+1-555-0303",
+      "persona_type": "gift_giver",
+      "profile": {
+        "customer_since": "2024-11-20",
+        "lifetime_value": 847.96,
+        "total_orders": 3,
+        "average_order_value": 282.65,
+        "preferred_contact": "email",
+        "auto_delivery_subscriber": false,
+        "loyalty_points_balance": 16.96
+      },
+      "preferences": {
+        "favorite_products": [
+          "The Bruvi Bundle",
+          "Gift Cards"
+        ],
+        "purchase_occasions": [
+          "holidays",
+          "birthdays",
+          "anniversaries"
+        ],
+        "communication_style": "quick decision-maker, values convenience and gift options"
+      },
+      "purchase_history": [
+        {
+          "order_id": "ORD-9876",
+          "date": "2025-12-18",
+          "items": [
+            {"product": "The Bruvi Bundle", "quantity": 1, "price": 299.00},
+            {"product": "Gift Card $50", "quantity": 1, "price": 50.00}
+          ],
+          "total": 349.00,
+          "status": "delivered",
+          "shipped_to": "Emily Torres, 789 Oak St, Seattle, WA 98101",
+          "gift_message": "Merry Christmas! Love, Michael",
+          "delivered_date": "2025-12-23"
+        },
+        {
+          "order_id": "ORD-9234",
+          "date": "2025-05-10",
+          "items": [
+            {"product": "Certified Pre-Owned Brewer", "quantity": 1, "price": 249.00},
+            {"product": "The Explorer Pack", "quantity": 2, "price": 34.99}
+          ],
+          "total": 318.98,
+          "status": "delivered",
+          "delivered_date": "2025-05-16"
+        }
+      ],
+      "typical_inquiries": [
+        "Can this ship directly to my sister with a gift message?",
+        "Do you have a starter bundle with the brewer and pods?",
+        "When will it arrive? (gift deadline concerns)",
+        "Can I buy a gift card instead?",
+        "What's a good gift for someone who loves lattes?"
+      ],
+      "behavior_notes": "Buys occasionally for gifts (wife, mother, sister). Quick purchaser once decided, needs gift delivery options. Values presentation and convenience."
+    },
+    {
+      "id": "persona_004",
+      "name": "Amanda Wilson",
+      "email": "amanda.wilson@email.com",
+      "phone": "+1-555-0404",
+      "persona_type": "problem_solver",
+      "profile": {
+        "customer_since": "2025-10-05",
+        "lifetime_value": 487.94,
+        "total_orders": 4,
+        "average_order_value": 121.99,
+        "preferred_contact": "phone",
+        "auto_delivery_subscriber": false,
+        "loyalty_points_balance": 9.76,
+        "support_tickets": 2
+      },
+      "preferences": {
+        "favorite_products": [
+          "Equator Guatemala Huehuetenango (Light Roast)",
+          "Saka Matcha Latte"
+        ],
+        "communication_style": "direct, troubleshoots before contacting support, may be frustrated"
+      },
+      "purchase_history": [
+        {
+          "order_id": "ORD-10512",
+          "date": "2026-01-10",
+          "items": [
+            {"product": "Lamill Signature Blend 24ct", "quantity": 2, "price": 24.99}
+          ],
+          "total": 49.98,
+          "status": "delivered_damaged",
+          "delivered_date": "2026-01-15",
+          "issue": "Box arrived crushed, one pod box damaged",
+          "ticket_id": "TICKET-5678"
+        },
+        {
+          "order_id": "ORD-10387",
+          "date": "2025-12-20",
+          "items": [
+            {"product": "Klatch Midnight Blend 24ct", "quantity": 1, "price": 25.99}
+          ],
+          "total": 25.99,
+          "status": "returned",
+          "return_date": "2025-12-28",
+          "return_reason": "Coffee tasted stale, possible quality issue",
+          "refund_amount": 25.99,
+          "refund_method": "original_payment"
+        },
+        {
+          "order_id": "ORD-10098",
+          "date": "2025-10-05",
+          "items": [
+            {"product": "Premium Single-Serve Coffee Brewer", "quantity": 1, "price": 398.00}
+          ],
+          "total": 398.00,
+          "status": "delivered",
+          "delivered_date": "2025-10-10"
+        }
+      ],
+      "typical_inquiries": [
+        "My brewer won't turn on",
+        "The coffee tastes weak - is something wrong?",
+        "My order arrived damaged - the box was crushed",
+        "This pod leaked all over my counter",
+        "What's your return policy?",
+        "How do I troubleshoot the red blinking light?"
+      ],
+      "behavior_notes": "Owns brewer, has experienced issues with orders and product quality. Researches heavily, may be frustrated. Has returned products before. Needs careful handling to retain as customer."
+    },
+    {
+      "id": "persona_005",
+      "name": "David Park",
+      "email": "david.park@innovatetech.com",
+      "phone": "+1-555-0505",
+      "persona_type": "office_wholesale_prospect",
+      "profile": {
+        "customer_since": null,
+        "lifetime_value": 0,
+        "total_orders": 0,
+        "average_order_value": 0,
+        "preferred_contact": "phone",
+        "auto_delivery_subscriber": false,
+        "loyalty_points_balance": 0,
+        "company": "InnovateTech Solutions",
+        "role": "Office Manager",
+        "company_size": "20-50 employees"
+      },
+      "preferences": {
+        "favorite_products": [],
+        "interests": [
+          "bulk_pricing",
+          "commercial_accounts",
+          "variety_for_offices",
+          "payment_terms"
+        ],
+        "communication_style": "business-focused, needs ROI justification, volume discounts"
+      },
+      "purchase_history": [],
+      "typical_inquiries": [
+        "Do you offer commercial/office pricing?",
+        "What's the cost for 5 brewers + monthly pod supply?",
+        "Can we get Net 30 payment terms?",
+        "Do you have a variety pack for offices?",
+        "Can I get a demo unit first?",
+        "What's the warranty on brewers for commercial use?",
+        "How quickly can you fulfill a large order?"
+      ],
+      "behavior_notes": "B2B prospect interested in brewers for office break room (20+ employees). High-value potential, needs bulk pricing, payment terms, ongoing pod supply. Should be escalated to sales team immediately."
+    }
+  ],
+  "metadata": {
+    "created_date": "2026-01-22",
+    "version": "1.0",
+    "purpose": "Phase 2 test data for multi-agent customer service system",
+    "business_type": "coffee_brewing_ecommerce",
+    "total_personas": 5
+  }
+}

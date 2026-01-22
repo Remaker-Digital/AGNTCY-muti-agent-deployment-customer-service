@@ -3,7 +3,7 @@ Knowledge Retrieval Agent
 Searches internal knowledge bases, product catalogs, and documentation
 
 Phase 1: Mock API calls to Shopify, Zendesk, internal docs
-Phase 2: Real search with Azure Cognitive Search or similar
+Phase 2: Coffee/brewing business specific with real Shopify integration
 """
 
 import sys
@@ -31,6 +31,10 @@ from shared.models import (
     extract_message_content,
     generate_message_id
 )
+
+# Import Phase 2 clients
+from agents.knowledge_retrieval.shopify_client import ShopifyClient
+from agents.knowledge_retrieval.knowledge_base_client import KnowledgeBaseClient
 
 
 class KnowledgeRetrievalAgent:
@@ -66,8 +70,17 @@ class KnowledgeRetrievalAgent:
         self.client = None
         self.container = None
 
-        # HTTP client for mock API calls
+        # HTTP client for mock API calls (legacy, Phase 1)
         self.http_client = httpx.AsyncClient(timeout=10.0)
+
+        # Phase 2: Initialize Shopify and Knowledge Base clients
+        shopify_url = self.config.get("shopify_url", "http://localhost:8001")
+        self.shopify_client = ShopifyClient(base_url=shopify_url, logger=self.logger)
+
+        kb_path = Path(__file__).parent.parent.parent / "test-data" / "knowledge-base"
+        self.kb_client = KnowledgeBaseClient(knowledge_base_path=kb_path, logger=self.logger)
+
+        self.logger.info(f"Phase 2 clients initialized (Shopify: {shopify_url}, KB: {kb_path})")
 
         # Query counters
         self.queries_processed = 0
@@ -188,6 +201,7 @@ class KnowledgeRetrievalAgent:
     async def _search_knowledge(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
         """
         Search knowledge sources based on intent and query.
+        Phase 2: Coffee/brewing business specific routing.
 
         Args:
             query: Knowledge query with intent and filters
@@ -197,197 +211,429 @@ class KnowledgeRetrievalAgent:
         """
         results = []
 
-        # Route to appropriate knowledge source based on intent
+        # Route to appropriate coffee-specific knowledge source based on intent
         if query.intent == Intent.ORDER_STATUS:
-            results.extend(await self._search_shopify_orders(query))
+            results.extend(await self._search_order_status(query))
 
-        elif query.intent == Intent.PRODUCT_INQUIRY:
-            results.extend(await self._search_shopify_products(query))
+        elif query.intent == Intent.ORDER_MODIFICATION:
+            results.extend(await self._search_order_status(query))
+
+        elif query.intent == Intent.REFUND_STATUS:
+            results.extend(await self._search_refund_status(query))
+
+        elif query.intent == Intent.PRODUCT_INFO:
+            results.extend(await self._search_products(query))
+
+        elif query.intent == Intent.PRODUCT_RECOMMENDATION:
+            results.extend(await self._search_product_recommendations(query))
+
+        elif query.intent == Intent.PRODUCT_COMPARISON:
+            results.extend(await self._search_product_comparison(query))
+
+        elif query.intent == Intent.BREWER_SUPPORT:
+            results.extend(await self._search_brewer_support(query))
+
+        elif query.intent == Intent.AUTO_DELIVERY_MANAGEMENT:
+            results.extend(await self._search_subscription_info(query))
 
         elif query.intent == Intent.RETURN_REQUEST:
-            results.extend(await self._search_return_policy(query))
-            results.extend(await self._search_zendesk_tickets(query, topic="return"))
+            results.extend(await self._search_return_info(query))
 
         elif query.intent == Intent.SHIPPING_QUESTION:
-            results.extend(await self._search_shipping_policy(query))
+            results.extend(await self._search_shipping_info(query))
 
-        elif query.intent == Intent.PAYMENT_ISSUE:
-            results.extend(await self._search_zendesk_tickets(query, topic="payment"))
+        elif query.intent == Intent.GIFT_CARD:
+            results.extend(await self._search_gift_card_info(query))
+
+        elif query.intent == Intent.LOYALTY_PROGRAM:
+            results.extend(await self._search_loyalty_info(query))
 
         else:
-            # General inquiry - search FAQs
-            results.extend(await self._search_faqs(query))
+            # General inquiry - search all policies
+            results.extend(await self._search_products(query))
+            results.extend(self.kb_client.search_all_policies(query.query_text))
 
         # Limit results
         return results[:query.max_results]
 
-    async def _search_shopify_products(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
-        """Search Shopify product catalog."""
+    # ========================================================================
+    # Phase 2: Coffee-Specific Search Methods
+    # ========================================================================
+
+    async def _search_order_status(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Search order status - coffee/brewing specific.
+        Supports order number lookup and customer email history.
+        """
+        results = []
+
         try:
-            shopify_url = self.config["shopify_url"]
-            response = await self.http_client.get(
-                f"{shopify_url}/admin/api/2024-01/products.json"
-            )
-
-            if response.status_code == 200:
-                data = response.json()
-                products = data.get("products", [])
-
-                # Simple keyword matching in product titles/descriptions
-                query_lower = query.query_text.lower()
-                matching_products = [
-                    {
-                        "source": "shopify_products",
-                        "type": "product",
-                        "title": p["title"],
-                        "description": p.get("body_html", ""),
-                        "price": p["variants"][0]["price"] if p.get("variants") else "N/A",
-                        "url": f"/products/{p['id']}",
-                        "relevance": 0.8
-                    }
-                    for p in products
-                    if query_lower in p["title"].lower() or
-                       query_lower in p.get("body_html", "").lower()
-                ]
-
-                self.logger.debug(f"Found {len(matching_products)} matching products")
-                return matching_products[:3]
-
-        except Exception as e:
-            self.logger.error(f"Shopify product search failed: {e}")
-
-        return []
-
-    async def _search_shopify_orders(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
-        """Search Shopify orders."""
-        try:
-            # Extract order number from query if present
+            # Check if order number is provided in filters or entities
             order_number = query.filters.get("order_number")
+            customer_email = query.filters.get("customer_email")
 
-            shopify_url = self.config["shopify_url"]
-            response = await self.http_client.get(
-                f"{shopify_url}/admin/api/2024-01/orders.json"
-            )
-
-            if response.status_code == 200:
-                data = response.json()
-                orders = data.get("orders", [])
-
-                # Filter by order number if provided
-                if order_number:
-                    matching_orders = [o for o in orders if str(o.get("id")) == str(order_number)]
-                else:
-                    matching_orders = orders[:2]  # Return recent orders
-
-                results = [
-                    {
-                        "source": "shopify_orders",
+            if order_number:
+                # Lookup specific order
+                order = await self.shopify_client.get_order_by_number(order_number)
+                if order:
+                    results.append({
+                        "source": "shopify_order",
                         "type": "order",
-                        "order_id": o["id"],
-                        "status": o.get("financial_status", "unknown"),
-                        "total": o.get("total_price", "N/A"),
-                        "created_at": o.get("created_at"),
-                        "relevance": 0.9 if order_number else 0.6
-                    }
-                    for o in matching_orders
-                ]
+                        "order_id": order.get("order_id"),
+                        "order_number": order.get("order_number"),
+                        "status": order.get("status"),
+                        "fulfillment_status": order.get("fulfillment_status"),
+                        "financial_status": order.get("financial_status"),
+                        "items": order.get("items", []),
+                        "tracking": order.get("tracking"),
+                        "shipping_address": order.get("shipping_address"),
+                        "total": order.get("total"),
+                        "order_date": order.get("order_date"),
+                        "relevance": 0.95
+                    })
+                    self.logger.info(f"Found order {order_number}")
 
-                self.logger.debug(f"Found {len(results)} matching orders")
-                return results
+            elif customer_email:
+                # Get customer order history
+                orders = await self.shopify_client.get_orders_by_customer_email(customer_email)
+                for order in orders[:3]:  # Limit to 3 recent orders
+                    results.append({
+                        "source": "shopify_order_history",
+                        "type": "order",
+                        "order_id": order.get("order_id"),
+                        "order_number": order.get("order_number"),
+                        "status": order.get("status"),
+                        "total": order.get("total"),
+                        "order_date": order.get("order_date"),
+                        "relevance": 0.80
+                    })
+                self.logger.info(f"Found {len(orders)} orders for {customer_email}")
 
         except Exception as e:
-            self.logger.error(f"Shopify order search failed: {e}")
+            self.logger.error(f"Order status search failed: {e}", exc_info=True)
 
-        return []
+        return results
 
-    async def _search_zendesk_tickets(
-        self,
-        query: KnowledgeQuery,
-        topic: str = None
-    ) -> List[Dict[str, Any]]:
-        """Search Zendesk support tickets."""
+    async def _search_products(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Search coffee products (brewers, pods, accessories).
+        """
+        results = []
+
         try:
-            zendesk_url = self.config["zendesk_url"]
-            response = await self.http_client.get(
-                f"{zendesk_url}/api/v2/tickets.json"
-            )
+            products = await self.shopify_client.search_products(query.query_text, limit=5)
 
-            if response.status_code == 200:
-                data = response.json()
-                tickets = data.get("tickets", [])
+            for product in products:
+                results.append({
+                    "source": "shopify_product",
+                    "type": "product",
+                    "product_id": product.get("id"),
+                    "name": product.get("name"),
+                    "description": product.get("description"),
+                    "price": product.get("price"),
+                    "category": product.get("category"),
+                    "features": product.get("features", []),
+                    "tags": product.get("tags", []),
+                    "in_stock": product.get("in_stock", True),
+                    "relevance": 0.85
+                })
 
-                # Filter by topic/tags if provided
-                if topic:
-                    tickets = [t for t in tickets if topic in t.get("tags", [])]
-
-                results = [
-                    {
-                        "source": "zendesk_tickets",
-                        "type": "ticket",
-                        "ticket_id": t["id"],
-                        "subject": t["subject"],
-                        "status": t["status"],
-                        "created_at": t.get("created_at"),
-                        "relevance": 0.7
-                    }
-                    for t in tickets[:2]
-                ]
-
-                self.logger.debug(f"Found {len(results)} relevant tickets")
-                return results
+            self.logger.info(f"Found {len(results)} products matching '{query.query_text}'")
 
         except Exception as e:
-            self.logger.error(f"Zendesk ticket search failed: {e}")
+            self.logger.error(f"Product search failed: {e}", exc_info=True)
 
-        return []
+        return results
 
-    async def _search_faqs(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
-        """Search internal FAQs (mock data for Phase 1)."""
-        # Phase 1: Static FAQ responses
-        # Phase 2: Replace with real search (Azure Cognitive Search, Elasticsearch, etc.)
-        mock_faqs = [
-            {
-                "source": "internal_faqs",
-                "type": "faq",
-                "question": "How do I track my order?",
-                "answer": "You can track your order using the tracking link sent to your email.",
-                "category": "shipping",
-                "relevance": 0.6
-            },
-            {
-                "source": "internal_faqs",
-                "type": "faq",
-                "question": "What is your return policy?",
-                "answer": "We accept returns within 30 days of purchase for a full refund.",
-                "category": "returns",
-                "relevance": 0.5
-            }
-        ]
+    async def _search_product_recommendations(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Recommend coffee products based on customer preferences.
+        """
+        results = []
 
-        self.logger.debug(f"Returning {len(mock_faqs)} FAQ results")
-        return mock_faqs
+        try:
+            query_lower = query.query_text.lower()
 
-    async def _search_return_policy(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
-        """Get return policy information."""
-        return [{
-            "source": "company_policies",
-            "type": "policy",
-            "title": "Return Policy",
-            "content": "We accept returns within 30 days of purchase. Items must be unused and in original packaging.",
-            "url": "/policies/returns",
-            "relevance": 0.9
-        }]
+            # Detect preference keywords
+            if any(word in query_lower for word in ["strong", "bold", "dark", "espresso"]):
+                search_term = "dark roast espresso"
+            elif any(word in query_lower for word in ["light", "bright", "fruity"]):
+                search_term = "light roast"
+            elif any(word in query_lower for word in ["balanced", "smooth", "medium"]):
+                search_term = "medium roast"
+            elif any(word in query_lower for word in ["brewer", "machine"]):
+                search_term = "brewer"
+            elif any(word in query_lower for word in ["gift", "present"]):
+                search_term = "variety pack"
+            else:
+                search_term = "signature blend"
 
-    async def _search_shipping_policy(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
-        """Get shipping policy information."""
-        return [{
-            "source": "company_policies",
-            "type": "policy",
-            "title": "Shipping Information",
-            "content": "Standard shipping takes 5-7 business days. Express shipping available for 2-3 day delivery.",
-            "url": "/policies/shipping",
-            "relevance": 0.9
-        }]
+            products = await self.shopify_client.search_products(search_term, limit=3)
+
+            for product in products:
+                results.append({
+                    "source": "product_recommendation",
+                    "type": "recommendation",
+                    "product_id": product.get("id"),
+                    "name": product.get("name"),
+                    "price": product.get("price"),
+                    "description": product.get("description"),
+                    "why_recommended": f"Matches your preference for {search_term}",
+                    "relevance": 0.85
+                })
+
+            self.logger.info(f"Generated {len(results)} recommendations")
+
+        except Exception as e:
+            self.logger.error(f"Product recommendation failed: {e}", exc_info=True)
+
+        return results
+
+    async def _search_product_comparison(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Compare coffee products (e.g., different brewers or coffee blends).
+        """
+        results = []
+
+        try:
+            # Extract comparison keywords
+            query_lower = query.query_text.lower()
+
+            if "brewer" in query_lower or "machine" in query_lower:
+                products = await self.shopify_client.search_products("brewer", limit=3)
+            elif "variety" in query_lower or "sampler" in query_lower:
+                products = await self.shopify_client.search_products("variety", limit=3)
+            else:
+                # Generic coffee pods comparison
+                products = await self.shopify_client.search_products("coffee pods", limit=3)
+
+            for product in products:
+                results.append({
+                    "source": "product_comparison",
+                    "type": "product",
+                    "product_id": product.get("id"),
+                    "name": product.get("name"),
+                    "price": product.get("price"),
+                    "features": product.get("features", []),
+                    "category": product.get("category"),
+                    "relevance": 0.80
+                })
+
+            self.logger.info(f"Generated comparison for {len(results)} products")
+
+        except Exception as e:
+            self.logger.error(f"Product comparison failed: {e}", exc_info=True)
+
+        return results
+
+    async def _search_refund_status(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Search refund status and auto-approval rules.
+        """
+        results = []
+
+        try:
+            # Get auto-approval rules from knowledge base
+            auto_approval_rules = self.kb_client.get_auto_approval_rules("refund_status")
+
+            for rule in auto_approval_rules:
+                results.append({
+                    "source": "refund_policy",
+                    "type": "business_rule",
+                    "scenario": rule.get("scenario"),
+                    "condition": rule.get("condition"),
+                    "auto_approval": rule.get("auto_approval"),
+                    "action": rule.get("action"),
+                    "relevance": 0.90
+                })
+
+            # Also search return policy for refund info
+            policy_results = self.kb_client.search_return_policy(query.query_text)
+            results.extend(policy_results)
+
+            self.logger.info(f"Found {len(results)} refund-related results")
+
+        except Exception as e:
+            self.logger.error(f"Refund status search failed: {e}", exc_info=True)
+
+        return results
+
+    async def _search_return_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Search return policy information.
+        """
+        try:
+            results = self.kb_client.search_return_policy(query.query_text)
+            self.logger.info(f"Found {len(results)} return policy results")
+            return results
+        except Exception as e:
+            self.logger.error(f"Return info search failed: {e}", exc_info=True)
+            return []
+
+    async def _search_shipping_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Search shipping policy and carrier information.
+        """
+        try:
+            results = self.kb_client.search_shipping_policy(query.query_text)
+            self.logger.info(f"Found {len(results)} shipping policy results")
+            return results
+        except Exception as e:
+            self.logger.error(f"Shipping info search failed: {e}", exc_info=True)
+            return []
+
+    async def _search_subscription_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Search auto-delivery subscription information.
+        """
+        results = []
+
+        try:
+            # Return subscription policy info
+            results.append({
+                "source": "subscription_policy",
+                "type": "policy",
+                "title": "Auto-Delivery Subscription",
+                "content": "Free shipping on all auto-delivery orders. Manage frequency, skip deliveries, or cancel anytime.",
+                "benefits": [
+                    "Never run out of your favorite coffee",
+                    "Free shipping on every order",
+                    "Flexible scheduling - change frequency anytime",
+                    "Skip or pause deliveries as needed",
+                    "Cancel anytime, no commitment"
+                ],
+                "relevance": 0.90
+            })
+
+            self.logger.info(f"Returned subscription policy info")
+
+        except Exception as e:
+            self.logger.error(f"Subscription info search failed: {e}", exc_info=True)
+
+        return results
+
+    async def _search_brewer_support(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Search brewer troubleshooting and support information.
+        """
+        results = []
+
+        try:
+            query_lower = query.query_text.lower()
+
+            # Common brewer issues
+            if any(word in query_lower for word in ["won't turn on", "not working", "broken"]):
+                results.append({
+                    "source": "brewer_support",
+                    "type": "troubleshooting",
+                    "issue": "Brewer won't turn on",
+                    "solutions": [
+                        "Check that power cord is firmly connected",
+                        "Verify outlet is working (test with another device)",
+                        "Try a different outlet",
+                        "Check for tripped circuit breaker"
+                    ],
+                    "escalation_needed": True,
+                    "relevance": 0.90
+                })
+
+            elif any(word in query_lower for word in ["clean", "descale", "maintenance"]):
+                results.append({
+                    "source": "brewer_support",
+                    "type": "maintenance",
+                    "title": "Brewer Cleaning & Maintenance",
+                    "instructions": "Descale monthly using our 3-pack descaling solution. Run 2 descaling cycles followed by 3 rinse cycles.",
+                    "product_recommendation": "ACC-DESC-3PK - Descaling Solution 3-pack ($14.99)",
+                    "relevance": 0.85
+                })
+
+            elif any(word in query_lower for word in ["weak", "taste", "flavor"]):
+                results.append({
+                    "source": "brewer_support",
+                    "type": "troubleshooting",
+                    "issue": "Coffee tastes weak or off",
+                    "solutions": [
+                        "Check brew strength settings (Medium or Bold)",
+                        "Ensure you're using fresh Bruvi pods",
+                        "Run a descaling cycle if hasn't been done in 30+ days",
+                        "Try a different coffee blend"
+                    ],
+                    "relevance": 0.85
+                })
+
+            else:
+                # General brewer support
+                results.append({
+                    "source": "brewer_support",
+                    "type": "general",
+                    "title": "Brewer Support Resources",
+                    "content": "For brewer technical issues, please contact support. Warranty covers 2 years from purchase.",
+                    "contact": "support@example.com or call 1-800-COFFEE",
+                    "relevance": 0.70
+                })
+
+            self.logger.info(f"Found {len(results)} brewer support results")
+
+        except Exception as e:
+            self.logger.error(f"Brewer support search failed: {e}", exc_info=True)
+
+        return results
+
+    async def _search_gift_card_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Search gift card information.
+        """
+        results = []
+
+        try:
+            results.append({
+                "source": "gift_card_policy",
+                "type": "policy",
+                "title": "Gift Cards",
+                "content": "Virtual and physical gift cards available in amounts from $25-$200. Never expire.",
+                "options": [
+                    "Virtual Gift Card - Delivered via email instantly",
+                    "Physical Gift Card - Mailed in gift packaging (2-5 business days)"
+                ],
+                "product_ids": ["PROD-060", "PROD-061"],
+                "relevance": 0.90
+            })
+
+            self.logger.info(f"Returned gift card policy info")
+
+        except Exception as e:
+            self.logger.error(f"Gift card info search failed: {e}", exc_info=True)
+
+        return results
+
+    async def _search_loyalty_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+        """
+        Search loyalty program information.
+        """
+        results = []
+
+        try:
+            results.append({
+                "source": "loyalty_program",
+                "type": "policy",
+                "title": "Loyalty Rewards Program",
+                "content": "Earn 1 point per dollar spent. 100 points = $5 reward. Auto-delivery subscribers earn 2x points.",
+                "benefits": [
+                    "1 point per $1 spent (2x for auto-delivery subscribers)",
+                    "100 points = $5 reward credit",
+                    "Birthday month bonus: 50 points",
+                    "Refer a friend: 200 points for both of you"
+                ],
+                "relevance": 0.90
+            })
+
+            self.logger.info(f"Returned loyalty program info")
+
+        except Exception as e:
+            self.logger.error(f"Loyalty info search failed: {e}", exc_info=True)
+
+        return results
+
 
     def _calculate_confidence(self, results: List[Dict[str, Any]]) -> float:
         """Calculate overall confidence score based on results."""
@@ -403,12 +649,23 @@ class KnowledgeRetrievalAgent:
 
         return min(avg_relevance + diversity_boost, 1.0)
 
+    async def cleanup_async(self):
+        """Async cleanup of HTTP clients."""
+        try:
+            await self.http_client.aclose()
+            await self.shopify_client.close()
+        except Exception as e:
+            self.logger.error(f"Error closing HTTP clients: {e}")
+
     def cleanup(self):
         """Cleanup resources on shutdown."""
         self.logger.info("Cleaning up Knowledge Retrieval Agent...")
 
-        # Close HTTP client
-        asyncio.create_task(self.http_client.aclose())
+        # Close HTTP clients
+        try:
+            asyncio.create_task(self.cleanup_async())
+        except Exception as e:
+            self.logger.error(f"Error during cleanup: {e}")
 
         if self.container:
             try:
@@ -420,11 +677,11 @@ class KnowledgeRetrievalAgent:
         self.logger.info("Cleanup complete")
 
     async def run_demo_mode(self):
-        """Run in demo mode without SDK."""
+        """Run in demo mode without SDK - Phase 2 coffee/brewing examples."""
         self.logger.info("Running in DEMO MODE (no SDK connection)")
-        self.logger.info("Simulating knowledge retrieval...")
+        self.logger.info("Simulating coffee/brewing knowledge retrieval...")
 
-        # Demo: Process sample queries
+        # Demo: Process coffee-specific sample queries
         sample_queries = [
             {
                 "contextId": "demo-ctx-001",
@@ -433,8 +690,9 @@ class KnowledgeRetrievalAgent:
                     "type": "text",
                     "content": {
                         "query_id": "q-001",
-                        "query_text": "wireless headphones",
-                        "intent": "product_inquiry",
+                        "query_text": "Where is my order?",
+                        "intent": "order_status",
+                        "filters": {"order_number": "10234"},
                         "max_results": 3
                     }
                 }]
@@ -446,10 +704,22 @@ class KnowledgeRetrievalAgent:
                     "type": "text",
                     "content": {
                         "query_id": "q-002",
-                        "query_text": "order status",
-                        "intent": "order_status",
-                        "filters": {"order_number": "12345"},
-                        "max_results": 5
+                        "query_text": "espresso pods",
+                        "intent": "product_info",
+                        "max_results": 3
+                    }
+                }]
+            },
+            {
+                "contextId": "demo-ctx-003",
+                "taskId": "demo-task-003",
+                "parts": [{
+                    "type": "text",
+                    "content": {
+                        "query_id": "q-003",
+                        "query_text": "brewer won't turn on",
+                        "intent": "brewer_support",
+                        "max_results": 2
                     }
                 }]
             }
@@ -459,10 +729,11 @@ class KnowledgeRetrievalAgent:
             self.logger.info("=" * 60)
             result = await self.handle_message(msg)
             content = extract_message_content(result)
-            self.logger.info(f"Demo Result: Found {content.get('total_results', 0)} results")
+            self.logger.info(f"Demo Result: Found {content.get('total_results', 0)} results in {content.get('search_time_ms', 0):.2f}ms")
             if content.get("results"):
                 for idx, r in enumerate(content["results"][:2], 1):
-                    self.logger.info(f"  {idx}. [{r.get('source')}] {r.get('title', r.get('question', 'N/A'))}")
+                    result_name = r.get('name', r.get('title', r.get('order_id', 'N/A')))
+                    self.logger.info(f"  {idx}. [{r.get('source')}] {result_name}")
             await asyncio.sleep(2)
 
         # Keep alive

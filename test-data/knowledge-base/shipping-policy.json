@@ -1,0 +1,129 @@
+{
+  "policy_name": "Shipping Policy",
+  "last_updated": "2026-01-01",
+  "version": "2.0",
+  "policy_sections": [
+    {
+      "section_id": "carriers_available",
+      "title": "Available Shipping Carriers",
+      "content": "Customers can choose from three carriers at checkout:\n\n1. USPS (United States Postal Service)\n   - Priority Mail: 1-3 business days\n   - Priority Mail Express: 1-2 business days (overnight to most locations)\n   - Most economical option\n\n2. UPS (United Parcel Service)\n   - Ground: 1-5 business days\n   - 2nd Day Air: 2 business days\n   - Next Day Air: 1 business day\n   - Signature required for brewers\n\n3. FedEx\n   - Ground: 1-5 business days\n   - 2-Day: 2 business days\n   - Overnight: 1 business day\n   - Signature required for brewers",
+      "keywords": ["carriers", "USPS", "UPS", "FedEx", "shipping options"],
+      "quick_answer": "Choose from USPS, UPS, or FedEx at checkout. Delivery speeds range from overnight to 5 business days."
+    },
+    {
+      "section_id": "shipping_costs",
+      "title": "Shipping Costs",
+      "content": "Shipping costs are calculated at checkout based on:\n\n- Product weight and dimensions (provided in product listing)\n- Destination ZIP code\n- Selected carrier and delivery speed\n\nExample costs (to continental US, may vary):\n- Pod boxes (3 boxes): $8-12 USPS Priority, $12-18 UPS Ground\n- Brewer: $15-25 USPS Priority, $20-35 UPS Ground\n- Accessories only: $5-8 USPS Priority\n\nExact cost shown before payment confirmation.",
+      "keywords": ["shipping cost", "how much", "delivery price", "shipping price"],
+      "quick_answer": "Shipping costs are calculated at checkout based on weight, destination, and carrier. Pod boxes typically $8-18, brewers $15-35."
+    },
+    {
+      "section_id": "free_shipping",
+      "title": "Free Shipping Eligibility",
+      "content": "Free shipping is available on qualifying orders:\n\n- Orders over $75 qualify for FREE USPS Priority Mail (US only)\n- Auto-delivery subscriptions: FREE shipping on ALL orders (any amount)\n- Does not apply to expedited shipping (Express, Overnight, 2-Day)\n- Does not apply to international orders\n\nTip: Add items to reach $75 threshold or sign up for auto-delivery to save on shipping!",
+      "keywords": ["free shipping", "over 75", "auto delivery free", "no shipping cost"],
+      "quick_answer": "Orders over $75 get free USPS Priority Mail. Auto-delivery subscribers get free shipping on all orders."
+    },
+    {
+      "section_id": "order_processing",
+      "title": "Order Processing Times",
+      "content": "Orders are processed and shipped based on order time:\n\n- Orders placed before 2pm ET: Ship same business day\n- Orders placed after 2pm ET: Ship next business day\n- Orders placed on weekends: Ship Monday (or next business day)\n- Orders placed on federal holidays: Ship next business day\n\nBusinessiness days: Monday-Friday, excluding federal holidays\n\nProcessing time does NOT include shipping time (add carrier transit time).",
+      "keywords": ["processing time", "when will it ship", "order cutoff", "same day shipping"],
+      "quick_answer": "Orders before 2pm ET ship same business day. Orders after 2pm ET ship next business day."
+    },
+    {
+      "section_id": "tracking",
+      "title": "Order Tracking",
+      "content": "All orders include tracking:\n\n- Tracking number sent via email when order ships\n- Allow 24 hours for tracking to activate in carrier system\n- Track on carrier website or in your account dashboard\n- Brewers require signature upon delivery (cannot be left unattended)\n- Tracking updates: Accepted → In Transit → Out for Delivery → Delivered\n\nIf tracking shows 'exception' or 'delayed', contact carrier directly or reach out to us for help.",
+      "keywords": ["tracking", "track order", "where is my package", "tracking number"],
+      "quick_answer": "Tracking numbers are emailed when orders ship. Allow 24 hours for tracking to activate."
+    },
+    {
+      "section_id": "international_shipping",
+      "title": "International Shipping (Canada & Mexico)",
+      "content": "International shipping is available to Canada and Mexico only:\n\n- Delivery time: 7-14 business days (customs dependent)\n- Shipping costs: Calculated at checkout (higher than domestic)\n- Duties and taxes: Customer's responsibility, paid upon delivery\n- Tracking: Provided, but may be limited once package enters destination country\n- Returns: Different process, customer pays return shipping\n\nNote: Customs may delay delivery. We cannot expedite customs clearance.\n\nCurrently NOT shipping to: Other international destinations",
+      "keywords": ["international", "Canada", "Mexico", "ship outside US", "duties", "customs"],
+      "quick_answer": "We ship to Canada and Mexico (7-14 business days). Customer responsible for duties/taxes."
+    },
+    {
+      "section_id": "delivery_issues",
+      "title": "Delivery Problems",
+      "content": "If you experience delivery issues:\n\n**Package marked delivered but not received:**\n1. Check with neighbors or building management\n2. Look for safe place delivery (porch, mailbox, garage)\n3. Wait 24 hours (sometimes marked delivered early)\n4. Contact carrier for GPS delivery location\n5. If still missing after 24 hours, contact us immediately\n\n**Package damaged upon delivery:**\n1. Take photos of damage before opening\n2. Contact us within 7 days with photos\n3. We'll send replacement immediately\n\n**Package delayed or tracking not updating:**\n1. Check carrier website for updates\n2. Allow 1 business day beyond estimated delivery\n3. If still delayed, contact us - we'll investigate with carrier",
+      "keywords": ["missing package", "stolen", "damaged delivery", "delayed", "where is my order"],
+      "quick_answer": "For missing packages, wait 24 hours then contact us. For damaged deliveries, take photos and contact us within 7 days."
+    },
+    {
+      "section_id": "address_changes",
+      "title": "Changing Delivery Address",
+      "content": "To change your delivery address:\n\n**Before order ships:**\n- Contact us immediately - we can update address before shipment\n- No charge for address changes pre-shipment\n\n**After order ships:**\n- Contact carrier directly for address intercept service (fees may apply)\n- Or contact us - we'll work with carrier on your behalf\n- Address changes after shipment may incur carrier fees ($15-25)\n\n**For auto-delivery subscriptions:**\n- Update address in your account dashboard\n- Changes apply to future deliveries automatically",
+      "keywords": ["change address", "wrong address", "update shipping", "move address"],
+      "quick_answer": "Contact us before shipment for free address changes. After shipment, carrier fees may apply ($15-25)."
+    },
+    {
+      "section_id": "po_boxes",
+      "title": "PO Boxes and APO/FPO Addresses",
+      "content": "PO Box and military address shipping:\n\n**PO Boxes:**\n- USPS Priority Mail: ✅ Available\n- USPS Priority Mail Express: ✅ Available\n- UPS: ❌ Not available (cannot deliver to PO Boxes)\n- FedEx: ❌ Not available (cannot deliver to PO Boxes)\n\n**APO/FPO/DPO (Military) Addresses:**\n- Shipped via USPS Priority Mail only\n- Delivery time: 10-21 business days (variable)\n- FREE shipping on all military orders (no minimum)\n- Tracking limited once package reaches military postal system\n\nThank you for your service!",
+      "keywords": ["PO box", "APO", "FPO", "military address", "post office box"],
+      "quick_answer": "PO Boxes: Use USPS only. Military addresses: USPS Priority with free shipping."
+    }
+  ],
+  "shipping_zones": [
+    {
+      "zone_name": "Continental US",
+      "states": "All contiguous 48 states",
+      "typical_transit": {
+        "usps_priority": "1-3 business days",
+        "usps_express": "1-2 business days",
+        "ups_ground": "1-5 business days",
+        "fedex_ground": "1-5 business days"
+      }
+    },
+    {
+      "zone_name": "Alaska & Hawaii",
+      "states": "AK, HI",
+      "typical_transit": {
+        "usps_priority": "3-5 business days",
+        "ups_ground": "5-7 business days"
+      },
+      "notes": "Limited carrier options, longer transit times"
+    },
+    {
+      "zone_name": "Canada",
+      "typical_transit": "7-14 business days",
+      "notes": "Customs clearance required, duties/taxes apply"
+    },
+    {
+      "zone_name": "Mexico",
+      "typical_transit": "7-14 business days",
+      "notes": "Customs clearance required, duties/taxes apply"
+    }
+  ],
+  "common_scenarios": [
+    {
+      "scenario": "customer_wants_fastest_shipping",
+      "recommendation": "USPS Priority Mail Express or UPS/FedEx Overnight",
+      "typical_cost": "$25-45 depending on weight and destination"
+    },
+    {
+      "scenario": "customer_wants_cheapest_shipping",
+      "recommendation": "USPS Priority Mail (or free if over $75)",
+      "typical_cost": "$8-15 for pods, $15-25 for brewer"
+    },
+    {
+      "scenario": "customer_needs_guaranteed_delivery_by_date",
+      "recommendation": "UPS Next Day Air or FedEx Overnight with order before 2pm ET",
+      "typical_cost": "$35-60 depending on weight"
+    },
+    {
+      "scenario": "order_over_75_dollars",
+      "auto_apply": true,
+      "benefit": "FREE USPS Priority Mail shipping"
+    }
+  ],
+  "contact_information": {
+    "support_email": "support@brewvi-demo.com",
+    "support_phone": "1-800-555-BREW (2739)",
+    "support_hours": "Monday-Friday 8am-8pm ET, Saturday 9am-5pm ET",
+    "chat_available": true
+  }
+}

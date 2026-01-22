@@ -14,15 +14,36 @@ from enum import Enum
 # =============================================================================
 
 class Intent(str, Enum):
-    """Customer intent categories for classification."""
+    """Customer intent categories for classification - Phase 2 coffee/brewing business."""
+    # Order-related intents
     ORDER_STATUS = "order_status"
-    PRODUCT_INQUIRY = "product_inquiry"
+    ORDER_MODIFICATION = "order_modification"
+    REFUND_STATUS = "refund_status"
+
+    # Product-related intents
+    PRODUCT_INFO = "product_info"
+    PRODUCT_INQUIRY = "product_inquiry"  # Kept for backwards compatibility
+    PRODUCT_RECOMMENDATION = "product_recommendation"
+    PRODUCT_COMPARISON = "product_comparison"
+
+    # Coffee/brewing specific
+    BREWER_SUPPORT = "brewer_support"
+    AUTO_DELIVERY_MANAGEMENT = "auto_delivery_management"
+
+    # Customer service
     RETURN_REQUEST = "return_request"
     SHIPPING_QUESTION = "shipping_question"
+    GIFT_CARD = "gift_card"
+    LOYALTY_PROGRAM = "loyalty_program"
+
+    # Legacy/General
     PAYMENT_ISSUE = "payment_issue"
     ACCOUNT_SUPPORT = "account_support"
     GENERAL_INQUIRY = "general_inquiry"
     COMPLAINT = "complaint"
+
+    # Escalation
+    ESCALATION_NEEDED = "escalation_needed"
     UNKNOWN = "unknown"
 
 

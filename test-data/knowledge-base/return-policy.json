@@ -1,0 +1,102 @@
+{
+  "policy_name": "Return and Refund Policy",
+  "last_updated": "2026-01-01",
+  "version": "2.0",
+  "policy_sections": [
+    {
+      "section_id": "return_window",
+      "title": "Return Window",
+      "content": "Customers have 30 days from the delivery date to initiate a return. Returns requested after 30 days may be eligible for store credit at manager discretion.",
+      "keywords": ["30 days", "return window", "how long", "time limit"],
+      "quick_answer": "You have 30 days from delivery to return any product."
+    },
+    {
+      "section_id": "return_process",
+      "title": "How to Return a Product",
+      "content": "1. Contact customer support via chat, email, or phone to initiate your return.\n2. You'll receive a return authorization (RA) number and prepaid shipping label via email within 24 hours.\n3. Pack the item securely in its original packaging (not required, but recommended).\n4. Attach the prepaid shipping label to the package.\n5. Drop off at any USPS location or schedule a pickup.\n6. Ship within 14 days of receiving your RA number.\n7. Refund will be processed within 5-7 business days of receiving your return.",
+      "keywords": ["how to return", "return process", "return steps", "return instructions"],
+      "quick_answer": "Contact us to get a return authorization and prepaid label. Ship within 14 days, and your refund will be processed within 5-7 business days."
+    },
+    {
+      "section_id": "refund_options",
+      "title": "Refund Options",
+      "content": "You have two refund options:\n\nOption 1: Refund to Original Payment Method\n- Processing time: 5-7 business days after we receive your return\n- Funds appear in your account: 3-5 business days after processing (bank dependent)\n\nOption 2: Store Credit for Future Purchase\n- Issued immediately upon return receipt\n- Includes 10% bonus credit (e.g., $50 return = $55 store credit)\n- Never expires\n- Can be used on any future purchase",
+      "keywords": ["refund options", "store credit", "original payment", "refund method"],
+      "quick_answer": "Choose between refund to original payment (5-7 business days) or instant store credit with 10% bonus."
+    },
+    {
+      "section_id": "return_conditions",
+      "title": "Return Conditions",
+      "content": "Products must be returned in the following condition:\n\n- Brewers: Must be in working condition with all original accessories (water reservoir, power cord, drip tray)\n- Opened pod boxes: Must be at least 50% full (12+ pods remaining in 24-count box)\n- Unopened pod boxes: Can be returned in original sealed condition\n- Accessories: Must be unused and in original packaging\n\nNOT REQUIRED:\n- Original shipping box\n- Gift receipt\n- Reason for return (but appreciated for product improvement)",
+      "keywords": ["return conditions", "what condition", "opened", "used", "requirements"],
+      "quick_answer": "Brewers must include all accessories. Opened pod boxes must be at least 50% full. Original packaging not required."
+    },
+    {
+      "section_id": "no_restocking_fees",
+      "title": "No Restocking Fees",
+      "content": "We never charge restocking fees. All returns are completely free - we provide prepaid shipping labels for all returns within the US.",
+      "keywords": ["restocking fee", "return cost", "free returns", "return charges"],
+      "quick_answer": "No restocking fees ever. We provide free prepaid return shipping."
+    },
+    {
+      "section_id": "exceptions",
+      "title": "Return Policy Exceptions",
+      "content": "The following items cannot be returned:\n\n- Gift cards (non-refundable)\n- Final sale items (clearly marked on product page with 'Final Sale' badge)\n- Products returned after 60 days (except warranty claims)\n- Items damaged due to misuse or neglect (warranty may still apply)\n\nNote: If you receive a defective or damaged product, different terms apply - see Warranty & Defects section.",
+      "keywords": ["exceptions", "cannot return", "non-refundable", "final sale"],
+      "quick_answer": "Gift cards and final sale items cannot be returned. All other products are returnable within 30 days."
+    },
+    {
+      "section_id": "international_returns",
+      "title": "International Returns (Canada & Mexico)",
+      "content": "Returns from Canada and Mexico:\n- Must contact support for return instructions (different process than US)\n- Customer responsible for return shipping costs\n- Customs/duties fees are non-refundable\n- Processing time: 10-14 business days after receipt\n- Store credit option recommended to avoid international transfer fees",
+      "keywords": ["international returns", "Canada", "Mexico", "outside US"],
+      "quick_answer": "International customers must contact support for return instructions. Return shipping costs and customs fees are customer's responsibility."
+    },
+    {
+      "section_id": "damaged_or_defective",
+      "title": "Damaged or Defective Products",
+      "content": "If you receive a damaged or defective product:\n\n1. Contact us immediately (within 7 days of delivery for shipping damage)\n2. Provide photos of the damage if possible\n3. We'll send a replacement immediately at no cost\n4. No need to return the damaged item unless requested\n5. Brewer defects covered under 2-year warranty\n\nThis is separate from our standard return policy and has different terms.",
+      "keywords": ["damaged", "defective", "broken", "doesn't work", "warranty"],
+      "quick_answer": "Contact us immediately if your product arrives damaged or defective. We'll send a replacement at no cost."
+    },
+    {
+      "section_id": "auto_delivery_cancellation",
+      "title": "Auto-Delivery Subscription Cancellations",
+      "content": "Auto-delivery subscriptions can be cancelled anytime with no penalties:\n\n- Cancel online in your account dashboard\n- Or contact customer support\n- If order hasn't shipped yet: cancellation is immediate\n- If order has shipped: cancellation applies to next delivery\n- You can pause (skip deliveries) instead of cancelling\n\nCancelled subscriptions lose the 10% auto-delivery discount.",
+      "keywords": ["cancel subscription", "auto-delivery", "pause subscription", "stop deliveries"],
+      "quick_answer": "Cancel your auto-delivery subscription anytime with no penalties. Manage it in your account dashboard or contact us."
+    }
+  ],
+  "common_scenarios": [
+    {
+      "scenario": "customer_wants_refund_under_50",
+      "condition": "Purchase amount < $50 AND within 30 days AND no abuse pattern",
+      "auto_approval": true,
+      "action": "Immediately provide return authorization and prepaid label"
+    },
+    {
+      "scenario": "customer_wants_refund_over_50",
+      "condition": "Purchase amount >= $50 OR outside 30 days OR abuse pattern detected",
+      "auto_approval": false,
+      "action": "Escalate to human agent for review"
+    },
+    {
+      "scenario": "brewer_defect_within_warranty",
+      "condition": "Brewer purchased within 2 years AND defect reported",
+      "auto_approval": false,
+      "action": "Escalate to quality control team immediately"
+    },
+    {
+      "scenario": "damaged_delivery",
+      "condition": "Product arrived damaged, reported within 7 days",
+      "auto_approval": false,
+      "action": "Escalate to support team for immediate replacement"
+    }
+  ],
+  "contact_information": {
+    "support_email": "support@brewvi-demo.com",
+    "support_phone": "1-800-555-BREW (2739)",
+    "support_hours": "Monday-Friday 8am-8pm ET, Saturday 9am-5pm ET",
+    "chat_available": true
+  }
+}

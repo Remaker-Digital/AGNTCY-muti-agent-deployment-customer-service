@@ -1,0 +1,476 @@
+{
+  "orders": [
+    {
+      "order_id": "ORD-10234",
+      "order_number": "10234",
+      "customer_id": "persona_001",
+      "customer_email": "sarah.martinez@email.com",
+      "customer_name": "Sarah Martinez",
+      "order_date": "2026-01-15T10:23:00Z",
+      "status": "shipped",
+      "fulfillment_status": "in_transit",
+      "financial_status": "paid",
+      "items": [
+        {
+          "product_id": "PROD-010",
+          "sku": "POD-LAM-SIG-24",
+          "name": "Lamill Signature Blend Coffee Pods (Medium Roast)",
+          "quantity": 2,
+          "price": 24.99,
+          "line_total": 49.98
+        },
+        {
+          "product_id": "PROD-020",
+          "sku": "POD-JOY-ESP-24",
+          "name": "Joyride Double Shot Espresso Pods",
+          "quantity": 1,
+          "price": 29.99,
+          "line_total": 29.99
+        }
+      ],
+      "subtotal": 79.97,
+      "shipping_cost": 0.00,
+      "tax": 6.40,
+      "total": 86.37,
+      "shipping_address": {
+        "name": "Sarah Martinez",
+        "address1": "456 Maple Ave",
+        "address2": "Apt 3B",
+        "city": "Portland",
+        "state": "OR",
+        "zip": "97201",
+        "country": "US",
+        "phone": "+1-555-0101"
+      },
+      "shipping_method": {
+        "carrier": "USPS",
+        "service": "Priority Mail",
+        "cost": 0.00,
+        "notes": "Free shipping - auto-delivery customer"
+      },
+      "tracking": {
+        "carrier": "USPS",
+        "tracking_number": "9400123456789",
+        "tracking_url": "https://tools.usps.com/go/TrackConfirmAction?tLabels=9400123456789",
+        "shipped_date": "2026-01-20T14:30:00Z",
+        "expected_delivery": "2026-01-25T20:00:00Z",
+        "current_status": "In Transit",
+        "last_update": "2026-01-22T08:15:00Z",
+        "last_location": "Portland Distribution Center"
+      },
+      "notes": "Auto-delivery order - monthly subscription",
+      "tags": ["auto-delivery", "subscription", "loyal-customer"]
+    },
+    {
+      "order_id": "ORD-10156",
+      "order_number": "10156",
+      "customer_id": "persona_001",
+      "customer_email": "sarah.martinez@email.com",
+      "customer_name": "Sarah Martinez",
+      "order_date": "2025-12-10T15:42:00Z",
+      "status": "delivered",
+      "fulfillment_status": "fulfilled",
+      "financial_status": "paid",
+      "items": [
+        {
+          "product_id": "PROD-040",
+          "sku": "VAR-EXP-24",
+          "name": "The Explorer Pack Variety",
+          "quantity": 1,
+          "price": 34.99,
+          "line_total": 34.99
+        },
+        {
+          "product_id": "PROD-050",
+          "sku": "ACC-DESC-3PK",
+          "name": "Descaling Solution (3-pack)",
+          "quantity": 1,
+          "price": 14.99,
+          "line_total": 14.99
+        }
+      ],
+      "subtotal": 49.98,
+      "shipping_cost": 0.00,
+      "tax": 4.00,
+      "total": 53.98,
+      "shipping_address": {
+        "name": "Sarah Martinez",
+        "address1": "456 Maple Ave",
+        "address2": "Apt 3B",
+        "city": "Portland",
+        "state": "OR",
+        "zip": "97201",
+        "country": "US",
+        "phone": "+1-555-0101"
+      },
+      "shipping_method": {
+        "carrier": "USPS",
+        "service": "Priority Mail",
+        "cost": 0.00
+      },
+      "tracking": {
+        "carrier": "USPS",
+        "tracking_number": "9400123456700",
+        "shipped_date": "2025-12-11T10:00:00Z",
+        "delivered_date": "2025-12-15T14:22:00Z",
+        "current_status": "Delivered"
+      },
+      "notes": "",
+      "tags": ["variety-pack", "maintenance"]
+    },
+    {
+      "order_id": "ORD-9876",
+      "order_number": "9876",
+      "customer_id": "persona_003",
+      "customer_email": "michael.torres@email.com",
+      "customer_name": "Michael Torres",
+      "order_date": "2025-12-18T09:15:00Z",
+      "status": "delivered",
+      "fulfillment_status": "fulfilled",
+      "financial_status": "paid",
+      "items": [
+        {
+          "product_id": "PROD-002",
+          "sku": "BRWR-BNDL",
+          "name": "The Bruvi Bundle",
+          "quantity": 1,
+          "price": 299.00,
+          "line_total": 299.00
+        },
+        {
+          "product_id": "PROD-060",
+          "sku": "GC-VIRTUAL",
+          "name": "Virtual Gift Card",
+          "quantity": 1,
+          "price": 50.00,
+          "line_total": 50.00
+        }
+      ],
+      "subtotal": 349.00,
+      "shipping_cost": 0.00,
+      "tax": 27.92,
+      "total": 376.92,
+      "shipping_address": {
+        "name": "Emily Torres",
+        "address1": "789 Oak St",
+        "address2": "",
+        "city": "Seattle",
+        "state": "WA",
+        "zip": "98101",
+        "country": "US",
+        "phone": "+1-555-0303"
+      },
+      "billing_address": {
+        "name": "Michael Torres",
+        "address1": "123 Pine St",
+        "city": "Seattle",
+        "state": "WA",
+        "zip": "98102",
+        "country": "US"
+      },
+      "shipping_method": {
+        "carrier": "UPS",
+        "service": "Ground",
+        "cost": 0.00,
+        "notes": "Free shipping - order over $75"
+      },
+      "tracking": {
+        "carrier": "UPS",
+        "tracking_number": "1Z999AA10123456784",
+        "shipped_date": "2025-12-19T11:00:00Z",
+        "delivered_date": "2025-12-23T10:45:00Z",
+        "current_status": "Delivered",
+        "signature_required": true,
+        "signed_by": "E. Torres"
+      },
+      "gift_message": "Merry Christmas! Enjoy amazing coffee every morning. Love, Michael",
+      "is_gift": true,
+      "notes": "Gift order - do not include prices",
+      "tags": ["gift", "brewer", "bundle"]
+    },
+    {
+      "order_id": "ORD-10512",
+      "order_number": "10512",
+      "customer_id": "persona_004",
+      "customer_email": "amanda.wilson@email.com",
+      "customer_name": "Amanda Wilson",
+      "order_date": "2026-01-10T13:20:00Z",
+      "status": "delivered",
+      "fulfillment_status": "fulfilled",
+      "financial_status": "paid",
+      "items": [
+        {
+          "product_id": "PROD-010",
+          "sku": "POD-LAM-SIG-24",
+          "name": "Lamill Signature Blend Coffee Pods (Medium Roast)",
+          "quantity": 2,
+          "price": 24.99,
+          "line_total": 49.98
+        }
+      ],
+      "subtotal": 49.98,
+      "shipping_cost": 8.50,
+      "tax": 4.00,
+      "total": 62.48,
+      "shipping_address": {
+        "name": "Amanda Wilson",
+        "address1": "321 Elm Street",
+        "address2": "",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78701",
+        "country": "US",
+        "phone": "+1-555-0404"
+      },
+      "shipping_method": {
+        "carrier": "USPS",
+        "service": "Priority Mail",
+        "cost": 8.50
+      },
+      "tracking": {
+        "carrier": "USPS",
+        "tracking_number": "9400123456701",
+        "shipped_date": "2026-01-11T15:00:00Z",
+        "delivered_date": "2026-01-15T11:30:00Z",
+        "current_status": "Delivered",
+        "delivery_note": "Left at front door"
+      },
+      "issue_reported": {
+        "reported_date": "2026-01-15T16:00:00Z",
+        "issue_type": "damaged_delivery",
+        "description": "Box arrived crushed, one pod box damaged",
+        "ticket_id": "TICKET-5678",
+        "status": "open"
+      },
+      "notes": "Customer reported damage upon delivery",
+      "tags": ["damaged", "needs-resolution"]
+    },
+    {
+      "order_id": "ORD-10387",
+      "order_number": "10387",
+      "customer_id": "persona_004",
+      "customer_email": "amanda.wilson@email.com",
+      "customer_name": "Amanda Wilson",
+      "order_date": "2025-12-20T11:00:00Z",
+      "status": "returned",
+      "fulfillment_status": "returned",
+      "financial_status": "refunded",
+      "items": [
+        {
+          "product_id": "PROD-012",
+          "sku": "POD-KLA-MID-24",
+          "name": "Klatch Midnight Blend Coffee Pods (Dark Roast)",
+          "quantity": 1,
+          "price": 25.99,
+          "line_total": 25.99
+        }
+      ],
+      "subtotal": 25.99,
+      "shipping_cost": 0.00,
+      "tax": 2.08,
+      "total": 28.07,
+      "refund_amount": 28.07,
+      "refund_date": "2026-01-05T10:00:00Z",
+      "shipping_address": {
+        "name": "Amanda Wilson",
+        "address1": "321 Elm Street",
+        "address2": "",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78701",
+        "country": "US",
+        "phone": "+1-555-0404"
+      },
+      "shipping_method": {
+        "carrier": "USPS",
+        "service": "Priority Mail",
+        "cost": 0.00,
+        "notes": "Free shipping - order over $75 threshold not met, but loyalty customer"
+      },
+      "tracking": {
+        "carrier": "USPS",
+        "tracking_number": "9400123456702",
+        "shipped_date": "2025-12-21T09:00:00Z",
+        "delivered_date": "2025-12-24T14:00:00Z"
+      },
+      "return_info": {
+        "return_requested": "2025-12-28T10:30:00Z",
+        "return_reason": "Coffee tasted stale, possible quality issue",
+        "return_authorized": "2025-12-28T11:00:00Z",
+        "return_tracking": "9400123456750",
+        "return_received": "2026-01-03T09:00:00Z",
+        "refund_method": "original_payment",
+        "refund_processed": "2026-01-05T10:00:00Z"
+      },
+      "notes": "Quality concern - escalated to QC team",
+      "tags": ["returned", "quality-issue", "refunded"]
+    },
+    {
+      "order_id": "ORD-10098",
+      "order_number": "10098",
+      "customer_id": "persona_004",
+      "customer_email": "amanda.wilson@email.com",
+      "customer_name": "Amanda Wilson",
+      "order_date": "2025-10-05T14:55:00Z",
+      "status": "delivered",
+      "fulfillment_status": "fulfilled",
+      "financial_status": "paid",
+      "items": [
+        {
+          "product_id": "PROD-001",
+          "sku": "BRWR-PREM-BLK",
+          "name": "Premium Single-Serve Coffee Brewer",
+          "quantity": 1,
+          "price": 398.00,
+          "line_total": 398.00
+        }
+      ],
+      "subtotal": 398.00,
+      "shipping_cost": 0.00,
+      "tax": 31.84,
+      "total": 429.84,
+      "shipping_address": {
+        "name": "Amanda Wilson",
+        "address1": "321 Elm Street",
+        "address2": "",
+        "city": "Austin",
+        "state": "TX",
+        "zip": "78701",
+        "country": "US",
+        "phone": "+1-555-0404"
+      },
+      "shipping_method": {
+        "carrier": "UPS",
+        "service": "Ground",
+        "cost": 0.00,
+        "notes": "Free shipping - order over $75"
+      },
+      "tracking": {
+        "carrier": "UPS",
+        "tracking_number": "1Z999AA10123456785",
+        "shipped_date": "2025-10-06T10:00:00Z",
+        "delivered_date": "2025-10-10T15:20:00Z",
+        "current_status": "Delivered",
+        "signature_required": true,
+        "signed_by": "A. Wilson"
+      },
+      "warranty_info": {
+        "warranty_period": "2 years",
+        "warranty_start": "2025-10-10",
+        "warranty_end": "2027-10-10",
+        "warranty_status": "active"
+      },
+      "notes": "First brewer purchase for customer",
+      "tags": ["brewer", "first-purchase", "warranty-active"]
+    },
+    {
+      "order_id": "ORD-10600",
+      "order_number": "10600",
+      "customer_id": "persona_003",
+      "customer_email": "michael.torres@email.com",
+      "customer_name": "Michael Torres",
+      "order_date": "2026-01-20T16:30:00Z",
+      "status": "pending",
+      "fulfillment_status": "pending",
+      "financial_status": "paid",
+      "items": [
+        {
+          "product_id": "PROD-061",
+          "sku": "GC-PHYSICAL",
+          "name": "Physical Gift Card",
+          "quantity": 1,
+          "price": 75.00,
+          "line_total": 75.00
+        }
+      ],
+      "subtotal": 75.00,
+      "shipping_cost": 2.00,
+      "tax": 0.00,
+      "total": 77.00,
+      "shipping_address": {
+        "name": "Maria Torres",
+        "address1": "555 Broadway Ave",
+        "address2": "Unit 12",
+        "city": "San Francisco",
+        "state": "CA",
+        "zip": "94102",
+        "country": "US",
+        "phone": "+1-555-0305"
+      },
+      "billing_address": {
+        "name": "Michael Torres",
+        "address1": "123 Pine St",
+        "city": "Seattle",
+        "state": "WA",
+        "zip": "98102",
+        "country": "US"
+      },
+      "shipping_method": {
+        "carrier": "USPS",
+        "service": "First Class Mail",
+        "cost": 2.00
+      },
+      "gift_message": "Happy Birthday, Mom! Enjoy delicious coffee. Love, Michael",
+      "is_gift": true,
+      "notes": "Gift card order - waiting to ship",
+      "tags": ["gift-card", "pending", "birthday"]
+    },
+    {
+      "order_id": "ORD-10555",
+      "order_number": "10555",
+      "customer_id": "new_customer_001",
+      "customer_email": "john.smith@email.com",
+      "customer_name": "John Smith",
+      "order_date": "2026-01-18T10:00:00Z",
+      "status": "cancelled",
+      "fulfillment_status": "cancelled",
+      "financial_status": "refunded",
+      "items": [
+        {
+          "product_id": "PROD-011",
+          "sku": "POD-EQU-GUA-24",
+          "name": "Equator Guatemala Huehuetenango Coffee Pods (Light Roast)",
+          "quantity": 3,
+          "price": 26.99,
+          "line_total": 80.97
+        }
+      ],
+      "subtotal": 80.97,
+      "shipping_cost": 0.00,
+      "tax": 6.48,
+      "total": 87.45,
+      "refund_amount": 87.45,
+      "refund_date": "2026-01-18T14:30:00Z",
+      "shipping_address": {
+        "name": "John Smith",
+        "address1": "789 Main St",
+        "city": "Denver",
+        "state": "CO",
+        "zip": "80202",
+        "country": "US",
+        "phone": "+1-555-0999"
+      },
+      "cancellation_info": {
+        "cancelled_date": "2026-01-18T14:30:00Z",
+        "cancelled_by": "customer",
+        "reason": "Customer changed mind before shipment",
+        "refund_method": "original_payment"
+      },
+      "notes": "Cancelled before shipment - full refund issued",
+      "tags": ["cancelled", "before-shipment"]
+    }
+  ],
+  "metadata": {
+    "total_orders": 8,
+    "status_breakdown": {
+      "pending": 1,
+      "shipped": 1,
+      "delivered": 4,
+      "returned": 1,
+      "cancelled": 1
+    },
+    "created_date": "2026-01-22",
+    "version": "1.0",
+    "notes": "Sample orders for Phase 2 testing - covers all major scenarios"
+  }
+}
