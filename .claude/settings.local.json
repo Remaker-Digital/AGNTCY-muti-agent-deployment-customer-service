@@ -40,7 +40,31 @@
       "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' label create ''type: epic'' --description ''Top-level actor epic'' --color ''5319e7'' --repo Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service\")",
       "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' api repos/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/milestones -f title=''Phase 1 - Infrastructure'' -f description=''Create infrastructure and deployable containers. Budget: $0/month'' -f due_on=''2026-02-28T23:59:59Z'' --method POST\")",
       "Bash(powershell.exe:*)",
-      "Bash(terraform --version:*)"
+      "Bash(terraform --version:*)",
+      "Bash(find:*)",
+      "Bash(where:*)",
+      "Bash(dir:*)",
+      "Bash(powershell -Command \"irm https://astral.sh/uv/install.ps1 | iex\")",
+      "Bash(powershell:*)",
+      "Bash($env:Path = \"C:\\\\Users\\\\micha\\\\.local\\\\bin;$env:Path\")",
+      "Bash(uv --version:*)",
+      "Bash(C:Usersmicha.localbinuv.exe --version)",
+      "Bash(\"/c/Users/micha/.local/bin/uv.exe\" --version)",
+      "Bash(git pull:*)",
+      "Bash(git stash:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh label list:*)",
+      "Bash(git push)",
+      "Bash(gh repo view:*)",
+      "Bash(git push:*)"
     ]
+  },
+  "shortcuts": {
+    "phase2": "Read PHASE-2-READINESS.md and guide me through Phase 2 implementation decisions",
+    "test-agent": "Run pytest for a specific agent with coverage reporting",
+    "mock-api": "Start Docker Compose services and validate mock API endpoints",
+    "cost-check": "Review suggested changes for Phase 4-5 budget implications",
+    "agent-flow": "Trace a multi-agent conversation flow through the system"
   }
 }

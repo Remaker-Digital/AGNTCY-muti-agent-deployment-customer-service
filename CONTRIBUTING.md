@@ -259,12 +259,237 @@ async def test_agent_handles_customer_message(sample_a2a_message):
     assert 0 <= content["confidence"] <= 1.0
 ```
 
+## Reporting Issues
+
+We use GitHub issue templates to help organize and triage contributions. Please select the appropriate template:
+
+### Bug Reports
+Use the **Bug Report** template for:
+- Unexpected behavior or errors
+- Agent logic issues
+- Mock API failures
+- Docker/infrastructure problems
+- Test failures
+
+Please include:
+- Detailed reproduction steps
+- Environment details (OS, Python version, Docker version)
+- Relevant logs from `docker-compose logs <service>`
+- Phase and component affected
+
+### Feature Requests
+Use the **Feature Request** template for:
+- New agent capabilities
+- Enhanced mock APIs
+- Infrastructure improvements
+- Testing enhancements
+- CI/CD pipeline additions
+
+**Important considerations:**
+- Budget constraints ($0 for Phase 1-3, $200/month for Phase 4-5)
+- Educational value for blog readers
+- Alignment with AGNTCY SDK patterns
+- Cost impact on Azure resources
+
+### Documentation Issues
+Use the **Documentation** template for:
+- Missing documentation
+- Unclear explanations
+- Incorrect or outdated docs
+- Code comment improvements
+- Architecture diagram requests
+
+Good documentation is critical for an educational project!
+
+### Cost Optimization
+Use the **Cost Optimization** template for:
+- Azure service cost reductions
+- Alternative service suggestions
+- Auto-scaling improvements
+- Resource rightsizing
+
+This is a **key learning objective** - we welcome all ideas to stay within the $200/month budget!
+
+### General Questions
+For discussions, questions, or ideas that don't fit the templates above, use [GitHub Discussions](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/discussions).
+
+## Community Guidelines
+
+### Code of Conduct
+This is an educational project. We expect all contributors to:
+- Be respectful and constructive in feedback
+- Focus on learning and teaching
+- Welcome newcomers and beginners
+- Provide helpful, detailed code reviews
+- Credit others' contributions
+
+### Response Times
+This is a community-driven project. Please expect:
+- Issue triage: 2-3 days
+- PR review: 1-2 weeks
+- General questions: Best effort
+
+### Recognition
+All contributors will be:
+- Listed in release notes
+- Credited in merged PRs
+- Acknowledged in the project blog post (if significant contributions)
+
+## Advanced Topics
+
+### Working with AGNTCY SDK
+
+The project uses AGNTCY SDK for multi-agent orchestration. Key patterns:
+
+**Factory Pattern:**
+```python
+from shared.factory import AgntcyFactory
+
+# Singleton factory instance
+factory = AgntcyFactory.get_instance()
+```
+
+**A2A Protocol (Agent-to-Agent):**
+```python
+# For custom agent logic
+from agntcy_app_sdk.protocols.a2a import A2AProtocol
+
+protocol = factory.create_a2a_protocol(
+    topic="intent-classifier",
+    handler=message_handler
+)
+```
+
+**MCP Protocol (Model Context Protocol):**
+```python
+# For external tool integration
+from agntcy_app_sdk.protocols.mcp import MCPProtocol
+
+protocol = factory.create_mcp_protocol(
+    topic="shopify-integration",
+    handler=tool_handler
+)
+```
+
+### Testing with Docker Compose
+
+**Run specific service:**
+```bash
+docker-compose up -d agent-intent-classification
+docker-compose logs -f agent-intent-classification
+```
+
+**Rebuild after changes:**
+```bash
+docker-compose build agent-intent-classification
+docker-compose up -d agent-intent-classification
+```
+
+**Test mock API:**
+```bash
+# Shopify mock
+curl http://localhost:8001/products
+
+# Zendesk mock
+curl http://localhost:8002/tickets
+
+# Mailchimp mock
+curl http://localhost:8003/campaigns
+
+# Google Analytics mock
+curl http://localhost:8004/reports
+```
+
+### Phase-Specific Contributions
+
+**Phase 1 (Infrastructure):**
+- Focus: Docker configuration, mock APIs, agent skeletons
+- Testing: Unit tests with mocks
+- No cloud resources
+
+**Phase 2 (Business Logic):**
+- Focus: Agent implementations, message flows
+- Testing: Integration tests against mock services
+- AGNTCY SDK patterns
+
+**Phase 3 (Testing & Validation):**
+- Focus: E2E tests, load testing, benchmarks
+- Testing: Comprehensive test scenarios
+- Performance validation
+
+**Phase 4-5 (Azure Production):**
+- Focus: Terraform, real APIs, cost optimization
+- Testing: Azure staging validation
+- **Critical:** All changes must respect $200/month budget
+
+### Cost Awareness
+
+Before suggesting Azure services for Phase 4-5, check:
+1. **Pricing tier:** Use Basic/Standard, not Premium
+2. **Billing model:** Prefer pay-per-use over provisioned
+3. **Auto-scaling:** Scale down aggressively
+4. **Region:** Single region (East US) only
+5. **Alternatives:** Can a cheaper service work?
+
+Examples:
+- ✅ Cosmos DB Serverless (pay-per-request)
+- ✅ Container Instances (pay-per-second)
+- ✅ Redis Basic C0 (250MB)
+- ❌ Cosmos DB provisioned throughput
+- ❌ AKS (too expensive for budget)
+- ❌ Azure Front Door (not needed)
+
+## Troubleshooting Contributions
+
+### "Tests are failing"
+```bash
+# Run tests locally first
+pytest tests/ -v --cov=shared --cov=agents
+
+# Check Docker logs
+docker-compose logs
+
+# Rebuild everything
+docker-compose down -v
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+### "Black/Flake8 failing in CI"
+```bash
+# Format code
+black shared/ agents/ tests/ --line-length 100
+
+# Check linting
+flake8 shared/ agents/ tests/ --max-line-length 100
+```
+
+### "Coverage decreased"
+Add tests for new code:
+```bash
+# Generate coverage report
+pytest --cov=shared --cov=agents --cov-report=html
+
+# Open htmlcov/index.html to see uncovered lines
+```
+
+### "Docker build failing"
+```bash
+# Check Dockerfile syntax
+docker build -t test-build -f agents/intent_classification/Dockerfile .
+
+# Check requirements.txt
+pip install -r requirements.txt
+```
+
 ## Questions?
 
-- Open a GitHub Discussion for general questions
-- Open an Issue for bugs or feature requests
-- Check CLAUDE.md for AI assistant guidance
-- Review PROJECT-README.txt for full specifications
+- **General questions:** Open a [GitHub Discussion](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/discussions)
+- **Bugs or features:** Open an [Issue](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/issues/new/choose)
+- **Security issues:** Use [Security Advisories](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/security/advisories/new)
+- **AI assistance:** Check [CLAUDE.md](CLAUDE.md) for AI assistant guidance
+- **Project specs:** Review [PROJECT-README.txt](PROJECT-README.txt) for full specifications
+- **AGNTCY SDK:** Refer to [AGNTCY-REVIEW.md](AGNTCY-REVIEW.md) for integration patterns
 
 ## License
 
@@ -273,3 +498,5 @@ By contributing, you agree that your contributions will be licensed under the MI
 ---
 
 **Thank you for helping make this educational project better!** 🎓
+
+We appreciate contributions of all sizes - from typo fixes to major features. Every improvement helps developers learn multi-agent AI systems, Azure deployment, and cost optimization techniques.
