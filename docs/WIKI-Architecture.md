@@ -3,7 +3,7 @@
 **Multi-Agent Customer Service Platform on Azure using AGNTCY SDK**
 
 **Last Updated:** 2026-01-22
-**Version:** 2.0 (includes Phase 2-5 architectural enhancements)
+**Version:** 2.1 (includes Critic/Supervisor Agent + Execution Tracing)
 **Status:** Phase 1 Complete, Phase 2 Ready
 
 ---
@@ -36,7 +36,7 @@ This is an **educational example project** demonstrating how to build a cost-eff
 
 **Target Use Case:** E-commerce customer service automation
 **Scale:** Small e-commerce (50 products, 20 support articles, 5 policies)
-**Budget Constraint:** $265-300/month (Azure Phase 4-5)
+**Budget Constraint:** $310-360/month (Azure Phase 4-5) - **REVISED 2026-01-22**
 **Key Objective:** Demonstrate enterprise patterns within tight budget constraints
 
 ### Success Criteria
@@ -44,8 +44,10 @@ This is an **educational example project** demonstrating how to build a cost-eff
 - **Response Time:** <2 minutes for customer queries
 - **Automation Rate:** >70% of queries handled without human intervention
 - **Availability:** 99.9% uptime during business hours
-- **Cost Efficiency:** Operate within $265-300/month budget
+- **Cost Efficiency:** Operate within $310-360/month budget (Phase 4-5), optimize to $200-250/month post-Phase 5
 - **Reproducibility:** All code and documentation enable readers to build it themselves
+- **Security:** <5% false positive rate on content validation, 100% block rate for adversarial inputs
+- **Observability:** Full execution traces for all conversations with <50ms overhead
 
 ---
 
@@ -67,7 +69,15 @@ This is an **educational example project** demonstrating how to build a cost-eff
                              │
                              ▼
 ┌─────────────────────────────────────────────────────────────────────┐
-│                     Multi-Agent System Layer                         │
+│                     Multi-Agent System Layer (6 Agents)              │
+│                                                                       │
+│  ┌────────────────┐                                                  │
+│  │ Critic/        │ ◄── Input Validation (customer messages)         │
+│  │ Supervisor     │ ──► Output Validation (AI responses)            │
+│  │ Agent (NEW)    │                                                  │
+│  └────────┬───────┘                                                  │
+│           │                                                           │
+│           ▼                                                           │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐  ┌───────────┐ │
 │  │   Intent    │  │  Knowledge  │  │  Response   │  │Escalation │ │
 │  │Classification│  │  Retrieval  │  │ Generation  │  │   Agent   │ │
@@ -79,6 +89,9 @@ This is an **educational example project** demonstrating how to build a cost-eff
 │                    ┌─────────▼──────────┐                           │
 │                    │   Analytics Agent  │                           │
 │                    └────────────────────┘                           │
+│                                                                       │
+│  [OpenTelemetry Tracing: All agents instrumented for full           │
+│   decision tree capture, PII tokenized, 7-day retention]            │
 └────────────────────────────┬────────────────────────────────────────┘
                              │
                     ┌────────┴─────────┐
@@ -293,8 +306,9 @@ This is an **educational example project** demonstrating how to build a cost-eff
 | **Intent Classification** | GPT-4o-mini | $0.15 | Fast, simple classification task |
 | **Response Generation** | GPT-4o | $2.50 | High-quality customer-facing responses |
 | **Knowledge Retrieval** | text-embedding-3-large | $0.13 | Vector embeddings for RAG |
+| **Critic/Supervisor** (NEW) | GPT-4o-mini | $0.15 | Cost-effective content validation |
 
-**Estimated Monthly Cost:** ~$26/month (5M intent + 10M response + 2M embedding tokens)
+**Estimated Monthly Cost:** ~$48-62/month (8M intent + 15M response + 3M embedding + 12M validation tokens) - **REVISED 2026-01-22**
 
 **Trade-offs:**
 - ❌ More complex than single model
@@ -306,6 +320,76 @@ This is an **educational example project** demonstrating how to build a cost-eff
 
 **Alternative Considered:** Single GPT-4o model for all agents
 **Why Differentiated:** Cost optimization without sacrificing quality where it matters
+
+---
+
+### 8. Content Validation: Critic/Supervisor Agent (Added 2026-01-22)
+
+**Decision:** Implement a 6th dedicated agent for input and output content validation
+
+**Rationale:**
+- **Security:** Block prompt injection, jailbreak attempts, malicious instructions
+- **Safety:** Filter profanity, hate speech, harmful content from responses
+- **Compliance:** Prevent PII leakage in responses, enforce brand guidelines
+- **Quality:** Ensure all responses meet content policy standards
+
+**Architecture:**
+- **Agent Type:** A2A protocol via AGNTCY SDK
+- **Position:** Sits between customer input and Intent Agent (input validation), between Response Agent and customer (output validation)
+- **Model:** GPT-4o-mini for cost-effective validation (~$0.15/1M tokens)
+- **Strategy:** Block and regenerate (max 3 attempts), escalate to human if all attempts fail
+
+**Content Policies Enforced:**
+- ✅ Profanity and obscenity (adult content, slurs, hate speech)
+- ✅ PII leakage (credit cards, SSNs, passwords in responses)
+- ✅ Harmful content (self-harm, violence, illegal activities)
+- ✅ Prompt injection (jailbreak attempts, instruction override)
+
+**Performance Targets:**
+- **Latency:** <200ms P95 for validation
+- **False Positive Rate:** <5% (legitimate queries incorrectly blocked)
+- **True Positive Rate:** 100% for adversarial test cases
+
+**Cost:** ~$22-31/month (Container Instance + GPT-4o-mini API calls + tracing)
+
+**See:** [Critic/Supervisor Requirements](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/docs/critic-supervisor-agent-requirements.md)
+
+---
+
+### 9. Execution Tracing: OpenTelemetry Instrumentation (Added 2026-01-22)
+
+**Decision:** Instrument all agents with OpenTelemetry for full execution tracing
+
+**Rationale:**
+- **Debugging:** Enable operators to trace through failed conversations and identify root causes
+- **Understanding:** See why agents made specific decisions (intent classification, routing, escalation)
+- **Compliance:** Audit trail for content validation and PII tokenization
+- **Optimization:** Identify latency bottlenecks and cost optimization opportunities
+
+**Architecture:**
+- **Instrumentation:** OpenTelemetry SDK integrated into AGNTCY factory
+- **Trace Backend:** ClickHouse + Grafana (Phase 1-3), Azure Application Insights + Monitor Logs (Phase 4-5)
+- **Trace Format:** Spans with agent name, action, inputs (PII tokenized), outputs, reasoning, latency, cost
+- **Retention:** 7 days (cost optimized), exportable for long-term analysis
+
+**Visualization Modes:**
+1. **Timeline View:** Conversation flow with agent handoffs, timestamps, latencies
+2. **Decision Tree Diagram:** Hierarchical visualization of agent decisions and reasoning
+3. **Searchable Logs:** Filter by conversation ID, agent, action type, error conditions
+
+**Data Captured Per Span:**
+- Agent name and action type (classify_intent, generate_response, validate_output)
+- Inputs (PII tokenized: customer names → TOKEN_xyz)
+- Outputs (intent classification, responses, validation results)
+- Reasoning (why the agent made this decision)
+- Latency (milliseconds per action)
+- Cost (tokens used, dollar cost per LLM call)
+
+**Performance Target:** <50ms overhead for trace instrumentation (P95)
+
+**Cost:** ~$10-15/month (Application Insights ingestion with 50% sampling, 7-day retention)
+
+**See:** [Execution Tracing Requirements](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/docs/execution-tracing-observability-requirements.md)
 
 ---
 
@@ -431,7 +515,70 @@ response = azure_openai.chat(prompt, model="gpt-4o")
 
 ---
 
-#### 4. Escalation Agent
+#### 4. Critic/Supervisor Agent (Added 2026-01-22)
+**Role:** Validate all customer inputs and AI-generated responses for safety, compliance, and quality
+
+**Inputs (Input Validation):**
+- Customer message (raw text)
+- Conversation context (previous exchanges)
+- Content policy rules (prompt injection patterns, jailbreak attempts)
+
+**Inputs (Output Validation):**
+- AI-generated response (from Response Generation Agent)
+- PII detection patterns (credit cards, SSNs, passwords)
+- Brand guidelines (tone, language, prohibited phrases)
+
+**Outputs:**
+- Validation result (approved/rejected)
+- Violations detected (prompt_injection, profanity, pii_leak, harmful_content)
+- Confidence score (0.0-1.0)
+- Reasoning (why the content was blocked)
+- Regeneration feedback (if rejected, how to fix)
+
+**Technology:**
+- Model: Azure OpenAI GPT-4o-mini (cost-effective)
+- Protocol: AGNTCY A2A
+- Strategy: Block and regenerate (max 3 attempts), escalate if all fail
+
+**Validation Flow:**
+```python
+# Pseudo-code (Input Validation)
+def validate_input(customer_message):
+    validation = gpt4o_mini_validate(customer_message, policy="input")
+
+    if validation.contains_prompt_injection:
+        return {"approved": False, "violation": "prompt_injection",
+                "reason": "Detected jailbreak attempt"}
+
+    return {"approved": True}
+
+# Pseudo-code (Output Validation)
+def validate_output(ai_response, attempt=1):
+    validation = gpt4o_mini_validate(ai_response, policy="output")
+
+    if validation.contains_profanity:
+        if attempt < 3:
+            return regenerate_response(feedback="Remove profanity")
+        else:
+            escalate_to_human(reason="Failed validation after 3 attempts")
+
+    if validation.contains_pii_leak:
+        return {"approved": False, "violation": "pii_leak",
+                "reason": "Response contains credit card number"}
+
+    return {"approved": True}
+```
+
+**Performance Targets:**
+- Latency: <200ms P95
+- False Positive Rate: <5%
+- True Positive Rate: 100% for adversarial tests
+
+**Cost:** ~$5-8/month (API calls only, validation is short-prompt task)
+
+---
+
+#### 5. Escalation Agent
 **Role:** Determine when to escalate to human agents and create Zendesk tickets
 
 **Inputs:**
@@ -477,7 +624,7 @@ if escalate:
 
 ---
 
-#### 5. Analytics Agent
+#### 6. Analytics Agent
 **Role:** Track KPIs, generate reports, and provide system health metrics
 
 **Inputs:**
@@ -541,8 +688,17 @@ Used for **custom agent logic** and **inter-agent coordination**
 ```
 
 **Routing:**
-- **Topic-based:** `intent-classifier`, `knowledge-retrieval-en`, `response-generator-en`
-- **Language-specific:** Separate agents for English, French (fr-CA), Spanish (es) in Phase 4
+- **Topic-based:** `critic-supervisor`, `intent-classifier`, `knowledge-retrieval-en`, `response-generator-en`, `escalation`, `analytics`
+- **Language-specific:** Separate response agents for English, French (fr-CA), Spanish (es) in Phase 4
+
+**Example Flow with Critic/Supervisor (Added 2026-01-22):**
+```
+1. Customer Message → Critic/Supervisor (input validation)
+2. Critic/Supervisor → Intent Classifier (if approved)
+3. Intent Classifier → Knowledge Retrieval OR Response Generation
+4. Response Generation → Critic/Supervisor (output validation)
+5. Critic/Supervisor → Customer (if approved) OR Regenerate (if rejected, max 3x)
+```
 
 ---
 
@@ -1058,6 +1214,40 @@ except:
     pass  # ❌ Silent failure
 ```
 
+#### Tracing with OpenTelemetry (Added 2026-01-22)
+```python
+from opentelemetry import trace
+
+tracer = trace.get_tracer(__name__)
+
+# Wrap agent actions in spans
+async def classify_intent(message: str, context: Dict) -> IntentResult:
+    with tracer.start_as_current_span("classify_intent") as span:
+        # PII tokenization before adding to span
+        span.set_attribute("message", tokenize_pii(message))
+        span.set_attribute("customer_id", context.get("customer_id"))
+
+        # Perform classification
+        result = await gpt4o_mini_classify(message, context)
+
+        # Capture decision details
+        span.set_attribute("intent", result.intent)
+        span.set_attribute("confidence", result.confidence)
+        span.set_attribute("reasoning", result.reasoning)
+        span.set_attribute("latency_ms", result.latency)
+        span.set_attribute("cost_tokens", result.tokens)
+
+        return result
+```
+
+**Key Principles:**
+- All agent actions wrapped in spans for full traceability
+- PII tokenized before adding to span attributes (names → TOKEN_xyz)
+- Capture inputs, outputs, reasoning, latency, cost for every decision
+- Enable with `AgntcyFactory(enable_tracing=True)`
+
+---
+
 #### Logging
 ```python
 import logging
@@ -1213,7 +1403,7 @@ az container list --resource-group agntcy-prod-rg
 az cosmosdb list --resource-group agntcy-prod-rg
 ```
 
-**Cost:** $265-300/month (target)
+**Cost:** $310-360/month (Phase 4-5 target) - **REVISED 2026-01-22**
 
 ---
 
@@ -1228,6 +1418,8 @@ az cosmosdb list --resource-group agntcy-prod-rg
 | **Availability** | 99.9% (business hours) | Phase 5 |
 | **Intent Classification Latency** | <500ms | Phase 5 |
 | **RAG Query Latency** | <500ms | Phase 5 |
+| **Content Validation Latency** | <200ms P95 | Phase 5 |
+| **Trace Instrumentation Overhead** | <50ms P95 | Phase 5 |
 | **Event Processing Latency** | <5 seconds | Phase 5 |
 | **Concurrent Conversations** | 100+ | Phase 5 |
 | **Throughput** | 1000 requests/min | Phase 5 |
@@ -1237,7 +1429,7 @@ az cosmosdb list --resource-group agntcy-prod-rg
 ### Scalability Strategy
 
 #### Horizontal Scaling
-- **Container Instances:** Auto-scale 1-3 instances per agent
+- **Container Instances:** Auto-scale 1-3 instances per agent (6 agents total - REVISED 2026-01-22)
 - **Cosmos DB:** Serverless auto-scales RU/s (no manual provisioning)
 - **NATS:** Single instance sufficient for Phase 5 (1M+ msgs/sec capacity)
 
@@ -1277,20 +1469,21 @@ IF avg_cpu < 30% for 10 minutes:
 
 ## Cost Optimization
 
-### Budget Breakdown (Phase 4-5)
+### Budget Breakdown (Phase 4-5) - **REVISED 2026-01-22**
 
 | Category | Services | Monthly Cost | % of Budget |
 |----------|----------|--------------|-------------|
-| **Compute** | Container Instances (5 agents), Azure Functions | $55-90 | 30% |
-| **Data** | Cosmos DB, Blob, Key Vault | $36-65 | 25% |
-| **AI/ML** | Azure OpenAI (tokens) | $20-50 | 15% |
-| **Events** | NATS (Container), Event storage | $12-25 | 8% |
-| **Networking** | App Gateway, egress | $20-40 | 13% |
-| **Monitoring** | Azure Monitor, Log Analytics | $10-20 | 7% |
-| **Headroom** | Buffer for spikes | $12-35 | 2% |
-| **TOTAL** | | **$165-300** | 100% |
+| **Compute** | Container Instances (6 agents), Azure Functions | $75-110 | 27% |
+| **Data** | Cosmos DB, Blob, Key Vault | $36-65 | 17% |
+| **AI/ML** | Azure OpenAI (tokens, incl. Critic/Supervisor) | $48-62 | 17% |
+| **Events** | NATS (Container), Event storage | $12-25 | 6% |
+| **Networking** | App Gateway, egress | $20-40 | 10% |
+| **Monitoring** | Azure Monitor, Log Analytics, Tracing | $32-43 | 12% |
+| **Security** | Critic/Supervisor validation overhead | Included | - |
+| **Headroom** | Buffer for spikes | $35-45 | 11% |
+| **TOTAL** | | **$310-360** | 100% |
 
-**Target:** $265-300/month (allows for growth)
+**Target:** $310-360/month Phase 4-5, optimize to $200-250/month post-Phase 5
 
 ---
 
@@ -1332,10 +1525,11 @@ IF current_hour in [2, 3, 4, 5]:
 ---
 
 #### 4. Model Selection
-- Use GPT-4o-mini ($0.15/1M) instead of GPT-4o ($2.50/1M) for 70% of tasks
+- Use GPT-4o-mini ($0.15/1M) instead of GPT-4o ($2.50/1M) for 75% of tasks (intent, validation)
+- Use GPT-4o only for customer-facing responses (quality matters)
 - Cache common responses (reduce API calls by 30-50%)
 
-**Savings:** ~60% AI costs vs. using GPT-4o for all
+**Savings:** ~70% AI costs vs. using GPT-4o for all tasks
 
 ---
 
@@ -1351,10 +1545,10 @@ IF current_hour in [2, 3, 4, 5]:
 ### Cost Monitoring
 
 **Azure Cost Management:**
-- **Budget:** $300/month hard limit
-- **Alerts:** 83% ($250), 93% ($280), 100% ($300)
+- **Budget:** $360/month hard limit (REVISED 2026-01-22)
+- **Alerts:** 83% ($299), 93% ($335), 100% ($360)
 - **Weekly Review:** Every Monday 9am ET
-- **Daily Monitoring:** Grafana dashboard with cost metrics
+- **Daily Monitoring:** Grafana dashboard with cost metrics, trace sampling costs
 
 **Cost Allocation Tags:**
 ```
@@ -1365,7 +1559,7 @@ CostCenter: Engineering
 Owner: <your-email>
 ```
 
-**Post Phase 5 Optimization Target:** $180-220/month
+**Post Phase 5 Optimization Target:** $200-250/month (REVISED 2026-01-22)
 
 ---
 
@@ -1378,7 +1572,9 @@ Owner: <your-email>
 - **[Architecture Requirements (Phase 2-5)](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/docs/architecture-requirements-phase2-5.md)** - Comprehensive architectural enhancements specification
 - **[Data Staleness Requirements](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/docs/data-staleness-requirements.md)** - Agent-specific data store mapping
 - **[Event-Driven Requirements](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/docs/event-driven-requirements.md)** - Event catalog, NATS architecture, new user stories
-- **[User Stories (Phased)](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/user-stories-phased.md)** - 143 user stories across 5 phases
+- **[Critic/Supervisor Agent Requirements](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/docs/critic-supervisor-agent-requirements.md)** - Content validation specification (NEW 2026-01-22)
+- **[Execution Tracing Requirements](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/docs/execution-tracing-observability-requirements.md)** - OpenTelemetry observability (NEW 2026-01-22)
+- **[User Stories (Phased)](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/user-stories-phased.md)** - 145 user stories across 5 phases (REVISED 2026-01-22)
 
 ### External References
 
@@ -1387,21 +1583,24 @@ Owner: <your-email>
 - **[Azure OpenAI Service](https://learn.microsoft.com/azure/ai-services/openai/)** - GPT-4o, embeddings
 - **[Cosmos DB Vector Search](https://learn.microsoft.com/azure/cosmos-db/mongodb/vector-search)** - RAG implementation
 - **[NATS JetStream](https://docs.nats.io/nats-concepts/jetstream)** - Event streaming
+- **[OpenTelemetry](https://opentelemetry.io/)** - Distributed tracing and observability standard
 - **[Microsoft Foundry](https://azure.microsoft.com/en-us/blog/introducing-claude-opus-4-5-in-microsoft-foundry/)** - Anthropic Claude via Azure
 - **[Terraform Azure Provider](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs)** - Infrastructure-as-Code
 
 ### GitHub Project Management
 
-- **[Project Board](https://github.com/orgs/Remaker-Digital/projects/1)** - Kanban board, 143 issues
+- **[Project Board](https://github.com/orgs/Remaker-Digital/projects/1)** - Kanban board, 145 issues (REVISED 2026-01-22)
 - **[Epics](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/issues?q=label%3A%22type%3A+epic%22)** - 7 actor-based epics
 - **[Phase 1 Milestone](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/milestone/1)** - ✅ Complete
 - **[Phase 2 Milestone](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/milestone/2)** - ⏳ In progress
+- **[Issue #144](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/issues/144)** - Critic/Supervisor Agent (NEW 2026-01-22)
+- **[Issue #145](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/issues/145)** - Execution Tracing (NEW 2026-01-22)
 
 ---
 
 **Document Maintained By:** Claude Sonnet 4.5 (AI Assistant)
 **Last Updated:** 2026-01-22
-**Version:** 2.0
+**Version:** 2.1 (Critic/Supervisor Agent + Execution Tracing)
 **License:** Public (educational use)
 
 ---

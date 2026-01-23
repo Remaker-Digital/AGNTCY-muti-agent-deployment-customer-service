@@ -13,10 +13,13 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 
 ### Budget Constraints (HIGHEST PRIORITY)
 - **Phase 1-3:** $0/month (local development only, no cloud resources)
-- **Phase 4-5:** $265-300/month maximum (Azure production deployment - **REVISED 2026-01-22**)
+- **Phase 4-5:** $310-360/month maximum (Azure production deployment - **REVISED 2026-01-22**)
   - Original budget: $200/month
-  - Revised to accommodate new architectural requirements (PII tokenization, event-driven, RAG)
-  - Post Phase 5 cost optimization target: $180-220/month
+  - Revised to accommodate new architectural requirements:
+    - PII tokenization, event-driven, RAG (+$65-100)
+    - Critic/Supervisor Agent (6th agent) (+$22-31)
+    - Execution tracing & observability (+$10-15)
+  - Post Phase 5 cost optimization target: $200-250/month
 - **Cost optimization is a KEY LEARNING OBJECTIVE** - always suggest cost-effective solutions
 - Recommend serverless, pay-per-use, and Basic/Standard tiers over Premium services
 - Question any suggestion that would exceed revised budget constraints
@@ -69,7 +72,7 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 - ⏳ Ready to begin implementation once inputs received
 
 **Focus:** Agent implementations with AGNTCY SDK patterns
-- Implement 5 core agents: Intent Classification, Knowledge Retrieval, Response Generation, Escalation, Analytics
+- Implement 6 core agents: Intent Classification, Knowledge Retrieval, Response Generation, Escalation, Analytics, **Critic/Supervisor**
 - Use A2A protocol for agent-to-agent communication
 - Integration tests against mock services
 - Session management and conversation state handling
@@ -99,8 +102,10 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 2. **Data Abstraction Layer:** Design multi-store interfaces (Cosmos, Blob, Redis, mock)
 3. **Event-Driven Architecture:** Design event ingestion service and NATS schemas
 4. **RAG Pipeline:** Design vector embeddings with local FAISS mock
+5. **Critic/Supervisor Agent (6th agent):** Design content validation for input/output safety
+6. **Execution Tracing:** Instrument all agents with OpenTelemetry for full observability
 
-**See docs/architecture-requirements-phase2-5.md for complete specifications**
+**See docs/architecture-requirements-phase2-5.md, docs/critic-supervisor-agent-requirements.md, docs/execution-tracing-observability-requirements.md**
 
 ### Phase 3: Testing & Validation ($0 budget)
 **Focus:** Functional testing and performance benchmarking
@@ -121,8 +126,10 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 2. **Multi-Store Access:** Validate staleness tolerances with Docker containers
 3. **Event-Driven:** Mock RabbitMQ for webhook and cron testing
 4. **RAG:** Validate vector search accuracy with 75-document test knowledge base
+5. **Critic/Supervisor:** Test content validation with adversarial inputs (100+ prompt injection attempts)
+6. **Execution Tracing:** Validate traces in ClickHouse, test Grafana dashboards, verify PII tokenization
 
-### Phase 4: Azure Production Setup ($265-300/month budget - **REVISED 2026-01-22**)
+### Phase 4: Azure Production Setup ($310-360/month budget - **REVISED 2026-01-22**)
 **Focus:** Terraform infrastructure, multi-language support, real API integration, new architectural components
 - Deploy to Azure East US region
 - Add Canadian French and Spanish language support
@@ -143,28 +150,33 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 2. **Multi-Store:** Cosmos DB Serverless (real-time + vector), Blob Storage + CDN (knowledge base)
 3. **Event-Driven:** NATS JetStream, Azure Functions (webhook ingestion), Shopify/Zendesk webhooks
 4. **RAG:** Azure OpenAI embeddings (text-embedding-3-large), Cosmos DB vector search (MongoDB API)
-5. **5 New User Stories:** Issues #139-#143 (event-driven features)
+5. **Critic/Supervisor Agent:** Deploy 6th agent for content validation (~$22-31/month)
+6. **Execution Tracing:** Azure Monitor + Application Insights, OpenTelemetry instrumentation (~$10-15/month)
+7. **5 New User Stories:** Issues #139-#143 (event-driven features)
 
-### Phase 5: Production Deployment & Testing ($265-300/month budget - **REVISED 2026-01-22**)
+### Phase 5: Production Deployment & Testing ($310-360/month budget - **REVISED 2026-01-22**)
 **Focus:** Production deployment, load testing, security validation, DR drills, new architecture validation
 - Deploy to Azure and validate in production
 - Load testing: 100 concurrent users, 1000 req/min
 - Security scanning (OWASP ZAP, Dependabot, Snyk)
 - Disaster recovery validation (quarterly full drill)
 - Final blog post and documentation
-- **NEW:** Validate PII tokenization, event processing, RAG accuracy
+- **NEW:** Validate PII tokenization, event processing, RAG accuracy, Critic/Supervisor validation, execution tracing
 
 **When working on Phase 5:**
 - Monitor Azure costs continuously
-- Validate budget alerts are firing correctly at 83% ($250) and 93% ($280) - **REVISED**
+- Validate budget alerts are firing correctly at 83% ($257) and 93% ($299) - **REVISED**
 - Document all cost optimization decisions for blog readers
 - Ensure DR procedures are tested and documented
+- Post Phase 5 cost optimization target: $200-250/month (reduced agent count, optimized models)
 
 **New Validation Requirements (Added 2026-01-22):**
 1. **PII Tokenization:** Latency <100ms (P95), no data leaks in third-party AI logs
 2. **Data Staleness:** Intent <10s, Knowledge <1hr, Response real-time, Escalation <30s, Analytics <15min
 3. **Event Processing:** 100 events/sec sustained, <1% error rate, DLQ monitoring
 4. **RAG:** Query latency <500ms, retrieval accuracy >90%, 75-document knowledge base
+5. **Critic/Supervisor:** Block rate <5% for legitimate queries, 100% block rate for 100+ prompt injection test cases
+6. **Execution Tracing:** Full trace capture for all conversations, <50ms trace overhead, PII tokenization verified
 
 ## Key Architecture Decisions
 
@@ -201,19 +213,41 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
   - Intent Classification: GPT-4o-mini (~$0.15/1M tokens)
   - Response Generation: GPT-4o (~$2.50/1M tokens)
   - Knowledge Retrieval: text-embedding-3-large (~$0.13/1M tokens)
+  - Critic/Supervisor: GPT-4o-mini (~$0.15/1M tokens) - cost-effective for validation
 - **Post Phase 5:** Fine-tuned models, self-hosted Qdrant, medium e-commerce scale
 - **See:** `docs/architecture-requirements-phase2-5.md` Section 4 for RAG pipeline
+
+### Critic/Supervisor Agent - Content Validation (Added 2026-01-22)
+- **6th Agent:** Separate agent dedicated to validating all input and output content
+- **Input Validation:** Prompt injection detection, malicious instruction blocking
+- **Output Validation:** Profanity filtering, PII leakage prevention, harmful content blocking
+- **Strategy:** Block and regenerate (max 3 attempts), escalate to human if all attempts fail
+- **Integration:** Sits between customer messages and Intent Agent, between Response Agent and customer
+- **Cost:** ~$22-31/month (GPT-4o-mini for validation, Container Instance, tracing overhead)
+- **Performance Target:** <200ms P95 latency, <5% false positive rate
+- **See:** `docs/critic-supervisor-agent-requirements.md` for complete specification
+
+### Execution Tracing & Observability (Added 2026-01-22)
+- **Purpose:** Enable operators to understand agent decisions and diagnose undesirable behaviors
+- **Instrumentation:** OpenTelemetry spans for every agent decision, LLM call, validation step
+- **Visualization:** Timeline view (conversation flow), decision tree diagram, searchable logs
+- **Data Captured:** Agent name, action type, inputs (PII tokenized), outputs, reasoning, latency, cost
+- **Retention:** 7 days (cost optimized), exportable for long-term analysis
+- **Storage:** Azure Application Insights + Azure Monitor Logs (~$10-15/month with sampling)
+- **Access:** Grafana dashboards (Phase 1-3), Azure Monitor workbooks (Phase 4-5)
+- **See:** `docs/execution-tracing-observability-requirements.md` for trace schema and examples
 
 ### AGNTCY SDK Usage
 - **Factory Pattern:** Single `AgntcyFactory` instance per application (singleton)
 - **Protocol Choice:**
-  - A2A for custom agent logic (Intent, Response, Escalation, Analytics)
+  - A2A for custom agent logic (Intent, Response, Escalation, Analytics, Critic/Supervisor)
   - MCP for external tool integrations (Shopify, Zendesk, Mailchimp)
 - **Transport Choice:**
   - SLIM for secure, low-latency agent communication (recommended)
   - NATS for high-throughput scenarios AND event bus (consolidated)
 - **Message Format:** Use contextId for conversation threads, taskId for tracking
 - **Session Management:** `AppSession` with configurable max_sessions
+- **Tracing:** Enable OpenTelemetry via `AgntcyFactory(enable_tracing=True)` for execution tracing
 
 ### Multi-Language Strategy (Phase 4 only)
 - **Primary:** US English (all phases)
@@ -233,12 +267,14 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 ### Cost Optimization Principles (Phase 4-5)
 1. Use pay-per-use over provisioned capacity (Container Instances, Cosmos Serverless)
 2. Use Basic/Standard tiers, not Premium (Redis, Container Registry, App Gateway)
-3. Auto-scale aggressively DOWN (1 instance minimum per agent)
+3. Auto-scale aggressively DOWN (1 instance minimum per agent, including Critic/Supervisor)
 4. Implement auto-shutdown during low-traffic hours (2am-6am ET)
-5. Reduce log retention to 7 days
+5. Reduce log retention to 7 days (Application Insights, Monitor Logs, execution traces)
 6. Single region deployment (no geo-replication, no Front Door)
 7. Weekly cost reviews and optimization iterations
 8. Tag all resources for cost allocation tracking
+9. Use GPT-4o-mini for validation tasks (Critic/Supervisor) instead of GPT-4o
+10. Implement intelligent trace sampling (50% sample rate) to reduce ingestion costs
 
 ## Common Pitfalls to Avoid
 
@@ -250,7 +286,7 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 - Provision Cosmos DB with RU/s (use Serverless mode)
 - Set up geo-replication or multi-region (budget constraint)
 - Use default 30-day log retention (use 7 days)
-- Suggest services that would exceed $265-300/month budget (revised 2026-01-22)
+- Suggest services that would exceed $310-360/month budget (revised 2026-01-22)
 - Commit secrets to Git (.env files must be in .gitignore)
 - Use Python < 3.12 (AGNTCY SDK requirement)
 
@@ -273,18 +309,27 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 All services are mocked locally. No API keys needed.
 
 ### Phase 4-5: Required
-- **Azure:** Subscription (~$265-300/month - **REVISED**), DevOps organization (free), Service Principal
+- **Azure:** Subscription (~$310-360/month - **REVISED 2026-01-22**), DevOps organization (free), Service Principal
 - **Shopify:** Partner account (free), Development Store (free)
 - **Zendesk:** Trial/Sandbox account ($0-49/month) - monitor budget impact
 - **Mailchimp:** Free tier account (up to 500 contacts, $0)
 - **Google Analytics:** GA4 property (free), Service Account (free)
-- **AI Models:** Azure OpenAI Service (~$26/month estimated token usage)
-  - GPT-4o-mini for intent classification
+- **AI Models:** Azure OpenAI Service (~$48-62/month estimated token usage - **REVISED**)
+  - GPT-4o-mini for intent classification + Critic/Supervisor validation
   - GPT-4o for response generation
   - text-embedding-3-large for RAG embeddings
   - **Alternative:** Microsoft Foundry (Anthropic Claude via Azure) - also within secure perimeter
+- **Tracing:** Azure Application Insights + Monitor Logs (~$10-15/month for execution traces)
 
-**Budget Impact:** Revised total budget $265-300/month accommodates new architectural requirements (PII tokenization, event-driven, RAG, multi-store).
+**Budget Breakdown (Phase 4-5):**
+- Azure infrastructure (Container Instances, Cosmos DB, Key Vault, Networking): ~$200-220/month
+- AI models (OpenAI API calls, embeddings): ~$48-62/month
+- Observability (Application Insights, Monitor Logs, execution tracing): ~$32-43/month
+- Event bus (NATS JetStream via AGNTCY): ~$0 (reuses agent transport)
+- Zendesk (if needed): ~$0-19/month (sandbox/trial)
+- **Total:** ~$310-360/month
+
+**Post Phase 5 Optimization Target:** $200-250/month (reduced agent count, optimized model selection, aggressive auto-scaling)
 
 ## GitHub Project Management
 
@@ -339,12 +384,13 @@ Located in project root:
 
 ```
 project-root/
-├── agents/                      # Agent implementations
+├── agents/                      # Agent implementations (6 agents - REVISED 2026-01-22)
 │   ├── intent_classification/   # Each agent has own directory
 │   ├── knowledge_retrieval/
 │   ├── response_generation/
 │   ├── escalation/
-│   └── analytics/
+│   ├── analytics/
+│   └── critic_supervisor/       # NEW: 6th agent for content validation
 ├── mocks/                       # Mock API implementations (Phase 1-3)
 │   ├── shopify/
 │   ├── zendesk/
@@ -534,20 +580,22 @@ A: Three options: (1) Use Zendesk Sandbox for partners/developers (free), (2) Bu
 
 The project is successful if:
 - ✅ Phase 1-3 runs entirely locally with $0 cloud costs
-- ✅ Phase 4-5 stays within $200/month Azure budget
-- ✅ All 5 agents communicate via AGNTCY SDK successfully
+- ✅ Phase 4-5 stays within $310-360/month Azure budget (REVISED 2026-01-22)
+- ✅ All 6 agents communicate via AGNTCY SDK successfully (REVISED: added Critic/Supervisor)
 - ✅ KPIs are measurable and demonstrable (even with mock data in Phase 1-3)
 - ✅ Code is educational, well-documented, and reproducible
 - ✅ Disaster recovery procedures are tested and validated
-- ✅ Security best practices are followed (secrets management, encryption, network isolation)
+- ✅ Security best practices are followed (secrets management, encryption, network isolation, PII tokenization)
 - ✅ CI/CD pipelines work reliably (GitHub Actions → Azure DevOps)
 - ✅ Blog readers can follow along and build it themselves
+- ✅ Content validation (Critic/Supervisor) blocks malicious inputs and harmful outputs
+- ✅ Execution tracing provides full decision tree visibility for operators
 
 ## Final Notes
 
 - **Priority Order:** Cost constraints > Functionality > Performance > Feature richness
 - **Mindset:** This is a learning project - optimize for clarity and education
-- **Budget:** $200/month is a HARD LIMIT for Phase 4-5, not a target to maximize
+- **Budget:** $310-360/month is a HARD LIMIT for Phase 4-5 (REVISED 2026-01-22), with post-Phase 5 target of $200-250/month
 - **Timeline:** No time estimates - focus on what needs to be done, not when
 - **Audience:** Developers learning multi-agent AI, Azure, and cost optimization techniques
 
@@ -561,14 +609,30 @@ When in doubt, optimize for:
 
 ## Recent Updates
 
-### 2026-01-22: GitHub Project Management Integration Complete
+### 2026-01-22: Architecture Requirements & Budget Revision
+- ✅ Added 4 new architectural requirements (PII tokenization, data abstraction, event-driven, RAG)
+- ✅ Added Critic/Supervisor Agent (6th agent) for content validation
+- ✅ Added execution tracing & observability with OpenTelemetry
+- ✅ Created 5 new GitHub issues for event-driven features (#139-#143)
+- ✅ Revised budget to $310-360/month (from $200/month) to accommodate new requirements
+- ✅ Created comprehensive documentation:
+  - `docs/data-staleness-requirements.md`
+  - `docs/event-driven-requirements.md`
+  - `docs/architecture-requirements-phase2-5.md`
+  - `docs/critic-supervisor-agent-requirements.md`
+  - `docs/execution-tracing-observability-requirements.md`
+  - `docs/WIKI-Architecture.md` (GitHub wiki ready)
+  - `docs/WIKI-PUBLISHING-INSTRUCTIONS.md`
+- ⏳ GitHub issues for Critic/Supervisor and Tracing to be created
+- ⏳ Wiki architecture document to be updated with new components
+
+**Earlier (2026-01-22): GitHub Project Management Integration Complete**
 - ✅ Created 137 GitHub issues (7 epics + 130 user stories)
 - ✅ Configured 30 labels across 5 categories
 - ✅ Created 5 phase-based milestones with due dates
 - ✅ Automated issue creation via PowerShell scripts (100% success rate)
 - ✅ Phase 1 marked as 100% complete
 - ✅ Phase 2 readiness document prepared (PHASE-2-READINESS.md)
-- ⏳ Awaiting user input to begin Phase 2 implementation
 
 **All work documented in**:
 - PROJECT-SETUP-COMPLETE.md (complete GitHub setup summary)
@@ -579,5 +643,6 @@ When in doubt, optimize for:
 
 **Last Updated:** 2026-01-22
 **Project Phase:** Phase 1 Complete / Phase 2 Ready to Start
-**Current Budget Status:** $0 (no cloud resources yet)
+**Current Budget Status:** $0 (no cloud resources yet) / Phase 4-5 Budget: $310-360/month (REVISED)
+**Agent Count:** 6 agents (Intent, Knowledge, Response, Escalation, Analytics, Critic/Supervisor)
 **GitHub Project**: https://github.com/orgs/Remaker-Digital/projects/1
