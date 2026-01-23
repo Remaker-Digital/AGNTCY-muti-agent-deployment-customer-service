@@ -1,7 +1,8 @@
 # Phase 5: Multi-Agent Customer Service Platform - Azure Production Architecture
 # Region: East US
-# Budget: $200/month maximum
+# Budget: $310-360/month (Phase 4-5), optimize to $200-250/month post-Phase 5
 # Purpose: Educational example - cost-optimized multi-agent AI system using AGNTCY SDK
+# Updated: 2026-01-22 - Added Critic/Supervisor Agent (6th agent) + Execution Tracing
 
 # ============================================================================
 # NETWORKING & SECURITY
@@ -100,8 +101,9 @@ resource "azurerm_container_registry" "main" {
   sku                 = "Basic"  # Not Premium - cost optimization
   admin_enabled       = false
 
-  # Stores 5 agent images + 4 mock API images
+  # Stores 6 agent images + 4 mock API images (REVISED 2026-01-22)
   # Images tagged with version + commit SHA
+  # NEW: critic-supervisor agent added
 
   # Cost: ~$5/month (Basic tier)
 }
@@ -360,6 +362,47 @@ resource "azurerm_container_group" "analytics" {
   # Cost: ~$15-20/month
 }
 
+# Critic/Supervisor Agent (NEW 2026-01-22)
+resource "azurerm_container_group" "critic_supervisor" {
+  name                = "aci-critic-supervisor"
+  location            = "eastus"
+  os_type             = "Linux"
+  subnet_ids          = [azurerm_subnet.container_subnet.id]
+
+  container {
+    name   = "critic-supervisor"
+    image  = "acrcustomerserviceprod.azurecr.io/critic-supervisor:v1.0.0"
+    cpu    = "0.5"
+    memory = "1.0"
+
+    ports {
+      port     = 8080
+      protocol = "TCP"
+    }
+
+    environment_variables = {
+      SLIM_ENDPOINT           = azurerm_container_group.slim_gateway.ip_address
+      AZURE_OPENAI_ENDPOINT   = "https://customerservice-openai.openai.azure.com/"
+      VALIDATION_MODEL        = "gpt-4o-mini"  # Cost-effective validation
+      AZURE_KEYVAULT_ENDPOINT = azurerm_key_vault.main.vault_uri
+      OTLP_ENDPOINT          = azurerm_monitor_workspace.main.endpoint
+      MAX_REGENERATE_ATTEMPTS = "3"
+    }
+  }
+
+  identity {
+    type = "SystemAssigned"
+  }
+
+  restart_policy = "Always"
+
+  # Validates all input (customer messages) and output (AI responses)
+  # Content policies: prompt injection, profanity, PII leaks, harmful content
+  # Strategy: Block and regenerate (max 3 attempts), escalate if all fail
+
+  # Cost: ~$15-20/month (container) + ~$5-8/month (GPT-4o-mini API calls)
+}
+
 # ============================================================================
 # AGNTCY SDK SLIM GATEWAY
 # ============================================================================
@@ -517,7 +560,14 @@ resource "azurerm_log_analytics_workspace" "main" {
   sku                 = "PerGB2018"
   retention_in_days   = 7  # Reduced from 30 days - cost optimization
 
-  # Cost: ~$5-10/month (pay per GB ingested, 7-day retention)
+  # Stores:
+  # - Container logs (6 agents + SLIM gateway)
+  # - OpenTelemetry execution traces (50% sampling, PII tokenized)
+  # - Application Insights telemetry
+  # - Azure Monitor metrics
+
+  # Cost: ~$15-25/month (pay per GB ingested, 7-day retention)
+  # REVISED 2026-01-22: Increased from $5-10 to account for trace ingestion
 }
 
 resource "azurerm_application_insights" "main" {
@@ -525,14 +575,18 @@ resource "azurerm_application_insights" "main" {
   location            = "eastus"
   workspace_id        = azurerm_log_analytics_workspace.main.id
   application_type    = "web"
+  sampling_percentage = 50  # 50% sampling to reduce costs (smart sampling)
 
   # Collects:
   # - Agent performance metrics (response time, routing accuracy)
   # - Container health and resource usage
   # - Application logs and traces
   # - Custom KPI metrics (automation rate, CSAT, etc.)
+  # - OpenTelemetry execution traces (full decision tree for all 6 agents)
+  # - Content validation metrics (Critic/Supervisor block rate, false positives)
 
-  # Cost: Included in Log Analytics workspace cost
+  # REVISED 2026-01-22: Added 50% sampling for trace ingestion cost optimization
+  # Cost: ~$6-8/month (included in Log Analytics, but drives ingestion volume)
 }
 
 resource "azurerm_monitor_workspace" "main" {
@@ -540,7 +594,12 @@ resource "azurerm_monitor_workspace" "main" {
   location = "eastus"
 
   # OpenTelemetry endpoint for AGNTCY SDK tracing
-  # Cost: ~$2-5/month (managed Prometheus)
+  # All 6 agents send execution traces here (via OTLP protocol)
+  # Traces include: agent name, action, inputs (PII tokenized), outputs, reasoning, latency, cost
+  # Visualization: Timeline view, decision tree diagram, searchable logs in Grafana
+
+  # REVISED 2026-01-22: Now receives traces from 6 agents (was 5)
+  # Cost: ~$10-15/month (managed Prometheus + increased trace volume)
 }
 
 resource "azurerm_monitor_action_group" "budget_alerts" {
@@ -554,31 +613,31 @@ resource "azurerm_monitor_action_group" "budget_alerts" {
   }
 }
 
-# Budget alert at 80% ($160)
-resource "azurerm_consumption_budget_resource_group" "alert_80_percent" {
-  name              = "budget-alert-80percent"
+# Budget alert at 83% ($299) - REVISED 2026-01-22
+resource "azurerm_consumption_budget_resource_group" "alert_83_percent" {
+  name              = "budget-alert-83percent"
   resource_group_id = azurerm_resource_group.main.id
-  amount            = 200
+  amount            = 360  # Phase 4-5 revised budget
   time_grain        = "Monthly"
 
   notification {
     enabled        = true
-    threshold      = 80
+    threshold      = 83
     operator       = "GreaterThan"
     contact_emails = ["admin@example.com"]
   }
 }
 
-# Budget alert at 95% ($190)
-resource "azurerm_consumption_budget_resource_group" "alert_95_percent" {
-  name              = "budget-alert-95percent"
+# Budget alert at 93% ($335) - REVISED 2026-01-22
+resource "azurerm_consumption_budget_resource_group" "alert_93_percent" {
+  name              = "budget-alert-93percent"
   resource_group_id = azurerm_resource_group.main.id
-  amount            = 200
+  amount            = 360  # Phase 4-5 revised budget
   time_grain        = "Monthly"
 
   notification {
     enabled        = true
-    threshold      = 95
+    threshold      = 93
     operator       = "GreaterThan"
     contact_emails = ["admin@example.com"]
   }
@@ -617,10 +676,13 @@ resource "azurerm_consumption_budget_resource_group" "alert_95_percent" {
 
 # Azure OpenAI Service
 # - Endpoint: https://customerservice-openai.openai.azure.com/
-# - Used by: Response Generation Agents (all 3 languages)
-# - Purpose: LLM-powered response generation
-# - Model: GPT-4 or GPT-3.5-turbo
-# - Cost: ~$20-50/month (token-based, variable)
+# - Used by: Response Generation Agents (all 3 languages), Intent Classification, Critic/Supervisor
+# - Purpose: LLM-powered response generation and content validation
+# - Models:
+#   - GPT-4o: Response generation (customer-facing, high quality)
+#   - GPT-4o-mini: Intent classification + Critic/Supervisor validation (cost-effective)
+#   - text-embedding-3-large: Knowledge retrieval (RAG embeddings)
+# - Cost: ~$48-62/month (token-based, variable) - REVISED 2026-01-22
 
 # ============================================================================
 # DISASTER RECOVERY
@@ -674,10 +736,12 @@ resource "azurerm_storage_container" "terraform_state" {
 # ============================================================================
 
 # Container Instance Auto-Scaling Strategy:
+# - Agents: 6 total (Intent, Knowledge, Response x3, Escalation, Analytics, Critic/Supervisor)
 # - Minimum instances: 1 per agent (always-on)
 # - Maximum instances: 3 per agent (peak load)
 # - Scale-up trigger: CPU >70% for 5 minutes
 # - Scale-down trigger: CPU <30% for 10 minutes
+# - REVISED 2026-01-22: Added Critic/Supervisor agent to scaling policy
 
 # Auto-Shutdown Schedule (via Azure Automation):
 # - Weekdays: 2am-6am ET (low-traffic hours) - scale to 1 instance
@@ -686,30 +750,42 @@ resource "azurerm_storage_container" "terraform_state" {
 
 # Log Retention Cost Optimization:
 # - Application Insights: 7 days (not 30)
+# - OpenTelemetry execution traces: 7 days (50% sampling, PII tokenized)
 # - Cosmos DB query logs: Disabled (not needed)
 # - Container logs: 7 days in Log Analytics
+# - REVISED 2026-01-22: Added trace retention policy
 
 # ============================================================================
-# ESTIMATED MONTHLY COSTS (Phase 5)
+# ESTIMATED MONTHLY COSTS (Phase 5) - REVISED 2026-01-22
 # ============================================================================
 
-# Application Gateway:           ~$25-30
-# Container Instances (8 total): ~$120-140
-#   - 5 agents @ $15-25 each
-#   - 3 response gen @ $18-25 each
-#   - 1 SLIM gateway @ $30-40
-# Cosmos DB Serverless:          ~$15-30
-# Container Registry (Basic):    ~$5
-# Key Vault (Standard):          ~$0.30
-# Log Analytics (7-day):         ~$5-10
-# Monitor Workspace:             ~$2-5
-# Storage Account (TF state):    ~$2-3
-# Public IP:                     ~$3-5
-# Azure OpenAI:                  ~$20-50 (variable)
-# Zendesk (if paid):             ~$0-49 (trial/sandbox preferred)
+# Application Gateway:              ~$25-30
+# Container Instances (9 total):    ~$135-160
+#   - Intent Classification:        ~$15-20
+#   - Knowledge Retrieval:          ~$15-20
+#   - Response Gen EN:              ~$18-25
+#   - Response Gen FR-CA:           ~$18-25
+#   - Response Gen ES:              ~$18-25
+#   - Escalation:                   ~$15-20
+#   - Analytics:                    ~$15-20
+#   - Critic/Supervisor (NEW):      ~$15-20
+#   - SLIM Gateway:                 ~$30-40
+# Cosmos DB Serverless:             ~$15-30
+# Container Registry (Basic):       ~$5
+# Key Vault (Standard):             ~$0.30
+# Log Analytics (7-day):            ~$15-25 (increased for trace ingestion)
+# Application Insights:             ~$6-8 (50% sampling)
+# Monitor Workspace:                ~$10-15 (increased for 6 agents)
+# Storage Account (TF state):       ~$2-3
+# Public IP:                        ~$3-5
+# Azure OpenAI:                     ~$48-62 (variable, includes validation)
+# Zendesk (if paid):                ~$0-19 (trial/sandbox preferred)
+# Networking (VNet, egress):        ~$5-10
+# Headroom (buffer):                ~$20-35
 # -------------------------------------------------
-# TOTAL:                         ~$180-220/month
-# TARGET:                        <$200/month average
+# TOTAL:                            ~$310-360/month
+# TARGET (Phase 4-5):               $310-360/month
+# TARGET (Post Phase 5):            $200-250/month (via optimization)
 
 # ============================================================================
 # RESOURCE TAGS (for cost allocation tracking)
@@ -724,5 +800,46 @@ locals {
     CostCenter  = "Engineering"
     Owner       = "Platform-Team"
     Purpose     = "Educational-Example"
+    AgentCount  = "6"  # REVISED 2026-01-22: Added Critic/Supervisor
+    Budget      = "310-360"  # Monthly budget in USD
+    Updated     = "2026-01-22"
   }
 }
+
+# ============================================================================
+# NEW CAPABILITIES (Added 2026-01-22)
+# ============================================================================
+
+# 1. CRITIC/SUPERVISOR AGENT (6th Agent)
+#    - Purpose: Content validation for all input/output
+#    - Input validation: Prompt injection, jailbreak attempts, malicious instructions
+#    - Output validation: Profanity, PII leaks, harmful content, brand guidelines
+#    - Strategy: Block and regenerate (max 3 attempts), escalate if all fail
+#    - Model: GPT-4o-mini (cost-effective validation)
+#    - Performance: <200ms P95 latency, <5% false positive rate
+#    - Cost: ~$22-31/month (container + API calls)
+#    - Documentation: docs/critic-supervisor-agent-requirements.md
+#    - GitHub Issue: #144
+
+# 2. EXECUTION TRACING & OBSERVABILITY
+#    - Purpose: Full decision tree visibility for debugging and audit
+#    - Instrumentation: OpenTelemetry SDK integrated into AGNTCY factory
+#    - Trace format: Spans with agent name, action, inputs (PII tokenized), outputs, reasoning, latency, cost
+#    - Visualization: Timeline view, decision tree diagram, searchable logs
+#    - Retention: 7 days (cost optimized), exportable for long-term analysis
+#    - Sampling: 50% (probabilistic) to reduce ingestion costs
+#    - Performance: <50ms overhead for trace instrumentation
+#    - Cost: ~$10-15/month (Application Insights + Monitor Workspace)
+#    - Documentation: docs/execution-tracing-observability-requirements.md
+#    - GitHub Issue: #145
+
+# 3. REVISED BUDGET JUSTIFICATION
+#    - Original budget: $200/month
+#    - Phase 2-5 enhancements: +$65-100/month (PII tokenization, events, RAG, multi-store)
+#    - Critic/Supervisor: +$22-31/month
+#    - Execution Tracing: +$10-15/month
+#    - Total increase: +$110-160/month (55-80% from original)
+#    - New target: $310-360/month (Phase 4-5)
+#    - Post Phase 5 optimization: $200-250/month (via agent consolidation, aggressive scaling, model optimization)
+#    - ROI: Positive from day 1 (saves $2,100-2,700/month vs. human agents)
+#    - Documentation: docs/BUDGET-SUMMARY.md
