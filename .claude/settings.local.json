@@ -39,7 +39,8 @@
       "Bash(powershell.exe -ExecutionPolicy Bypass -File \"create-labels.ps1\")",
       "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' label create ''type: epic'' --description ''Top-level actor epic'' --color ''5319e7'' --repo Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service\")",
       "Bash(powershell.exe -Command \"& ''C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe'' api repos/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/milestones -f title=''Phase 1 - Infrastructure'' -f description=''Create infrastructure and deployable containers. Budget: $0/month'' -f due_on=''2026-02-28T23:59:59Z'' --method POST\")",
-      "Bash(powershell.exe:*)"
+      "Bash(powershell.exe:*)",
+      "Bash(terraform --version:*)"
     ]
   }
 }
