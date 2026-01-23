@@ -1,0 +1,29 @@
+# Large generated/test files
+*.pyc
+__pycache__/
+.pytest_cache/
+*.egg-info/
+.coverage
+htmlcov/
+
+# Large data files
+test-data/*/large-*.json
+test-data/conversations/*.json
+
+# Docker/build artifacts
+.docker/
+*.log
+*.pid
+
+# Documentation (read on-demand)
+docs/dr-test-results/
+docs/blog-drafts/
+
+# GitHub scripts (completed, rarely needed)
+setup-github-cli.ps1
+create-*.ps1
+PROJECT-SETUP-COMPLETE.md
+
+# Terraform state (read on-demand)
+terraform/**/*.tfstate*
+terraform/**/.terraform/

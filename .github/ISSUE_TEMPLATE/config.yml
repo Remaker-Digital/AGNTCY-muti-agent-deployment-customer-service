@@ -1,0 +1,14 @@
+blank_issues_enabled: false
+contact_links:
+  - name: GitHub Discussions
+    url: https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/discussions
+    about: Ask questions, share ideas, or discuss the project with the community
+  - name: Security Vulnerability
+    url: https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/security/advisories/new
+    about: Report a security vulnerability privately
+  - name: AGNTCY SDK Documentation
+    url: https://github.com/agntcy/app-sdk
+    about: Questions about the AGNTCY SDK itself
+  - name: Project Documentation
+    url: https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/PROJECT-README.txt
+    about: Read the complete project specification and requirements

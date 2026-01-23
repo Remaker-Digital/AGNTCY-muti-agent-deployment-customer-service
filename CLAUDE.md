@@ -13,10 +13,13 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 
 ### Budget Constraints (HIGHEST PRIORITY)
 - **Phase 1-3:** $0/month (local development only, no cloud resources)
-- **Phase 4-5:** $200/month maximum (Azure production deployment)
+- **Phase 4-5:** $265-300/month maximum (Azure production deployment - **REVISED 2026-01-22**)
+  - Original budget: $200/month
+  - Revised to accommodate new architectural requirements (PII tokenization, event-driven, RAG)
+  - Post Phase 5 cost optimization target: $180-220/month
 - **Cost optimization is a KEY LEARNING OBJECTIVE** - always suggest cost-effective solutions
 - Recommend serverless, pay-per-use, and Basic/Standard tiers over Premium services
-- Question any suggestion that would exceed budget constraints
+- Question any suggestion that would exceed revised budget constraints
 
 ### Development Environment
 - **OS:** Windows 11
@@ -91,6 +94,14 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 - Test multi-agent conversation flows end-to-end
 - Target: Increase test coverage from 46% to >70%
 
+**New Architectural Requirements (Added 2026-01-22):**
+1. **PII Tokenization:** Design and mock tokenization service for third-party AI services
+2. **Data Abstraction Layer:** Design multi-store interfaces (Cosmos, Blob, Redis, mock)
+3. **Event-Driven Architecture:** Design event ingestion service and NATS schemas
+4. **RAG Pipeline:** Design vector embeddings with local FAISS mock
+
+**See docs/architecture-requirements-phase2-5.md for complete specifications**
+
 ### Phase 3: Testing & Validation ($0 budget)
 **Focus:** Functional testing and performance benchmarking
 - End-to-end conversation flow testing
@@ -105,13 +116,19 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 - Performance targets: <2min response time, >70% automation rate
 - No cloud services - all testing local
 
-### Phase 4: Azure Production Setup ($200/month budget)
-**Focus:** Terraform infrastructure, multi-language support, real API integration
+**New Architectural Requirements (Added 2026-01-22):**
+1. **PII Tokenization:** Test tokenization with mock third-party AI calls
+2. **Multi-Store Access:** Validate staleness tolerances with Docker containers
+3. **Event-Driven:** Mock RabbitMQ for webhook and cron testing
+4. **RAG:** Validate vector search accuracy with 75-document test knowledge base
+
+### Phase 4: Azure Production Setup ($265-300/month budget - **REVISED 2026-01-22**)
+**Focus:** Terraform infrastructure, multi-language support, real API integration, new architectural components
 - Deploy to Azure East US region
 - Add Canadian French and Spanish language support
 - Integrate real Shopify, Zendesk, Mailchimp APIs
 - Azure DevOps Pipelines CI/CD
-- Cost optimization CRITICAL - target ~$180/month average
+- **NEW:** Deploy Azure Key Vault, NATS JetStream, Cosmos DB vector search, Azure OpenAI
 
 **When working on Phase 4:**
 - ALWAYS check cost implications before suggesting Azure services
@@ -121,21 +138,71 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 - Implement aggressive auto-scaling (down to 1 instance during idle)
 - 7-day log retention (not 30-day default)
 
-### Phase 5: Production Deployment & Testing ($200/month budget)
-**Focus:** Production deployment, load testing, security validation, DR drills
+**New Architectural Components (Added 2026-01-22):**
+1. **PII Tokenization:** Azure Key Vault for token storage, fallback to Cosmos if latency >100ms
+2. **Multi-Store:** Cosmos DB Serverless (real-time + vector), Blob Storage + CDN (knowledge base)
+3. **Event-Driven:** NATS JetStream, Azure Functions (webhook ingestion), Shopify/Zendesk webhooks
+4. **RAG:** Azure OpenAI embeddings (text-embedding-3-large), Cosmos DB vector search (MongoDB API)
+5. **5 New User Stories:** Issues #139-#143 (event-driven features)
+
+### Phase 5: Production Deployment & Testing ($265-300/month budget - **REVISED 2026-01-22**)
+**Focus:** Production deployment, load testing, security validation, DR drills, new architecture validation
 - Deploy to Azure and validate in production
 - Load testing: 100 concurrent users, 1000 req/min
 - Security scanning (OWASP ZAP, Dependabot, Snyk)
 - Disaster recovery validation (quarterly full drill)
 - Final blog post and documentation
+- **NEW:** Validate PII tokenization, event processing, RAG accuracy
 
 **When working on Phase 5:**
 - Monitor Azure costs continuously
-- Validate budget alerts are firing correctly at 80% ($160) and 95% ($190)
+- Validate budget alerts are firing correctly at 83% ($250) and 93% ($280) - **REVISED**
 - Document all cost optimization decisions for blog readers
 - Ensure DR procedures are tested and documented
 
+**New Validation Requirements (Added 2026-01-22):**
+1. **PII Tokenization:** Latency <100ms (P95), no data leaks in third-party AI logs
+2. **Data Staleness:** Intent <10s, Knowledge <1hr, Response real-time, Escalation <30s, Analytics <15min
+3. **Event Processing:** 100 events/sec sustained, <1% error rate, DLQ monitoring
+4. **RAG:** Query latency <500ms, retrieval accuracy >90%, 75-document knowledge base
+
 ## Key Architecture Decisions
+
+### PII Tokenization & Data Security (Added 2026-01-22)
+- **Scope:** PII tokenization ONLY required for third-party AI services (OpenAI API, Anthropic API, etc.)
+- **Exempt from tokenization:** Azure OpenAI Service, Microsoft Foundry models (including Anthropic Claude via Azure)
+  - Rationale: These services are within the secure Azure perimeter and do not retain customer data
+- **Method:** Random UUID tokens (e.g., `TOKEN_a7f3c9e1-4b2d-8f6a-9c3e`)
+- **Storage:** Azure Key Vault (Phase 4-5), fallback to Cosmos DB if latency >100ms
+- **Fields:** All PII (names, emails, phones, addresses, order IDs, payment info, conversation content)
+- **See:** `docs/architecture-requirements-phase2-5.md` Section 1 for complete specification
+
+### Data Abstraction & Multi-Store Strategy (Added 2026-01-22)
+- **Real-time (ACID):** Cosmos DB Core for Response Generation Agent (order status, inventory, payments)
+- **Near-real-time cache:** Redis (optional, Phase 5 optimization) for Intent/Escalation agents
+- **Eventually consistent:** Cosmos DB analytical store for Analytics Agent
+- **Static content:** Blob Storage + CDN for Knowledge Retrieval Agent (1hr cache TTL)
+- **Staleness tolerances:** Intent 5-10s, Knowledge 1hr, Response real-time, Escalation 30s, Analytics 5-15min
+- **See:** `docs/data-staleness-requirements.md` for complete store mapping
+
+### Event-Driven Architecture (Added 2026-01-22)
+- **Event Bus:** NATS JetStream (reuses AGNTCY transport layer, $0 incremental cost)
+- **Event Sources:** 12 types (Shopify webhooks, Zendesk webhooks, scheduled triggers, RSS)
+- **Throttling:** 100 events/sec global, 20/sec per agent, 5 concurrent handlers per agent
+- **Retention:** 7 days with replay capability
+- **New Stories:** 5 additional user stories (Issues #139-#143 for event-driven features)
+- **See:** `docs/event-driven-requirements.md` for complete event catalog and routing
+
+### RAG & Differentiated Models (Added 2026-01-22)
+- **Vector Store:** Cosmos DB for MongoDB (vector search, preview feature), ~$5-10/month
+- **Embeddings:** Azure OpenAI text-embedding-3-large (1536 dimensions)
+- **Knowledge Base:** 75 documents (50 products, 20 articles, 5 policies), ~20K tokens
+- **Models by Agent:**
+  - Intent Classification: GPT-4o-mini (~$0.15/1M tokens)
+  - Response Generation: GPT-4o (~$2.50/1M tokens)
+  - Knowledge Retrieval: text-embedding-3-large (~$0.13/1M tokens)
+- **Post Phase 5:** Fine-tuned models, self-hosted Qdrant, medium e-commerce scale
+- **See:** `docs/architecture-requirements-phase2-5.md` Section 4 for RAG pipeline
 
 ### AGNTCY SDK Usage
 - **Factory Pattern:** Single `AgntcyFactory` instance per application (singleton)
@@ -144,7 +211,7 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
   - MCP for external tool integrations (Shopify, Zendesk, Mailchimp)
 - **Transport Choice:**
   - SLIM for secure, low-latency agent communication (recommended)
-  - NATS for high-throughput scenarios if needed
+  - NATS for high-throughput scenarios AND event bus (consolidated)
 - **Message Format:** Use contextId for conversation threads, taskId for tracking
 - **Session Management:** `AppSession` with configurable max_sessions
 
@@ -183,7 +250,7 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 - Provision Cosmos DB with RU/s (use Serverless mode)
 - Set up geo-replication or multi-region (budget constraint)
 - Use default 30-day log retention (use 7 days)
-- Suggest services that would exceed $200/month budget
+- Suggest services that would exceed $265-300/month budget (revised 2026-01-22)
 - Commit secrets to Git (.env files must be in .gitignore)
 - Use Python < 3.12 (AGNTCY SDK requirement)
 
@@ -206,14 +273,18 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 All services are mocked locally. No API keys needed.
 
 ### Phase 4-5: Required
-- **Azure:** Subscription (~$200/month), DevOps organization (free), Service Principal
+- **Azure:** Subscription (~$265-300/month - **REVISED**), DevOps organization (free), Service Principal
 - **Shopify:** Partner account (free), Development Store (free)
 - **Zendesk:** Trial/Sandbox account ($0-49/month) - monitor budget impact
 - **Mailchimp:** Free tier account (up to 500 contacts, $0)
 - **Google Analytics:** GA4 property (free), Service Account (free)
-- **LLM:** Azure OpenAI or OpenAI API (~$20-50/month estimated) - monitor token usage
+- **AI Models:** Azure OpenAI Service (~$26/month estimated token usage)
+  - GPT-4o-mini for intent classification
+  - GPT-4o for response generation
+  - text-embedding-3-large for RAG embeddings
+  - **Alternative:** Microsoft Foundry (Anthropic Claude via Azure) - also within secure perimeter
 
-**Budget Impact:** If Zendesk requires paid plan, reduce Azure spend to $150-180 to stay within $200 total.
+**Budget Impact:** Revised total budget $265-300/month accommodates new architectural requirements (PII tokenization, event-driven, RAG, multi-store).
 
 ## GitHub Project Management
 

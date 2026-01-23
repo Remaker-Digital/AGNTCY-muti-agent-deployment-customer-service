@@ -1,0 +1,178 @@
+name: Cost Optimization
+description: Suggest ways to reduce Azure costs or improve budget efficiency
+title: "[Cost]: "
+labels: ["cost-optimization", "enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cost optimization is a **key learning objective** of this project! Thank you for suggesting ways to stay within our $200/month budget.
+
+        **Budget Context:**
+        - Phase 1-3: $0/month (local development only)
+        - Phase 4-5: $200/month maximum (Azure production)
+        - Target: ~$180/month average to leave buffer for spikes
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Applicable Phase
+      description: Which phase does this optimization apply to?
+      options:
+        - Phase 4 - Azure Production Setup
+        - Phase 5 - Production Deployment
+        - Both Phase 4 and 5
+    validations:
+      required: true
+
+  - type: dropdown
+    id: service
+    attributes:
+      label: Azure Service
+      description: Which Azure service can be optimized?
+      options:
+        - Container Instances
+        - Cosmos DB
+        - Redis Cache
+        - Application Gateway
+        - Container Registry
+        - Key Vault
+        - Azure Monitor / Log Analytics
+        - Application Insights
+        - Cognitive Search
+        - Azure DevOps
+        - Multiple services
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-cost
+    attributes:
+      label: Current Cost Estimate
+      description: What is the estimated current cost for this service?
+      placeholder: |
+        Container Instances: ~$40/month
+        5 agents × 1 vCPU × 1GB RAM × 730 hours × $0.0000125/vCPU-second
+    validations:
+      required: true
+
+  - type: textarea
+    id: optimization
+    attributes:
+      label: Proposed Optimization
+      description: Describe the cost optimization approach
+      placeholder: |
+        Replace provisioned Cosmos DB (400 RU/s = ~$23/month) with Cosmos Serverless (pay-per-request).
+
+        Benefits:
+        - Pay only for actual usage
+        - No minimum cost during idle periods
+        - Better for variable workloads
+    validations:
+      required: true
+
+  - type: textarea
+    id: projected-savings
+    attributes:
+      label: Projected Cost Savings
+      description: How much will this optimization save?
+      placeholder: |
+        Current: $23/month (provisioned 400 RU/s)
+        Optimized: ~$8-12/month (serverless, estimated 50K requests/day)
+        Savings: ~$11-15/month (48-65% reduction)
+    validations:
+      required: true
+
+  - type: textarea
+    id: trade-offs
+    attributes:
+      label: Trade-offs and Limitations
+      description: What are the downsides or limitations of this optimization?
+      placeholder: |
+        - Serverless has 5-second cold start latency (acceptable for our use case)
+        - Lower throughput limits than provisioned (5000 RU/s max)
+        - Not suitable for high-volume workloads (>1M requests/day)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: impact
+    attributes:
+      label: Performance Impact
+      description: Will this affect application performance?
+      options:
+        - No performance impact
+        - Minimal impact (acceptable trade-off)
+        - Moderate impact (needs evaluation)
+        - Significant impact (may not be suitable)
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation Steps
+      description: How would this be implemented?
+      placeholder: |
+        1. Update Terraform config to use Cosmos DB serverless
+        2. Test with load testing to validate performance
+        3. Monitor costs for 2 weeks to confirm savings
+        4. Document findings in cost optimization guide
+
+  - type: dropdown
+    id: testing-status
+    attributes:
+      label: Testing Status
+      description: Have you tested this optimization?
+      options:
+        - Tested and validated in my environment
+        - Partially tested
+        - Not tested (proposal only)
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Supporting Evidence
+      description: Links to Azure pricing docs, cost calculators, or test results
+      placeholder: |
+        - Azure Cosmos DB Serverless pricing: https://azure.microsoft.com/en-us/pricing/details/cosmos-db/
+        - Cost comparison spreadsheet: [link]
+        - Test results showing performance: [link]
+
+  - type: dropdown
+    id: educational-value
+    attributes:
+      label: Educational Value
+      description: Does this optimization teach important concepts?
+      options:
+        - High - Demonstrates key cost optimization pattern
+        - Medium - Useful technique
+        - Low - Minor optimization
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other relevant information
+      placeholder: |
+        This optimization is especially useful for...
+        Alternative approaches considered...
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have calculated realistic cost estimates
+          required: true
+        - label: I have considered trade-offs and limitations
+          required: true
+        - label: This optimization keeps total costs under $200/month
+          required: true
+        - label: I have included Azure pricing documentation links
+          required: false

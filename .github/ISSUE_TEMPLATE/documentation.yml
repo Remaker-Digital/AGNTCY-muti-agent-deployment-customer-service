@@ -1,0 +1,136 @@
+name: Documentation Issue
+description: Report missing, unclear, or incorrect documentation
+title: "[Docs]: "
+labels: ["documentation", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping improve our documentation! Clear, comprehensive docs are critical for an educational project.
+
+  - type: dropdown
+    id: doc-type
+    attributes:
+      label: Documentation Type
+      description: What type of documentation needs attention?
+      options:
+        - README.md (main project readme)
+        - CONTRIBUTING.md (contribution guidelines)
+        - CLAUDE.md (AI assistant guidance)
+        - PROJECT-README.txt (detailed specifications)
+        - AGNTCY-REVIEW.md (SDK integration guide)
+        - Code comments / docstrings
+        - Architecture diagrams
+        - Setup guides
+        - Testing documentation
+        - Cost optimization docs
+        - API documentation
+        - Troubleshooting guides
+        - Phase-specific documentation
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Issue Type
+      description: What's wrong with the documentation?
+      options:
+        - Missing - Documentation doesn't exist
+        - Unclear - Documentation is confusing or ambiguous
+        - Incorrect - Documentation contains errors
+        - Outdated - Documentation doesn't reflect current code
+        - Incomplete - Documentation exists but is missing details
+        - Formatting - Documentation has formatting issues
+    validations:
+      required: true
+
+  - type: textarea
+    id: location
+    attributes:
+      label: Documentation Location
+      description: Where is this documentation (or where should it be)?
+      placeholder: |
+        File: README.md
+        Section: "Quick Start"
+        Line: 92-110
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem Description
+      description: What specifically is wrong or missing?
+      placeholder: |
+        The setup instructions don't mention that...
+        The explanation of X is confusing because...
+        The code example shows Y but it should show Z...
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Improvement
+      description: How should the documentation be improved?
+      placeholder: |
+        Add a section explaining...
+        Clarify that...
+        Update the example to show...
+
+  - type: textarea
+    id: audience
+    attributes:
+      label: Target Audience
+      description: Who will benefit from this documentation improvement?
+      placeholder: |
+        - New contributors setting up the project
+        - Developers implementing Phase 2 features
+        - Readers following along with the blog post
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Impact
+      description: How much does this documentation issue affect users?
+      options:
+        - Critical - Blocks users from using the project
+        - High - Causes significant confusion or errors
+        - Medium - Noticeable but users can work around it
+        - Low - Minor improvement
+    validations:
+      required: true
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related Code/Files
+      description: Are there related code files or issues?
+      placeholder: |
+        - agents/intent_classification/agent.py:45-60
+        - Issue #123
+        - PR #456
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other information that would help
+      placeholder: |
+        Screenshots, examples from other projects, etc.
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have identified the specific file and section
+          required: true
+        - label: I have provided a clear suggestion for improvement
+          required: false

@@ -1,0 +1,145 @@
+name: Bug Report
+description: Report a bug or unexpected behavior
+title: "[Bug]: "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a bug! Please provide as much detail as possible to help us reproduce and fix the issue.
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Project Phase
+      description: Which phase does this bug affect?
+      options:
+        - Phase 1 - Infrastructure & Containers
+        - Phase 2 - Business Logic
+        - Phase 3 - Testing & Validation
+        - Phase 4 - Azure Production Setup
+        - Phase 5 - Production Deployment
+        - Not phase-specific
+    validations:
+      required: true
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      description: Which component is affected?
+      options:
+        - Agent - Intent Classification
+        - Agent - Knowledge Retrieval
+        - Agent - Response Generation
+        - Agent - Escalation
+        - Agent - Analytics
+        - Mock API - Shopify
+        - Mock API - Zendesk
+        - Mock API - Mailchimp
+        - Mock API - Google Analytics
+        - Infrastructure - Docker
+        - Infrastructure - AGNTCY SDK
+        - Infrastructure - Observability
+        - Shared Utilities
+        - CI/CD Pipeline
+        - Documentation
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Bug Description
+      description: A clear and concise description of what the bug is
+      placeholder: Describe what went wrong
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      description: How can we reproduce this bug?
+      placeholder: |
+        1. Start Docker Compose with `docker-compose up -d`
+        2. Send a message to the intent classifier
+        3. Observe error in logs
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: The agent should classify the intent as ORDER_STATUS
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual Behavior
+      description: What actually happened?
+      placeholder: The agent threw a KeyError exception
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant Logs
+      description: Please paste relevant log output (use `docker-compose logs <service>`)
+      render: shell
+      placeholder: |
+        Paste logs here...
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Details about your development environment
+      value: |
+        - OS: [e.g., Windows 11, macOS, Linux]
+        - Python Version: [e.g., 3.12.1]
+        - Docker Desktop Version: [e.g., 4.25.0]
+        - AGNTCY SDK Version: [from requirements.txt]
+      render: markdown
+    validations:
+      required: true
+
+  - type: dropdown
+    id: local-or-azure
+    attributes:
+      label: Environment Type
+      description: Where did this bug occur?
+      options:
+        - Local Development (Docker Desktop)
+        - Azure Staging
+        - Azure Production
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: Any other context, screenshots, or information that might help
+      placeholder: Add any other context about the problem here
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      description: Please verify the following before submitting
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have checked the troubleshooting section in README.md
+          required: true
+        - label: I have included relevant logs and error messages
+          required: true
+        - label: This bug is reproducible
+          required: false
