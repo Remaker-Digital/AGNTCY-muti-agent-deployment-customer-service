@@ -47,14 +47,14 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 - ✅ All 4 mock APIs implemented (Shopify, Zendesk, Mailchimp, Google Analytics)
 - ✅ All 5 agents implemented with AGNTCY SDK integration
 - ✅ Shared utilities complete (factory, models, utils)
-- ✅ Test framework complete (63 tests passing, 46% coverage)
+- ✅ Test framework complete (67 tests passing, 31% coverage)
 - ✅ GitHub Project Management setup complete (137 issues)
 - ⏳ GitHub Actions CI workflow (remaining - deferred to Phase 2)
 
 **Completed Implementation:**
 - Mock APIs: 4/4 complete with test fixtures
 - Agents: 5/5 complete with A2A/MCP protocols
-- Tests: 100% coverage on shared utilities, 46% overall
+- Tests: 100% coverage on shared utilities, 31% overall
 - Documentation: All .md files updated
 - GitHub Projects: 7 epics, 130 user stories, 30 labels, 5 milestones
 
@@ -62,7 +62,7 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 - Phase 1 is now 100% complete
 - All external services are mocked (no API calls)
 - All agents have demo mode for testing without full SDK
-- Test coverage: 46% is baseline for Phase 1 (mock implementations)
+- Test coverage: 31% is baseline for Phase 1 (mock implementations)
 
 ### Phase 2: Business Logic Implementation ($0 budget) - **READY TO START** ⏳
 **Status as of 2026-01-22:**
@@ -95,7 +95,7 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 - Use Message format with contextId/taskId for conversation threading
 - All AI/LLM responses should be canned/mocked (no real API calls)
 - Test multi-agent conversation flows end-to-end
-- Target: Increase test coverage from 46% to >70%
+- Target: Increase test coverage from 31% to >70%
 
 **New Architectural Requirements (Added 2026-01-22):**
 1. **PII Tokenization:** Design and mock tokenization service for third-party AI services

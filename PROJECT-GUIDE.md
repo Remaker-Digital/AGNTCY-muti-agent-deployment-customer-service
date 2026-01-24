@@ -157,7 +157,7 @@ All scripts located in project root:
 - 4 mock APIs (Shopify, Zendesk, Mailchimp, Google Analytics)
 - 5 agent skeletons with AGNTCY SDK integration
 - Shared utilities (factory, models, utils)
-- Test framework (63 tests, 46% coverage)
+- Test framework (67 tests, 31% coverage)
 - GitHub project management (137 issues)
 
 **Remaining**: GitHub Actions CI workflow (deferred to Phase 2)
@@ -298,7 +298,7 @@ docker-compose down
 
 ### Budget Constraints
 - **Phase 1-3**: $0/month (local development only)
-- **Phase 4-5**: $200/month maximum (Azure production)
+- **Phase 4-5**: $310-360/month maximum (Azure production, revised from $200)
 - Cost optimization is a KEY learning objective
 - Always consider budget impact before suggesting Azure services
 
@@ -311,7 +311,7 @@ docker-compose down
 ### Testing Requirements
 - **Unit Tests**: >80% coverage target
 - **Integration Tests**: Against mock services
-- **Current Coverage**: 46% (Phase 1 baseline)
+- **Current Coverage**: 31% (Phase 1 baseline)
 - **Phase 2 Target**: >70% coverage
 
 ---
@@ -343,7 +343,7 @@ Before starting Phase 2 implementation:
 - [ ] All 4 mock APIs respond correctly (test with curl)
 - [ ] Docker Compose runs without errors
 - [ ] All 63 tests pass: `pytest tests/`
-- [ ] Coverage at 46% baseline: `pytest --cov`
+- [ ] Coverage at 31% baseline: `pytest --cov`
 
 **User Input Received**:
 - [ ] Response style preference documented

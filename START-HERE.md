@@ -226,7 +226,7 @@ docker-compose up
 A: Read PHASE-2-READINESS.md, complete user inputs, then implement agents following CLAUDE.md guidelines.
 
 **Q: What's the project budget?**
-A: $0 for Phases 1-3 (local only), $200/month for Phases 4-5 (Azure). See PROJECT-README.txt.
+A: $0 for Phases 1-3 (local only), $310-360/month for Phases 4-5 (Azure, revised from $200). See PROJECT-README.txt.
 
 **Q: How do I add a new user story?**
 A: See PROJECT-MANAGEMENT-BEST-PRACTICES-FOR-GITHUB.md for issue templates and conventions.

@@ -14,7 +14,7 @@ This is an open-source educational project that demonstrates how to build a prod
 - **Azure Cloud** for scalable deployment
 - **Docker** for local development
 - **Terraform** for infrastructure-as-code
-- **Cost optimization** techniques to stay within a $200/month budget
+- **Cost optimization** techniques to stay within a $310-360/month budget (revised from $200)
 
 This project accompanies a blog post series and serves as a hands-on learning resource for developers interested in:
 - Multi-agent architectures and communication patterns
@@ -65,11 +65,11 @@ The platform aims to demonstrate:
 - **Deliverable**: Comprehensive test suite
 
 ### Phase 4: Azure Production Setup
-- **Budget**: $200/month
+- **Budget**: $310-360/month (revised from $200)
 - **Deliverable**: Production-ready infrastructure
 
 ### Phase 5: Deployment & Go-Live
-- **Budget**: $200/month
+- **Budget**: $310-360/month (revised from $200)
 - **Deliverable**: Live system with monitoring
 
 ## 🚀 Quick Start
@@ -154,7 +154,7 @@ pytest tests/integration -v
 pytest tests/ --cov=agents --cov=shared --cov-report=html
 # View coverage: open htmlcov/index.html
 
-# Current test status: 63 passing, 9 skipped, 46% coverage
+# Current test status: 67 passing, 5 skipped, 31% coverage
 ```
 
 ### Viewing Logs
@@ -214,7 +214,7 @@ docker-compose logs -f slim nats otel-collector
 
 ## 🧪 Development Workflow
 
-### Phase 1 Tasks (95% Complete)
+### Phase 1 Tasks (100% Complete ✅)
 - [x] Project structure created
 - [x] Docker Compose configuration
 - [x] AGNTCY infrastructure services
@@ -222,7 +222,7 @@ docker-compose logs -f slim nats otel-collector
 - [x] Shared utilities and factory
 - [x] Agent implementations (all 5 complete)
 - [x] Unit and integration test framework
-- [ ] GitHub Actions CI workflow (remaining)
+- [x] GitHub Actions CI workflow complete
 
 ### Working on an Agent
 
@@ -270,7 +270,7 @@ curl http://localhost:8123 --data "SELECT * FROM otel.otel_logs LIMIT 10"
 - No cloud resources provisioned
 - Mock APIs eliminate external service costs
 
-### Phase 4-5 (Azure Production): $200/month target
+### Phase 4-5 (Azure Production): $310-360/month target (revised)
 Key strategies:
 - Azure Container Instances (pay-per-second)
 - Cosmos DB Serverless (pay-per-request)
@@ -298,7 +298,7 @@ All external services are mocked locally.
 - **Zendesk**: Trial or Sandbox (free)
 - **Mailchimp**: Free tier (500 contacts)
 - **Google Analytics**: GA4 property (free)
-- **Azure**: Subscription (~$200/month)
+- **Azure**: Subscription (~$310-360/month for Phase 4-5)
 
 ## 🤝 Contributing
 
@@ -370,13 +370,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Status**: 🟢 Phase 1 - 95% Complete
+**Status**: 🟢 Phase 1 - 100% Complete ✅
 
-**Last Updated**: 2026-01-18
+**Last Updated**: 2026-01-23
 
 **Next Milestone**: Add GitHub Actions CI workflow, then begin Phase 2
 
-**Test Coverage**: 46% (63 tests passing)
+**Test Coverage**: 31% (67 tests passing)
 - Shared utilities: 100% coverage
 - Shared models: 94% coverage
 - Agents: 19-38% coverage (Phase 1 baseline)

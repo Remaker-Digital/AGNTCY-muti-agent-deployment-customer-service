@@ -1248,7 +1248,7 @@ responses = {
 #### Weeks 10-12: End-to-End Testing
 - Multi-agent conversation flows
 - Performance testing (response time, throughput)
-- Test coverage >70% (up from 46% Phase 1 baseline)
+- Test coverage >70% (up from 31% Phase 1 baseline)
 - Business logic validation (UAT)
 
 **Status**: ⏳ **READY TO START** (awaiting user inputs on business logic decisions)
