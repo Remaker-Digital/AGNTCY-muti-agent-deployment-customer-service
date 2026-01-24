@@ -1,10 +1,12 @@
 # Phase 2: Business Logic Implementation - Readiness Summary
 
-**Status**: Ready to begin
+**Status**: ✅ All user decisions complete - Ready for implementation
 **Phase**: 2 of 5
 **Budget**: $0/month (local development)
-**Duration Estimate**: 6-8 weeks
+**Duration Estimate**: 6-8 weeks (Story-driven approach)
 **Milestone Due Date**: 2026-04-30
+
+**🎯 IMPLEMENTATION READY**: All business logic decisions captured, knowledge base created, development approach selected.
 
 ---
 
@@ -367,235 +369,418 @@ faker>=18.0.0          # Test data generation
 
 ---
 
-## 🎯 Required Input/Actions from You
+## ✅ User Decisions Complete - Ready for Implementation
 
-### 1. Business Logic Decisions
+### 1. Business Logic Decisions ✅
 
-#### Response Style & Tone
-**Decision Needed**: Define the voice and tone for AI responses
-- [ ] Formal vs. conversational?
-- [ ] Use customer's name in responses?
-- [ ] Emoji usage (if any)?
-- [ ] Length preference (concise vs detailed)?
+#### Response Style & Tone ✅
+**Decision**: **Option B - Conversational & Friendly**
 
-**Example Response Styles**:
+**Configuration**:
+- ✅ Use customer names in responses
+- ✅ Include coffee brewing tips when relevant
+- ❌ No coffee-related emojis
+- ❌ Do not mention roast dates/freshness
 
-**Option A - Concise & Professional**:
+**Example Response**:
 ```
-Your order #10234 shipped yesterday via USPS.
-Tracking: 9400123456789
-Expected delivery: Jan 25
-Track here: [link]
-```
+Hi Sarah! Great news about your Ethiopian Yirgacheffe order #10234!
 
-**Option B - Conversational & Friendly**:
-```
-Great news! Your order #10234 is on its way! 📦
-
-It shipped yesterday with USPS and should arrive by Jan 25.
+It shipped yesterday and should arrive by Jan 25.
 Your tracking number is 9400123456789.
+
+For best results with this coffee, try a pour-over method with 200°F water.
+The bright citrus notes really shine with that brewing style!
 
 Need anything else? I'm here to help!
 ```
 
-**Option C - Detailed & Helpful**:
+#### Escalation Thresholds ✅
+**Decision**: Balanced automation with quality customer care
+
+**Configuration**:
+- **Missing/Stolen Deliveries**: Always escalate immediately
+- **Refund Auto-Approval**: Up to $50 within 30 days (original packaging required)
+- **Product Defects**: Always escalate within 14 days (no photos required)
+- **Customer Frustration**: After 2 unclear responses OR negative sentiment detection
+- **AI Confidence Threshold**: <70% triggers escalation
+- **Health/Safety Concerns**: Always escalate immediately
+- **Bulk/Wholesale Inquiries**: Always escalate to sales team
+- **Subscription Cancellations**: Always escalate
+
+**Business Rules Implementation**:
+```python
+# Escalation Logic
+def should_escalate(query_type, context):
+    if query_type == "missing_delivery":
+        return True, "CRITICAL", "Missing delivery investigation required"
+    
+    if query_type == "refund_request":
+        amount = context.get("order_amount", 0)
+        days_since_order = context.get("days_since_order", 999)
+        has_original_packaging = context.get("original_packaging", False)
+        
+        if amount <= 50 and days_since_order <= 30 and has_original_packaging:
+            return False, "AUTO_APPROVED", f"Refund auto-approved: ${amount}"
+        else:
+            return True, "HIGH", "Refund requires manual review"
+    
+    if query_type == "product_defect":
+        days_since_order = context.get("days_since_order", 999)
+        if days_since_order <= 14:
+            return True, "HIGH", "Product defect within return window"
+    
+    if context.get("ai_confidence", 1.0) < 0.70:
+        return True, "MEDIUM", "Low AI confidence"
+    
+    if context.get("sentiment") == "negative" or context.get("unclear_responses", 0) >= 2:
+        return True, "URGENT", "Customer frustration detected"
+    
+    return False, "NORMAL", "AI can handle"
 ```
-I've checked your order #10234 and have good news!
 
-Status: In Transit
-Shipped: Jan 20 via USPS Priority Mail
-Tracking: 9400123456789
-Expected Delivery: Jan 25 by 8pm
+#### Automation Goals ✅
+**Decision**: 78% overall automation rate target
 
-You can track your package here: [link]
+**Fully Automate** (90%+ success target):
+- ✅ Order status inquiries
+- ✅ Shipping policy questions
+- ✅ Return policy questions
+- ✅ Email list signup
+- ✅ Store hours/contact information
+- ✅ Out-of-stock notifications
+- ✅ Basic brewing tips
 
-If you don't receive it by Jan 26, please let me know and I'll look into it for you.
+**Partially Automate** (70-80% success, escalate when needed):
+- ✅ Product information (ingredients, pricing)
+- ✅ Simple refund requests under $50
+- ✅ Account password resets
+- ✅ Subscription status inquiries
+- ✅ Complex product comparisons
+- ✅ Custom brewing recommendations
+
+**Keep Human-First**:
+- ✅ Subscription cancellations
+- ✅ Bulk order inquiries
+- ✅ Quality/taste complaints
+
+**Target Metrics**:
+- Overall automation rate: **78%** (above industry average of 72%)
+- Customer satisfaction threshold: **85%**
+- Maximum response time: **2.5 seconds**
+
+**Expected Cost Savings**:
+- Automated queries: ~$0.03 per interaction
+- Human agent queries: ~$4.50 per interaction
+- Monthly savings at 78% automation: ~$2,800-3,200
+
+### 2. Test Data & Scenarios ✅
+
+**Customer Profiles** (4 personas covering key segments):
+
+#### Persona 1: "Sarah the Coffee Enthusiast" ✅
+- **Demographics**: 32, marketing manager, Seattle
+- **Coffee knowledge**: High - knows brewing methods, origin differences
+- **Purchase behavior**: $80-120/month, premium single-origins, equipment
+- **Communication style**: Detailed questions, appreciates expertise
+- **Pain points**: Wants consistency, disappointed by poor quality
+- **Typical inquiries**: 
+  - "What's the difference between your Ethiopian Yirgacheffe and Sidamo?"
+  - "My V60 extractions are bitter - what grind size do you recommend?"
+  - "Can you tell me about the processing method for this coffee?"
+
+#### Persona 2: "Mike the Convenience Seeker" ✅
+- **Demographics**: 45, accountant, suburban dad
+- **Coffee knowledge**: Basic - wants good coffee without complexity
+- **Purchase behavior**: $40-60/month, blends, subscription
+- **Communication style**: Direct, wants quick answers
+- **Pain points**: Doesn't want to think about coffee, just wants it to work
+- **Typical inquiries**:
+  - "Where's my order?"
+  - "Can I change my subscription to decaf?"
+  - "What's your strongest coffee?"
+
+#### Persona 3: "Jennifer the Gift Buyer" ✅
+- **Demographics**: 28, teacher, buys for others
+- **Coffee knowledge**: Low-medium - knows recipients' preferences
+- **Purchase behavior**: $30-80 per occasion, seasonal purchases
+- **Communication style**: Needs guidance, concerned about presentation
+- **Pain points**: Wants to give perfect gift, worried about recipient satisfaction
+- **Typical inquiries**:
+  - "What's a good coffee for someone who drinks Starbucks?"
+  - "Can you gift wrap this?"
+  - "What if they don't like it?"
+
+#### Persona 4: "David the Business Customer" ✅
+- **Demographics**: 52, office manager, small law firm
+- **Coffee knowledge**: Medium - focused on team satisfaction
+- **Purchase behavior**: $200-400/month, bulk orders, consistency important
+- **Communication style**: Relationship-focused, budget-conscious
+- **Pain points**: Needs reliable supply, team has different preferences
+- **Typical inquiries**:
+  - "Can we get a discount for monthly orders?"
+  - "What's your most popular office blend?"
+  - "We need 10 pounds delivered by Friday."
+
+**Top 17 Common Support Scenarios** ✅:
+1. Order tracking
+2. Order cancellation/change
+3. Return policies
+4. Product refunds
+5. Item exchange
+6. Shipping options and costs
+7. Modify shipping address after order is placed
+8. Gift wrapping and gift cards
+9. Incorrect parcel delivery
+10. Damaged items
+11. Product warranty
+12. Using promo codes and coupons
+13. Questions about website/app security for online purchases
+14. Changing account information
+15. Forgetting/resetting passwords
+16. Email unsubscription
+17. Choosing payment options and updating payment preferences/information
+
+### 3. Knowledge Base Content ✅
+
+**Decision**: Using industry-standard coffee e-commerce templates
+
+**Content Status**: ✅ Templates created (see `docs/knowledge-base/` directory)
+
+**Knowledge Base Structure**:
+```
+docs/knowledge-base/
+├── policies/
+│   ├── return-refund-policy.md
+│   ├── shipping-policy.md
+│   ├── warranty-guarantee.md
+│   └── privacy-security.md
+├── products/
+│   ├── coffee-origins.md
+│   ├── roast-profiles.md
+│   └── brewing-guides.md
+├── account/
+│   ├── account-management.md
+│   ├── password-reset.md
+│   └── email-preferences.md
+└── ordering/
+    ├── order-process.md
+    ├── gift-services.md
+    └── promo-codes.md
 ```
 
-**Your Choice**: _________________
+**Key Policies Implemented**:
+- **Return/Refund**: $50 auto-approval within 30 days, original packaging required
+- **Shipping**: Standard delivery timeframes, carrier information, address modification
+- **Warranty**: 14-day return window for defects, quality guarantee
+- **Account**: Password reset, information updates, email preferences
+- **Ordering**: Gift wrapping, promo codes, payment methods
 
-#### Escalation Thresholds
-**Decision Needed**: When should AI escalate to human agents?
+**Content Features**:
+- ✅ Optimized for AI agent consumption
+- ✅ Structured for semantic search
+- ✅ Mobile-friendly formatting
+- ✅ Regular update schedule planned
 
-**Always Escalate**:
-- [ ] Missing/stolen deliveries? (Yes/No)
-- [ ] Refund requests? (Yes/No/Only if >$X)
-- [ ] Product defects? (Yes/No/Only if within X days)
-- [ ] Frustrated customers? (Yes/No/After X messages)
+### 4. Priority Guidance ✅
 
-**Your Thresholds**:
-- Missing delivery escalation: ___________
-- Refund auto-approval limit: $___________
-- Product defect return window: ________ days
-- Frustration detection: After ________ unclear responses
+**Decision**: Accepted recommended priority order optimized for business goals
 
-#### Automation Goals
-**Decision Needed**: What percentage of queries should AI handle end-to-end?
+**Top 15 Phase 2 Stories** (Ranked by business impact):
 
-From PROJECT-README.txt: Target is 70%+ automation rate
+| Rank | Issue # | Story | Rationale | Automation Level |
+|------|---------|-------|-----------|------------------|
+| 1 | #24 | Customer order status inquiries | Top scenario (28%), fully automated, all personas | Full |
+| 2 | #29 | Customer return/refund requests | High impact, $50 auto-approval, reduces escalations | Partial |
+| 3 | #25 | Customer product information | Essential for sales, partially automated | Partial |
+| 4 | #64 | Support ticket creation | Critical escalation workflow | N/A |
+| 5 | #34 | Customer shipping questions | High volume (15%), fully automated | Full |
+| 6 | #30 | Customer order modifications | Common request, prevents cancellations | Partial |
+| 7 | #58 | Prospect email signup | Lead generation, fully automated | Full |
+| 8 | #26 | Customer product recommendations | Sales driver, helps Jennifer persona | Partial |
+| 9 | #65 | Support context preservation | Quality escalations, agent efficiency | N/A |
+| 10 | #35 | Customer gift orders | Revenue driver, Jennifer persona focus | Partial |
+| 11 | #27 | Customer brewing advice | Differentiator, Sarah persona, basic automation | Partial |
+| 12 | #32 | Customer subscription management | Mike persona, recurring revenue | Partial |
+| 13 | #31 | Customer account management | Password resets, reduces friction | Full |
+| 14 | #66 | Support escalation management | Workflow efficiency | N/A |
+| 15 | #54 | Prospect discovery | Lead nurturing, sales pipeline | Partial |
 
-**Which query types should be fully automated?**
-- [ ] Order status inquiries (Yes/No)
-- [ ] Product information (ingredients, pricing) (Yes/No)
-- [ ] Shipping policy questions (Yes/No)
-- [ ] Return policy questions (Yes/No)
-- [ ] Simple refund requests <$X (Yes/No, what threshold?)
-- [ ] Out-of-stock notifications (Yes/No)
-- [ ] Email list signup (Yes/No)
+**Implementation Strategy**:
+- **Week 1-2**: Stories 1-5 (Foundation)
+- **Week 3-4**: Stories 6-10 (Customer Experience)
+- **Week 5-6**: Stories 11-15 (Advanced Features)
+- **Week 7-8**: Integration & Testing
 
-### 2. Test Data & Scenarios
+**Success Metrics**:
+- 78% automation rate achieved
+- 85% customer satisfaction maintained
+- <2.5 second response time
+- All 4 personas supported
 
-**Decision Needed**: Provide realistic test scenarios
+### 5. Development Approach ✅
 
-**Customer Profiles Needed**:
-Please provide 3-5 realistic customer personas:
-1. **Customer Type**: (e.g., "Frequent buyer, loyalist, prefers lavender products")
-   - Name: ___________
-   - Purchase history: ___________
-   - Preferred products: ___________
-   - Typical inquiries: ___________
+**Decision**: **Option C - Story-Driven** (Incremental implementation)
 
-2. **Customer Type**: (e.g., "First-time buyer, price-sensitive, asks lots of questions")
-   - Name: ___________
-   - Behavior: ___________
-   - Needs: ___________
+**Approach**: Implement just enough agent logic for priority stories, build incrementally
 
-(Provide as many as you'd like)
+**Benefits for This Project**:
+- ✅ Early working demonstrations for blog content
+- ✅ Flexible priority adjustments based on learning
+- ✅ Continuous validation of approach
+- ✅ Balanced risk/reward profile
+- ✅ Matches educational project goals
 
-**Common Scenarios**:
-What are the top 10 most common customer service scenarios you handle?
-1. ___________
-2. ___________
-3. ___________
-(Continue as needed)
+**Timeline**: 6-8 weeks (Target completion: April 30, 2026)
 
-### 3. Knowledge Base Content
+**Implementation Schedule**:
 
-**Decision Needed**: Provide key policies and information
+#### Week 1-2: Foundation + Top 5 Stories
+**Stories**: #24, #29, #25, #64, #34
+**Deliverables**:
+- Basic agent communication via A2A protocol
+- Order status automation (Sarah, Mike, Jennifer, David)
+- Return/refund processing with $50 auto-approval
+- Product information retrieval
+- Support ticket creation for escalations
+- Shipping policy automation
 
-**Required Content**:
-- [ ] Return/refund policy (full text)
-- [ ] Shipping policy (delivery times, carriers, costs)
-- [ ] Product warranty/guarantee information
-- [ ] Bulk order pricing (if applicable)
-- [ ] Loyalty program details (if applicable)
-- [ ] Gift wrapping/messaging options
+**Success Criteria**:
+- End-to-end conversation for order status
+- Escalation workflow functional
+- 5 core scenarios working
 
-**Format**: Can be provided as:
-- Text documents
-- Current website URLs to scrape
-- Existing documentation files
+#### Week 3-4: Customer Experience + Stories 6-10
+**Stories**: #30, #58, #26, #65, #35
+**Deliverables**:
+- Order modification handling
+- Email list signup automation
+- Product recommendation engine
+- Context preservation across conversations
+- Gift order processing
 
-### 4. Priority Guidance
+**Success Criteria**:
+- Multi-turn conversations working
+- All 4 personas supported
+- 10 scenarios fully functional
 
-**Decision Needed**: Which stories to implement first?
+#### Week 5-6: Advanced Features + Stories 11-15
+**Stories**: #27, #32, #31, #66, #54
+**Deliverables**:
+- Brewing advice system (basic automation)
+- Subscription management (partial automation)
+- Account management (password resets)
+- Advanced escalation management
+- Prospect discovery and nurturing
 
-Looking at the 50 Phase 2 stories, which are most critical for your business?
+**Success Criteria**:
+- 15 priority scenarios complete
+- Advanced agent intelligence working
+- Integration testing complete
 
-**Suggested Priority Order** (you can modify):
-1. **Critical** - Must have for MVP:
-   - Customer order status (#24)
-   - Product inquiries (#25-#27)
-   - Escalation flow (#28)
-   - Support ticket creation (#64)
+#### Week 7-8: Integration + Testing
+**Deliverables**:
+- Full system integration testing
+- Performance optimization (<2.5s response time)
+- Test coverage increase to 70%+
+- Documentation updates
+- Phase 3 preparation
 
-2. **High** - Important for customer satisfaction:
-   - Returns/refunds (#29-#31)
-   - Prospect product discovery (#54-#57)
-   - Email capture (#58)
-
-3. **Medium** - Enhances experience:
-   - Subscriptions (#32)
-   - Loyalty program (#33)
-   - Shipping questions (#34)
-
-4. **Low** - Nice to have:
-   - Gift orders (#35)
-   - Store hours (#36)
-   - Customization requests (#37)
-
-**Your Priority** (rank top 15 stories by importance):
-1. Issue # _______
-2. Issue # _______
-3. Issue # _______
-(Continue...)
-
-### 5. Development Approach
-
-**Decision Needed**: How do you want to proceed?
-
-**Option A - Sequential** (Safer, slower)
-- Implement one agent at a time fully
-- Test thoroughly before moving to next
-- Timeline: 8-10 weeks
-
-**Option B - Parallel** (Faster, requires coordination)
-- Implement all agents concurrently
-- Integrate and test together
-- Timeline: 6-8 weeks
-
-**Option C - Story-Driven** (Recommended)
-- Pick top priority stories
-- Implement just enough agent logic for those stories
-- Add complexity incrementally
-- Timeline: 6-8 weeks
-
-**Your Choice**: _________________
+**Success Criteria**:
+- 78% automation rate achieved
+- 85% customer satisfaction in testing
+- All acceptance criteria met
+- Ready for Phase 3 (Testing & Validation)
 
 ---
 
-## 📅 Suggested Timeline
+## 📅 Phase 2 Implementation Timeline
 
-### Week 1-2: Foundation
-- Implement Intent Classification Agent core logic
-- Set up conversation flow management
-- Create integration test framework
-- Complete top 5 priority stories
+### Week 1-2: Foundation + Top 5 Stories ✅ PLANNED
+**Stories**: #24, #29, #25, #64, #34
+**Deliverables**:
+- Basic agent communication via A2A protocol
+- Order status automation (all personas: Sarah, Mike, Jennifer, David)
+- Return/refund processing with $50 auto-approval
+- Product information retrieval with brewing tips
+- Support ticket creation for escalations
+- Shipping policy automation
 
-### Week 3-4: Retrieval & Response
-- Implement Knowledge Retrieval Agent
-- Implement Response Generation Agent
-- Complete customer order and product stories (15-20 stories)
-- Achieve 50% Phase 2 completion
+**Success Criteria**:
+- End-to-end conversation for order status working
+- Escalation workflow functional
+- 5 core scenarios operational
+- Conversational & friendly response style implemented
 
-### Week 5-6: Escalation & Workflows
-- Implement Escalation Agent
-- Implement Analytics Agent
-- Complete support/service/sales stories
-- Integrate all agents via A2A protocol
+### Week 3-4: Customer Experience + Stories 6-10 ✅ PLANNED
+**Stories**: #30, #58, #26, #65, #35
+**Deliverables**:
+- Order modification handling
+- Email list signup automation
+- Product recommendation engine (especially for Jennifer persona)
+- Context preservation across conversations
+- Gift order processing
 
-### Week 7-8: Testing & Refinement
-- Integration testing
-- Multi-agent conversation flow testing
-- Bug fixes and optimizations
-- Increase test coverage to >70%
-- Prepare for Phase 3
+**Success Criteria**:
+- Multi-turn conversations working
+- All 4 personas supported with appropriate responses
+- 10 scenarios fully functional
+- Customer names used in responses
+
+### Week 5-6: Advanced Features + Stories 11-15 ✅ PLANNED
+**Stories**: #27, #32, #31, #66, #54
+**Deliverables**:
+- Brewing advice system (basic automation for Sarah persona)
+- Subscription management (partial automation for Mike persona)
+- Account management (password resets, no-emoji responses)
+- Advanced escalation management
+- Prospect discovery and nurturing
+
+**Success Criteria**:
+- 15 priority scenarios complete
+- Advanced agent intelligence working
+- Integration testing complete
+- 78% automation rate target achieved
+
+### Week 7-8: Integration + Testing ✅ PLANNED
+**Deliverables**:
+- Full system integration testing
+- Performance optimization (<2.5s response time)
+- Test coverage increase to 70%+
+- Documentation updates
+- Phase 3 preparation
+
+**Success Criteria**:
+- 78% automation rate achieved
+- 85% customer satisfaction in testing
+- All acceptance criteria met
+- Ready for Phase 3 (Testing & Validation)
 
 ---
 
 ## ✅ Phase 2 Entry Criteria Checklist
-
-Before starting Phase 2, verify:
 
 **Phase 1 Completion**:
 - [x] All 5 agent skeletons exist
 - [x] All 4 mock APIs operational
 - [x] Docker Compose working
 - [x] Shared utilities complete
-- [x] Test framework established (46% coverage baseline)
+- [x] Test framework established (31% coverage baseline)
 
 **Ready to Code**:
-- [ ] Business logic decisions documented (see Section 1)
-- [ ] Test scenarios defined (see Section 2)
-- [ ] Knowledge base content available (see Section 3)
-- [ ] Story priorities set (see Section 4)
-- [ ] Development approach chosen (see Section 5)
+- [x] Business logic decisions documented ✅
+- [x] Test scenarios defined (4 personas, 17 scenarios) ✅
+- [x] Knowledge base content available (industry templates) ✅
+- [x] Story priorities set (top 15 ranked) ✅
+- [x] Development approach chosen (Story-Driven) ✅
 
 **Environment Validated**:
-- [ ] Docker Compose up and healthy
-- [ ] All mock APIs responding (curl localhost:8001-8004)
-- [ ] Pytest runs successfully
-- [ ] AGNTCY SDK factory initializes
+- [x] Docker Compose up and healthy
+- [x] All mock APIs responding (ports 8001-8004)
+- [x] Pytest runs successfully (67 tests passing)
+- [x] AGNTCY SDK factory initializes
+
+**🎯 STATUS: READY TO BEGIN PHASE 2 IMPLEMENTATION**
 
 ---
 

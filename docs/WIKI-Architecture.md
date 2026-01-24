@@ -2,9 +2,9 @@
 
 **Multi-Agent Customer Service Platform on Azure using AGNTCY SDK**
 
-**Last Updated:** 2026-01-22
-**Version:** 2.1 (includes Critic/Supervisor Agent + Execution Tracing)
-**Status:** Phase 1 Complete, Phase 2 Ready
+**Last Updated:** 2026-01-23
+**Version:** 2.2 (Phase 2 Business Logic Decisions Complete)
+**Status:** Phase 1 Complete, Phase 2 Implementation Starting
 
 ---
 
