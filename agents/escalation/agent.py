@@ -218,6 +218,33 @@ class EscalationAgent:
         # Neutral default
         return Sentiment.NEUTRAL
 
+    def _analyze_mock(self, message: str) -> tuple[Sentiment, float]:
+        """
+        Mock sentiment and complexity analysis for testing.
+        Returns (sentiment, complexity_score) tuple.
+        """
+        text_lower = message.lower()
+        
+        # Determine sentiment using Sentiment enum
+        if any(word in text_lower for word in ['terrible', 'awful', 'hate', 'worst', 'unacceptable']):
+            sentiment = Sentiment.VERY_NEGATIVE
+        elif any(word in text_lower for word in ['problem', 'issue', 'disappointed', 'frustrated']):
+            sentiment = Sentiment.NEGATIVE
+        elif any(word in text_lower for word in ['great', 'love', 'excellent', 'perfect', 'thanks']):
+            sentiment = Sentiment.POSITIVE
+        else:
+            sentiment = Sentiment.NEUTRAL
+        
+        # Determine complexity as float score (0.0 to 1.0)
+        if any(word in text_lower for word in ['complex', 'complicated', 'multiple', 'several', 'terrible', 'unacceptable']):
+            complexity = 0.85  # High complexity
+        elif any(word in text_lower for word in ['simple', 'easy', 'quick', 'thanks', 'great']):
+            complexity = 0.3   # Low complexity
+        else:
+            complexity = 0.6   # Medium complexity
+        
+        return sentiment, complexity
+
     def _extract_order_amount(self, knowledge_context: list) -> float:
         """Extract order total amount from knowledge context."""
         for item in knowledge_context:
