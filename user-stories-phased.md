@@ -752,7 +752,7 @@
 
 ---
 
-## Phase 4: Production Deployment on Azure ($200/month budget)
+## Phase 4: Production Deployment on Azure ($310-360/month budget, revised from $200)
 **Focus**: Real APIs, multi-language support, Azure infrastructure, production features
 **Stories**: 30 stories (2 Customer, 5 Prospect, 3 Support, 6 Service, 6 Sales, 1 AI Assistant, 7 Operator)
 
@@ -994,7 +994,7 @@
 
 ---
 
-## Phase 5: Production Testing & Go-Live ($200/month budget)
+## Phase 5: Production Testing & Go-Live ($310-360/month budget, revised from $200)
 **Focus**: Load testing, security, DR validation, production cutover
 **Stories**: 15 stories (0 Customer, 0 Prospect, 2 Support, 4 Service, 4 Sales, 0 AI Assistant, 5 Operator)
 

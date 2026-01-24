@@ -43,12 +43,12 @@ Successfully created a complete GitHub project management system with **137 issu
 - Focus: Functional testing, load testing, quality assurance
 
 **Phase 4 - Production Deployment** (30 stories: #94-#123)
-- Budget: $200/month (Azure)
+- Budget: $310-360/month (Azure, revised from $200)
 - Due: 2026-08-31
 - Focus: Azure infrastructure, real APIs, multi-language support
 
 **Phase 5 - Production Testing & Go-Live** (15 stories: #124-#138)
-- Budget: $200/month (Azure)
+- Budget: $310-360/month (Azure, revised from $200)
 - Due: 2026-09-30
 - Focus: Load testing, security validation, DR drills, cutover
 

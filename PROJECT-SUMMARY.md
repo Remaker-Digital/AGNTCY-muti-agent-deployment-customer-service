@@ -26,7 +26,7 @@ An **educational example** demonstrating how to build a cost-effective multi-age
 
 - **AGNTCY SDK** for multi-agent orchestration
 - **Docker** for local development (Phase 1-3)
-- **Azure** for production deployment (Phase 4-5, $200/month budget)
+- **Azure** for production deployment (Phase 4-5, $310-360/month budget, revised from $200)
 - **Modern DevOps** practices (IaC, CI/CD, observability)
 
 ### Business Value Demonstration
@@ -277,7 +277,7 @@ Test Results:
 - No external API calls
 - Mock services only
 
-### Phase 4-5: $200/month (Planned)
+### Phase 4-5: $310-360/month (Revised from $200)
 
 **Target Allocation**:
 - Azure Container Instances: $60-80/month
@@ -507,6 +507,6 @@ Phase 1 is considered successful if:
 
 **Phase 1 Status**: COMPLETE ✅
 
-This project is an educational example demonstrating multi-agent AI systems on Azure within a $200/month budget. Phase 1 infrastructure is production-ready for local development. It is designed for learning and should be adapted for production use.
+This project is an educational example demonstrating multi-agent AI systems on Azure within a $310-360/month budget (revised from $200). Phase 1 infrastructure is production-ready for local development. It is designed for learning and should be adapted for production use.
 
 **Ready for**: Phase 2 enhancements, Azure Phase 1 demo deployment, or production customization.
