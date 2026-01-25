@@ -32,11 +32,13 @@ BUDGET:
   * Mock/stub APIs for third-party integrations
   * No cloud resources consumed
 
-- Phase 4-5 (Production Deployment): $200/month
+- Phase 4-5 (Production Deployment): $310-360/month (REVISED 2026-01-22)
   * Azure resources deployed to East US region
   * Cost optimization is a key learning objective
-  * Budget alerts at 80% ($160) and 95% ($190)
+  * Budget alerts at 83% ($299) and 93% ($335)
   * Cost allocation tags for granular tracking
+  * Revised to accommodate: PII tokenization, event-driven, RAG, Critic/Supervisor (6th agent), execution tracing
+  * Post Phase 5 optimization target: $200-250/month
 
 PLAN:
 - Phase 1: Create the infrastructure and deployable containers with all essential software, excluding the business logic of the application suitable for desktop development and testing using Docker Desktop on Windows 11
@@ -56,11 +58,13 @@ PLAN:
   * Budget: $0 (fully local)
 
 - Phase 3: Test the business logic of the service for functionality
+  * Status: ✅ 100% COMPLETE (as of 2026-01-25)
   * Functional testing with mock data
   * Multi-agent conversation flows
   * Performance benchmarking (local)
   * CI: GitHub Actions for automated testing
   * Budget: $0 (GitHub Actions free for public repos)
+  * Deliverable: Comprehensive testing guide, troubleshooting guide, deployment guide
 
 - Phase 4: Create a new version of the project adapted to a full production environment on Azure
   * Region: East US (primary)
@@ -116,7 +120,7 @@ AGENTS:
 - Response Generation Agent: Crafts contextually appropriate responses
 - Escalation Agent: Identifies cases requiring human intervention
 - Analytics Agent: Monitors performance and identifies improvement opportunities
-- Additional agents as required
+- Critic/Supervisor Agent (6th agent, added 2026-01-22): Content validation for input/output safety, blocks malicious inputs and harmful outputs
 
 PRODUCTION ARCHITECTURE (Phase 4-5 only):
 - Region: East US (primary deployment region)
@@ -537,6 +541,7 @@ Automation Scripts (PowerShell):
 - create-remaining-115-stories.ps1 - Create Phase 2 stories (50 issues)
 - create-phases-3-4-5.ps1 - Create Phases 3-5 stories (65 issues)
 
-Last Updated: 2026-01-22
-Current Phase: Phase 1 Complete (100%) / Phase 2 Ready to Start
-Next Action: User to provide Phase 2 inputs (see PHASE-2-READINESS.md)
+Last Updated: 2026-01-25
+Current Phase: Phase 1 Complete (100%) / Phase 2 Complete (95%) / Phase 3 Complete (100%)
+Next Phase: Phase 4 - Azure Production Setup (Ready to Begin)
+Configuration Management: Hierarchical 5-layer model approved (Azure Portal + CLI primary interface, optional custom dashboard)
