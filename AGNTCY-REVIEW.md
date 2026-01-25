@@ -440,11 +440,11 @@ uv run pytest tests/e2e/test_fast_mcp.py::test_client -s -k "SLIM"
 
 ### Azure Budget Constraints & Cost Optimization
 
-**Project Budget**: $200/month for Phase 4-5 (Azure production deployment)
+**Project Budget**: $350/month for Phase 4-5 (Azure production deployment)
 
 **Phase 1-3 Budget**: $0/month (local Docker development only)
 
-**Phase 4-5 Estimated Costs** (Target: $180-200/month):
+**Phase 4-5 Estimated Costs** (Target: $300-350/month):
 - Azure Container Instances (5 agents, pay-per-second): ~$60-80/month
 - Cosmos DB Serverless (pay-per-request): ~$30-50/month
 - Redis Cache (Basic C0, 250MB): ~$15/month

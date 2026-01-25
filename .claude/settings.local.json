@@ -71,7 +71,9 @@
       "Bash(docker pull:*)",
       "Bash(docker inspect:*)",
       "Bash(docker history:*)",
-      "Bash(gh issue view:*)"
+      "Bash(gh issue view:*)",
+      "Bash(gh project:*)",
+      "Bash(gh api:*)"
     ]
   },
   "shortcuts": {

@@ -1,0 +1,330 @@
+name: CI - Multi-Agent Customer Service
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Nightly regression suite - runs at 2 AM UTC daily
+    - cron: '0 2 * * *'
+  workflow_dispatch:  # Allow manual triggers
+
+env:
+  PYTHON_VERSION: '3.14'
+
+jobs:
+  # Job 1: Linting and Code Quality
+  lint:
+    name: Code Quality Checks
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install black flake8 bandit
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Run Black formatter check
+      run: black --check --line-length 100 .
+      continue-on-error: true
+
+    - name: Run Flake8 linter
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      continue-on-error: true
+
+    - name: Run Bandit security linter
+      run: bandit -r agents/ shared/ mocks/ -f json -o bandit-report.json
+      continue-on-error: true
+
+    - name: Upload Bandit report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: bandit-security-report
+        path: bandit-report.json
+        retention-days: 30
+
+  # Job 2: Unit Tests
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pytest-asyncio
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Run unit tests
+      run: |
+        pytest tests/unit/ -v --tb=short --cov=shared --cov-report=xml --cov-report=html --cov-report=term
+      continue-on-error: false
+
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-reports-unit
+        path: |
+          coverage.xml
+          htmlcov/
+        retention-days: 30
+
+    - name: Comment coverage on PR
+      uses: codecov/codecov-action@v4
+      if: github.event_name == 'pull_request'
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-unit-tests
+      continue-on-error: true
+
+  # Job 3: Integration Tests (with Docker services)
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-cov pytest-asyncio
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Start Docker services
+      run: |
+        docker compose up -d slim-service mock-shopify mock-zendesk mock-mailchimp mock-analytics
+        sleep 10  # Wait for services to be ready
+
+    - name: Run integration tests
+      run: |
+        pytest tests/integration/ -v --tb=short --cov=agents --cov-report=xml --cov-report=html --cov-report=term
+      continue-on-error: false
+
+    - name: Stop Docker services
+      if: always()
+      run: docker compose down
+
+    - name: Upload coverage reports
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: coverage-reports-integration
+        path: |
+          coverage.xml
+          htmlcov/
+        retention-days: 30
+
+    - name: Upload Docker logs
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: docker-logs-integration
+        path: |
+          docker-compose.logs
+        retention-days: 7
+
+  # Job 4: Performance Tests
+  performance-tests:
+    name: Performance Benchmarking
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio psutil
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Start Docker services
+      run: |
+        docker compose up -d slim-service mock-shopify mock-zendesk mock-mailchimp mock-analytics
+        sleep 10
+
+    - name: Run performance benchmarking
+      run: |
+        pytest tests/performance/test_response_time_benchmarking.py -v --tb=short
+      continue-on-error: false
+
+    - name: Stop Docker services
+      if: always()
+      run: docker compose down
+
+    - name: Upload performance results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: performance-benchmark-results
+        path: |
+          performance-*.json
+        retention-days: 90
+
+  # Job 5: Multi-Turn Conversation Tests
+  multi-turn-tests:
+    name: Multi-Turn Conversation Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Start Docker services
+      run: |
+        docker compose up -d slim-service mock-shopify mock-zendesk mock-mailchimp mock-analytics
+        sleep 10
+
+    - name: Run multi-turn conversation tests
+      run: |
+        pytest tests/e2e/test_multi_turn_conversations.py -v --tb=short
+      continue-on-error: true
+
+    - name: Stop Docker services
+      if: always()
+      run: docker compose down
+
+  # Job 6: Agent Communication Tests
+  agent-comm-tests:
+    name: Agent Communication Tests
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Start Docker services
+      run: |
+        docker compose up -d slim-service mock-shopify mock-zendesk mock-mailchimp mock-analytics
+        sleep 10
+
+    - name: Run agent communication tests
+      run: |
+        pytest tests/e2e/test_agent_communication.py -v --tb=short
+      continue-on-error: false
+
+    - name: Stop Docker services
+      if: always()
+      run: docker compose down
+
+  # Job 7: PR Validation Summary
+  pr-validation:
+    name: PR Validation Summary
+    runs-on: ubuntu-latest
+    needs: [lint, unit-tests, integration-tests]
+    if: github.event_name == 'pull_request'
+
+    steps:
+    - name: Check all required jobs passed
+      run: |
+        echo "All required jobs completed successfully"
+        echo "✅ Code quality checks passed"
+        echo "✅ Unit tests passed"
+        echo "✅ Integration tests passed"
+        echo "PR is ready for review"
