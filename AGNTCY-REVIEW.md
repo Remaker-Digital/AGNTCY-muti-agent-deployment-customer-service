@@ -13,10 +13,12 @@ The AGNTCY Application SDK is a Python library for building interoperable multi-
 
 **Project Implementation Status:**
 - **Phase 1**: 100% Complete ✅ (Infrastructure, Mock APIs, Agents, Tests, CI/CD)
-- **Current State**: All 5 agents implemented with AGNTCY SDK integration
-- **Test Coverage**: 31% (67 tests passing, 5 skipped)
+- **Phase 2**: 95% Complete ✅ (5 core agents, intentional 5% deferred to Phase 4)
+- **Phase 3**: 100% Complete ✅ (Testing, validation, documentation)
+- **Current State**: All 5 agents implemented with AGNTCY SDK integration (6th agent Critic/Supervisor to be added in Phase 4)
+- **Test Coverage**: 50% (152 test scenarios, 81% overall pass rate)
 - **CI/CD**: GitHub Actions workflow complete and operational
-- **Next Phase**: Phase 2 - Real NLP/LLM integration
+- **Next Phase**: Phase 4 - Azure Production Setup
 
 ---
 
@@ -440,19 +442,29 @@ uv run pytest tests/e2e/test_fast_mcp.py::test_client -s -k "SLIM"
 
 ### Azure Budget Constraints & Cost Optimization
 
-**Project Budget**: $350/month for Phase 4-5 (Azure production deployment)
+**Project Budget**: $310-360/month for Phase 4-5 (Azure production deployment) - **REVISED 2026-01-22**
 
 **Phase 1-3 Budget**: $0/month (local Docker development only)
 
-**Phase 4-5 Estimated Costs** (Target: $300-350/month):
-- Azure Container Instances (5 agents, pay-per-second): ~$60-80/month
-- Cosmos DB Serverless (pay-per-request): ~$30-50/month
-- Redis Cache (Basic C0, 250MB): ~$15/month
-- Container Registry (Basic): ~$5/month
-- Log Analytics (7-day retention): ~$10-20/month
-- Application Insights: ~$10-20/month
-- Bandwidth & misc: ~$10-20/month
-- **Total: ~$180-200/month**
+**Phase 4-5 Estimated Costs** (Target: $310-360/month - REVISED 2026-01-22):
+- Azure Container Instances (6 agents, pay-per-second): ~$75-110/month
+- Cosmos DB Serverless (pay-per-request + vector search): ~$35-60/month
+- Azure OpenAI (GPT-4o, GPT-4o-mini, embeddings): ~$48-62/month
+- NATS JetStream, Azure Functions (events): ~$12-25/month
+- Networking (App Gateway, egress): ~$20-40/month
+- Monitoring (Azure Monitor, tracing): ~$32-43/month
+- Configuration (Key Vault, App Configuration): ~$6.50-15.50/month
+- Redis Cache (optional, Post Phase 5): Deferred
+- **Total: ~$310-360/month**
+
+**Revision Rationale:**
+- PII tokenization (+$1-5/month)
+- Event-driven architecture (+$12-25/month)
+- RAG with Cosmos vector search (+$5-10/month)
+- Critic/Supervisor Agent (6th agent) (+$22-31/month)
+- Execution tracing with OpenTelemetry (+$10-15/month)
+
+**Post Phase 5 Optimization Target:** $200-250/month (reduced agent count, optimized models, aggressive auto-scaling)
 
 **Cost Optimization Strategies:**
 - Use pay-per-use pricing (Container Instances, Cosmos Serverless)
