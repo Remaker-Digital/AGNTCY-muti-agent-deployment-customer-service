@@ -1,0 +1,829 @@
+{
+  "test_suite": "End-to-End Customer Conversation Scenarios",
+  "version": "1.0.0",
+  "start_time": "2026-01-24T11:30:01.302860",
+  "end_time": "2026-01-24T11:30:51.465747",
+  "duration_seconds": 50.162887,
+  "summary": {
+    "total_scenarios": 20,
+    "passed": 0,
+    "failed": 20,
+    "pass_rate": 0.0,
+    "avg_response_time_ms": 1901.455697559175,
+    "p95_response_time_ms": 2599.28297996521
+  },
+  "results": [
+    {
+      "scenario_id": "S001",
+      "category": "Order Status",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks order status with order number",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Where is my order #10234?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 2604.5520305633545,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'order_status', got 'error'",
+            "Confidence too low: expected >=85.00%, got 0.00%",
+            "Response missing required text: '10234'",
+            "Response missing required text: 'shipped'",
+            "Response missing required text: 'tracking'",
+            "Response time exceeded threshold: 2605ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:30:03.907678"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2604.7990322113037,
+      "failures": [
+        "Intent mismatch: expected 'order_status', got 'error'",
+        "Confidence too low: expected >=85.00%, got 0.00%",
+        "Response missing required text: '10234'",
+        "Response missing required text: 'shipped'",
+        "Response missing required text: 'tracking'",
+        "Response time exceeded threshold: 2605ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:30:03.907857"
+    },
+    {
+      "scenario_id": "S002",
+      "category": "Product Information",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer asks about product availability and price",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How much is the Premium Coffee Brewer?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1792.0379638671875,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'product_info', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: 'Premium'",
+            "Response missing required text: 'Brewer'",
+            "Response missing required text: '$'",
+            "Response missing required text: 'stock'"
+          ],
+          "timestamp": "2026-01-24T11:30:06.200486"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1792.2852039337158,
+      "failures": [
+        "Intent mismatch: expected 'product_info', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: 'Premium'",
+        "Response missing required text: 'Brewer'",
+        "Response missing required text: '$'",
+        "Response missing required text: 'stock'"
+      ],
+      "timestamp": "2026-01-24T11:30:06.200665"
+    },
+    {
+      "scenario_id": "S003",
+      "category": "Return Request",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order under $50 (auto-approve)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I want to return my order #10235",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 2599.090814590454,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'return_request', got 'error'",
+            "Confidence too low: expected >=85.00%, got 0.00%",
+            "Response missing required text: 'return'",
+            "Response missing required text: 'RMA'",
+            "Response missing required text: 'approved'",
+            "Response missing required text: '30 days'",
+            "Response time exceeded threshold: 2599ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:30:09.310764"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2599.3900299072266,
+      "failures": [
+        "Intent mismatch: expected 'return_request', got 'error'",
+        "Confidence too low: expected >=85.00%, got 0.00%",
+        "Response missing required text: 'return'",
+        "Response missing required text: 'RMA'",
+        "Response missing required text: 'approved'",
+        "Response missing required text: '30 days'",
+        "Response time exceeded threshold: 2599ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:30:09.310982"
+    },
+    {
+      "scenario_id": "S004",
+      "category": "Return Request - Escalation",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order over $50 (escalate to human)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I need to return order #10234",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 2595.116376876831,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'return_request', got 'error'",
+            "Confidence too low: expected >=85.00%, got 0.00%",
+            "Response missing required text: 'support'",
+            "Response missing required text: 'team'",
+            "Response missing required text: 'review'",
+            "Expected escalation did not occur",
+            "Response time exceeded threshold: 2595ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:30:12.418674"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2595.3450202941895,
+      "failures": [
+        "Intent mismatch: expected 'return_request', got 'error'",
+        "Confidence too low: expected >=85.00%, got 0.00%",
+        "Response missing required text: 'support'",
+        "Response missing required text: 'team'",
+        "Response missing required text: 'review'",
+        "Expected escalation did not occur",
+        "Response time exceeded threshold: 2595ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:30:12.418829"
+    },
+    {
+      "scenario_id": "S005",
+      "category": "Loyalty Program - Balance",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks loyalty rewards balance",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How many loyalty points do I have?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'customer_email'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 966.249942779541,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'loyalty_program', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: '475'",
+            "Response missing required text: 'points'",
+            "Response missing required text: 'Bronze'"
+          ],
+          "timestamp": "2026-01-24T11:30:13.898056"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 966.4413928985596,
+      "failures": [
+        "Intent mismatch: expected 'loyalty_program', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: '475'",
+        "Response missing required text: 'points'",
+        "Response missing required text: 'Bronze'"
+      ],
+      "timestamp": "2026-01-24T11:30:13.898191"
+    },
+    {
+      "scenario_id": "S006",
+      "category": "Loyalty Program - Redemption",
+      "persona": "persona_002",
+      "priority": "high",
+      "description": "Gold tier customer asks about redeeming rewards",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How do I redeem my loyalty rewards?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'customer_email'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 962.921142578125,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'loyalty_program', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: '1250'",
+            "Response missing required text: 'Gold'",
+            "Response missing required text: 'redeem'",
+            "Response missing required text: '100 points'"
+          ],
+          "timestamp": "2026-01-24T11:30:15.376002"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 963.1233215332031,
+      "failures": [
+        "Intent mismatch: expected 'loyalty_program', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: '1250'",
+        "Response missing required text: 'Gold'",
+        "Response missing required text: 'redeem'",
+        "Response missing required text: '100 points'"
+      ],
+      "timestamp": "2026-01-24T11:30:15.376144"
+    },
+    {
+      "scenario_id": "S007",
+      "category": "Loyalty Program - General",
+      "persona": null,
+      "priority": "medium",
+      "description": "Anonymous visitor asks about loyalty program",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Do you have a loyalty program?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'customer_email'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 962.552547454834,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'loyalty_program', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: 'rewards'",
+            "Response missing required text: 'points'",
+            "Response missing required text: 'earn'",
+            "Response missing required text: '1 point per $1'"
+          ],
+          "timestamp": "2026-01-24T11:30:16.849954"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 962.7454280853271,
+      "failures": [
+        "Intent mismatch: expected 'loyalty_program', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: 'rewards'",
+        "Response missing required text: 'points'",
+        "Response missing required text: 'earn'",
+        "Response missing required text: '1 point per $1'"
+      ],
+      "timestamp": "2026-01-24T11:30:16.850098"
+    },
+    {
+      "scenario_id": "S008",
+      "category": "Product Recommendation",
+      "persona": "persona_003",
+      "priority": "medium",
+      "description": "Customer asks for gift recommendation",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "What's a good coffee gift for someone who drinks Starbucks?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 2598.52933883667,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'product_recommendation', got 'error'",
+            "Confidence too low: expected >=75.00%, got 0.00%",
+            "Response missing required text: 'medium roast'",
+            "Response missing required text: 'variety'",
+            "Response missing required text: 'gift'",
+            "Response time exceeded threshold: 2599ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:30:19.958207"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2598.7319946289062,
+      "failures": [
+        "Intent mismatch: expected 'product_recommendation', got 'error'",
+        "Confidence too low: expected >=75.00%, got 0.00%",
+        "Response missing required text: 'medium roast'",
+        "Response missing required text: 'variety'",
+        "Response missing required text: 'gift'",
+        "Response time exceeded threshold: 2599ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:30:19.958367"
+    },
+    {
+      "scenario_id": "S009",
+      "category": "Subscription Management",
+      "persona": "persona_002",
+      "priority": "medium",
+      "description": "Customer wants to modify auto-delivery subscription",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Can I change my subscription to decaf?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1785.8505249023438,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'auto_delivery_management', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: 'subscription'",
+            "Response missing required text: 'decaf'",
+            "Response missing required text: 'change'"
+          ],
+          "timestamp": "2026-01-24T11:30:22.256076"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1786.0333919525146,
+      "failures": [
+        "Intent mismatch: expected 'auto_delivery_management', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: 'subscription'",
+        "Response missing required text: 'decaf'",
+        "Response missing required text: 'change'"
+      ],
+      "timestamp": "2026-01-24T11:30:22.256186"
+    },
+    {
+      "scenario_id": "S010",
+      "category": "Business Inquiry - Bulk Order",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer inquires about bulk coffee order",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "We need 10 pounds of office coffee by Friday",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1789.6490097045898,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'escalation_needed', got 'error'",
+            "Confidence too low: expected >=85.00%, got 0.00%",
+            "Response missing required text: 'sales'",
+            "Response missing required text: 'team'",
+            "Response missing required text: 'business'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:30:24.560820"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1789.8633480072021,
+      "failures": [
+        "Intent mismatch: expected 'escalation_needed', got 'error'",
+        "Confidence too low: expected >=85.00%, got 0.00%",
+        "Response missing required text: 'sales'",
+        "Response missing required text: 'team'",
+        "Response missing required text: 'business'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:30:24.560945"
+    },
+    {
+      "scenario_id": "S011",
+      "category": "Business Inquiry - Pricing",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer asks about bulk pricing discounts",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Can we get a discount for monthly orders?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1789.0129089355469,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'escalation_needed', got 'error'",
+            "Confidence too low: expected >=85.00%, got 0.00%",
+            "Response missing required text: 'sales'",
+            "Response missing required text: 'business'",
+            "Response missing required text: 'pricing'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:30:26.851300"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1789.2794609069824,
+      "failures": [
+        "Intent mismatch: expected 'escalation_needed', got 'error'",
+        "Confidence too low: expected >=85.00%, got 0.00%",
+        "Response missing required text: 'sales'",
+        "Response missing required text: 'business'",
+        "Response missing required text: 'pricing'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:30:26.851483"
+    },
+    {
+      "scenario_id": "S012",
+      "category": "Shipping Question",
+      "persona": "persona_001",
+      "priority": "medium",
+      "description": "Customer asks about shipping options and costs",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How much does shipping cost?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 2589.5817279815674,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'shipping_question', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: 'shipping'",
+            "Response missing required text: 'free'",
+            "Response missing required text: '$35'",
+            "Response time exceeded threshold: 2590ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:30:29.952220"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2589.81990814209,
+      "failures": [
+        "Intent mismatch: expected 'shipping_question', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: 'shipping'",
+        "Response missing required text: 'free'",
+        "Response missing required text: '$35'",
+        "Response time exceeded threshold: 2590ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:30:29.952347"
+    },
+    {
+      "scenario_id": "S013",
+      "category": "Gift Card",
+      "persona": "persona_003",
+      "priority": "low",
+      "description": "Customer asks about gift card denominations",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How much is a gift card?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1776.9365310668945,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'gift_card', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: '$25'",
+            "Response missing required text: '$200'",
+            "Response missing required text: 'gift card'"
+          ],
+          "timestamp": "2026-01-24T11:30:32.238479"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1777.156114578247,
+      "failures": [
+        "Intent mismatch: expected 'gift_card', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: '$25'",
+        "Response missing required text: '$200'",
+        "Response missing required text: 'gift card'"
+      ],
+      "timestamp": "2026-01-24T11:30:32.238643"
+    },
+    {
+      "scenario_id": "S014",
+      "category": "Multi-Turn - Order Lookup",
+      "persona": "persona_001",
+      "priority": "medium",
+      "description": "Customer asks about order without providing order number",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Where is my order?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 2599.28297996521,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'order_status', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: 'order number'",
+            "Response missing required text: 'provide'",
+            "Response time exceeded threshold: 2599ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:30:35.352068"
+        },
+        {
+          "turn_number": 2,
+          "user_message": "I don't have the order number",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1787.5471115112305,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'order_status', got 'error'",
+            "Confidence too low: expected >=70.00%, got 0.00%",
+            "Response missing required text: 'recent orders'",
+            "Response missing required text: 'choose'"
+          ],
+          "timestamp": "2026-01-24T11:30:37.139805"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 4387.240886688232,
+      "failures": [
+        "Intent mismatch: expected 'order_status', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: 'order number'",
+        "Response missing required text: 'provide'",
+        "Response time exceeded threshold: 2599ms > 2500ms",
+        "Intent mismatch: expected 'order_status', got 'error'",
+        "Confidence too low: expected >=70.00%, got 0.00%",
+        "Response missing required text: 'recent orders'",
+        "Response missing required text: 'choose'"
+      ],
+      "timestamp": "2026-01-24T11:30:37.139925"
+    },
+    {
+      "scenario_id": "S015",
+      "category": "Hostile Customer",
+      "persona": "persona_001",
+      "priority": "critical",
+      "description": "Customer uses profanity (test content filtering)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "This is fucking ridiculous!",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1792.3719882965088,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'escalation_needed', got 'error'",
+            "Confidence too low: expected >=90.00%, got 0.00%",
+            "Response missing required text: 'understand'",
+            "Response missing required text: 'frustrated'",
+            "Response missing required text: 'help'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:30:39.442956"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1792.5910949707031,
+      "failures": [
+        "Intent mismatch: expected 'escalation_needed', got 'error'",
+        "Confidence too low: expected >=90.00%, got 0.00%",
+        "Response missing required text: 'understand'",
+        "Response missing required text: 'frustrated'",
+        "Response missing required text: 'help'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:30:39.443110"
+    },
+    {
+      "scenario_id": "S016",
+      "category": "Ambiguous Query",
+      "persona": "persona_002",
+      "priority": "low",
+      "description": "Vague question requiring clarification",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Tell me about it",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1791.1005020141602,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'general_inquiry', got 'error'",
+            "Confidence too low: expected >=50.00%, got 0.00%",
+            "Response missing required text: 'help'",
+            "Response missing required text: 'what'",
+            "Response missing required text: 'assist'"
+          ],
+          "timestamp": "2026-01-24T11:30:41.749090"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1791.3165092468262,
+      "failures": [
+        "Intent mismatch: expected 'general_inquiry', got 'error'",
+        "Confidence too low: expected >=50.00%, got 0.00%",
+        "Response missing required text: 'help'",
+        "Response missing required text: 'what'",
+        "Response missing required text: 'assist'"
+      ],
+      "timestamp": "2026-01-24T11:30:41.749213"
+    },
+    {
+      "scenario_id": "S017",
+      "category": "Brewer Support",
+      "persona": "persona_002",
+      "priority": "medium",
+      "description": "Customer needs brewer troubleshooting help",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "My coffee brewer won't turn on",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1789.9482250213623,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'brewer_support', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: 'power'",
+            "Response missing required text: 'outlet'",
+            "Response missing required text: 'support'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:30:44.050407"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1790.2898788452148,
+      "failures": [
+        "Intent mismatch: expected 'brewer_support', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: 'power'",
+        "Response missing required text: 'outlet'",
+        "Response missing required text: 'support'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:30:44.050674"
+    },
+    {
+      "scenario_id": "S018",
+      "category": "Product Comparison",
+      "persona": "persona_001",
+      "priority": "low",
+      "description": "Customer wants to compare coffee varieties",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "What's the difference between your espresso pods?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1792.445421218872,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'product_comparison', got 'error'",
+            "Confidence too low: expected >=75.00%, got 0.00%",
+            "Response missing required text: 'espresso'",
+            "Response missing required text: 'dark'",
+            "Response missing required text: 'roast'"
+          ],
+          "timestamp": "2026-01-24T11:30:46.358412"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1792.639970779419,
+      "failures": [
+        "Intent mismatch: expected 'product_comparison', got 'error'",
+        "Confidence too low: expected >=75.00%, got 0.00%",
+        "Response missing required text: 'espresso'",
+        "Response missing required text: 'dark'",
+        "Response missing required text: 'roast'"
+      ],
+      "timestamp": "2026-01-24T11:30:46.358559"
+    },
+    {
+      "scenario_id": "S019",
+      "category": "Order Modification",
+      "persona": "persona_001",
+      "priority": "medium",
+      "description": "Customer wants to add item to pending order",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Can I add another item to my order #10234?",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1788.2685661315918,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'order_modification', got 'error'",
+            "Confidence too low: expected >=80.00%, got 0.00%",
+            "Response missing required text: 'order'",
+            "Response missing required text: 'modify'",
+            "Response missing required text: 'shipped'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:30:48.659711"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1788.5160446166992,
+      "failures": [
+        "Intent mismatch: expected 'order_modification', got 'error'",
+        "Confidence too low: expected >=80.00%, got 0.00%",
+        "Response missing required text: 'order'",
+        "Response missing required text: 'modify'",
+        "Response missing required text: 'shipped'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:30:48.659878"
+    },
+    {
+      "scenario_id": "S020",
+      "category": "General Inquiry",
+      "persona": null,
+      "priority": "low",
+      "description": "Simple greeting from customer",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Hello",
+          "ai_response": "I apologize, but I encountered a technical issue: 'CustomerMessage' object has no attribute 'session_id'",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 1777.5239944458008,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'general_inquiry', got 'error'",
+            "Confidence too low: expected >=70.00%, got 0.00%",
+            "Response missing required text: 'help'",
+            "Response missing required text: 'assist'",
+            "Response missing required text: 'coffee'"
+          ],
+          "timestamp": "2026-01-24T11:30:50.952121"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1777.7106761932373,
+      "failures": [
+        "Intent mismatch: expected 'general_inquiry', got 'error'",
+        "Confidence too low: expected >=70.00%, got 0.00%",
+        "Response missing required text: 'help'",
+        "Response missing required text: 'assist'",
+        "Response missing required text: 'coffee'"
+      ],
+      "timestamp": "2026-01-24T11:30:50.952263"
+    }
+  ]
+}

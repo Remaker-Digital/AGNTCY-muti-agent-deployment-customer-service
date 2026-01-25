@@ -1,0 +1,18 @@
+[theme]
+# Link colors (primary color used for links and interactive elements)
+primaryColor = "#CC2222"  # Link Hover Color (Red)
+# Background colors
+backgroundColor = "#18232B"  # Primary Background (Dark blue-gray)
+secondaryBackgroundColor = "#243340"  # Foreground/Container Background (Medium blue-gray)
+# Text colors
+textColor = "#EEEEEE"  # Body Text (Light gray)
+# Font family
+font = "sans serif"  # Note: Streamlit doesn't support custom fonts directly; will use Montserrat via custom CSS
+
+[server]
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false

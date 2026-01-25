@@ -1,0 +1,54 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E2E Test Report - 20260124-112238</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .header { background: #2c3e50; color: white; padding: 20px; border-radius: 5px; }
+        .summary { background: white; padding: 20px; margin: 20px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .scenario { background: white; margin: 10px 0; padding: 15px; border-radius: 5px; border-left: 5px solid #3498db; }
+        .scenario.passed { border-left-color: #27ae60; }
+        .scenario.failed { border-left-color: #e74c3c; }
+        .turn { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+        .metric { display: inline-block; margin: 10px 20px 10px 0; }
+        .pass { color: #27ae60; font-weight: bold; }
+        .fail { color: #e74c3c; font-weight: bold; }
+        .validation-error { color: #e74c3c; margin: 5px 0; font-size: 0.9em; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #34495e; color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>End-to-End Test Report</h1>
+        <p>Generated: 2026-01-24 11:22:38</p>
+    </div>
+
+    <div class="summary">
+        <h2>Summary</h2>
+        <div class="metric">Total Scenarios: <strong>1</strong></div>
+        <div class="metric">Passed: <strong class="pass">0</strong></div>
+        <div class="metric">Failed: <strong class="fail">1</strong></div>
+        <div class="metric">Pass Rate: <strong>0.0%</strong></div>
+        <div class="metric">Avg Response Time: <strong>0ms</strong></div>
+    </div>
+
+    <h2>Scenario Results</h2>
+
+    <div class="scenario failed">
+        <h3>S005: Customer checks loyalty rewards balance <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Loyalty Program - Balance | <strong>Priority:</strong> high | <strong>Duration:</strong> 0ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> How many loyalty points do I have?</p>
+            <p><strong>Intent:</strong> general_inquiry (70.0%) | <strong>Time:</strong> 0ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'loyalty_program', got 'general_inquiry'</p><p class="validation-error">✗ Confidence too low: expected >=80.00%, got 70.00%</p><p class="validation-error">✗ Response missing required text: '475'</p><p class="validation-error">✗ Response missing required text: 'points'</p><p class="validation-error">✗ Response missing required text: 'Bronze'</p>
+        </div>
+
+    </div>
+
+</body>
+</html>

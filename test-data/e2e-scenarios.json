@@ -1,0 +1,535 @@
+{
+  "test_suite_name": "End-to-End Customer Conversation Scenarios",
+  "version": "1.0.0",
+  "created": "2026-01-24",
+  "phase": "2-5",
+  "description": "Comprehensive automated test scenarios covering all customer conversation types. Validates system behavior from end-user perspective in both mock (Phase 2) and AI model (Phase 4) modes.",
+  "personas": [
+    {
+      "id": "persona_001",
+      "name": "Sarah Martinez",
+      "email": "sarah.martinez@example.com",
+      "profile": "Coffee Enthusiast",
+      "loyalty_points": 475,
+      "tier": "Bronze",
+      "auto_delivery": false
+    },
+    {
+      "id": "persona_002",
+      "name": "Mike Thompson",
+      "email": "mike.thompson@example.com",
+      "profile": "Convenience Seeker",
+      "loyalty_points": 1250,
+      "tier": "Gold",
+      "auto_delivery": true
+    },
+    {
+      "id": "persona_003",
+      "name": "Jennifer Wu",
+      "email": "jennifer.wu@example.com",
+      "profile": "Gift Buyer",
+      "loyalty_points": 150,
+      "tier": "Bronze",
+      "auto_delivery": false
+    },
+    {
+      "id": "persona_004",
+      "name": "David Chen",
+      "email": "david.chen@example.com",
+      "profile": "Business Customer",
+      "loyalty_points": 680,
+      "tier": "Silver",
+      "auto_delivery": false
+    }
+  ],
+  "test_scenarios": [
+    {
+      "scenario_id": "S001",
+      "category": "Order Status",
+      "persona": "persona_001",
+      "priority": "high",
+      "issue_reference": "#24",
+      "description": "Customer checks order status with order number",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "Where is my order #10234?",
+          "expected_intent": "order_status",
+          "expected_confidence_min": 0.85,
+          "expected_response_contains": ["10234", "shipped", "tracking"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_include_order_number": true,
+        "must_include_status": true,
+        "must_include_tracking": true
+      }
+    },
+    {
+      "scenario_id": "S002",
+      "category": "Product Information",
+      "persona": "persona_001",
+      "priority": "high",
+      "issue_reference": "#25",
+      "description": "Customer asks about product availability and price",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "How much is the Premium Coffee Brewer?",
+          "expected_intent": "product_info",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["Premium", "Brewer", "$", "stock"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_include_price": true,
+        "must_include_availability": true
+      }
+    },
+    {
+      "scenario_id": "S003",
+      "category": "Return Request",
+      "persona": "persona_001",
+      "priority": "high",
+      "issue_reference": "#29",
+      "description": "Customer requests return for order under $50 (auto-approve)",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "I want to return my order #10235",
+          "expected_intent": "return_request",
+          "expected_confidence_min": 0.85,
+          "expected_response_contains": ["return", "RMA", "approved", "30 days"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_include_rma_number": true,
+        "order_total_max_for_auto_approve": 50.00
+      }
+    },
+    {
+      "scenario_id": "S004",
+      "category": "Return Request - Escalation",
+      "persona": "persona_001",
+      "priority": "high",
+      "issue_reference": "#29",
+      "description": "Customer requests return for order over $50 (escalate to human)",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "I need to return order #10234",
+          "expected_intent": "return_request",
+          "expected_confidence_min": 0.85,
+          "expected_response_contains": ["support", "team", "review"],
+          "expected_escalation": true,
+          "expected_escalation_reason": "high_value_return"
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_escalate_if_over_threshold": true,
+        "order_total_min_for_escalation": 50.01
+      }
+    },
+    {
+      "scenario_id": "S005",
+      "category": "Loyalty Program - Balance",
+      "persona": "persona_001",
+      "priority": "high",
+      "issue_reference": "#34",
+      "description": "Customer checks loyalty rewards balance",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "How many loyalty points do I have?",
+          "expected_intent": "loyalty_program",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["475", "points", "Bronze"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_include_current_balance": true,
+        "must_include_tier": true,
+        "must_personalize_with_name": true
+      }
+    },
+    {
+      "scenario_id": "S006",
+      "category": "Loyalty Program - Redemption",
+      "persona": "persona_002",
+      "priority": "high",
+      "issue_reference": "#34",
+      "description": "Gold tier customer asks about redeeming rewards",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "How do I redeem my loyalty rewards?",
+          "expected_intent": "loyalty_program",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["1250", "Gold", "redeem", "100 points"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_show_redemption_options": true,
+        "must_show_auto_delivery_status": true
+      }
+    },
+    {
+      "scenario_id": "S007",
+      "category": "Loyalty Program - General",
+      "persona": null,
+      "priority": "medium",
+      "issue_reference": "#34",
+      "description": "Anonymous visitor asks about loyalty program",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "Do you have a loyalty program?",
+          "expected_intent": "loyalty_program",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["rewards", "points", "earn", "1 point per $1"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_explain_earning_rate": true,
+        "must_not_show_personal_balance": true
+      }
+    },
+    {
+      "scenario_id": "S008",
+      "category": "Product Recommendation",
+      "persona": "persona_003",
+      "priority": "medium",
+      "issue_reference": "#26",
+      "description": "Customer asks for gift recommendation",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "What's a good coffee gift for someone who drinks Starbucks?",
+          "expected_intent": "product_recommendation",
+          "expected_confidence_min": 0.75,
+          "expected_response_contains": ["medium roast", "variety", "gift"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_recommend_products": true,
+        "recommended_products_min": 1
+      }
+    },
+    {
+      "scenario_id": "S009",
+      "category": "Subscription Management",
+      "persona": "persona_002",
+      "priority": "medium",
+      "issue_reference": "#27",
+      "description": "Customer wants to modify auto-delivery subscription",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "Can I change my subscription to decaf?",
+          "expected_intent": "auto_delivery_management",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["subscription", "decaf", "change"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_show_subscription_options": true
+      }
+    },
+    {
+      "scenario_id": "S010",
+      "category": "Business Inquiry - Bulk Order",
+      "persona": "persona_004",
+      "priority": "high",
+      "issue_reference": "#24",
+      "description": "Business customer inquires about bulk coffee order",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "We need 10 pounds of office coffee by Friday",
+          "expected_intent": "escalation_needed",
+          "expected_confidence_min": 0.85,
+          "expected_response_contains": ["sales", "team", "business"],
+          "expected_escalation": true,
+          "expected_escalation_reason": "b2b_sales_opportunity"
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_escalate_b2b_queries": true,
+        "must_extract_quantity": true,
+        "must_extract_deadline": true
+      }
+    },
+    {
+      "scenario_id": "S011",
+      "category": "Business Inquiry - Pricing",
+      "persona": "persona_004",
+      "priority": "high",
+      "issue_reference": "#24",
+      "description": "Business customer asks about bulk pricing discounts",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "Can we get a discount for monthly orders?",
+          "expected_intent": "escalation_needed",
+          "expected_confidence_min": 0.85,
+          "expected_response_contains": ["sales", "business", "pricing"],
+          "expected_escalation": true,
+          "expected_escalation_reason": "b2b_pricing_inquiry"
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_escalate_pricing_inquiries": true
+      }
+    },
+    {
+      "scenario_id": "S012",
+      "category": "Shipping Question",
+      "persona": "persona_001",
+      "priority": "medium",
+      "issue_reference": "#34",
+      "description": "Customer asks about shipping options and costs",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "How much does shipping cost?",
+          "expected_intent": "shipping_question",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["shipping", "free", "$35"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_explain_shipping_policy": true
+      }
+    },
+    {
+      "scenario_id": "S013",
+      "category": "Gift Card",
+      "persona": "persona_003",
+      "priority": "low",
+      "issue_reference": "#25",
+      "description": "Customer asks about gift card denominations",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "How much is a gift card?",
+          "expected_intent": "gift_card",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["$25", "$200", "gift card"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_show_denominations": true
+      }
+    },
+    {
+      "scenario_id": "S014",
+      "category": "Multi-Turn - Order Lookup",
+      "persona": "persona_001",
+      "priority": "medium",
+      "issue_reference": "#65",
+      "description": "Customer asks about order without providing order number",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "Where is my order?",
+          "expected_intent": "order_status",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["order number", "provide"],
+          "expected_no_escalation": true
+        },
+        {
+          "turn": 2,
+          "user_message": "I don't have the order number",
+          "expected_intent": "order_status",
+          "expected_confidence_min": 0.70,
+          "expected_response_contains": ["recent orders", "choose"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_handle_missing_order_number": true,
+        "must_list_customer_orders": true
+      }
+    },
+    {
+      "scenario_id": "S015",
+      "category": "Hostile Customer",
+      "persona": "persona_001",
+      "priority": "critical",
+      "issue_reference": "Critic/Supervisor",
+      "description": "Customer uses profanity (test content filtering)",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "This is fucking ridiculous!",
+          "expected_intent": "escalation_needed",
+          "expected_confidence_min": 0.90,
+          "expected_response_contains": ["understand", "frustrated", "help"],
+          "expected_escalation": true,
+          "expected_escalation_reason": "customer_frustration"
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_detect_negative_sentiment": true,
+        "must_escalate_hostile_messages": true,
+        "must_use_deescalation_language": true
+      }
+    },
+    {
+      "scenario_id": "S016",
+      "category": "Ambiguous Query",
+      "persona": "persona_002",
+      "priority": "low",
+      "issue_reference": "General",
+      "description": "Vague question requiring clarification",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "Tell me about it",
+          "expected_intent": "general_inquiry",
+          "expected_confidence_min": 0.50,
+          "expected_response_contains": ["help", "what", "assist"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_ask_for_clarification": true
+      }
+    },
+    {
+      "scenario_id": "S017",
+      "category": "Brewer Support",
+      "persona": "persona_002",
+      "priority": "medium",
+      "issue_reference": "#25",
+      "description": "Customer needs brewer troubleshooting help",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "My coffee brewer won't turn on",
+          "expected_intent": "brewer_support",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["power", "outlet", "support"],
+          "expected_escalation": true,
+          "expected_escalation_reason": "technical_support"
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_provide_troubleshooting_steps": true,
+        "must_offer_support_escalation": true
+      }
+    },
+    {
+      "scenario_id": "S018",
+      "category": "Product Comparison",
+      "persona": "persona_001",
+      "priority": "low",
+      "issue_reference": "#26",
+      "description": "Customer wants to compare coffee varieties",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "What's the difference between your espresso pods?",
+          "expected_intent": "product_comparison",
+          "expected_confidence_min": 0.75,
+          "expected_response_contains": ["espresso", "dark", "roast"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_compare_products": true,
+        "compared_products_min": 2
+      }
+    },
+    {
+      "scenario_id": "S019",
+      "category": "Order Modification",
+      "persona": "persona_001",
+      "priority": "medium",
+      "issue_reference": "#30",
+      "description": "Customer wants to add item to pending order",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "Can I add another item to my order #10234?",
+          "expected_intent": "order_modification",
+          "expected_confidence_min": 0.80,
+          "expected_response_contains": ["order", "modify", "shipped"],
+          "expected_no_escalation": false
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_check_order_status_before_modification": true
+      }
+    },
+    {
+      "scenario_id": "S020",
+      "category": "General Inquiry",
+      "persona": null,
+      "priority": "low",
+      "issue_reference": "General",
+      "description": "Simple greeting from customer",
+      "conversation": [
+        {
+          "turn": 1,
+          "user_message": "Hello",
+          "expected_intent": "general_inquiry",
+          "expected_confidence_min": 0.70,
+          "expected_response_contains": ["help", "assist", "coffee"],
+          "expected_no_escalation": true
+        }
+      ],
+      "validation": {
+        "response_time_max_ms": 2500,
+        "must_provide_friendly_greeting": true
+      }
+    }
+  ],
+  "test_configuration": {
+    "parallel_execution": false,
+    "create_new_session_per_scenario": true,
+    "log_all_interactions": true,
+    "continue_on_failure": true,
+    "generate_detailed_report": true,
+    "screenshot_on_failure": false,
+    "max_retries_per_scenario": 0
+  },
+  "validation_thresholds": {
+    "overall_pass_rate_min": 0.80,
+    "critical_scenarios_pass_rate_min": 1.00,
+    "high_priority_pass_rate_min": 0.90,
+    "medium_priority_pass_rate_min": 0.80,
+    "low_priority_pass_rate_min": 0.70,
+    "avg_response_time_max_ms": 2000,
+    "p95_response_time_max_ms": 2500
+  }
+}

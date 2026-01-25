@@ -1,0 +1,311 @@
+{
+  "test_suite": "End-to-End Customer Conversation Scenarios",
+  "version": "1.0.0",
+  "start_time": "2026-01-24T11:22:27.080603",
+  "end_time": "2026-01-24T11:22:31.167790",
+  "duration_seconds": 4.087187,
+  "summary": {
+    "total_scenarios": 8,
+    "passed": 0,
+    "failed": 8,
+    "pass_rate": 0.0,
+    "avg_response_time_ms": 0.054776668548583984,
+    "p95_response_time_ms": 0.0896453857421875
+  },
+  "results": [
+    {
+      "scenario_id": "S001",
+      "category": "Order Status",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks order status with order number",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Where is my order #10234?",
+          "ai_response": "Hi! Great news about your order #12345!\n\nIt shipped with USPS and should arrive by 2026-01-25.\nYour tracking number is 9400123456789.\n\nNeed anything else? I'm here to help!",
+          "intent_detected": "order_status",
+          "confidence": 0.95,
+          "response_time_ms": 0.039577484130859375,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: '10234'"
+          ],
+          "timestamp": "2026-01-24T11:22:27.080851"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.13756752014160156,
+      "failures": [
+        "Response missing required text: '10234'"
+      ],
+      "timestamp": "2026-01-24T11:22:27.080909"
+    },
+    {
+      "scenario_id": "S002",
+      "category": "Product Information",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer asks about product availability and price",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How much is the Premium Coffee Brewer?",
+          "ai_response": "I'd love to help you improve your brewing! Here are some key tips:\n\n**General Guidelines:**\n- **Grind**: Medium-fine for pour-over, coarse for French press\n- **Water Temp**: 195-205\u00b0F (just off boiling)\n- **Ratio**: 1:15 to 1:17 (coffee to water)\n- **Time**: 4-6 minutes total brew time\n\nWhat specific issue are you having? Bitter, sour, weak, or something else?",
+          "intent_detected": "brewing_advice",
+          "confidence": 0.9,
+          "response_time_ms": 0.07081031799316406,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'product_info', got 'brewing_advice'",
+            "Response missing required text: 'Premium'",
+            "Response missing required text: 'Brewer'",
+            "Response missing required text: '$'",
+            "Response missing required text: 'stock'"
+          ],
+          "timestamp": "2026-01-24T11:22:27.593954"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.2925395965576172,
+      "failures": [
+        "Intent mismatch: expected 'product_info', got 'brewing_advice'",
+        "Response missing required text: 'Premium'",
+        "Response missing required text: 'Brewer'",
+        "Response missing required text: '$'",
+        "Response missing required text: 'stock'"
+      ],
+      "timestamp": "2026-01-24T11:22:27.594110"
+    },
+    {
+      "scenario_id": "S003",
+      "category": "Return Request",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order under $50 (auto-approve)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I want to return my order #10235",
+          "ai_response": "I'm sorry to hear you're having an issue! We want to make this right.\n\n**Our Return Policy:**\n- 30-day return window from delivery\n- Orders under $50 can be auto-approved for refund\n- Original packaging preferred but not required\n\nFor quality issues or defects, we'll process an immediate replacement or refund.\n\nCould you tell me more about the issue? I'll get this resolved quickly for you.",
+          "intent_detected": "return_request",
+          "confidence": 0.88,
+          "response_time_ms": 0.031948089599609375,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: 'RMA'",
+            "Response missing required text: '30 days'"
+          ],
+          "timestamp": "2026-01-24T11:22:28.109134"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.13566017150878906,
+      "failures": [
+        "Response missing required text: 'RMA'",
+        "Response missing required text: '30 days'"
+      ],
+      "timestamp": "2026-01-24T11:22:28.109198"
+    },
+    {
+      "scenario_id": "S004",
+      "category": "Return Request - Escalation",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order over $50 (escalate to human)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I need to return order #10234",
+          "ai_response": "I'm sorry to hear you're having an issue! We want to make this right.\n\n**Our Return Policy:**\n- 30-day return window from delivery\n- Orders under $50 can be auto-approved for refund\n- Original packaging preferred but not required\n\nFor quality issues or defects, we'll process an immediate replacement or refund.\n\nCould you tell me more about the issue? I'll get this resolved quickly for you.",
+          "intent_detected": "return_request",
+          "confidence": 0.88,
+          "response_time_ms": 0.03600120544433594,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: 'support'",
+            "Response missing required text: 'team'",
+            "Response missing required text: 'review'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:22:28.622344"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.19621849060058594,
+      "failures": [
+        "Response missing required text: 'support'",
+        "Response missing required text: 'team'",
+        "Response missing required text: 'review'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:22:28.622433"
+    },
+    {
+      "scenario_id": "S005",
+      "category": "Loyalty Program - Balance",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks loyalty rewards balance",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How many loyalty points do I have?",
+          "ai_response": "Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?",
+          "intent_detected": "general_inquiry",
+          "confidence": 0.7,
+          "response_time_ms": 0.0896453857421875,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'loyalty_program', got 'general_inquiry'",
+            "Confidence too low: expected >=80.00%, got 70.00%",
+            "Response missing required text: '475'",
+            "Response missing required text: 'points'",
+            "Response missing required text: 'Bronze'"
+          ],
+          "timestamp": "2026-01-24T11:22:29.122851"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.2875328063964844,
+      "failures": [
+        "Intent mismatch: expected 'loyalty_program', got 'general_inquiry'",
+        "Confidence too low: expected >=80.00%, got 70.00%",
+        "Response missing required text: '475'",
+        "Response missing required text: 'points'",
+        "Response missing required text: 'Bronze'"
+      ],
+      "timestamp": "2026-01-24T11:22:29.123001"
+    },
+    {
+      "scenario_id": "S006",
+      "category": "Loyalty Program - Redemption",
+      "persona": "persona_002",
+      "priority": "high",
+      "description": "Gold tier customer asks about redeeming rewards",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How do I redeem my loyalty rewards?",
+          "ai_response": "Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?",
+          "intent_detected": "general_inquiry",
+          "confidence": 0.7,
+          "response_time_ms": 0.04601478576660156,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'loyalty_program', got 'general_inquiry'",
+            "Confidence too low: expected >=80.00%, got 70.00%",
+            "Response missing required text: '1250'",
+            "Response missing required text: 'Gold'",
+            "Response missing required text: 'redeem'",
+            "Response missing required text: '100 points'"
+          ],
+          "timestamp": "2026-01-24T11:22:29.631355"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.21195411682128906,
+      "failures": [
+        "Intent mismatch: expected 'loyalty_program', got 'general_inquiry'",
+        "Confidence too low: expected >=80.00%, got 70.00%",
+        "Response missing required text: '1250'",
+        "Response missing required text: 'Gold'",
+        "Response missing required text: 'redeem'",
+        "Response missing required text: '100 points'"
+      ],
+      "timestamp": "2026-01-24T11:22:29.631476"
+    },
+    {
+      "scenario_id": "S010",
+      "category": "Business Inquiry - Bulk Order",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer inquires about bulk coffee order",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "We need 10 pounds of office coffee by Friday",
+          "ai_response": "I apologize, but I encountered a technical issue: name 're' is not defined",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 0.06437301635742188,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'escalation_needed', got 'error'",
+            "Confidence too low: expected >=85.00%, got 0.00%",
+            "Response missing required text: 'sales'",
+            "Response missing required text: 'team'",
+            "Response missing required text: 'business'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:22:30.143520"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.2338886260986328,
+      "failures": [
+        "Intent mismatch: expected 'escalation_needed', got 'error'",
+        "Confidence too low: expected >=85.00%, got 0.00%",
+        "Response missing required text: 'sales'",
+        "Response missing required text: 'team'",
+        "Response missing required text: 'business'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:22:30.143650"
+    },
+    {
+      "scenario_id": "S011",
+      "category": "Business Inquiry - Pricing",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer asks about bulk pricing discounts",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Can we get a discount for monthly orders?",
+          "ai_response": "I apologize, but I encountered a technical issue: name 're' is not defined",
+          "intent_detected": "error",
+          "confidence": 0,
+          "response_time_ms": 0.05984306335449219,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'escalation_needed', got 'error'",
+            "Confidence too low: expected >=85.00%, got 0.00%",
+            "Response missing required text: 'sales'",
+            "Response missing required text: 'business'",
+            "Response missing required text: 'pricing'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:22:30.656978"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.2086162567138672,
+      "failures": [
+        "Intent mismatch: expected 'escalation_needed', got 'error'",
+        "Confidence too low: expected >=85.00%, got 0.00%",
+        "Response missing required text: 'sales'",
+        "Response missing required text: 'business'",
+        "Response missing required text: 'pricing'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:22:30.657088"
+    }
+  ]
+}

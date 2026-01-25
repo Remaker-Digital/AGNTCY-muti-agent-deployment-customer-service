@@ -132,11 +132,26 @@ The platform aims to demonstrate:
    - Mock APIs (Shopify, Zendesk, Mailchimp, Google Analytics)
    - Agent containers (Intent, Knowledge, Response, Escalation, Analytics)
 
-7. **Access Grafana dashboards**
+7. **Start the Development Console**
+   ```bash
+   # Interactive development and testing console
+   .\start-console.ps1
+   
+   # Or manually with Streamlit
+   streamlit run console/app.py --server.port 8080
+   ```
 
-   Open http://localhost:3001 in your browser
-   - Username: `admin`
-   - Password: `admin`
+8. **Access the interfaces**
+
+   **Development Console**: http://localhost:8080
+   - Interactive chat interface with test personas
+   - Real-time agent metrics and performance monitoring
+   - Conversation trace viewer and system status
+   - Primary interface for development and testing
+
+   **Grafana Dashboards**: http://localhost:3001
+   - Username: `admin`, Password: `admin`
+   - System-wide observability and analytics
 
 ### Running Tests
 
@@ -174,6 +189,12 @@ docker-compose logs -f slim nats otel-collector
 
 ```
 .
+├── console/                     # Development Console (Phase 2+)
+│   ├── app.py                  # Streamlit console application
+│   ├── agntcy_integration.py   # Real AGNTCY system integration
+│   ├── requirements.txt        # Console dependencies
+│   ├── Dockerfile             # Console container
+│   └── README.md              # Console documentation
 ├── agents/                      # Agent implementations
 │   ├── intent_classification/
 │   ├── knowledge_retrieval/
@@ -203,6 +224,7 @@ docker-compose logs -f slim nats otel-collector
 │   └── phase4_prod/
 ├── .github/workflows/          # GitHub Actions CI
 ├── docs/                        # Documentation
+├── start-console.ps1           # Console startup script
 ├── docker-compose.yml          # Local dev stack
 ├── requirements.txt            # Python dependencies
 ├── .env.example                # Environment template

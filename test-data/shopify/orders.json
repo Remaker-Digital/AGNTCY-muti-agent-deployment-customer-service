@@ -458,19 +458,89 @@
       },
       "notes": "Cancelled before shipment - full refund issued",
       "tags": ["cancelled", "before-shipment"]
+    },
+    {
+      "order_id": "ORD-10125",
+      "order_number": "10125",
+      "customer_id": "persona_001",
+      "customer_email": "sarah.martinez@email.com",
+      "customer_name": "Sarah Martinez",
+      "order_date": "2026-01-10T09:15:00Z",
+      "status": "delivered",
+      "fulfillment_status": "fulfilled",
+      "financial_status": "paid",
+      "items": [
+        {
+          "product_id": "PROD-015",
+          "sku": "SOAP-LAV-001",
+          "name": "Lavender Mint Handmade Soap",
+          "quantity": 1,
+          "price": 12.99,
+          "line_total": 12.99
+        },
+        {
+          "product_id": "PROD-016",
+          "sku": "SOAP-MAN-001",
+          "name": "Mango Butter Handmade Soap",
+          "quantity": 1,
+          "price": 12.99,
+          "line_total": 12.99
+        }
+      ],
+      "subtotal": 25.98,
+      "shipping_cost": 2.00,
+      "tax": 2.24,
+      "total": 30.22,
+      "shipping_address": {
+        "name": "Sarah Martinez",
+        "address1": "456 Maple Ave",
+        "address2": "Apt 3B",
+        "city": "Portland",
+        "state": "OR",
+        "zip": "97201",
+        "country": "US",
+        "phone": "+1-555-0101"
+      },
+      "billing_address": {
+        "name": "Sarah Martinez",
+        "address1": "456 Maple Ave",
+        "address2": "Apt 3B",
+        "city": "Portland",
+        "state": "OR",
+        "zip": "97201",
+        "country": "US"
+      },
+      "shipping_method": {
+        "carrier": "USPS",
+        "service": "First Class Mail",
+        "cost": 2.00
+      },
+      "tracking": {
+        "carrier": "USPS",
+        "tracking_number": "9400111222333",
+        "tracking_url": "https://tools.usps.com/go/TrackConfirmAction?tLabels=9400111222333",
+        "shipped_date": "2026-01-11T10:00:00Z",
+        "expected_delivery": "2026-01-15T20:00:00Z",
+        "delivered_date": "2026-01-15T14:30:00Z",
+        "current_status": "Delivered",
+        "last_update": "2026-01-15T14:30:00Z",
+        "last_location": "Portland, OR 97201"
+      },
+      "notes": "Small order - under $50 auto-approval threshold for returns",
+      "tags": ["delivered", "return-eligible", "auto-approve-candidate"]
     }
   ],
   "metadata": {
-    "total_orders": 8,
+    "total_orders": 9,
     "status_breakdown": {
       "pending": 1,
       "shipped": 1,
-      "delivered": 4,
+      "delivered": 5,
       "returned": 1,
       "cancelled": 1
     },
-    "created_date": "2026-01-22",
-    "version": "1.0",
-    "notes": "Sample orders for Phase 2 testing - covers all major scenarios"
+    "created_date": "2026-01-23",
+    "version": "1.1",
+    "notes": "Sample orders for Phase 2 testing - covers all major scenarios including return/refund testing"
   }
 }

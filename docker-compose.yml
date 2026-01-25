@@ -47,7 +47,7 @@ services:
       - ./config/slim/server-config.yaml:/config.yaml:ro
     environment:
       - SLIM_GATEWAY_PASSWORD=${SLIM_GATEWAY_PASSWORD:-changeme_local_dev_password}
-    command: ["slim", "server", "--config", "/config.yaml"]
+    command: ["/slim", "--config", "/config.yaml"]
     restart: unless-stopped
     depends_on:
       - nats
@@ -180,6 +180,39 @@ services:
       - ./test-data/google-analytics:/app/data:ro
     environment:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    restart: unless-stopped
+
+  # ==========================================================================
+  # Development Console (Phase 2+)
+  # ==========================================================================
+
+  # Development Console - Interactive testing and monitoring interface
+  console:
+    build:
+      context: .
+      dockerfile: console/Dockerfile
+    container_name: agntcy-console
+    ports:
+      - "8080:8080"
+    networks:
+      - agntcy-network
+    environment:
+      - SLIM_ENDPOINT=http://slim:46357
+      - SLIM_GATEWAY_PASSWORD=${SLIM_GATEWAY_PASSWORD:-changeme_local_dev_password}
+      - OTLP_HTTP_ENDPOINT=http://otel-collector:4318
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - AGNTCY_ENABLE_TRACING=${AGNTCY_ENABLE_TRACING:-true}
+    volumes:
+      - ./shared:/app/shared:ro
+      - ./docs:/app/docs:ro
+      - ./test-data:/app/test-data:ro
+    depends_on:
+      - slim
+      - otel-collector
+      - mock-shopify
+      - mock-zendesk
+      - mock-mailchimp
+      - mock-google-analytics
     restart: unless-stopped
 
   # ==========================================================================

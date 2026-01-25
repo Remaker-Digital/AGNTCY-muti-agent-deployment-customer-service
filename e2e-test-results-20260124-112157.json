@@ -1,0 +1,257 @@
+{
+  "test_suite": "End-to-End Customer Conversation Scenarios",
+  "version": "1.0.0",
+  "start_time": "2026-01-24T11:21:57.741695",
+  "end_time": "2026-01-24T11:22:01.843122",
+  "duration_seconds": 4.101427,
+  "summary": {
+    "total_scenarios": 8,
+    "passed": 0,
+    "failed": 8,
+    "pass_rate": 0.0,
+    "avg_response_time_ms": 0.4884004592895508,
+    "p95_response_time_ms": 0.7238388061523438
+  },
+  "results": [
+    {
+      "scenario_id": "S001",
+      "category": "Order Status",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks order status with order number",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Where is my order #10234?",
+          "ai_response": "ERROR: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.7238388061523438,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+          ],
+          "timestamp": "2026-01-24T11:21:57.742647"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.8473396301269531,
+      "failures": [
+        "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+      ],
+      "timestamp": "2026-01-24T11:21:57.742728"
+    },
+    {
+      "scenario_id": "S002",
+      "category": "Product Information",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer asks about product availability and price",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How much is the Premium Coffee Brewer?",
+          "ai_response": "ERROR: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.3628730773925781,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+          ],
+          "timestamp": "2026-01-24T11:21:58.253193"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.4799365997314453,
+      "failures": [
+        "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+      ],
+      "timestamp": "2026-01-24T11:21:58.253262"
+    },
+    {
+      "scenario_id": "S003",
+      "category": "Return Request",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order under $50 (auto-approve)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I want to return my order #10235",
+          "ai_response": "ERROR: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.5400180816650391,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+          ],
+          "timestamp": "2026-01-24T11:21:58.766708"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.6921291351318359,
+      "failures": [
+        "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+      ],
+      "timestamp": "2026-01-24T11:21:58.766822"
+    },
+    {
+      "scenario_id": "S004",
+      "category": "Return Request - Escalation",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order over $50 (escalate to human)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I need to return order #10234",
+          "ai_response": "ERROR: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.5910396575927734,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+          ],
+          "timestamp": "2026-01-24T11:21:59.280859"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.7560253143310547,
+      "failures": [
+        "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+      ],
+      "timestamp": "2026-01-24T11:21:59.280948"
+    },
+    {
+      "scenario_id": "S005",
+      "category": "Loyalty Program - Balance",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks loyalty rewards balance",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How many loyalty points do I have?",
+          "ai_response": "ERROR: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.34880638122558594,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+          ],
+          "timestamp": "2026-01-24T11:21:59.794157"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.4565715789794922,
+      "failures": [
+        "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+      ],
+      "timestamp": "2026-01-24T11:21:59.794217"
+    },
+    {
+      "scenario_id": "S006",
+      "category": "Loyalty Program - Redemption",
+      "persona": "persona_002",
+      "priority": "high",
+      "description": "Gold tier customer asks about redeeming rewards",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How do I redeem my loyalty rewards?",
+          "ai_response": "ERROR: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.5257129669189453,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+          ],
+          "timestamp": "2026-01-24T11:22:00.308845"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.6732940673828125,
+      "failures": [
+        "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+      ],
+      "timestamp": "2026-01-24T11:22:00.308938"
+    },
+    {
+      "scenario_id": "S010",
+      "category": "Business Inquiry - Bulk Order",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer inquires about bulk coffee order",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "We need 10 pounds of office coffee by Friday",
+          "ai_response": "ERROR: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.37360191345214844,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+          ],
+          "timestamp": "2026-01-24T11:22:00.822132"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.5166530609130859,
+      "failures": [
+        "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+      ],
+      "timestamp": "2026-01-24T11:22:00.822189"
+    },
+    {
+      "scenario_id": "S011",
+      "category": "Business Inquiry - Pricing",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer asks about bulk pricing discounts",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Can we get a discount for monthly orders?",
+          "ai_response": "ERROR: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.4413127899169922,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+          ],
+          "timestamp": "2026-01-24T11:22:01.332619"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.5421638488769531,
+      "failures": [
+        "Exception: AGNTCYIntegration.send_customer_message() got an unexpected keyword argument 'customer_id'"
+      ],
+      "timestamp": "2026-01-24T11:22:01.332680"
+    }
+  ]
+}

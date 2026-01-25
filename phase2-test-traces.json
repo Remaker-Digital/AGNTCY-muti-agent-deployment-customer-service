@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-01-24T08:59:33.981301",
+  "test_suites": [
+    {
+      "name": "Issue #24 - Order Status Flow",
+      "agent_traces": [],
+      "mock_api_calls": []
+    },
+    {
+      "name": "Issue #29 - Return/Refund Flow",
+      "agent_traces": [],
+      "mock_api_calls": []
+    },
+    {
+      "name": "Issue #25 - Product Information Flow",
+      "agent_traces": [],
+      "mock_api_calls": []
+    }
+  ]
+}

@@ -1,0 +1,133 @@
+{
+  "execution_time": 9.91982102394104,
+  "timestamp": "2026-01-24T08:59:33.981301",
+  "phase": "Phase 2 - Business Logic Implementation",
+  "total_tests": 1,
+  "passed": 1,
+  "failed": 0,
+  "skipped": 0,
+  "coverage": 55.0,
+  "test_suites": [
+    {
+      "name": "Issue #24 - Order Status Flow",
+      "file": "tests/integration/test_order_status_flow.py",
+      "description": "Customer order status inquiries with multi-agent collaboration",
+      "agents": [
+        "Intent Classification",
+        "Knowledge Retrieval",
+        "Response Generation"
+      ],
+      "mock_apis": [
+        "Shopify Orders API"
+      ],
+      "acceptance_criteria": [
+        "Intent classification accuracy >90%",
+        "Order lookup <500ms P95",
+        "Full conversation context maintained"
+      ],
+      "start_time": 1769273973.981352,
+      "duration": 3.023017168045044,
+      "total_tests": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "test_cases": [],
+      "agent_traces": [],
+      "mock_api_calls": [],
+      "performance_metrics": {
+        "agent_latencies": [
+          26.23
+        ],
+        "api_latencies": [],
+        "total_flow_duration": [],
+        "avg_latency_ms": 26.23,
+        "max_latency_ms": 26.23,
+        "min_latency_ms": 26.23
+      },
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- C:\\Python314\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\micha\\OneDrive\\Desktop\\AGNTCY-muti-agent-deployment-customer-service\nconfigfile: pytest.ini\nplugins: anyio-4.12.1, asyncio-1.3.0, cov-7.0.0, mock-3.15.1\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollecting ... collected 3 items\n\ntests/integration/test_order_status_flow.py::TestOrderStatusFlow::test_order_status_shipped_complete_flow [OK] Step 1 Complete: Intent classified as Intent.ORDER_STATUS\n  - Confidence: 90.00%\n  - Order number extracted: 10234\n[OK] Step 2 Complete: Order retrieved in 26.23ms\n  - Order status: shipped\n  - Tracking: USPS 9400123456789\n[OK] Step 3 Complete: Response generated\n  - Response length: 608 characters\n  - Personalized: True\n  - Includes tracking: True\n\n============================================================\nFINAL CUSTOMER RESPONSE:\n============================================================\nHi Sarah,\n\nI've checked your order #10234 and have good news!\n\n**Status:** In Transit\n**Shipped:** 2026-01-20 via USPS\n**Tracking Number:** 9400123456789\n**Expected Delivery:** Jan 25\n**Last Location:** Portland Distribution Center\n\n**Your order includes:**\n- 2x Lamill Signature Blend Coffee Pods (Medium Roast)\n- 1x Joyride Double Shot Espresso Pods\n\nYou can track your package here: https://tools.usps.com/go/TrackConfirmAction?tLabels=9400123456789\n\nIf you don't receive your order by Jan 25, please let me know and I'll look into it for you right away.\n\nIs there anything else I can help you with today?\n============================================================\nPASSED\ntests/integration/test_order_status_flow.py::TestOrderStatusFlow::test_order_status_order_not_found [OK] Order not found scenario handled gracefully\n  - Results: 0\nPASSED\ntests/integration/test_order_status_flow.py::TestOrderStatusFlow::test_order_status_delivered_order [OK] Delivered order scenario completed\n  - Delivery confirmed in response: True\nPASSED\n\n=============================== tests coverage ================================\n_______________ coverage: platform win32, python 3.14.0-final-0 _______________\n\nName                                                  Stmts   Miss  Cover   Missing\n-----------------------------------------------------------------------------------\nagents\\intent_classification\\agent.py                   192    128    33%   85-107, 174-177, 204-205, 210-211, 219-236, 254-392, 408, 429-433, 440-444, 448, 452, 463-510, 515-542, 546\nagents\\knowledge_retrieval\\agent.py                     341    245    28%   105-123, 193-195, 218-254, 296-313, 372-481, 487-525, 531-562, 568-594, 621-673, 679-685, 691-715, 727-812, 823-870, 876-898, 917-921, 932, 936-937, 940-943, 950-1015, 1020-1045, 1049\nagents\\knowledge_retrieval\\knowledge_base_client.py      64     51    20%   28-37, 49-96, 108-142, 154-167, 179-194\nagents\\knowledge_retrieval\\shopify_client.py             85     59    31%   179-203, 215-232, 285-349, 361-377, 381\nagents\\response_generation\\agent.py                     343    258    25%   34-37, 60, 76-78, 89-123, 135, 166-169, 201-212, 260-367, 371-398, 402-426, 440-506, 537-649, 653, 661-699, 703-729, 743-778, 782-810, 814-841, 858-866, 882, 890-951, 954-962, 965\nshared\\__init__.py                                        5      0   100%\nshared\\factory.py                                       130     68    48%   21-23, 74, 89-107, 111, 130, 135, 166-181, 204-221, 254-269, 298-313, 337-347, 355-357, 361-363, 377, 433\nshared\\models.py                                        127      9    93%   96, 258, 282, 331-334, 364, 385-386\nshared\\utils.py                                          57     27    53%   117-123, 142, 166-184, 206-218, 235, 252\n-----------------------------------------------------------------------------------\nTOTAL                                                  1344    845    37%\nCoverage HTML written to dir htmlcov\nRequired test coverage of 30% reached. Total coverage: 37.13%\n============================== 3 passed in 2.21s ==============================\n",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "name": "Issue #29 - Return/Refund Flow",
+      "file": "tests/integration/test_return_refund_flow.py",
+      "description": "Customer return/refund requests with $50 auto-approval threshold",
+      "agents": [
+        "Intent Classification",
+        "Knowledge Retrieval",
+        "Response Generation"
+      ],
+      "mock_apis": [
+        "Shopify Orders API",
+        "Knowledge Base"
+      ],
+      "acceptance_criteria": [
+        "Auto-approval threshold accuracy: 100%",
+        "Order lookup <500ms P95",
+        "RMA number generation for approved returns",
+        "Escalation for high-value returns (>$50)"
+      ],
+      "start_time": 1769273977.0044005,
+      "duration": 2.935232162475586,
+      "total_tests": 0,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 0,
+      "test_cases": [],
+      "agent_traces": [],
+      "mock_api_calls": [],
+      "performance_metrics": {
+        "agent_latencies": [],
+        "api_latencies": [],
+        "total_flow_duration": []
+      },
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- C:\\Python314\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\micha\\OneDrive\\Desktop\\AGNTCY-muti-agent-deployment-customer-service\nconfigfile: pytest.ini\nplugins: anyio-4.12.1, asyncio-1.3.0, cov-7.0.0, mock-3.15.1\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollecting ... collected 3 items\n\ntests/integration/test_return_refund_flow.py::TestReturnRefundFlow::test_return_auto_approve_under_threshold [OK] Step 1 Complete: Intent classified as Intent.RETURN_REQUEST\n  - Confidence: 85.00%\n  - Order number: 10125\n[OK] Step 2 Complete: Order retrieved\n  - Order total: $30.22\n  - Status: delivered\n  - Auto-approval eligible: True\n[OK] Step 3 Complete: Auto-approval response generated\n  - Response length: 1377 characters\n  - Personalized: True\n  - RMA included: True\n  - Escalation required: False\n\n============================================================\nFINAL CUSTOMER RESPONSE (AUTO-APPROVED):\n============================================================\nHi Sarah,\n\nI'm sorry to hear you'd like to return order #10125! I want to make this as easy as possible for you.\n\n**Good news:** I can immediately approve your return and process your refund!\n\n**Return Authorization Approved**\n**RMA Number:** RMA-20260124-10125\n**Order Total:** $30.22\n**Refund Amount:** $30.22 (full refund to original payment method)\n\n**Items being returned:**\n- 1x Lavender Mint Handmade Soap\n- 1x Mango Butter Handmade Soap\n\n**Next Steps:**\n1. **Prepaid Return Label:** Check your email in the next 5 minutes for your USPS prepaid return label\n2. **Pack Your Items:** Use original packaging if possible (or any sturdy box)\n3. **Attach Label:** Print and attach the prepaid label to your package\n4. **Drop Off:** Take to any USPS location (no postage needed)\n5. **Track Return:** Use the tracking number in your email\n\n**Refund Timeline:**\n- **Shipment Received:** Typically 3-5 business days after you drop off\n- **Refund Processed:** Within 2 business days of receiving your return\n- **Funds Available:** 3-5 business days depending on your bank\n\n**Return Policy:**\n- 30-day return window from delivery date [OK]\n- Items unopened and in original condition [OK]\n- Full refund including original shipping costs [OK]\n\nYour satisfaction is our priority! If you have any questions about your return, just ask.\n\nIs there anything else I can help you with today?\n============================================================\nPASSED\ntests/integration/test_return_refund_flow.py::TestReturnRefundFlow::test_return_escalate_over_threshold [OK] Order over threshold\n  - Order total: $86.37\n  - Escalation required: True\n[OK] Escalation response generated\n  - Escalation flag: True\n  - Mentions support: True\nPASSED\ntests/integration/test_return_refund_flow.py::TestReturnRefundFlow::test_return_order_not_found [OK] Order not found scenario handled gracefully\n  - Results: 5\nPASSED\n\n=============================== tests coverage ================================\n_______________ coverage: platform win32, python 3.14.0-final-0 _______________\n\nName                                                  Stmts   Miss  Cover   Missing\n-----------------------------------------------------------------------------------\nagents\\intent_classification\\agent.py                   192    124    35%   85-107, 174-177, 204-205, 210-211, 242-392, 408, 429-433, 440-444, 448, 452, 463-510, 515-542, 546\nagents\\knowledge_retrieval\\agent.py                     341    233    32%   105-123, 193-195, 216, 219, 222, 225, 228, 231, 234, 237, 242-254, 268-315, 372-481, 487-525, 531-562, 568-594, 670-671, 679-685, 691-715, 727-812, 823-870, 876-898, 904, 917-921, 932, 936-937, 940-943, 950-1015, 1020-1045, 1049\nagents\\knowledge_retrieval\\knowledge_base_client.py      64     30    53%   34-35, 59, 108-142, 154-167, 179-194\nagents\\knowledge_retrieval\\shopify_client.py             85     59    31%   179-203, 215-232, 285-349, 361-377, 381\nagents\\response_generation\\agent.py                     343    263    23%   34-37, 62-64, 76-78, 87, 90, 93, 96, 99, 104-123, 132-218, 260-367, 371-398, 402-426, 440-506, 542, 653, 661-699, 703-729, 743-778, 782-810, 814-841, 858-866, 882, 890-951, 954-962, 965\nshared\\__init__.py                                        5      0   100%\nshared\\factory.py                                       130     68    48%   21-23, 74, 89-107, 111, 130, 135, 166-181, 204-221, 254-269, 298-313, 337-347, 355-357, 361-363, 377, 433\nshared\\models.py                                        127      9    93%   96, 258, 282, 331-334, 364, 385-386\nshared\\utils.py                                          57     27    53%   117-123, 142, 166-184, 206-218, 235, 252\n-----------------------------------------------------------------------------------\nTOTAL                                                  1344    813    40%\nCoverage HTML written to dir htmlcov\nRequired test coverage of 30% reached. Total coverage: 39.51%\n============================== 3 passed in 2.14s ==============================\n",
+      "stderr": "",
+      "exit_code": 0
+    },
+    {
+      "name": "Issue #25 - Product Information Flow",
+      "file": "tests/integration/test_product_info_flow.py",
+      "description": "Customer product information inquiries with search and stock availability",
+      "agents": [
+        "Intent Classification",
+        "Knowledge Retrieval",
+        "Response Generation"
+      ],
+      "mock_apis": [
+        "Shopify Products API"
+      ],
+      "acceptance_criteria": [
+        "Product search <200ms P95",
+        "Stock availability included",
+        "Price and feature information accurate"
+      ],
+      "start_time": 1769273979.9396653,
+      "duration": 3.961480140686035,
+      "total_tests": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "test_cases": [
+        {
+          "name": "test_product_stock_inquiry",
+          "status": "passed",
+          "file": "tests/integration/test_product_info_flow.py::TestProductInfoFlow",
+          "duration": 0.0,
+          "error": null
+        }
+      ],
+      "agent_traces": [],
+      "mock_api_calls": [],
+      "performance_metrics": {
+        "agent_latencies": [],
+        "api_latencies": [],
+        "total_flow_duration": []
+      },
+      "stdout": "============================= test session starts =============================\nplatform win32 -- Python 3.14.0, pytest-9.0.2, pluggy-1.6.0 -- C:\\Python314\\python.exe\ncachedir: .pytest_cache\nrootdir: C:\\Users\\micha\\OneDrive\\Desktop\\AGNTCY-muti-agent-deployment-customer-service\nconfigfile: pytest.ini\nplugins: anyio-4.12.1, asyncio-1.3.0, cov-7.0.0, mock-3.15.1\nasyncio: mode=Mode.STRICT, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function\ncollecting ... collected 5 items\n\ntests/integration/test_product_info_flow.py::TestProductInfoFlow::test_product_search_single_result [OK] Step 1 Complete: Intent classified as Intent.BREWER_SUPPORT\n  - Confidence: 80.00%\n[OK] Step 2 Complete: Product retrieved\n  - Product: Premium Single-Serve Coffee Brewer\n  - Price: $398.00\n  - In Stock: True\n  - Inventory: 47 units\n[OK] Step 3 Complete: Product information response generated\n  - Response length: 633 characters\n  - Includes price: True\n  - Includes stock status: True\n  - Escalation required: False\n\n============================================================\nFINAL CUSTOMER RESPONSE (PRODUCT INFO):\n============================================================\n**Premium Single-Serve Coffee Brewer**\nCategory: Brewers\nPrice: $398.00\nSKU: BRWR-PREM-BLK\n\nOur flagship single-serve coffee brewer with 7 customizable brew parameters and optional mobile app control. Features auto-optimization via pod scanning for the perfect cup every time.\n\n**Key Features:**\n- 7 customizable brew parameters\n- Auto-optimization via pod scanning\n- Optional mobile app control\n- Hygienic brewing (coffee never touches machine)\n- 60 oz water reservoir\n- Compatible with all B-Pods\n\n**Availability:** In stock and ready to ship!\n\nWould you like to know more about this product, or can I help you with something else?\n============================================================\nPASSED\ntests/integration/test_product_info_flow.py::TestProductInfoFlow::test_product_search_multiple_results [OK] Multiple products found: 3 coffee pod products\n  - Lamill Signature Blend Coffee Pods (Medium Roast) ($24.99)\n  - Equator Guatemala Huehuetenango Coffee Pods (Light Roast) ($26.99)\n  - Klatch Midnight Blend Coffee Pods (Dark Roast) ($25.99)\n[OK] Multiple product response generated\n  - Includes suggestions: True\nPASSED\ntests/integration/test_product_info_flow.py::TestProductInfoFlow::test_product_not_found [OK] Product not found (as expected for 'mango soap')\n[OK] Graceful 'not found' response generated\n  - Response guides customer: True\nPASSED\ntests/integration/test_product_info_flow.py::TestProductInfoFlow::test_product_price_inquiry [OK] Gift card found: Virtual Gift Card - $25.00\n[OK] Price inquiry response generated\n  - Price displayed: True\nPASSED\ntests/integration/test_product_info_flow.py::TestProductInfoFlow::test_product_stock_inquiry PASSED\n\n=============================== tests coverage ================================\n_______________ coverage: platform win32, python 3.14.0-final-0 _______________\n\nName                                                  Stmts   Miss  Cover   Missing\n-----------------------------------------------------------------------------------\nagents\\intent_classification\\agent.py                   192    111    42%   85-107, 174-177, 204-205, 210-211, 219-236, 248-251, 262-263, 270-271, 277-278, 289-298, 315-322, 328, 334, 340, 350, 360-364, 374-385, 389, 408, 430, 440-444, 448, 452, 463-510, 515-542, 546\nagents\\knowledge_retrieval\\agent.py                     341    191    44%   105-123, 193-195, 216, 219, 222, 228, 231, 237, 240, 243, 249, 268-315, 472-476, 487-525, 531-562, 568-594, 621-673, 679-685, 691-715, 757-812, 852-870, 876-898, 917-921, 932, 936-937, 940-943, 950-1015, 1020-1045, 1049\nagents\\knowledge_retrieval\\knowledge_base_client.py      64     45    30%   28-37, 49-96, 108-142, 159, 162, 179-194\nagents\\knowledge_retrieval\\shopify_client.py             85     61    28%   146-203, 215-232, 319-349, 361-377, 381\nagents\\response_generation\\agent.py                     343    230    33%   34-37, 60, 76-78, 87, 93, 96, 102, 105, 108, 111, 117, 120, 132-218, 302, 331-333, 337, 371-398, 402-426, 448-506, 537-649, 653, 661-699, 703-729, 751-778, 782-810, 814-841, 866, 879-882, 890-951, 954-962, 965\nshared\\__init__.py                                        5      0   100%\nshared\\factory.py                                       130     68    48%   21-23, 74, 89-107, 111, 130, 135, 166-181, 204-221, 254-269, 298-313, 337-347, 355-357, 361-363, 377, 433\nshared\\models.py                                        127      9    93%   96, 258, 282, 331-334, 364, 385-386\nshared\\utils.py                                          57     27    53%   117-123, 142, 166-184, 206-218, 235, 252\n-----------------------------------------------------------------------------------\nTOTAL                                                  1344    742    45%\nCoverage HTML written to dir htmlcov\nRequired test coverage of 30% reached. Total coverage: 44.79%\n============================== 5 passed in 3.14s ==============================\n",
+      "stderr": "",
+      "exit_code": 0
+    }
+  ],
+  "pass_rate": 100.0
+}

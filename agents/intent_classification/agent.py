@@ -210,9 +210,39 @@ class IntentClassificationAgent:
             entities["escalation_reason"] = "customer_frustration"
             return Intent.ESCALATION_NEEDED, 0.85, entities
 
-        # Order status queries (highest priority for Week 1-2 demo)
+        # Return/refund requests (MUST CHECK BEFORE ORDER STATUS - Issue #29)
+        # Rationale: "return order #10125" contains "order" but intent is RETURN, not STATUS
+        # Reference: ISSUE-24-TROUBLESHOOTING-LOG.md - Intent classification priority ordering
+        if any(word in message_lower for word in ["return", "refund", "send back", "money back", "exchange"]):
+            # Extract order number for return request - support formats: ORD-10234, #10234, 10234
+            # Reference: Python re module - https://docs.python.org/3/library/re.html
+            order_match = re.search(r'(?:ORD-|#)?(\d{4,6})', message_text, re.IGNORECASE)
+            if order_match:
+                entities["order_number"] = order_match.group(1)
+
+            # OPTIONAL: Extract reason for return (for analytics and knowledge base lookup)
+            # Common return reasons: doesn't match, wrong item, changed mind, quality issue
+            reason_patterns = [
+                (r"doesn'?t match", "doesnt_match"),
+                (r"wrong (item|product|size|color)", "wrong_item"),
+                (r"changed (?:my )?mind", "changed_mind"),
+                (r"quality|defect|damaged", "quality_issue"),
+            ]
+            for pattern, reason_code in reason_patterns:
+                if re.search(pattern, message_lower):
+                    entities["return_reason"] = reason_code
+                    break
+
+            return Intent.RETURN_REQUEST, 0.85, entities
+
+        # Order status queries (check AFTER return requests - Issue #29 fix)
+        # NOTE: Must check for pricing/business context BEFORE this to avoid false positives
+        # Console Test #4 showed "discount for monthly orders" was incorrectly classified as order_status
+        # Now handled by pricing check above (lines 326-337)
         if any(word in message_lower for word in [
-            "where is my order", "track", "tracking", "shipment", "delivery", "shipped", "arrive"
+            "where is my order", "where's my order", "track", "tracking", "shipment", "delivery",
+            "shipped", "arrive", "status of order", "status of my order", "order status",
+            "been delivered", "has my order"
         ]):
             # Extract order number - support formats: ORD-10234, #10234, 10234
             order_match = re.search(r'(?:ORD-|#)?(\d{4,6})', message_text, re.IGNORECASE)
@@ -233,14 +263,6 @@ class IntentClassificationAgent:
                 return Intent.ESCALATION_NEEDED, 0.85, entities
             return Intent.BREWER_SUPPORT, 0.80, entities
 
-        # Return/refund requests
-        if any(word in message_lower for word in ["return", "refund", "send back", "money back", "exchange"]):
-            # Try to extract amount for auto-approval logic
-            amount_match = re.search(r'\$?(\d+(?:\.\d{2})?)', message_text)
-            if amount_match:
-                entities["refund_amount"] = float(amount_match.group(1))
-            return Intent.RETURN_REQUEST, 0.85, entities
-
         # Damaged delivery
         if any(word in message_lower for word in [
             "damaged", "crushed", "broken box", "leaked", "spilled", "missing items"
@@ -256,10 +278,23 @@ class IntentClassificationAgent:
             return Intent.ESCALATION_NEEDED, 0.85, entities
 
         # Auto-delivery/subscription management
+        # Console Test #11, #12 failure: "Can I change my subscription to decaf?" → WRONG: general_inquiry
+        # Should classify as subscription management
         if any(word in message_lower for word in [
             "subscription", "auto-delivery", "auto delivery", "pause", "skip", "cancel subscription",
-            "change frequency", "add to next order"
+            "change frequency", "add to next order", "change my subscription", "modify subscription",
+            "switch subscription", "my subscription"
         ]):
+            # Extract product attribute if changing product (e.g., "to decaf", "to dark roast")
+            if "decaf" in message_lower:
+                entities["product_attribute"] = "decaf"
+            elif "dark roast" in message_lower:
+                entities["product_attribute"] = "dark_roast"
+            elif "medium roast" in message_lower:
+                entities["product_attribute"] = "medium_roast"
+            elif "light roast" in message_lower:
+                entities["product_attribute"] = "light_roast"
+
             return Intent.AUTO_DELIVERY_MANAGEMENT, 0.85, entities
 
         # Product information (biodegradable pods, roasts, ingredients)
@@ -270,10 +305,20 @@ class IntentClassificationAgent:
             return Intent.PRODUCT_INFO, 0.80, entities
 
         # Product recommendations
+        # Console Test #3 failure: "What's a good coffee for someone who drinks Starbucks?" → PARTIAL
+        # Should extract context: gift buyer, recipient preference (Starbucks → medium roast)
         if any(word in message_lower for word in [
             "recommend", "suggestion", "best", "good for", "which", "what's good", "favorite",
-            "popular", "best seller"
+            "popular", "best seller", "good coffee for"
         ]):
+            # Extract gift context
+            if any(word in message_lower for word in ["for someone", "for a friend", "gift for", "present for"]):
+                entities["context"] = "gift_buying"
+
+            # Extract recipient preference indicators
+            if "starbucks" in message_lower:
+                entities["recipient_preference"] = "starbucks_drinker"  # Suggests medium roast
+
             return Intent.PRODUCT_RECOMMENDATION, 0.75, entities
 
         # Product comparison
@@ -304,11 +349,38 @@ class IntentClassificationAgent:
         ]):
             return Intent.LOYALTY_PROGRAM, 0.80, entities
 
+        # Pricing/discount inquiries (especially business context)
+        # Console Test #4 failure: "Can we get a discount for monthly orders?" → WRONG: order_status
+        # Should classify as pricing_inquiry or B2B sales opportunity
+        if any(word in message_lower for word in [
+            "discount", "pricing", "price", "cost", "bulk pricing", "volume pricing",
+            "monthly orders", "subscription pricing", "how much"
+        ]):
+            # If combined with business context, escalate to sales
+            if any(word in message_lower for word in ["monthly orders", "bulk", "volume", "business", "office", "wholesale"]):
+                entities["escalation_reason"] = "b2b_pricing_inquiry"
+                return Intent.ESCALATION_NEEDED, 0.90, entities
+            # Otherwise, general pricing inquiry
+            return Intent.PRODUCT_INFO, 0.75, entities
+
         # Wholesale/B2B inquiries (escalate to sales)
+        # Console Test #8 failure: "What's your most popular office blend?" → WRONG: product_info (no business handling)
+        # Console Test #2, #9, #10 failure: "We need 10 pounds by Friday" → WRONG: general_inquiry
         if any(word in message_lower for word in [
             "wholesale", "bulk order", "office", "business", "commercial", "net 30",
-            "volume discount", "corporate"
+            "volume discount", "corporate", "office blend", "team", "our company"
         ]):
+            # Extract quantity if mentioned (e.g., "10 pounds", "5 bags")
+            quantity_match = re.search(r'(\d+)\s*(pound|lb|bag|case|box)', message_lower)
+            if quantity_match:
+                entities["quantity"] = quantity_match.group(1)
+                entities["unit"] = quantity_match.group(2)
+
+            # Extract deadline if mentioned (e.g., "by Friday", "before Monday")
+            deadline_match = re.search(r'by\s+(monday|tuesday|wednesday|thursday|friday|saturday|sunday|\d{1,2}/\d{1,2})', message_lower, re.IGNORECASE)
+            if deadline_match:
+                entities["deadline"] = deadline_match.group(1)
+
             entities["escalation_reason"] = "b2b_sales_opportunity"
             return Intent.ESCALATION_NEEDED, 0.90, entities
 

@@ -72,16 +72,43 @@ async def health_check():
 async def get_products(
     limit: int = Query(50, ge=1, le=250),
     page_info: Optional[str] = None,
+    title: Optional[str] = Query(None),  # Issue #25: Product search by name
     x_shopify_access_token: str = Header(None)
 ):
     """
-    Get products list.
-    Mock response with sample e-commerce products.
+    Get products list with optional search by title.
+
+    Issue #25: Customer Product Information Inquiries
+    --------------------------------------------------
+    Added `title` query parameter for product search functionality.
+
+    Query Parameters:
+    - limit: Maximum number of products to return (1-250, default 50)
+    - title: Search products by title (case-insensitive, partial match)
+    - x_shopify_access_token: API authentication (mock - not validated)
+
+    Examples:
+    - /admin/api/2024-01/products.json - List all products
+    - /admin/api/2024-01/products.json?title=coffee - Search for "coffee" products
+    - /admin/api/2024-01/products.json?title=mango - Search for "mango" products
+
+    Reference: https://shopify.dev/docs/api/admin-rest/resources/product#get-products
     """
     products_data = load_fixture("products.json")
-
-    # Simulate pagination
     all_products = products_data.get("products", [])
+
+    # Filter by title if provided (Issue #25 enhancement)
+    # Performs case-insensitive partial match on product name
+    # Example: title="coffee" matches "Medium Roast Coffee Beans" and "Cold Brew Coffee Concentrate"
+    if title:
+        title_lower = title.lower()
+        filtered_products = [
+            product for product in all_products
+            if title_lower in product.get("name", "").lower()
+        ]
+        return {"products": filtered_products[:limit]}
+
+    # Simulate pagination (return subset of all products)
     return {
         "products": all_products[:limit]
     }

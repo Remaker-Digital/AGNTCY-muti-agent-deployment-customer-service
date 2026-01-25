@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E2E Test Report - 20260124-112227</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .header { background: #2c3e50; color: white; padding: 20px; border-radius: 5px; }
+        .summary { background: white; padding: 20px; margin: 20px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .scenario { background: white; margin: 10px 0; padding: 15px; border-radius: 5px; border-left: 5px solid #3498db; }
+        .scenario.passed { border-left-color: #27ae60; }
+        .scenario.failed { border-left-color: #e74c3c; }
+        .turn { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+        .metric { display: inline-block; margin: 10px 20px 10px 0; }
+        .pass { color: #27ae60; font-weight: bold; }
+        .fail { color: #e74c3c; font-weight: bold; }
+        .validation-error { color: #e74c3c; margin: 5px 0; font-size: 0.9em; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #34495e; color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>End-to-End Test Report</h1>
+        <p>Generated: 2026-01-24 11:22:31</p>
+    </div>
+
+    <div class="summary">
+        <h2>Summary</h2>
+        <div class="metric">Total Scenarios: <strong>8</strong></div>
+        <div class="metric">Passed: <strong class="pass">0</strong></div>
+        <div class="metric">Failed: <strong class="fail">8</strong></div>
+        <div class="metric">Pass Rate: <strong>0.0%</strong></div>
+        <div class="metric">Avg Response Time: <strong>0ms</strong></div>
+    </div>
+
+    <h2>Scenario Results</h2>
+
+    <div class="scenario failed">
+        <h3>S001: Customer checks order status with order number <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Order Status | <strong>Priority:</strong> high | <strong>Duration:</strong> 0ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Where is my order #10234?</p>
+            <p><strong>Intent:</strong> order_status (95.0%) | <strong>Time:</strong> 0ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Hi! Great news about your order #12345!
+
+It shipped with USPS and should arrive by 2026-01-25.
+Your tracking number is 9400123456789.
+
+Need anything else? I'm here to help!...</p>
+<p class="validation-error">✗ Response missing required text: '10234'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S002: Customer asks about product availability and price <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Product Information | <strong>Priority:</strong> high | <strong>Duration:</strong> 0ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> How much is the Premium Coffee Brewer?</p>
+            <p><strong>Intent:</strong> brewing_advice (90.0%) | <strong>Time:</strong> 0ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'd love to help you improve your brewing! Here are some key tips:
+
+**General Guidelines:**
+- **Grind**: Medium-fine for pour-over, coarse for French press
+- **Water Temp**: 195-205°F (just off boilin...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'product_info', got 'brewing_advice'</p><p class="validation-error">✗ Response missing required text: 'Premium'</p><p class="validation-error">✗ Response missing required text: 'Brewer'</p><p class="validation-error">✗ Response missing required text: '$'</p><p class="validation-error">✗ Response missing required text: 'stock'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S003: Customer requests return for order under $50 (auto-approve) <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Return Request | <strong>Priority:</strong> high | <strong>Duration:</strong> 0ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> I want to return my order #10235</p>
+            <p><strong>Intent:</strong> return_request (88.0%) | <strong>Time:</strong> 0ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'm sorry to hear you're having an issue! We want to make this right.
+
+**Our Return Policy:**
+- 30-day return window from delivery
+- Orders under $50 can be auto-approved for refund
+- Original packagi...</p>
+<p class="validation-error">✗ Response missing required text: 'RMA'</p><p class="validation-error">✗ Response missing required text: '30 days'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S004: Customer requests return for order over $50 (escalate to human) <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Return Request - Escalation | <strong>Priority:</strong> high | <strong>Duration:</strong> 0ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> I need to return order #10234</p>
+            <p><strong>Intent:</strong> return_request (88.0%) | <strong>Time:</strong> 0ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'm sorry to hear you're having an issue! We want to make this right.
+
+**Our Return Policy:**
+- 30-day return window from delivery
+- Orders under $50 can be auto-approved for refund
+- Original packagi...</p>
+<p class="validation-error">✗ Response missing required text: 'support'</p><p class="validation-error">✗ Response missing required text: 'team'</p><p class="validation-error">✗ Response missing required text: 'review'</p><p class="validation-error">✗ Expected escalation did not occur</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S005: Customer checks loyalty rewards balance <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Loyalty Program - Balance | <strong>Priority:</strong> high | <strong>Duration:</strong> 0ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> How many loyalty points do I have?</p>
+            <p><strong>Intent:</strong> general_inquiry (70.0%) | <strong>Time:</strong> 0ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'loyalty_program', got 'general_inquiry'</p><p class="validation-error">✗ Confidence too low: expected >=80.00%, got 70.00%</p><p class="validation-error">✗ Response missing required text: '475'</p><p class="validation-error">✗ Response missing required text: 'points'</p><p class="validation-error">✗ Response missing required text: 'Bronze'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S006: Gold tier customer asks about redeeming rewards <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Loyalty Program - Redemption | <strong>Priority:</strong> high | <strong>Duration:</strong> 0ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> How do I redeem my loyalty rewards?</p>
+            <p><strong>Intent:</strong> general_inquiry (70.0%) | <strong>Time:</strong> 0ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'loyalty_program', got 'general_inquiry'</p><p class="validation-error">✗ Confidence too low: expected >=80.00%, got 70.00%</p><p class="validation-error">✗ Response missing required text: '1250'</p><p class="validation-error">✗ Response missing required text: 'Gold'</p><p class="validation-error">✗ Response missing required text: 'redeem'</p><p class="validation-error">✗ Response missing required text: '100 points'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S010: Business customer inquires about bulk coffee order <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Business Inquiry - Bulk Order | <strong>Priority:</strong> high | <strong>Duration:</strong> 0ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> We need 10 pounds of office coffee by Friday</p>
+            <p><strong>Intent:</strong> error (0.0%) | <strong>Time:</strong> 0ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I apologize, but I encountered a technical issue: name 're' is not defined...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'escalation_needed', got 'error'</p><p class="validation-error">✗ Confidence too low: expected >=85.00%, got 0.00%</p><p class="validation-error">✗ Response missing required text: 'sales'</p><p class="validation-error">✗ Response missing required text: 'team'</p><p class="validation-error">✗ Response missing required text: 'business'</p><p class="validation-error">✗ Expected escalation did not occur</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S011: Business customer asks about bulk pricing discounts <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Business Inquiry - Pricing | <strong>Priority:</strong> high | <strong>Duration:</strong> 0ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Can we get a discount for monthly orders?</p>
+            <p><strong>Intent:</strong> error (0.0%) | <strong>Time:</strong> 0ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I apologize, but I encountered a technical issue: name 're' is not defined...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'escalation_needed', got 'error'</p><p class="validation-error">✗ Confidence too low: expected >=85.00%, got 0.00%</p><p class="validation-error">✗ Response missing required text: 'sales'</p><p class="validation-error">✗ Response missing required text: 'business'</p><p class="validation-error">✗ Response missing required text: 'pricing'</p><p class="validation-error">✗ Expected escalation did not occur</p>
+        </div>
+
+    </div>
+
+</body>
+</html>

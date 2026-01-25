@@ -57,7 +57,21 @@
       "Bash(gh label list:*)",
       "Bash(git push)",
       "Bash(gh repo view:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker restart:*)",
+      "Bash(Select-String -Pattern \"PASSED|FAILED|OK]|Error\")",
+      "Bash(Select-Object -First 30)",
+      "Bash(python:*)",
+      "Bash(docker-compose ps:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(timeout 10 streamlit run:*)",
+      "Bash(source venv/Scripts/activate)",
+      "Bash(docker pull:*)",
+      "Bash(docker inspect:*)",
+      "Bash(docker history:*)",
+      "Bash(gh issue view:*)"
     ]
   },
   "shortcuts": {

@@ -1,0 +1,55 @@
+{
+  "test_suite": "End-to-End Customer Conversation Scenarios",
+  "version": "1.0.0",
+  "start_time": "2026-01-24T11:22:38.149845",
+  "end_time": "2026-01-24T11:22:38.654252",
+  "duration_seconds": 0.504407,
+  "summary": {
+    "total_scenarios": 1,
+    "passed": 0,
+    "failed": 1,
+    "pass_rate": 0.0,
+    "avg_response_time_ms": 0.0457763671875,
+    "p95_response_time_ms": 0.0457763671875
+  },
+  "results": [
+    {
+      "scenario_id": "S005",
+      "category": "Loyalty Program - Balance",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks loyalty rewards balance",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How many loyalty points do I have?",
+          "ai_response": "Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?",
+          "intent_detected": "general_inquiry",
+          "confidence": 0.7,
+          "response_time_ms": 0.0457763671875,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'loyalty_program', got 'general_inquiry'",
+            "Confidence too low: expected >=80.00%, got 70.00%",
+            "Response missing required text: '475'",
+            "Response missing required text: 'points'",
+            "Response missing required text: 'Bronze'"
+          ],
+          "timestamp": "2026-01-24T11:22:38.150088"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.19431114196777344,
+      "failures": [
+        "Intent mismatch: expected 'loyalty_program', got 'general_inquiry'",
+        "Confidence too low: expected >=80.00%, got 70.00%",
+        "Response missing required text: '475'",
+        "Response missing required text: 'points'",
+        "Response missing required text: 'Bronze'"
+      ],
+      "timestamp": "2026-01-24T11:22:38.150193"
+    }
+  ]
+}

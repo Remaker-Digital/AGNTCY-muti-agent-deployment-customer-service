@@ -23,7 +23,8 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy and install requirements (cached layer if requirements unchanged)
-COPY mocks/shopify/requirements.txt .
+# Build context is ./mocks/shopify so requirements.txt is at root of context
+COPY requirements.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
     pip install --user --no-warn-script-location -r requirements.txt
 
@@ -48,7 +49,8 @@ ENV PATH=/home/appuser/.local/bin:$PATH
 RUN mkdir -p /app/data && chown appuser:appuser /app/data
 
 # Copy application code (last for better layer caching)
-COPY --chown=appuser:appuser mocks/shopify/app.py .
+# Build context is ./mocks/shopify so app.py is at root of context
+COPY --chown=appuser:appuser app.py .
 
 # Switch to non-root user
 USER appuser

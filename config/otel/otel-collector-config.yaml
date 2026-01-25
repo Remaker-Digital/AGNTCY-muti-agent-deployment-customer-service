@@ -64,9 +64,10 @@ exporters:
       max_interval: 30s
       max_elapsed_time: 300s
 
-  # Console exporter for debugging (Phase 1 only)
-  logging:
-    loglevel: info
+  # Debug exporter for debugging (Phase 1 only)
+  # Note: 'logging' exporter was deprecated, replaced with 'debug' in newer versions
+  debug:
+    verbosity: normal
     sampling_initial: 5
     sampling_thereafter: 200
 
@@ -80,7 +81,7 @@ service:
     traces:
       receivers: [otlp]
       processors: [memory_limiter, resource, batch]
-      exporters: [clickhouse, logging]
+      exporters: [clickhouse, debug]
 
     # Metrics pipeline
     metrics:
@@ -92,7 +93,7 @@ service:
     logs:
       receivers: [otlp]
       processors: [memory_limiter, resource, attributes, batch]
-      exporters: [clickhouse, logging]
+      exporters: [clickhouse, debug]
 
   # Extensions for health checks and monitoring
   extensions: []
@@ -102,4 +103,6 @@ service:
       level: info
     metrics:
       level: detailed
-      address: 0.0.0.0:8888
+      # Note: In newer OTel Collector versions, metrics endpoint is configured differently
+      # Removed 'address' key which is no longer valid
+      # Metrics are exposed at /metrics on the prometheus exporter endpoint instead

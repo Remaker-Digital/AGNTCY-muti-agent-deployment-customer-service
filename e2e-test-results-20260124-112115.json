@@ -1,0 +1,257 @@
+{
+  "test_suite": "End-to-End Customer Conversation Scenarios",
+  "version": "1.0.0",
+  "start_time": "2026-01-24T11:21:15.129687",
+  "end_time": "2026-01-24T11:21:19.220958",
+  "duration_seconds": 4.091271,
+  "summary": {
+    "total_scenarios": 8,
+    "passed": 0,
+    "failed": 8,
+    "pass_rate": 0.0,
+    "avg_response_time_ms": 0.4874765872955322,
+    "p95_response_time_ms": 0.6494522094726562
+  },
+  "results": [
+    {
+      "scenario_id": "S001",
+      "category": "Order Status",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks order status with order number",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Where is my order #10234?",
+          "ai_response": "ERROR: 'AGNTCYIntegration' object has no attribute 'process_message'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.6494522094726562,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+          ],
+          "timestamp": "2026-01-24T11:21:15.130542"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.7739067077636719,
+      "failures": [
+        "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+      ],
+      "timestamp": "2026-01-24T11:21:15.130627"
+    },
+    {
+      "scenario_id": "S002",
+      "category": "Product Information",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer asks about product availability and price",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How much is the Premium Coffee Brewer?",
+          "ai_response": "ERROR: 'AGNTCYIntegration' object has no attribute 'process_message'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.3936290740966797,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+          ],
+          "timestamp": "2026-01-24T11:21:15.635453"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.5245208740234375,
+      "failures": [
+        "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+      ],
+      "timestamp": "2026-01-24T11:21:15.635535"
+    },
+    {
+      "scenario_id": "S003",
+      "category": "Return Request",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order under $50 (auto-approve)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I want to return my order #10235",
+          "ai_response": "ERROR: 'AGNTCYIntegration' object has no attribute 'process_message'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.3457069396972656,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+          ],
+          "timestamp": "2026-01-24T11:21:16.146305"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.4627704620361328,
+      "failures": [
+        "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+      ],
+      "timestamp": "2026-01-24T11:21:16.146385"
+    },
+    {
+      "scenario_id": "S004",
+      "category": "Return Request - Escalation",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order over $50 (escalate to human)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I need to return order #10234",
+          "ai_response": "ERROR: 'AGNTCYIntegration' object has no attribute 'process_message'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.5383491516113281,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+          ],
+          "timestamp": "2026-01-24T11:21:16.658843"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.6916522979736328,
+      "failures": [
+        "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+      ],
+      "timestamp": "2026-01-24T11:21:16.658960"
+    },
+    {
+      "scenario_id": "S005",
+      "category": "Loyalty Program - Balance",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks loyalty rewards balance",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How many loyalty points do I have?",
+          "ai_response": "ERROR: 'AGNTCYIntegration' object has no attribute 'process_message'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.6349086761474609,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+          ],
+          "timestamp": "2026-01-24T11:21:17.168543"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.7724761962890625,
+      "failures": [
+        "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+      ],
+      "timestamp": "2026-01-24T11:21:17.168633"
+    },
+    {
+      "scenario_id": "S006",
+      "category": "Loyalty Program - Redemption",
+      "persona": "persona_002",
+      "priority": "high",
+      "description": "Gold tier customer asks about redeeming rewards",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How do I redeem my loyalty rewards?",
+          "ai_response": "ERROR: 'AGNTCYIntegration' object has no attribute 'process_message'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.47516822814941406,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+          ],
+          "timestamp": "2026-01-24T11:21:17.680992"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.6132125854492188,
+      "failures": [
+        "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+      ],
+      "timestamp": "2026-01-24T11:21:17.681085"
+    },
+    {
+      "scenario_id": "S010",
+      "category": "Business Inquiry - Bulk Order",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer inquires about bulk coffee order",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "We need 10 pounds of office coffee by Friday",
+          "ai_response": "ERROR: 'AGNTCYIntegration' object has no attribute 'process_message'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.52642822265625,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+          ],
+          "timestamp": "2026-01-24T11:21:18.195959"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.6737709045410156,
+      "failures": [
+        "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+      ],
+      "timestamp": "2026-01-24T11:21:18.196060"
+    },
+    {
+      "scenario_id": "S011",
+      "category": "Business Inquiry - Pricing",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer asks about bulk pricing discounts",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Can we get a discount for monthly orders?",
+          "ai_response": "ERROR: 'AGNTCYIntegration' object has no attribute 'process_message'",
+          "intent_detected": "error",
+          "confidence": 0.0,
+          "response_time_ms": 0.3361701965332031,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+          ],
+          "timestamp": "2026-01-24T11:21:18.708281"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 0.4596710205078125,
+      "failures": [
+        "Exception: 'AGNTCYIntegration' object has no attribute 'process_message'"
+      ],
+      "timestamp": "2026-01-24T11:21:18.708340"
+    }
+  ]
+}

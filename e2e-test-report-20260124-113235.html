@@ -1,0 +1,395 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>E2E Test Report - 20260124-113235</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+        .header { background: #2c3e50; color: white; padding: 20px; border-radius: 5px; }
+        .summary { background: white; padding: 20px; margin: 20px 0; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .scenario { background: white; margin: 10px 0; padding: 15px; border-radius: 5px; border-left: 5px solid #3498db; }
+        .scenario.passed { border-left-color: #27ae60; }
+        .scenario.failed { border-left-color: #e74c3c; }
+        .turn { margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+        .metric { display: inline-block; margin: 10px 20px 10px 0; }
+        .pass { color: #27ae60; font-weight: bold; }
+        .fail { color: #e74c3c; font-weight: bold; }
+        .validation-error { color: #e74c3c; margin: 5px 0; font-size: 0.9em; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { padding: 10px; text-align: left; border-bottom: 1px solid #ddd; }
+        th { background: #34495e; color: white; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>End-to-End Test Report</h1>
+        <p>Generated: 2026-01-24 11:33:30</p>
+    </div>
+
+    <div class="summary">
+        <h2>Summary</h2>
+        <div class="metric">Total Scenarios: <strong>20</strong></div>
+        <div class="metric">Passed: <strong class="pass">1</strong></div>
+        <div class="metric">Failed: <strong class="fail">19</strong></div>
+        <div class="metric">Pass Rate: <strong>5.0%</strong></div>
+        <div class="metric">Avg Response Time: <strong>2130ms</strong></div>
+    </div>
+
+    <h2>Scenario Results</h2>
+
+    <div class="scenario failed">
+        <h3>S001: Customer checks order status with order number <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Order Status | <strong>Priority:</strong> high | <strong>Duration:</strong> 2605ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Where is my order #10234?</p>
+            <p><strong>Intent:</strong> order_status (95.0%) | <strong>Time:</strong> 2605ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Hi! Great news about your order #12345!
+
+It shipped with USPS and should arrive by 2026-01-25.
+Your tracking number is 9400123456789.
+
+Need anything else? I'm here to help!...</p>
+<p class="validation-error">✗ Response missing required text: '10234'</p><p class="validation-error">✗ Response time exceeded threshold: 2605ms > 2500ms</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S002: Customer asks about product availability and price <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Product Information | <strong>Priority:</strong> high | <strong>Duration:</strong> 1778ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> How much is the Premium Coffee Brewer?</p>
+            <p><strong>Intent:</strong> brewing_advice (90.0%) | <strong>Time:</strong> 1778ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'd love to help you improve your brewing! Here are some key tips:
+
+**General Guidelines:**
+- **Grind**: Medium-fine for pour-over, coarse for French press
+- **Water Temp**: 195-205°F (just off boilin...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'product_info', got 'brewing_advice'</p><p class="validation-error">✗ Response missing required text: 'Premium'</p><p class="validation-error">✗ Response missing required text: 'Brewer'</p><p class="validation-error">✗ Response missing required text: '$'</p><p class="validation-error">✗ Response missing required text: 'stock'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S003: Customer requests return for order under $50 (auto-approve) <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Return Request | <strong>Priority:</strong> high | <strong>Duration:</strong> 2603ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> I want to return my order #10235</p>
+            <p><strong>Intent:</strong> return_request (88.0%) | <strong>Time:</strong> 2603ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'm sorry to hear you're having an issue! We want to make this right.
+
+**Our Return Policy:**
+- 30-day return window from delivery
+- Orders under $50 can be auto-approved for refund
+- Original packagi...</p>
+<p class="validation-error">✗ Response missing required text: 'RMA'</p><p class="validation-error">✗ Response missing required text: '30 days'</p><p class="validation-error">✗ Response time exceeded threshold: 2603ms > 2500ms</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S004: Customer requests return for order over $50 (escalate to human) <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Return Request - Escalation | <strong>Priority:</strong> high | <strong>Duration:</strong> 2582ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> I need to return order #10234</p>
+            <p><strong>Intent:</strong> return_request (88.0%) | <strong>Time:</strong> 2582ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'm sorry to hear you're having an issue! We want to make this right.
+
+**Our Return Policy:**
+- 30-day return window from delivery
+- Orders under $50 can be auto-approved for refund
+- Original packagi...</p>
+<p class="validation-error">✗ Response missing required text: 'support'</p><p class="validation-error">✗ Response missing required text: 'team'</p><p class="validation-error">✗ Response missing required text: 'review'</p><p class="validation-error">✗ Expected escalation did not occur</p><p class="validation-error">✗ Response time exceeded threshold: 2582ms > 2500ms</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S005: Customer checks loyalty rewards balance <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Loyalty Program - Balance | <strong>Priority:</strong> high | <strong>Duration:</strong> 2602ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> How many loyalty points do I have?</p>
+            <p><strong>Intent:</strong> loyalty_program (88.0%) | <strong>Time:</strong> 2602ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Hi Sarah,
+
+**Your BrewVi Rewards Status**
+
+**Current Balance:** 475 points
+**Tier:** Bronze
+**Progress to Silver:** 25 points away
+
+**You Can Redeem:**
+✓ 100 points = $5 discount
+✓ 200 points = $10 di...</p>
+<p class="validation-error">✗ Response time exceeded threshold: 2602ms > 2500ms</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S006: Gold tier customer asks about redeeming rewards <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Loyalty Program - Redemption | <strong>Priority:</strong> high | <strong>Duration:</strong> 2594ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> How do I redeem my loyalty rewards?</p>
+            <p><strong>Intent:</strong> loyalty_program (88.0%) | <strong>Time:</strong> 2594ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Hi Mike,
+
+**Your BrewVi Rewards Status**
+
+**Current Balance:** 1250 points
+**Tier:** Gold 🌟
+**Status:** Auto-Delivery Subscriber (2X points!)
+
+**You Can Redeem:**
+✓ 100 points = $5 discount
+✓ 200 poin...</p>
+<p class="validation-error">✗ Response time exceeded threshold: 2594ms > 2500ms</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S007: Anonymous visitor asks about loyalty program <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Loyalty Program - General | <strong>Priority:</strong> medium | <strong>Duration:</strong> 2581ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Do you have a loyalty program?</p>
+            <p><strong>Intent:</strong> loyalty_program (88.0%) | <strong>Time:</strong> 2581ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> **BrewVi Rewards Program**
+
+Earn points with every purchase!
+
+**Redemption Options:**
+✓ 100 points = $5
+✓ 200 points = $10
+✓ 500 points = $25
+✓ 1000 points = $50
+
+**Membership Tiers:**
+✓ **Bronze:** 1...</p>
+<p class="validation-error">✗ Response missing required text: '1 point per $1'</p><p class="validation-error">✗ Response time exceeded threshold: 2581ms > 2500ms</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S008: Customer asks for gift recommendation <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Product Recommendation | <strong>Priority:</strong> medium | <strong>Duration:</strong> 2582ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> What's a good coffee gift for someone who drinks Starbucks?</p>
+            <p><strong>Intent:</strong> product_info (88.0%) | <strong>Time:</strong> 2582ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'd be happy to tell you about our Ethiopian Yirgacheffe!
+
+This is a Light roast with Bright citrus, floral, wine-like acidity.
+For best results, try Pour-over recommended.
+
+Would you like any specifi...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'product_recommendation', got 'product_info'</p><p class="validation-error">✗ Response missing required text: 'medium roast'</p><p class="validation-error">✗ Response missing required text: 'variety'</p><p class="validation-error">✗ Response missing required text: 'gift'</p><p class="validation-error">✗ Response time exceeded threshold: 2582ms > 2500ms</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S009: Customer wants to modify auto-delivery subscription <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Subscription Management | <strong>Priority:</strong> medium | <strong>Duration:</strong> 1793ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Can I change my subscription to decaf?</p>
+            <p><strong>Intent:</strong> auto_delivery_management (90.0%) | <strong>Time:</strong> 1793ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?...</p>
+<p class="validation-error">✗ Response missing required text: 'subscription'</p><p class="validation-error">✗ Response missing required text: 'decaf'</p><p class="validation-error">✗ Response missing required text: 'change'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S010: Business customer inquires about bulk coffee order <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Business Inquiry - Bulk Order | <strong>Priority:</strong> high | <strong>Duration:</strong> 1780ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> We need 10 pounds of office coffee by Friday</p>
+            <p><strong>Intent:</strong> escalation_needed (92.0%) | <strong>Time:</strong> 1780ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Thanks for your interest in our business solutions!
+
+I'm connecting you with our B2B sales team who can provide:
+- Custom pricing for your volume needs
+- Flexible delivery schedules
+- Account terms (N...</p>
+<p class="validation-error">✗ Expected escalation did not occur</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S011: Business customer asks about bulk pricing discounts <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Business Inquiry - Pricing | <strong>Priority:</strong> high | <strong>Duration:</strong> 1777ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Can we get a discount for monthly orders?</p>
+            <p><strong>Intent:</strong> escalation_needed (93.0%) | <strong>Time:</strong> 1777ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Thanks for your interest in our business solutions!
+
+I'm connecting you with our B2B sales team who can provide:
+- Custom pricing for your volume needs
+- Flexible delivery schedules
+- Account terms (N...</p>
+<p class="validation-error">✗ Expected escalation did not occur</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S012: Customer asks about shipping options and costs <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Shipping Question | <strong>Priority:</strong> medium | <strong>Duration:</strong> 2590ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> How much does shipping cost?</p>
+            <p><strong>Intent:</strong> product_info (85.0%) | <strong>Time:</strong> 2589ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'd be happy to tell you about our Ethiopian Yirgacheffe!
+
+This is a Light roast with Bright citrus, floral, wine-like acidity.
+For best results, try Pour-over recommended.
+
+Would you like any specifi...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'shipping_question', got 'product_info'</p><p class="validation-error">✗ Response missing required text: 'shipping'</p><p class="validation-error">✗ Response missing required text: 'free'</p><p class="validation-error">✗ Response missing required text: '$35'</p><p class="validation-error">✗ Response time exceeded threshold: 2589ms > 2500ms</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S013: Customer asks about gift card denominations <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Gift Card | <strong>Priority:</strong> low | <strong>Duration:</strong> 1780ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> How much is a gift card?</p>
+            <p><strong>Intent:</strong> product_recommendation (85.0%) | <strong>Time:</strong> 1780ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'd love to help you find the perfect coffee! To give you the best recommendation:
+
+- Do you prefer light, medium, or dark roasts?
+- What brewing method do you use most?
+- Any flavor preferences (frui...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'gift_card', got 'product_recommendation'</p><p class="validation-error">✗ Response missing required text: '$25'</p><p class="validation-error">✗ Response missing required text: '$200'</p><p class="validation-error">✗ Response missing required text: 'gift card'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S014: Customer asks about order without providing order number <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Multi-Turn - Order Lookup | <strong>Priority:</strong> medium | <strong>Duration:</strong> 4369ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Where is my order?</p>
+            <p><strong>Intent:</strong> order_status (95.0%) | <strong>Time:</strong> 2581ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Hi! Great news about your order #12345!
+
+It shipped with USPS and should arrive by 2026-01-25.
+Your tracking number is 9400123456789.
+
+Need anything else? I'm here to help!...</p>
+<p class="validation-error">✗ Response missing required text: 'order number'</p><p class="validation-error">✗ Response missing required text: 'provide'</p><p class="validation-error">✗ Response time exceeded threshold: 2581ms > 2500ms</p>
+        </div>
+
+        <div class="turn">
+            <p><strong>Turn 2:</strong> I don't have the order number</p>
+            <p><strong>Intent:</strong> general_inquiry (70.0%) | <strong>Time:</strong> 1787ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'order_status', got 'general_inquiry'</p><p class="validation-error">✗ Response missing required text: 'recent orders'</p><p class="validation-error">✗ Response missing required text: 'choose'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S015: Customer uses profanity (test content filtering) <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Hostile Customer | <strong>Priority:</strong> critical | <strong>Duration:</strong> 1782ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> This is fucking ridiculous!</p>
+            <p><strong>Intent:</strong> escalation_needed (95.0%) | <strong>Time:</strong> 1782ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I understand you're frustrated, and I sincerely apologize for the inconvenience you're experiencing.
+
+This isn't the level of service we pride ourselves on. Let me connect you with a senior support sp...</p>
+<p class="validation-error">✗ Response missing required text: 'help'</p><p class="validation-error">✗ Expected escalation did not occur</p>
+        </div>
+
+    </div>
+
+    <div class="scenario passed">
+        <h3>S016: Vague question requiring clarification <span class="passed">✓ PASSED</span></h3>
+        <p><strong>Category:</strong> Ambiguous Query | <strong>Priority:</strong> low | <strong>Duration:</strong> 1794ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Tell me about it</p>
+            <p><strong>Intent:</strong> general_inquiry (70.0%) | <strong>Time:</strong> 1794ms | <strong>Status:</strong> <span class="pass">PASS</span></p>
+            <p><strong>Response:</strong> Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?...</p>
+
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S017: Customer needs brewer troubleshooting help <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Brewer Support | <strong>Priority:</strong> medium | <strong>Duration:</strong> 1792ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> My coffee brewer won't turn on</p>
+            <p><strong>Intent:</strong> brewing_advice (90.0%) | <strong>Time:</strong> 1792ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I'd love to help you improve your brewing! Here are some key tips:
+
+**General Guidelines:**
+- **Grind**: Medium-fine for pour-over, coarse for French press
+- **Water Temp**: 195-205°F (just off boilin...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'brewer_support', got 'brewing_advice'</p><p class="validation-error">✗ Response missing required text: 'power'</p><p class="validation-error">✗ Response missing required text: 'outlet'</p><p class="validation-error">✗ Response missing required text: 'support'</p><p class="validation-error">✗ Expected escalation did not occur</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S018: Customer wants to compare coffee varieties <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Product Comparison | <strong>Priority:</strong> low | <strong>Duration:</strong> 1791ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> What's the difference between your espresso pods?</p>
+            <p><strong>Intent:</strong> product_comparison (92.0%) | <strong>Time:</strong> 1791ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?...</p>
+<p class="validation-error">✗ Response missing required text: 'espresso'</p><p class="validation-error">✗ Response missing required text: 'dark'</p><p class="validation-error">✗ Response missing required text: 'roast'</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S019: Customer wants to add item to pending order <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> Order Modification | <strong>Priority:</strong> medium | <strong>Duration:</strong> 1776ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Can I add another item to my order #10234?</p>
+            <p><strong>Intent:</strong> general_inquiry (70.0%) | <strong>Time:</strong> 1776ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'order_modification', got 'general_inquiry'</p><p class="validation-error">✗ Confidence too low: expected >=80.00%, got 70.00%</p><p class="validation-error">✗ Response missing required text: 'modify'</p><p class="validation-error">✗ Response missing required text: 'shipped'</p><p class="validation-error">✗ Expected escalation did not occur</p>
+        </div>
+
+    </div>
+
+    <div class="scenario failed">
+        <h3>S020: Simple greeting from customer <span class="failed">✗ FAILED</span></h3>
+        <p><strong>Category:</strong> General Inquiry | <strong>Priority:</strong> low | <strong>Duration:</strong> 1789ms</p>
+
+        <div class="turn">
+            <p><strong>Turn 1:</strong> Hello</p>
+            <p><strong>Intent:</strong> escalation_needed (95.0%) | <strong>Time:</strong> 1789ms | <strong>Status:</strong> <span class="fail">FAIL</span></p>
+            <p><strong>Response:</strong> I understand you're frustrated, and I sincerely apologize for the inconvenience you're experiencing.
+
+This isn't the level of service we pride ourselves on. Let me connect you with a senior support sp...</p>
+<p class="validation-error">✗ Intent mismatch: expected 'general_inquiry', got 'escalation_needed'</p><p class="validation-error">✗ Response missing required text: 'help'</p><p class="validation-error">✗ Response missing required text: 'assist'</p><p class="validation-error">✗ Response missing required text: 'coffee'</p>
+        </div>
+
+    </div>
+
+</body>
+</html>

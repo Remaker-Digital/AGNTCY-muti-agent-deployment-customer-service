@@ -1,0 +1,715 @@
+{
+  "test_suite": "End-to-End Customer Conversation Scenarios",
+  "version": "1.0.0",
+  "start_time": "2026-01-24T11:32:35.505125",
+  "end_time": "2026-01-24T11:33:30.470518",
+  "duration_seconds": 54.965393,
+  "summary": {
+    "total_scenarios": 20,
+    "passed": 1,
+    "failed": 19,
+    "pass_rate": 0.05,
+    "avg_response_time_ms": 2130.356958934239,
+    "p95_response_time_ms": 2603.0755043029785
+  },
+  "results": [
+    {
+      "scenario_id": "S001",
+      "category": "Order Status",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks order status with order number",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Where is my order #10234?",
+          "ai_response": "Hi! Great news about your order #12345!\n\nIt shipped with USPS and should arrive by 2026-01-25.\nYour tracking number is 9400123456789.\n\nNeed anything else? I'm here to help!",
+          "intent_detected": "order_status",
+          "confidence": 0.95,
+          "response_time_ms": 2605.059862136841,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: '10234'",
+            "Response time exceeded threshold: 2605ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:32:38.110400"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2605.257749557495,
+      "failures": [
+        "Response missing required text: '10234'",
+        "Response time exceeded threshold: 2605ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:32:38.110547"
+    },
+    {
+      "scenario_id": "S002",
+      "category": "Product Information",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer asks about product availability and price",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How much is the Premium Coffee Brewer?",
+          "ai_response": "I'd love to help you improve your brewing! Here are some key tips:\n\n**General Guidelines:**\n- **Grind**: Medium-fine for pour-over, coarse for French press\n- **Water Temp**: 195-205\u00b0F (just off boiling)\n- **Ratio**: 1:15 to 1:17 (coffee to water)\n- **Time**: 4-6 minutes total brew time\n\nWhat specific issue are you having? Bitter, sour, weak, or something else?",
+          "intent_detected": "brewing_advice",
+          "confidence": 0.9,
+          "response_time_ms": 1777.6386737823486,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'product_info', got 'brewing_advice'",
+            "Response missing required text: 'Premium'",
+            "Response missing required text: 'Brewer'",
+            "Response missing required text: '$'",
+            "Response missing required text: 'stock'"
+          ],
+          "timestamp": "2026-01-24T11:32:40.391592"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1777.8270244598389,
+      "failures": [
+        "Intent mismatch: expected 'product_info', got 'brewing_advice'",
+        "Response missing required text: 'Premium'",
+        "Response missing required text: 'Brewer'",
+        "Response missing required text: '$'",
+        "Response missing required text: 'stock'"
+      ],
+      "timestamp": "2026-01-24T11:32:40.391725"
+    },
+    {
+      "scenario_id": "S003",
+      "category": "Return Request",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order under $50 (auto-approve)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I want to return my order #10235",
+          "ai_response": "I'm sorry to hear you're having an issue! We want to make this right.\n\n**Our Return Policy:**\n- 30-day return window from delivery\n- Orders under $50 can be auto-approved for refund\n- Original packaging preferred but not required\n\nFor quality issues or defects, we'll process an immediate replacement or refund.\n\nCould you tell me more about the issue? I'll get this resolved quickly for you.",
+          "intent_detected": "return_request",
+          "confidence": 0.88,
+          "response_time_ms": 2603.0755043029785,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: 'RMA'",
+            "Response missing required text: '30 days'",
+            "Response time exceeded threshold: 2603ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:32:43.495123"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2603.2400131225586,
+      "failures": [
+        "Response missing required text: 'RMA'",
+        "Response missing required text: '30 days'",
+        "Response time exceeded threshold: 2603ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:32:43.495243"
+    },
+    {
+      "scenario_id": "S004",
+      "category": "Return Request - Escalation",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer requests return for order over $50 (escalate to human)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "I need to return order #10234",
+          "ai_response": "I'm sorry to hear you're having an issue! We want to make this right.\n\n**Our Return Policy:**\n- 30-day return window from delivery\n- Orders under $50 can be auto-approved for refund\n- Original packaging preferred but not required\n\nFor quality issues or defects, we'll process an immediate replacement or refund.\n\nCould you tell me more about the issue? I'll get this resolved quickly for you.",
+          "intent_detected": "return_request",
+          "confidence": 0.88,
+          "response_time_ms": 2582.1475982666016,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: 'support'",
+            "Response missing required text: 'team'",
+            "Response missing required text: 'review'",
+            "Expected escalation did not occur",
+            "Response time exceeded threshold: 2582ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:32:46.579770"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2582.432746887207,
+      "failures": [
+        "Response missing required text: 'support'",
+        "Response missing required text: 'team'",
+        "Response missing required text: 'review'",
+        "Expected escalation did not occur",
+        "Response time exceeded threshold: 2582ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:32:46.579947"
+    },
+    {
+      "scenario_id": "S005",
+      "category": "Loyalty Program - Balance",
+      "persona": "persona_001",
+      "priority": "high",
+      "description": "Customer checks loyalty rewards balance",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How many loyalty points do I have?",
+          "ai_response": "Hi Sarah,\n\n**Your BrewVi Rewards Status**\n\n**Current Balance:** 475 points\n**Tier:** Bronze\n**Progress to Silver:** 25 points away\n\n**You Can Redeem:**\n\u2713 100 points = $5 discount\n\u2713 200 points = $10 discount\n\n**How it Works:** Earn 1 point per $1 spent. Auto-delivery subscribers earn 2X points.\n\nRedeem your points at checkout on your next purchase!",
+          "intent_detected": "loyalty_program",
+          "confidence": 0.88,
+          "response_time_ms": 2601.7379760742188,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response time exceeded threshold: 2602ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:32:49.684016"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2601.888656616211,
+      "failures": [
+        "Response time exceeded threshold: 2602ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:32:49.684075"
+    },
+    {
+      "scenario_id": "S006",
+      "category": "Loyalty Program - Redemption",
+      "persona": "persona_002",
+      "priority": "high",
+      "description": "Gold tier customer asks about redeeming rewards",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How do I redeem my loyalty rewards?",
+          "ai_response": "Hi Mike,\n\n**Your BrewVi Rewards Status**\n\n**Current Balance:** 1250 points\n**Tier:** Gold \ud83c\udf1f\n**Status:** Auto-Delivery Subscriber (2X points!)\n\n**You Can Redeem:**\n\u2713 100 points = $5 discount\n\u2713 200 points = $10 discount\n\u2713 500 points = $25 discount\n\u2713 1000 points = $50 discount\n\n**How it Works:** Earn 1 point per $1 spent. Auto-delivery subscribers earn 2X points.\n\nRedeem your points at checkout on your next purchase!",
+          "intent_detected": "loyalty_program",
+          "confidence": 0.88,
+          "response_time_ms": 2593.954563140869,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response time exceeded threshold: 2594ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:32:52.792089"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2594.176769256592,
+      "failures": [
+        "Response time exceeded threshold: 2594ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:32:52.792185"
+    },
+    {
+      "scenario_id": "S007",
+      "category": "Loyalty Program - General",
+      "persona": null,
+      "priority": "medium",
+      "description": "Anonymous visitor asks about loyalty program",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Do you have a loyalty program?",
+          "ai_response": "**BrewVi Rewards Program**\n\nEarn points with every purchase!\n\n**Redemption Options:**\n\u2713 100 points = $5\n\u2713 200 points = $10\n\u2713 500 points = $25\n\u2713 1000 points = $50\n\n**Membership Tiers:**\n\u2713 **Bronze:** 1x points per $1\n\u2713 **Silver:** 1.5x points per $1\n\u2713 **Gold:** 2x points per $1\n\n**How to Join:** Automatic enrollment with your first purchase!\n\nCheck your points balance anytime in your account dashboard.",
+          "intent_detected": "loyalty_program",
+          "confidence": 0.88,
+          "response_time_ms": 2580.501079559326,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: '1 point per $1'",
+            "Response time exceeded threshold: 2581ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:32:55.886527"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2580.667734146118,
+      "failures": [
+        "Response missing required text: '1 point per $1'",
+        "Response time exceeded threshold: 2581ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:32:55.886602"
+    },
+    {
+      "scenario_id": "S008",
+      "category": "Product Recommendation",
+      "persona": "persona_003",
+      "priority": "medium",
+      "description": "Customer asks for gift recommendation",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "What's a good coffee gift for someone who drinks Starbucks?",
+          "ai_response": "I'd be happy to tell you about our Ethiopian Yirgacheffe!\n\nThis is a Light roast with Bright citrus, floral, wine-like acidity.\nFor best results, try Pour-over recommended.\n\nWould you like any specific brewing tips for this coffee?",
+          "intent_detected": "product_info",
+          "confidence": 0.88,
+          "response_time_ms": 2581.820249557495,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'product_recommendation', got 'product_info'",
+            "Response missing required text: 'medium roast'",
+            "Response missing required text: 'variety'",
+            "Response missing required text: 'gift'",
+            "Response time exceeded threshold: 2582ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:32:58.980896"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2582.0558071136475,
+      "failures": [
+        "Intent mismatch: expected 'product_recommendation', got 'product_info'",
+        "Response missing required text: 'medium roast'",
+        "Response missing required text: 'variety'",
+        "Response missing required text: 'gift'",
+        "Response time exceeded threshold: 2582ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:32:58.981047"
+    },
+    {
+      "scenario_id": "S009",
+      "category": "Subscription Management",
+      "persona": "persona_002",
+      "priority": "medium",
+      "description": "Customer wants to modify auto-delivery subscription",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Can I change my subscription to decaf?",
+          "ai_response": "Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?",
+          "intent_detected": "auto_delivery_management",
+          "confidence": 0.9,
+          "response_time_ms": 1793.1625843048096,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: 'subscription'",
+            "Response missing required text: 'decaf'",
+            "Response missing required text: 'change'"
+          ],
+          "timestamp": "2026-01-24T11:33:01.286136"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1793.306827545166,
+      "failures": [
+        "Response missing required text: 'subscription'",
+        "Response missing required text: 'decaf'",
+        "Response missing required text: 'change'"
+      ],
+      "timestamp": "2026-01-24T11:33:01.286229"
+    },
+    {
+      "scenario_id": "S010",
+      "category": "Business Inquiry - Bulk Order",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer inquires about bulk coffee order",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "We need 10 pounds of office coffee by Friday",
+          "ai_response": "Thanks for your interest in our business solutions!\n\nI'm connecting you with our B2B sales team who can provide:\n- Custom pricing for your volume needs\n- Flexible delivery schedules\n- Account terms (Net 30 available)\n- Dedicated account manager\n\nA specialist will reach out within 2 business hours. What's the best way to contact you?",
+          "intent_detected": "escalation_needed",
+          "confidence": 0.92,
+          "response_time_ms": 1780.254602432251,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:33:03.580777"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1780.371904373169,
+      "failures": [
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:33:03.580839"
+    },
+    {
+      "scenario_id": "S011",
+      "category": "Business Inquiry - Pricing",
+      "persona": "persona_004",
+      "priority": "high",
+      "description": "Business customer asks about bulk pricing discounts",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Can we get a discount for monthly orders?",
+          "ai_response": "Thanks for your interest in our business solutions!\n\nI'm connecting you with our B2B sales team who can provide:\n- Custom pricing for your volume needs\n- Flexible delivery schedules\n- Account terms (Net 30 available)\n- Dedicated account manager\n\nA specialist will reach out within 2 business hours. What's the best way to contact you?",
+          "intent_detected": "escalation_needed",
+          "confidence": 0.93,
+          "response_time_ms": 1777.172565460205,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:33:05.871232"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1777.3005962371826,
+      "failures": [
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:33:05.871291"
+    },
+    {
+      "scenario_id": "S012",
+      "category": "Shipping Question",
+      "persona": "persona_001",
+      "priority": "medium",
+      "description": "Customer asks about shipping options and costs",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How much does shipping cost?",
+          "ai_response": "I'd be happy to tell you about our Ethiopian Yirgacheffe!\n\nThis is a Light roast with Bright citrus, floral, wine-like acidity.\nFor best results, try Pour-over recommended.\n\nWould you like any specific brewing tips for this coffee?",
+          "intent_detected": "product_info",
+          "confidence": 0.85,
+          "response_time_ms": 2589.360475540161,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'shipping_question', got 'product_info'",
+            "Response missing required text: 'shipping'",
+            "Response missing required text: 'free'",
+            "Response missing required text: '$35'",
+            "Response time exceeded threshold: 2589ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:33:08.975946"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 2589.5214080810547,
+      "failures": [
+        "Intent mismatch: expected 'shipping_question', got 'product_info'",
+        "Response missing required text: 'shipping'",
+        "Response missing required text: 'free'",
+        "Response missing required text: '$35'",
+        "Response time exceeded threshold: 2589ms > 2500ms"
+      ],
+      "timestamp": "2026-01-24T11:33:08.976061"
+    },
+    {
+      "scenario_id": "S013",
+      "category": "Gift Card",
+      "persona": "persona_003",
+      "priority": "low",
+      "description": "Customer asks about gift card denominations",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "How much is a gift card?",
+          "ai_response": "I'd love to help you find the perfect coffee! To give you the best recommendation:\n\n- Do you prefer light, medium, or dark roasts?\n- What brewing method do you use most?\n- Any flavor preferences (fruity, chocolatey, nutty)?\n- Is this for daily drinking or special occasions?\n\nBased on your preferences, I can suggest some of our most popular single origins!",
+          "intent_detected": "product_recommendation",
+          "confidence": 0.85,
+          "response_time_ms": 1779.7245979309082,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'gift_card', got 'product_recommendation'",
+            "Response missing required text: '$25'",
+            "Response missing required text: '$200'",
+            "Response missing required text: 'gift card'"
+          ],
+          "timestamp": "2026-01-24T11:33:11.269105"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1779.8571586608887,
+      "failures": [
+        "Intent mismatch: expected 'gift_card', got 'product_recommendation'",
+        "Response missing required text: '$25'",
+        "Response missing required text: '$200'",
+        "Response missing required text: 'gift card'"
+      ],
+      "timestamp": "2026-01-24T11:33:11.269197"
+    },
+    {
+      "scenario_id": "S014",
+      "category": "Multi-Turn - Order Lookup",
+      "persona": "persona_001",
+      "priority": "medium",
+      "description": "Customer asks about order without providing order number",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Where is my order?",
+          "ai_response": "Hi! Great news about your order #12345!\n\nIt shipped with USPS and should arrive by 2026-01-25.\nYour tracking number is 9400123456789.\n\nNeed anything else? I'm here to help!",
+          "intent_detected": "order_status",
+          "confidence": 0.95,
+          "response_time_ms": 2581.223726272583,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: 'order number'",
+            "Response missing required text: 'provide'",
+            "Response time exceeded threshold: 2581ms > 2500ms"
+          ],
+          "timestamp": "2026-01-24T11:33:14.363154"
+        },
+        {
+          "turn_number": 2,
+          "user_message": "I don't have the order number",
+          "ai_response": "Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?",
+          "intent_detected": "general_inquiry",
+          "confidence": 0.7,
+          "response_time_ms": 1787.4417304992676,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'order_status', got 'general_inquiry'",
+            "Response missing required text: 'recent orders'",
+            "Response missing required text: 'choose'"
+          ],
+          "timestamp": "2026-01-24T11:33:16.150774"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 4368.984222412109,
+      "failures": [
+        "Response missing required text: 'order number'",
+        "Response missing required text: 'provide'",
+        "Response time exceeded threshold: 2581ms > 2500ms",
+        "Intent mismatch: expected 'order_status', got 'general_inquiry'",
+        "Response missing required text: 'recent orders'",
+        "Response missing required text: 'choose'"
+      ],
+      "timestamp": "2026-01-24T11:33:16.150854"
+    },
+    {
+      "scenario_id": "S015",
+      "category": "Hostile Customer",
+      "persona": "persona_001",
+      "priority": "critical",
+      "description": "Customer uses profanity (test content filtering)",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "This is fucking ridiculous!",
+          "ai_response": "I understand you're frustrated, and I sincerely apologize for the inconvenience you're experiencing.\n\nThis isn't the level of service we pride ourselves on. Let me connect you with a senior support specialist who can personally handle your case and make this right.\n\nA team member will contact you within 15 minutes to resolve this issue.",
+          "intent_detected": "escalation_needed",
+          "confidence": 0.95,
+          "response_time_ms": 1781.53657913208,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: 'help'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:33:18.443920"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1781.674861907959,
+      "failures": [
+        "Response missing required text: 'help'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:33:18.443995"
+    },
+    {
+      "scenario_id": "S016",
+      "category": "Ambiguous Query",
+      "persona": "persona_002",
+      "priority": "low",
+      "description": "Vague question requiring clarification",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Tell me about it",
+          "ai_response": "Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?",
+          "intent_detected": "general_inquiry",
+          "confidence": 0.7,
+          "response_time_ms": 1793.5783863067627,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": true,
+          "validation_failures": [],
+          "timestamp": "2026-01-24T11:33:20.750406"
+        }
+      ],
+      "overall_passed": true,
+      "total_duration_ms": 1793.7016487121582,
+      "failures": [],
+      "timestamp": "2026-01-24T11:33:20.750479"
+    },
+    {
+      "scenario_id": "S017",
+      "category": "Brewer Support",
+      "persona": "persona_002",
+      "priority": "medium",
+      "description": "Customer needs brewer troubleshooting help",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "My coffee brewer won't turn on",
+          "ai_response": "I'd love to help you improve your brewing! Here are some key tips:\n\n**General Guidelines:**\n- **Grind**: Medium-fine for pour-over, coarse for French press\n- **Water Temp**: 195-205\u00b0F (just off boiling)\n- **Ratio**: 1:15 to 1:17 (coffee to water)\n- **Time**: 4-6 minutes total brew time\n\nWhat specific issue are you having? Bitter, sour, weak, or something else?",
+          "intent_detected": "brewing_advice",
+          "confidence": 0.9,
+          "response_time_ms": 1792.1295166015625,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'brewer_support', got 'brewing_advice'",
+            "Response missing required text: 'power'",
+            "Response missing required text: 'outlet'",
+            "Response missing required text: 'support'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:33:23.056854"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1792.341709136963,
+      "failures": [
+        "Intent mismatch: expected 'brewer_support', got 'brewing_advice'",
+        "Response missing required text: 'power'",
+        "Response missing required text: 'outlet'",
+        "Response missing required text: 'support'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:33:23.057013"
+    },
+    {
+      "scenario_id": "S018",
+      "category": "Product Comparison",
+      "persona": "persona_001",
+      "priority": "low",
+      "description": "Customer wants to compare coffee varieties",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "What's the difference between your espresso pods?",
+          "ai_response": "Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?",
+          "intent_detected": "product_comparison",
+          "confidence": 0.92,
+          "response_time_ms": 1791.0072803497314,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Response missing required text: 'espresso'",
+            "Response missing required text: 'dark'",
+            "Response missing required text: 'roast'"
+          ],
+          "timestamp": "2026-01-24T11:33:25.360490"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1791.1276817321777,
+      "failures": [
+        "Response missing required text: 'espresso'",
+        "Response missing required text: 'dark'",
+        "Response missing required text: 'roast'"
+      ],
+      "timestamp": "2026-01-24T11:33:25.360574"
+    },
+    {
+      "scenario_id": "S019",
+      "category": "Order Modification",
+      "persona": "persona_001",
+      "priority": "medium",
+      "description": "Customer wants to add item to pending order",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Can I add another item to my order #10234?",
+          "ai_response": "Thanks for reaching out! I'm here to help with any questions about our coffee, orders, or brewing advice. What can I assist you with today?",
+          "intent_detected": "general_inquiry",
+          "confidence": 0.7,
+          "response_time_ms": 1775.8727073669434,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'order_modification', got 'general_inquiry'",
+            "Confidence too low: expected >=80.00%, got 70.00%",
+            "Response missing required text: 'modify'",
+            "Response missing required text: 'shipped'",
+            "Expected escalation did not occur"
+          ],
+          "timestamp": "2026-01-24T11:33:27.651211"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1776.2203216552734,
+      "failures": [
+        "Intent mismatch: expected 'order_modification', got 'general_inquiry'",
+        "Confidence too low: expected >=80.00%, got 70.00%",
+        "Response missing required text: 'modify'",
+        "Response missing required text: 'shipped'",
+        "Expected escalation did not occur"
+      ],
+      "timestamp": "2026-01-24T11:33:27.651493"
+    },
+    {
+      "scenario_id": "S020",
+      "category": "General Inquiry",
+      "persona": null,
+      "priority": "low",
+      "description": "Simple greeting from customer",
+      "turns": [
+        {
+          "turn_number": 1,
+          "user_message": "Hello",
+          "ai_response": "I understand you're frustrated, and I sincerely apologize for the inconvenience you're experiencing.\n\nThis isn't the level of service we pride ourselves on. Let me connect you with a senior support specialist who can personally handle your case and make this right.\n\nA team member will contact you within 15 minutes to resolve this issue.",
+          "intent_detected": "escalation_needed",
+          "confidence": 0.95,
+          "response_time_ms": 1789.0958786010742,
+          "escalated": false,
+          "escalation_reason": null,
+          "validation_passed": false,
+          "validation_failures": [
+            "Intent mismatch: expected 'general_inquiry', got 'escalation_needed'",
+            "Response missing required text: 'help'",
+            "Response missing required text: 'assist'",
+            "Response missing required text: 'coffee'"
+          ],
+          "timestamp": "2026-01-24T11:33:29.956095"
+        }
+      ],
+      "overall_passed": false,
+      "total_duration_ms": 1789.2658710479736,
+      "failures": [
+        "Intent mismatch: expected 'general_inquiry', got 'escalation_needed'",
+        "Response missing required text: 'help'",
+        "Response missing required text: 'assist'",
+        "Response missing required text: 'coffee'"
+      ],
+      "timestamp": "2026-01-24T11:33:29.956210"
+    }
+  ]
+}

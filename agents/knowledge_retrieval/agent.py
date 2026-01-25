@@ -316,32 +316,167 @@ class KnowledgeRetrievalAgent:
 
     async def _search_products(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
         """
-        Search coffee products (brewers, pods, accessories).
+        Search coffee products (brewers, pods, accessories, gift cards).
+
+        Issue #25: Customer Product Information Inquiries
+        ---------------------------------------------------
+        This method enables customers to:
+        - Find products by name/keyword ("coffee brewer", "organic soap", "gift card")
+        - Check product availability and stock status
+        - Learn about product features, prices, and specifications
+        - Discover products in specific categories (brewers, coffee pods, accessories)
+
+        Workflow:
+        1. Extract product keywords from customer query (strip question words)
+        2. Call Shopify API to search products by title/keyword
+        3. Transform raw Shopify data into Knowledge Result format
+        4. Include stock availability for each product
+        5. Return results to Response Generation Agent for customer-facing message
+
+        Args:
+            query: KnowledgeQuery with customer's product search text
+                Examples: "Is organic mango soap in stock?", "coffee maker price",
+                         "espresso pods", "gift card"
+
+        Returns:
+            List of product result dictionaries with structure:
+            {
+                "source": "shopify_product",
+                "type": "product",
+                "product_id": "PROD-001",
+                "sku": "BRWR-PREM-BLK",
+                "name": "Premium Single-Serve Coffee Brewer",
+                "description": "Our flagship single-serve coffee brewer...",
+                "price": 398.00,
+                "category": "brewers",
+                "features": ["7 customizable brew parameters", ...],
+                "tags": ["brewer", "premium", "coffee-maker"],
+                "in_stock": true,
+                "inventory_count": 47,
+                "variant_id": "VAR-001-BLK",
+                "variant_name": "Black",
+                "relevance": 0.85
+            }
+
+        Integration with Other Agents:
+        - Intent Classification Agent: Extracts product name/keyword from customer query
+        - Response Generation Agent: Creates customer-friendly product information message
+        - No escalation needed: Product info is fully automated (no approval threshold)
+
+        Performance Target:
+        - <200ms P95 latency (Issue #25 acceptance criteria)
+        - Typically <50ms in Phase 1-3 (local mock API)
+
+        Reference: ISSUE-25-IMPLEMENTATION-PLAN.md lines 82-101
         """
         results = []
 
         try:
-            products = await self.shopify_client.search_products(query.query_text, limit=5)
+            # Issue #25: Extract product keywords from customer query
+            # Phase 2: Simple keyword extraction (strip common question words)
+            # Phase 4-5: Will use NLP/embeddings for better keyword extraction
+            #
+            # Example transformations:
+            # "How much is the Premium Coffee Brewer?" → "Premium Coffee Brewer"
+            # "Tell me about espresso pods" → "espresso pods"
+            # "Is organic mango soap in stock?" → "organic mango soap"
+            search_query = query.query_text
 
+            # Strip common question words/phrases (Phase 2 simple approach)
+            question_words = [
+                "how much is the", "how much is", "how much",
+                "what is the price of the", "what is the price of", "price of the", "price of",
+                "tell me about the", "tell me about",
+                "is the", "is", "are the", "are",
+                "do you have the", "do you have",
+                "in stock", "available",
+                "what's the", "whats the"
+            ]
+
+            search_query_lower = search_query.lower()
+            for phrase in sorted(question_words, key=len, reverse=True):  # Longest first
+                if search_query_lower.startswith(phrase):
+                    # Remove question phrase from start
+                    search_query = search_query[len(phrase):].strip()
+                    search_query_lower = search_query.lower()
+                    break
+
+            # Remove trailing question marks and punctuation
+            search_query = search_query.rstrip('?!.,')
+
+            # Issue #25 Fix: Remove filler words that don't help search
+            # Example: "Tell me about your coffee pods" → "coffee pods"
+            # These words add noise and reduce search accuracy
+            filler_words = ['your', 'my', 'the', 'our', 'about', 'tell me']
+            search_words = search_query.split()
+            search_words = [word for word in search_words if word.lower() not in filler_words]
+            search_query = ' '.join(search_words)
+
+            self.logger.debug(
+                f"Product search keyword extraction: "
+                f"'{query.query_text}' → '{search_query}'"
+            )
+
+            # Call Shopify API to search products by keyword/title
+            # Issue #25: Server-side filtering via title parameter (more efficient)
+            # Limit to 5 results to keep response concise for customers
+            # Reference: shopify_client.py lines 234-320 (search_products method)
+            products = await self.shopify_client.search_products(search_query, limit=5)
+
+            # Transform each Shopify product into Knowledge Result format
+            # This format is consumed by Response Generation Agent for customer messages
             for product in products:
+                # Stock availability check
+                # in_stock: Boolean flag (true/false)
+                # inventory_count: Actual quantity available (may be None for unlimited/digital)
+                in_stock = product.get("in_stock", True)
+                inventory_count = product.get("inventory_count")
+
+                # Issue #25 Fix: Handle gift cards with price_range instead of fixed price
+                # Gift cards have {"price": null, "price_range": {"min": 25, "max": 200}}
+                # For customer response, show price range or use minimum price
+                price = product.get("price")
+                price_range = product.get("price_range")
+
+                # If price is null but price_range exists (gift cards), use min price for sorting
+                # Response Generation Agent will format appropriately
+                if price is None and price_range:
+                    price = price_range.get("min")  # Use minimum for consistency
+
+                # Build product result dictionary
+                # Include all relevant fields for Response Generation Agent
                 results.append({
                     "source": "shopify_product",
                     "type": "product",
                     "product_id": product.get("id"),
+                    "sku": product.get("sku"),
                     "name": product.get("name"),
                     "description": product.get("description"),
-                    "price": product.get("price"),
+                    "price": price,  # Fixed price or minimum from range
+                    "price_range": price_range,  # Include original range if exists
                     "category": product.get("category"),
                     "features": product.get("features", []),
                     "tags": product.get("tags", []),
-                    "in_stock": product.get("in_stock", True),
-                    "relevance": 0.85
+                    "in_stock": in_stock,
+                    "inventory_count": inventory_count,
+                    "variant_id": product.get("variant_id"),
+                    "variant_name": product.get("variant_name"),
+                    "relevance": 0.85  # High relevance (server-side filtered by title)
                 })
 
-            self.logger.info(f"Found {len(results)} products matching '{query.query_text}'")
+            self.logger.info(
+                f"Product search complete: Found {len(results)} products matching "
+                f"'{query.query_text}' (in_stock: {sum(1 for r in results if r['in_stock'])})"
+            )
 
         except Exception as e:
-            self.logger.error(f"Product search failed: {e}", exc_info=True)
+            # Graceful error handling: Log error but don't crash
+            # Return empty results to allow Response Generator to inform customer
+            # Example response: "I'm having trouble accessing product info, please try again"
+            self.logger.error(
+                f"Product search failed for query '{query.query_text}': {e}",
+                exc_info=True
+            )
 
         return results
 
@@ -460,15 +595,82 @@ class KnowledgeRetrievalAgent:
 
     async def _search_return_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
         """
-        Search return policy information.
+        Search return policy information and order data for return requests.
+
+        Issue #29: Return/Refund Request Handling
+        ------------------------------------------
+        For return requests, we need BOTH order data and return policy:
+        1. Order data: Validates return eligibility, applies $50 auto-approval threshold
+        2. Return policy: Provides return window, conditions, process instructions
+
+        Auto-Approval Business Logic:
+        - Orders ≤$50.00: Auto-approved with RMA number (instant customer satisfaction)
+        - Orders >$50.00: Escalated to support team (risk mitigation for high-value returns)
+
+        Reference: ISSUE-29-IMPLEMENTATION-PLAN.md lines 36-48
+        Reference: test-data/knowledge-base/return-policy.md (30-day return window)
+
+        Args:
+            query: Knowledge query with intent=RETURN_REQUEST and optional filters
+
+        Returns:
+            List of results containing:
+            - Order data (if order_number provided) with type="order"
+            - Return policy sections with type="policy"
         """
+        results = []
+
         try:
-            results = self.kb_client.search_return_policy(query.query_text)
-            self.logger.info(f"Found {len(results)} return policy results")
-            return results
+            # STEP 1: Fetch order data if order number provided (Issue #29 requirement)
+            # Rationale: Need order total for $50 auto-approval threshold logic
+            order_number = query.filters.get("order_number")
+            if order_number:
+                self.logger.info(f"Fetching order #{order_number} for return request validation")
+                order = await self.shopify_client.get_order_by_number(order_number)
+
+                if order:
+                    # Return eligibility validation (Phase 2 enhancement)
+                    # Reference: return-policy.md - 30-day window, delivered status required
+                    results.append({
+                        "source": "shopify_order",
+                        "type": "order",  # CRITICAL: Test expects type="order"
+                        "order_number": order.get("order_number"),
+                        "order_id": order.get("order_id"),
+                        "customer_email": order.get("customer_email"),
+                        "customer_name": order.get("customer_name"),  # For personalized responses
+                        "shipping_address": order.get("shipping_address"),  # For address validation
+                        "total": order.get("total"),
+                        "status": order.get("status"),
+                        "items": order.get("items", []),
+                        "order_date": order.get("created_at"),
+                        "delivery_date": order.get("delivered_at"),
+                        "return_eligible": order.get("status") == "delivered",  # Simplified check
+                        "relevance": 1.0
+                    })
+                    self.logger.info(f"Order #{order_number} found: ${order.get('total'):.2f}, status={order.get('status')}")
+                else:
+                    # Order not found - return error result for graceful handling
+                    self.logger.warning(f"Order #{order_number} not found in Shopify")
+                    results.append({
+                        "source": "shopify_order",
+                        "type": "error",
+                        "error_code": "ORDER_NOT_FOUND",
+                        "error_message": f"Order #{order_number} not found. Please verify your order number.",
+                        "order_number": order_number,
+                        "relevance": 1.0
+                    })
+
+            # STEP 2: Fetch return policy from knowledge base (always include for context)
+            # Reference: Knowledge Base Client search_return_policy() method
+            policy_results = self.kb_client.search_return_policy(query.query_text)
+            results.extend(policy_results)
+
+            self.logger.info(f"Found {len(results)} return-related results (order + policy)")
+
         except Exception as e:
             self.logger.error(f"Return info search failed: {e}", exc_info=True)
-            return []
+
+        return results
 
     async def _search_shipping_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
         """
@@ -515,12 +717,42 @@ class KnowledgeRetrievalAgent:
     async def _search_brewer_support(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
         """
         Search brewer troubleshooting and support information.
+
+        Issue #25: Enhanced to support product information queries
+        ------------------------------------------------------------
+        Queries like "How much is the coffee brewer?" or "Tell me about the brewer"
+        should return product information (price, features, stock) FIRST,
+        then optionally include support resources.
         """
         results = []
 
         try:
             query_lower = query.query_text.lower()
 
+            # Issue #25: Check if this is a PRODUCT INFORMATION query
+            # Keywords indicating customer wants product details, not troubleshooting
+            product_info_keywords = [
+                "how much", "price", "cost", "buy", "purchase", "tell me about",
+                "what is", "describe", "in stock", "available", "features"
+            ]
+
+            is_product_info_query = any(keyword in query_lower for keyword in product_info_keywords)
+
+            if is_product_info_query:
+                # Issue #25: Search products FIRST for product information queries
+                # Example: "How much is the Premium Coffee Brewer?" → return product with price
+                product_results = await self._search_products(query)
+                results.extend(product_results)
+
+                # If products found, return them (no need for support articles)
+                if product_results:
+                    self.logger.info(
+                        f"Brewer support query identified as product info request, "
+                        f"returned {len(product_results)} products"
+                    )
+                    return results
+
+            # TROUBLESHOOTING QUERIES (not product information)
             # Common brewer issues
             if any(word in query_lower for word in ["won't turn on", "not working", "broken"]):
                 results.append({
@@ -582,10 +814,41 @@ class KnowledgeRetrievalAgent:
     async def _search_gift_card_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
         """
         Search gift card information.
+
+        Issue #25: Enhanced to support product information queries
+        ------------------------------------------------------------
+        Queries like "How much is the gift card?" should return actual gift card
+        products from catalog (price, denominations), not just policy info.
         """
         results = []
 
         try:
+            query_lower = query.query_text.lower()
+
+            # Issue #25: Check if this is a PRODUCT INFORMATION query
+            product_info_keywords = [
+                "how much", "price", "cost", "buy", "purchase", "available",
+                "denominations", "amounts", "in stock"
+            ]
+
+            is_product_info_query = any(keyword in query_lower for keyword in product_info_keywords)
+
+            if is_product_info_query:
+                # Issue #25: Search gift card products FIRST
+                # Example: "How much is the gift card?" → return gift card products with prices
+                product_results = await self._search_products(query)
+                results.extend(product_results)
+
+                # If products found, return them (customer wants to know prices/options)
+                if product_results:
+                    self.logger.info(
+                        f"Gift card query identified as product info request, "
+                        f"returned {len(product_results)} products"
+                    )
+                    return results
+
+            # POLICY INFORMATION (not product purchasing)
+            # Example: "Do gift cards expire?" "Can I use a gift card online?"
             results.append({
                 "source": "gift_card_policy",
                 "type": "policy",
@@ -608,26 +871,46 @@ class KnowledgeRetrievalAgent:
 
     async def _search_loyalty_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
         """
-        Search loyalty program information.
+        Search loyalty program information and customer balance.
+
+        Issue #34: Customer Loyalty Program Inquiry
+        --------------------------------------------
+        Handles customer queries about:
+        - Points balance: "How many points do I have?"
+        - Redemption options: "How do I use my rewards?"
+        - Earning rates: "How do I earn points?"
+        - Tier status: "What tier am I in?"
+        - Point expiration: "Do my points expire?"
+
+        Provides personalized balance info when customer_id is available.
+
+        Args:
+            query: Knowledge query with intent=LOYALTY_PROGRAM and optional filters
+
+        Returns:
+            List of results containing:
+            - Customer balance (if customer_id provided) with type="customer_balance"
+            - Loyalty program sections with type="policy"
+            - Redemption tiers with type="redemption_tiers"
+            - Membership tiers with type="membership_tiers"
         """
         results = []
 
         try:
-            results.append({
-                "source": "loyalty_program",
-                "type": "policy",
-                "title": "Loyalty Rewards Program",
-                "content": "Earn 1 point per dollar spent. 100 points = $5 reward. Auto-delivery subscribers earn 2x points.",
-                "benefits": [
-                    "1 point per $1 spent (2x for auto-delivery subscribers)",
-                    "100 points = $5 reward credit",
-                    "Birthday month bonus: 50 points",
-                    "Refer a friend: 200 points for both of you"
-                ],
-                "relevance": 0.90
-            })
+            # Extract customer_id from filters for personalized balance
+            customer_id = query.filters.get("customer_id")
 
-            self.logger.info(f"Returned loyalty program info")
+            # Search loyalty program knowledge base
+            # This includes customer balance (if customer_id provided) and program sections
+            results = self.kb_client.search_loyalty_program(
+                query.query_text,
+                customer_id=customer_id
+            )
+
+            self.logger.info(
+                f"Loyalty program search complete: {len(results)} results "
+                f"(customer_id: {customer_id})"
+            )
 
         except Exception as e:
             self.logger.error(f"Loyalty info search failed: {e}", exc_info=True)
@@ -661,9 +944,15 @@ class KnowledgeRetrievalAgent:
         """Cleanup resources on shutdown."""
         self.logger.info("Cleaning up Knowledge Retrieval Agent...")
 
-        # Close HTTP clients
+        # Close HTTP clients synchronously
         try:
-            asyncio.create_task(self.cleanup_async())
+            # Try to get running event loop and close clients
+            try:
+                loop = asyncio.get_running_loop()
+                loop.create_task(self.cleanup_async())
+            except RuntimeError:
+                # No event loop running - close synchronously (best effort)
+                self.logger.debug("No event loop running, skipping async cleanup")
         except Exception as e:
             self.logger.error(f"Error during cleanup: {e}")
 

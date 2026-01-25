@@ -1,0 +1,172 @@
+{
+  "program_name": "BrewVi Rewards",
+  "last_updated": "2026-01-01",
+  "version": "1.0",
+  "program_sections": [
+    {
+      "section_id": "earning_points",
+      "title": "How to Earn Points",
+      "content": "Earn BrewVi Rewards points on every purchase:\n\n**Standard Earning Rate:**\n- 1 point per $1 spent (before tax and shipping)\n- Example: $50 order = 50 points\n\n**Bonus Earning Opportunities:**\n- Auto-delivery subscribers: 2X points (2 points per $1)\n- First purchase: 50 bonus points\n- Birthday month: 3X points on all purchases\n- Referral program: 100 points per successful referral\n- Product reviews: 10 points per review (limit 5/month)\n\n**Points Post:**\n- Points are added to your account when order ships\n- Bonus points may take 24-48 hours to appear\n- Returns: Points are deducted when refund is processed",
+      "keywords": ["earn points", "how to get points", "points earning", "loyalty points", "rewards earning"],
+      "quick_answer": "Earn 1 point per $1 spent. Auto-delivery subscribers earn 2X points. Bonus opportunities: referrals (100 pts), reviews (10 pts), birthday month (3X)."
+    },
+    {
+      "section_id": "redeeming_points",
+      "title": "Redeeming Your Points",
+      "content": "Redeem your points for discounts at checkout:\n\n**Redemption Rates:**\n- 100 points = $5 discount\n- 200 points = $10 discount\n- 500 points = $25 discount\n- 1000 points = $50 discount\n\n**Redemption Rules:**\n- Minimum redemption: 100 points ($5)\n- Can combine with other offers (sale prices, free shipping)\n- Cannot be applied to gift cards or shipping fees\n- Points expire 12 months after earning\n- Auto-delivery orders: Cannot redeem on recurring shipments (one-time purchases only)\n\n**How to Redeem:**\n1. Add items to cart\n2. Proceed to checkout\n3. Select 'Use Rewards Points' option\n4. Choose point amount to redeem\n5. Discount applied automatically",
+      "keywords": ["redeem points", "use points", "points discount", "rewards redemption", "how to use rewards"],
+      "quick_answer": "Redeem at checkout: 100 points = $5 discount. Minimum 100 points. Cannot apply to gift cards or shipping."
+    },
+    {
+      "section_id": "checking_balance",
+      "title": "Checking Your Points Balance",
+      "content": "View your current points balance and activity:\n\n**Check Your Balance:**\n- Account Dashboard: View total points and upcoming expirations\n- Email Receipts: Points earned shown on order confirmations\n- Mobile App: Real-time balance updates (coming soon)\n\n**Points Activity:**\n- Transaction history: See all points earned and redeemed\n- Pending points: Points from recent orders not yet posted\n- Expiring points: Points expiring in next 30 days highlighted\n\n**Balance Notifications:**\n- Email alerts when you reach 100, 500, 1000 points\n- Monthly balance summary (opt-in)\n- Expiration warnings 30 days before points expire",
+      "keywords": ["check balance", "points balance", "how many points", "rewards balance", "check rewards"],
+      "quick_answer": "Check your balance in Account Dashboard or order confirmation emails. You'll receive alerts at 100, 500, and 1000 points."
+    },
+    {
+      "section_id": "membership_tiers",
+      "title": "Loyalty Tiers",
+      "content": "Advance through tiers to unlock exclusive benefits:\n\n**Bronze (0-499 points annually):**\n- 1 point per $1 (standard rate)\n- Birthday bonus: 50 points\n- Early access to sales (1 day)\n\n**Silver (500-999 points annually):**\n- 1.5 points per $1 (50% bonus)\n- Birthday bonus: 100 points\n- Early access to sales (2 days)\n- Free expedited shipping (1x per quarter)\n\n**Gold (1000+ points annually):**\n- 2 points per $1 (double points)\n- Birthday bonus: 200 points\n- Early access to sales (3 days)\n- Free expedited shipping (unlimited)\n- Priority customer support\n- Exclusive product access\n\n**Tier Calculation:**\n- Based on points earned in rolling 12-month period\n- Tier status reviewed monthly\n- Downgrading: If points drop below tier threshold for 3 consecutive months",
+      "keywords": ["tiers", "membership levels", "silver gold bronze", "loyalty tiers", "tier benefits"],
+      "quick_answer": "Three tiers: Bronze (0-499 pts), Silver (500-999 pts), Gold (1000+ pts). Higher tiers earn faster and get exclusive benefits."
+    },
+    {
+      "section_id": "points_expiration",
+      "title": "Points Expiration Policy",
+      "content": "Keep your points active with regular activity:\n\n**Expiration Rules:**\n- Points expire 12 months after earning date\n- Oldest points redeemed first (FIFO - First In, First Out)\n- Account activity (purchase or redemption) does NOT extend expiration\n\n**Preventing Expiration:**\n- Redeem points before they expire\n- Auto-delivery subscriptions: Earn points monthly to maintain balance\n- Make at least one purchase annually to keep account active\n\n**Inactive Accounts:**\n- No purchases for 24 months = account marked inactive\n- Inactive accounts: All points expire immediately\n- Reactivate by making a purchase\n\n**Expiration Notifications:**\n- 60 days before expiration: First warning email\n- 30 days before expiration: Second warning email\n- 7 days before expiration: Final reminder email",
+      "keywords": ["expiration", "points expire", "lose points", "expiring points", "how long valid"],
+      "quick_answer": "Points expire 12 months after earning. You'll receive warnings at 60, 30, and 7 days before expiration."
+    },
+    {
+      "section_id": "referral_program",
+      "title": "Referral Rewards",
+      "content": "Earn bonus points by referring friends:\n\n**How It Works:**\n1. Get your unique referral link from Account Dashboard\n2. Share with friends via email, social media, or text\n3. Friend makes first purchase using your link\n4. You both earn rewards!\n\n**Referral Rewards:**\n- You earn: 100 bonus points per successful referral\n- Friend earns: 50 bonus points + 10% off first order\n- Unlimited referrals (no cap)\n\n**Referral Requirements:**\n- Friend must be new customer (no prior purchases)\n- Friend's first order must be $25 minimum\n- Points post after friend's order ships\n- Friend must use your unique link (not just promo code)\n\n**Tracking Referrals:**\n- View referral status in Account Dashboard\n- See pending, completed, and total referrals\n- Track total points earned from referrals",
+      "keywords": ["referral", "refer a friend", "invite friend", "referral bonus", "share link"],
+      "quick_answer": "Earn 100 points per successful referral. Your friend gets 50 points + 10% off. Share your unique link from Account Dashboard."
+    },
+    {
+      "section_id": "auto_delivery_benefits",
+      "title": "Auto-Delivery Subscription Benefits",
+      "content": "Auto-delivery subscribers get enhanced rewards:\n\n**Exclusive Benefits:**\n- 2X points on all purchases (not just auto-delivery orders)\n- Tier status calculated at 2X rate (reach Gold faster)\n- Points never expire while subscription is active\n- Early access to limited edition products\n- Free shipping on ALL orders (subscription and one-time)\n\n**How Auto-Delivery Affects Rewards:**\n- Subscription orders earn 2X points automatically\n- One-time purchases also earn 2X (as long as subscription is active)\n- Can still redeem points on one-time purchases\n- Cannot redeem points on recurring subscription orders\n\n**Maintaining Benefits:**\n- Benefits active as long as subscription is not cancelled\n- Pausing subscription: Benefits remain active during pause\n- Cancelling subscription: Benefits end, points revert to 12-month expiration\n\n**Example:**\n- $50 auto-delivery order = 100 points (2X rate)\n- Bronze tier requires 0-499 points; Gold requires 1000 points\n- With 2X earning, reach Gold in half the spending",
+      "keywords": ["auto delivery benefits", "subscription rewards", "2x points", "subscriber perks", "subscription loyalty"],
+      "quick_answer": "Auto-delivery subscribers earn 2X points on ALL purchases and enjoy no expiration dates while subscribed."
+    },
+    {
+      "section_id": "faq",
+      "title": "Frequently Asked Questions",
+      "content": "**Can I combine rewards with sales and promotions?**\nYes! Points can be redeemed on sale items and combined with promotional discounts.\n\n**What happens to my points if I return an order?**\nPoints earned from the returned order are deducted from your balance when the refund is processed.\n\n**Can I transfer points to another account?**\nNo, points are non-transferable and tied to your account.\n\n**Do I earn points on shipping and taxes?**\nNo, points are earned on product subtotal only (before tax and shipping).\n\n**Can I use points for gift cards?**\nNo, rewards cannot be redeemed for gift card purchases.\n\n**What if I forgot to use my points at checkout?**\nContact customer support within 24 hours of order placement and we can apply points retroactively.\n\n**Do points expire if I'm an auto-delivery subscriber?**\nNo! Your points never expire as long as your subscription remains active.\n\n**How do I opt out of the rewards program?**\nContact customer support to opt out. All points will be forfeited upon opting out.",
+      "keywords": ["faq", "questions", "rewards questions", "points questions"],
+      "quick_answer": "Yes, combine with sales. Returns deduct points. Points non-transferable. Contact support for help."
+    }
+  ],
+  "redemption_tiers": [
+    {
+      "points_required": 100,
+      "discount_value": 5.00,
+      "discount_display": "$5"
+    },
+    {
+      "points_required": 200,
+      "discount_value": 10.00,
+      "discount_display": "$10"
+    },
+    {
+      "points_required": 500,
+      "discount_value": 25.00,
+      "discount_display": "$25"
+    },
+    {
+      "points_required": 1000,
+      "discount_value": 50.00,
+      "discount_display": "$50"
+    }
+  ],
+  "membership_tiers": [
+    {
+      "tier_name": "Bronze",
+      "annual_points_required": 0,
+      "annual_points_max": 499,
+      "earning_rate": 1.0,
+      "birthday_bonus": 50,
+      "early_sale_access_days": 1,
+      "free_expedited_shipping": false
+    },
+    {
+      "tier_name": "Silver",
+      "annual_points_required": 500,
+      "annual_points_max": 999,
+      "earning_rate": 1.5,
+      "birthday_bonus": 100,
+      "early_sale_access_days": 2,
+      "free_expedited_shipping_per_quarter": 1
+    },
+    {
+      "tier_name": "Gold",
+      "annual_points_required": 1000,
+      "annual_points_max": null,
+      "earning_rate": 2.0,
+      "birthday_bonus": 200,
+      "early_sale_access_days": 3,
+      "free_expedited_shipping": "unlimited",
+      "priority_support": true,
+      "exclusive_product_access": true
+    }
+  ],
+  "test_customer_balances": [
+    {
+      "customer_id": "persona_001",
+      "customer_name": "Sarah Martinez",
+      "current_balance": 475,
+      "tier": "Bronze",
+      "points_to_next_tier": 25,
+      "next_tier": "Silver",
+      "points_expiring_30_days": 100,
+      "auto_delivery_subscriber": false,
+      "lifetime_points_earned": 850,
+      "lifetime_points_redeemed": 375
+    },
+    {
+      "customer_id": "persona_002",
+      "customer_name": "Mike Thompson",
+      "current_balance": 1250,
+      "tier": "Gold",
+      "points_to_next_tier": 0,
+      "next_tier": null,
+      "points_expiring_30_days": 0,
+      "auto_delivery_subscriber": true,
+      "lifetime_points_earned": 2400,
+      "lifetime_points_redeemed": 1150
+    },
+    {
+      "customer_id": "persona_003",
+      "customer_name": "Jennifer Wu",
+      "current_balance": 150,
+      "tier": "Bronze",
+      "points_to_next_tier": 350,
+      "next_tier": "Silver",
+      "points_expiring_30_days": 50,
+      "auto_delivery_subscriber": false,
+      "lifetime_points_earned": 300,
+      "lifetime_points_redeemed": 150
+    },
+    {
+      "customer_id": "persona_004",
+      "customer_name": "David Chen",
+      "current_balance": 680,
+      "tier": "Silver",
+      "points_to_next_tier": 320,
+      "next_tier": "Gold",
+      "points_expiring_30_days": 0,
+      "auto_delivery_subscriber": false,
+      "lifetime_points_earned": 1800,
+      "lifetime_points_redeemed": 1120
+    }
+  ],
+  "contact_information": {
+    "support_email": "rewards@brewvi-demo.com",
+    "support_phone": "1-800-555-BREW (2739)",
+    "support_hours": "Monday-Friday 8am-8pm ET, Saturday 9am-5pm ET",
+    "chat_available": true
+  }
+}

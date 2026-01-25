@@ -1,0 +1,50 @@
+# AGNTCY Development Console Requirements
+# =====================================
+
+# Core Streamlit framework
+streamlit>=1.29.0
+streamlit-option-menu>=0.3.6
+
+# Data visualization and analysis
+plotly>=5.17.0
+pandas>=2.1.0
+numpy>=1.24.0
+
+# HTTP client for API interactions
+requests>=2.31.0
+httpx>=0.25.0
+
+# WebSocket support for real-time updates
+websockets>=12.0
+
+# Date/time handling
+python-dateutil>=2.8.2
+
+# JSON handling and data serialization
+pydantic>=2.5.0
+
+# Async support
+asyncio-mqtt>=0.13.0
+aiofiles>=23.2.1
+
+# Development and testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+
+# Optional: Enhanced UI components
+streamlit-aggrid>=0.3.4
+streamlit-plotly-events>=0.0.6
+streamlit-autorefresh>=0.0.1
+
+# Optional: Authentication (if needed later)
+streamlit-authenticator>=0.2.3
+
+# Optional: Database connectivity (for advanced metrics)
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.0  # PostgreSQL support
+clickhouse-driver>=0.2.6  # ClickHouse support
+
+# Optional: Advanced monitoring
+prometheus-client>=0.19.0
+opentelemetry-api>=1.21.0
+opentelemetry-sdk>=1.21.0
