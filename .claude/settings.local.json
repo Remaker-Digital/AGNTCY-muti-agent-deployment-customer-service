@@ -92,7 +92,24 @@
       "Bash(tasklist /FI \"IMAGENAME eq python.exe\")",
       "Bash(tasklist:*)",
       "Bash(venv/Scripts/python.exe -m streamlit:*)",
-      "Bash(venv/Scripts/python.exe:*)"
+      "Bash(venv/Scripts/python.exe:*)",
+      "Bash(az resource list:*)",
+      "Bash(az cognitiveservices account:*)",
+      "Bash(terraform init:*)",
+      "Bash(az account show:*)",
+      "Bash(terraform plan:*)",
+      "Bash(Select-String -Pattern \"Error|error|Plan:|to add|to change|to destroy\")",
+      "Bash(Select-Object -Last 20)",
+      "Bash(terraform apply:*)",
+      "Bash(az acr login:*)",
+      "Bash(docker tag:*)",
+      "Bash(docker push:*)",
+      "Bash(docker build:*)",
+      "Bash(az acr repository list:*)",
+      "Bash(az container list:*)",
+      "Bash(az container show:*)",
+      "Bash(az container delete:*)",
+      "Bash(terraform refresh:*)"
     ]
   },
   "shortcuts": {

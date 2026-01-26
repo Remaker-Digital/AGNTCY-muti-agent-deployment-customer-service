@@ -59,6 +59,9 @@ Thumbs.db
 *.tfstate.*
 *.tfvars
 !*.tfvars.example
+*.plan
+crash.log
+crash.*.log
 
 # Logs
 logs/

@@ -185,7 +185,36 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 
 **See evaluation/results/PHASE-3.5-COMPLETION-SUMMARY.md for full details**
 
-### Phase 4: Azure Production Setup ($310-360/month budget - **REVISED 2026-01-22**)
+### Phase 4: Azure Production Setup ($310-360/month budget - **REVISED 2026-01-22**) - **INFRASTRUCTURE DEPLOYED** ✅
+**Status as of 2026-01-26:**
+- ✅ All Azure infrastructure deployed via Terraform (VNet, Cosmos DB, Key Vault, ACR, App Insights)
+- ✅ All 8 container groups deployed and running (SLIM, NATS, 6 agents)
+- ✅ Critic/Supervisor agent created and deployed
+- ✅ All container images built and pushed to ACR
+- ✅ Private VNet networking configured (10.0.1.0/24 subnet)
+- ⏳ Azure OpenAI API integration pending
+- ⏳ Multi-language support pending
+- ⏳ Real API integrations pending (Shopify, Zendesk, Mailchimp)
+
+**Deployed Resources:**
+- Resource Group: agntcy-prod-rg (East US 2)
+- Container Registry: acragntcycsprodrc6vcp.azurecr.io
+- Cosmos DB: cosmos-agntcy-cs-prod-rc6vcp (Serverless)
+- Key Vault: kv-agntcy-cs-prod-rc6vcp
+- Application Insights: agntcy-cs-prod-appinsights-rc6vcp
+
+**Container Groups Running:**
+| Container | IP | Port | Status |
+|-----------|-----|------|--------|
+| SLIM Gateway | 10.0.1.4 | 8443 | ✅ Succeeded |
+| NATS JetStream | 10.0.1.5 | 4222 | ✅ Succeeded |
+| Knowledge Retrieval | 10.0.1.6 | 8080 | ✅ Succeeded |
+| Critic/Supervisor | 10.0.1.7 | 8080 | ✅ Succeeded |
+| Response Generator | 10.0.1.8 | 8080 | ✅ Succeeded |
+| Analytics | 10.0.1.9 | 8080 | ✅ Succeeded |
+| Intent Classifier | 10.0.1.10 | 8080 | ✅ Succeeded |
+| Escalation | 10.0.1.11 | 8080 | ✅ Succeeded |
+
 **Focus:** Terraform infrastructure, multi-language support, real API integration, new architectural components
 - Deploy to Azure East US region
 - Add Canadian French and Spanish language support
@@ -209,6 +238,11 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 5. **Critic/Supervisor Agent:** Deploy 6th agent for content validation (~$22-31/month)
 6. **Execution Tracing:** Azure Monitor + Application Insights, OpenTelemetry instrumentation (~$10-15/month)
 7. **5 New User Stories:** Issues #139-#143 (event-driven features)
+
+**Known Issues & Resolutions (see docs/PHASE-4-DEPLOYMENT-KNOWLEDGE-BASE.md):**
+- SLIM image requires explicit `commands = ["/slim", "--port", "8443"]` in Terraform (no default CMD)
+- ACR push may require retries due to intermittent network issues
+- First container deployment takes 20+ minutes due to VNet integration setup
 
 ### Phase 5: Production Deployment & Testing ($310-360/month budget - **REVISED 2026-01-22**)
 **Focus:** Production deployment, load testing, security validation, DR drills, new architecture validation
@@ -745,6 +779,52 @@ When in doubt, optimize for:
 
 ## Recent Updates
 
+### 2026-01-26: Phase 4 Container Deployment COMPLETE ✅
+- ✅ All 8 container groups deployed and running in Azure
+- ✅ Created Critic/Supervisor agent (agents/critic_supervisor/)
+- ✅ Built and pushed all container images to ACR
+- ✅ Fixed SLIM gateway startup issue (explicit command required)
+- ✅ Created comprehensive deployment knowledge base (docs/PHASE-4-DEPLOYMENT-KNOWLEDGE-BASE.md)
+
+**Container Groups Deployed:**
+| Container | Private IP | Status |
+|-----------|------------|--------|
+| SLIM Gateway | 10.0.1.4:8443 | ✅ Succeeded |
+| NATS JetStream | 10.0.1.5:4222 | ✅ Succeeded |
+| Knowledge Retrieval | 10.0.1.6:8080 | ✅ Succeeded |
+| Critic/Supervisor | 10.0.1.7:8080 | ✅ Succeeded |
+| Response Generator | 10.0.1.8:8080 | ✅ Succeeded |
+| Analytics | 10.0.1.9:8080 | ✅ Succeeded |
+| Intent Classifier | 10.0.1.10:8080 | ✅ Succeeded |
+| Escalation | 10.0.1.11:8080 | ✅ Succeeded |
+
+**Issues Resolved:**
+1. **SLIM "no command specified"** - Added `commands = ["/slim", "--port", "8443"]` to Terraform
+2. **ACR push network errors** - Resolved with retries
+3. **Missing Critic/Supervisor agent** - Created complete implementation
+
+**See:** `docs/PHASE-4-DEPLOYMENT-KNOWLEDGE-BASE.md` for complete troubleshooting guide
+
+### 2026-01-26: Phase 4 Azure Infrastructure Deployed
+- ✅ Created complete Terraform configuration in `terraform/phase4_prod/`
+- ✅ Deployed Azure OpenAI models (gpt-4o, gpt-4o-mini, text-embedding-3-large)
+- ✅ Deployed VNet with container and private endpoint subnets
+- ✅ Deployed Cosmos DB Serverless with 5 containers (sessions, messages, analytics, pii-tokens, documents)
+- ✅ Deployed Key Vault with RBAC and Azure OpenAI API key stored
+- ✅ Deployed Container Registry (ACR Basic)
+- ✅ Deployed Application Insights with 50% sampling
+- ✅ Deployed Log Analytics with 30-day retention
+- ✅ Configured private endpoints for Cosmos DB and Key Vault
+- ✅ Set up budget alerts at 83% ($299) and 93% ($335)
+- ✅ Created managed identity for container access
+
+**Deployed Resources:**
+- VNet: `agntcy-cs-prod-vnet` (10.0.0.0/16)
+- Cosmos DB: `cosmos-agntcy-cs-prod-rc6vcp`
+- Key Vault: `kv-agntcy-cs-prod-rc6vcp`
+- ACR: `acragntcycsprodrc6vcp.azurecr.io`
+- App Insights: `agntcy-cs-prod-appi-rc6vcp`
+
 ### 2026-01-26: UCP Integration Evaluation COMPLETE
 - ✅ Evaluated Universal Commerce Protocol (UCP) for Phase 4-5 adoption
 - ✅ Compared AGNTCY multi-agent architecture vs Shopify shop-chat-agent
@@ -830,9 +910,12 @@ When in doubt, optimize for:
 ---
 
 **Last Updated:** 2026-01-26
-**Project Phase:** Phase 3.5 Complete / Phase 4 Ready to Start
-**Current Budget Status:** ~$0.10 spent (Phase 3.5) / Phase 4-5 Budget: $310-360/month (+$15-25 for UCP)
-**Agent Count:** 6 agents (Intent, Knowledge, Response, Escalation, Analytics, Critic/Supervisor)
+**Project Phase:** Phase 4 Infrastructure + Containers Deployed ✅
+**Current Budget Status:** Full infrastructure running (~$214-285/month estimated)
+**Phase 4-5 Budget:** $310-360/month (+$15-25 for UCP)
+**Agent Count:** 6 agents deployed (Intent, Knowledge, Response, Escalation, Analytics, Critic/Supervisor)
 **Production Prompts Ready:** 5 (intent, critic, escalation, response, judge)
 **UCP Adoption:** Approved for Phase 4-5 (80-120 hours, MCP binding approach)
+**Azure Resources:** VNet, Cosmos DB, Key Vault, ACR, App Insights, Private Endpoints, 8 Container Groups
+**Container IPs:** SLIM (10.0.1.4), NATS (10.0.1.5), Agents (10.0.1.6-11)
 **GitHub Project**: https://github.com/orgs/Remaker-Digital/projects/1

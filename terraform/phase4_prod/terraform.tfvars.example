@@ -1,0 +1,73 @@
+# Phase 4 Terraform Variables - Example Configuration
+# Copy this file to terraform.tfvars and fill in your values
+# NEVER commit terraform.tfvars to git (it's in .gitignore)
+
+# ============================================================================
+# REQUIRED: Azure Subscription
+# ============================================================================
+
+subscription_id     = "828eb521-88bb-4b01-ac3e-7ba779c55212"
+tenant_id           = "1836296d-c9f8-4fd3-8cf3-ce94f6358cc3"
+resource_group_name = "agntcy-prod-rg"
+owner_email         = "your-email@example.com"
+
+# ============================================================================
+# REQUIRED: Azure OpenAI (existing in West US)
+# ============================================================================
+
+azure_openai_name           = "myOAIResource3aa68d"
+azure_openai_resource_group = "myAOAIResourceGroup3aa68d"
+azure_openai_endpoint       = "https://your-openai-endpoint.openai.azure.com/"
+azure_openai_api_key        = "your-azure-openai-api-key"
+
+# Model deployments (use your actual deployment names)
+gpt4o_mini_deployment = "gpt-4o-mini"
+gpt4o_deployment      = "gpt-4o"
+embedding_deployment  = "text-embedding-3-large"
+
+# ============================================================================
+# OPTIONAL: External Service Credentials
+# Leave empty if not yet configured; add later as needed
+# ============================================================================
+
+# Shopify (Partner Development Store)
+shopify_api_key    = ""
+shopify_api_secret = ""
+shopify_store_url  = ""
+
+# Zendesk (Sandbox/Trial)
+zendesk_subdomain  = ""
+zendesk_api_token  = ""
+zendesk_email      = ""
+
+# Mailchimp (Free tier)
+mailchimp_api_key = ""
+
+# Google Analytics 4
+google_analytics_property_id      = ""
+google_analytics_credentials_json = "" # Base64 encoded service account JSON
+
+# ============================================================================
+# CONFIGURATION OPTIONS
+# ============================================================================
+
+# Container Registry
+container_registry_sku = "Basic" # Basic ($5/mo) or Standard ($10/mo)
+
+# Cosmos DB
+cosmos_db_enable_serverless      = true
+cosmos_db_backup_retention_hours = 720 # 30 days
+
+# Observability
+log_retention_days                       = 30 # Days (30 = minimum for PerGB2018 SKU)
+application_insights_sampling_percentage = 50 # Percent (50 = cost optimized)
+
+# Budget
+budget_amount                  = 360 # USD per month
+budget_alert_threshold_warning  = 83  # Percent (83% = $299)
+budget_alert_threshold_critical = 93  # Percent (93% = $335)
+
+# Feature Flags
+enable_private_endpoints = true  # Private endpoints for Cosmos/KeyVault
+enable_nats_jetstream    = true  # Event bus for webhooks
+enable_multi_language    = false # Start with English only
