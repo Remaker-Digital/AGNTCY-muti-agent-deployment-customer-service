@@ -400,6 +400,31 @@ if 'agent_metrics' not in st.session_state:
     st.session_state.agent_metrics = {}
 if 'system_traces' not in st.session_state:
     st.session_state.system_traces = []
+if 'azure_openai_mode' not in st.session_state:
+    st.session_state.azure_openai_mode = False
+if 'azure_openai_initialized' not in st.session_state:
+    st.session_state.azure_openai_initialized = False
+if 'azure_context_type' not in st.session_state:
+    st.session_state.azure_context_type = "order"
+
+# Try to import Azure OpenAI mode
+AZURE_MODE_AVAILABLE = False
+AZURE_MODE_IMPORT_ERROR = None
+AZURE_MODE_IMPORT_METHOD = None
+try:
+    # Try package import first (when running from project root)
+    from console.azure_openai_mode import get_azure_mode, is_azure_mode_available, PipelineResult
+    AZURE_MODE_AVAILABLE = is_azure_mode_available()
+    AZURE_MODE_IMPORT_METHOD = "package (console.azure_openai_mode)"
+except ImportError as e1:
+    try:
+        # Try relative import (when running from console directory)
+        from azure_openai_mode import get_azure_mode, is_azure_mode_available, PipelineResult
+        AZURE_MODE_AVAILABLE = is_azure_mode_available()
+        AZURE_MODE_IMPORT_METHOD = "relative (azure_openai_mode)"
+    except ImportError as e2:
+        AZURE_MODE_IMPORT_ERROR = f"Package: {e1}, Relative: {e2}"
+        AZURE_MODE_AVAILABLE = False
 
 class ConsoleAPI:
     """API client for interacting with the AGNTCY system."""
@@ -743,16 +768,26 @@ api = get_console_api()
 # Main application
 def main():
     """Main application entry point."""
-    
+
     # Header
     st.markdown('<h1 class="main-header">🤖 AGNTCY Development Console</h1>', unsafe_allow_html=True)
-    
+
     # Sidebar navigation
     st.sidebar.title("Navigation")
     page = st.sidebar.selectbox(
         "Select Page",
         ["🏠 Dashboard", "💬 Chat Interface", "📊 Agent Metrics", "🔍 Trace Viewer", "⚙️ System Status"]
     )
+
+    # Debug info in sidebar - ALWAYS VISIBLE
+    st.sidebar.markdown("---")
+    st.sidebar.markdown("### 🔧 Azure OpenAI Status")
+    st.sidebar.write(f"Available: **{AZURE_MODE_AVAILABLE}**")
+    if AZURE_MODE_IMPORT_METHOD:
+        st.sidebar.write(f"Import: {AZURE_MODE_IMPORT_METHOD}")
+    if AZURE_MODE_IMPORT_ERROR:
+        st.sidebar.error(f"Error: {AZURE_MODE_IMPORT_ERROR}")
+    st.sidebar.markdown("---")
     
     # Page routing
     if page == "🏠 Dashboard":
@@ -826,7 +861,65 @@ def show_dashboard():
 def show_chat_interface():
     """Show interactive chat interface for testing."""
     st.header("Interactive Chat Interface")
-    
+
+    # Azure OpenAI Mode Toggle
+    if not AZURE_MODE_AVAILABLE:
+        # Show why Azure mode isn't available
+        with st.expander("🔌 Azure OpenAI Mode (Not Available)", expanded=False):
+            if AZURE_MODE_IMPORT_ERROR:
+                st.warning(f"Import error: {AZURE_MODE_IMPORT_ERROR}")
+            else:
+                st.info("Azure OpenAI mode requires environment variables to be set:\n"
+                       "- AZURE_OPENAI_ENDPOINT\n"
+                       "- AZURE_OPENAI_API_KEY\n"
+                       "- AZURE_OPENAI_GPT4O_MINI_DEPLOYMENT")
+    else:
+        st.markdown("---")
+        col_mode1, col_mode2, col_mode3 = st.columns([2, 2, 2])
+
+        with col_mode1:
+            azure_mode = st.toggle(
+                "🔌 Azure OpenAI Mode",
+                value=st.session_state.azure_openai_mode,
+                help="Enable real AI responses using Azure OpenAI Service with Phase 3.5 optimized prompts"
+            )
+            if azure_mode != st.session_state.azure_openai_mode:
+                st.session_state.azure_openai_mode = azure_mode
+                if azure_mode and not st.session_state.azure_openai_initialized:
+                    # Initialize Azure OpenAI
+                    azure = get_azure_mode()
+                    success, message = azure.initialize()
+                    st.session_state.azure_openai_initialized = success
+                    if success:
+                        st.success(f"✅ {message}")
+                    else:
+                        st.error(f"❌ {message}")
+                        st.session_state.azure_openai_mode = False
+                st.rerun()
+
+        with col_mode2:
+            if st.session_state.azure_openai_mode:
+                context_type = st.selectbox(
+                    "Context",
+                    ["order", "return", "product", "billing", "empty"],
+                    index=["order", "return", "product", "billing", "empty"].index(st.session_state.azure_context_type),
+                    help="Mock customer context for testing"
+                )
+                if context_type != st.session_state.azure_context_type:
+                    st.session_state.azure_context_type = context_type
+                    azure = get_azure_mode()
+                    azure.set_context(context_type)
+
+        with col_mode3:
+            if st.session_state.azure_openai_mode:
+                azure = get_azure_mode()
+                stats = azure.get_usage_stats()
+                st.metric("Session Cost", f"${stats.get('total_cost', 0):.4f}")
+
+        if st.session_state.azure_openai_mode:
+            st.info("🤖 **Azure OpenAI Mode Active** - Using real GPT-4o-mini with Phase 3.5 optimized prompts")
+        st.markdown("---")
+
     # Session controls
     col1, col2, col3 = st.columns([2, 1, 1])
     with col1:
@@ -835,9 +928,12 @@ def show_chat_interface():
         if st.button("New Session"):
             st.session_state.current_session_id = str(uuid.uuid4())
             st.session_state.conversation_history = []
+            if st.session_state.azure_openai_mode:
+                azure = get_azure_mode()
+                azure.clear_history()
             st.rerun()
     with col3:
-        persona = st.selectbox("Test Persona", 
+        persona = st.selectbox("Test Persona",
                               ["Sarah (Enthusiast)", "Mike (Convenience)", "Jennifer (Gift)", "David (Business)"])
     
     # Chat interface
@@ -856,20 +952,32 @@ def show_chat_interface():
                 """, unsafe_allow_html=True)
             else:
                 escalation_indicator = "🔴 ESCALATED" if msg.get('escalation_needed', False) else ""
+                blocked_indicator = "🚫 BLOCKED" if msg.get('blocked', False) else ""
                 error_indicator = "⚠️ ERROR" if msg.get('error', False) else ""
                 agents_info = f"Agents: {', '.join(msg.get('agents_involved', []))}" if msg.get('agents_involved') else ""
-                
+
+                # Add cost info for Azure mode
+                cost_info = ""
+                if msg.get('azure_mode') and msg.get('cost_usd', 0) > 0:
+                    cost_info = f" • Cost: ${msg.get('cost_usd', 0):.4f}"
+
                 # Choose appropriate styling based on message type
                 message_class = "agent-message"
                 if msg.get('error', False):
                     message_class += " status-error"
+                elif msg.get('blocked', False):
+                    message_class += " status-error"
                 elif msg.get('escalation_needed', False):
                     message_class += " status-warning"
-                
+
+                # Confidence display
+                confidence = msg.get('confidence', 0)
+                confidence_str = f"{confidence:.0%}" if isinstance(confidence, float) else str(confidence)
+
                 st.markdown(f"""
                 <div class="chat-message {message_class}">
-                    <strong>AI Assistant:</strong> {msg['content']} {escalation_indicator} {error_indicator}
-                    <br><small>{msg['timestamp']} • {msg.get('processing_time', 'N/A')}s • Intent: {msg.get('intent', 'N/A')} • {agents_info}</small>
+                    <strong>AI Assistant:</strong> {msg['content']} {escalation_indicator} {blocked_indicator} {error_indicator}
+                    <br><small>{msg['timestamp']} • {msg.get('processing_time', 'N/A'):.2f}s • Intent: {msg.get('intent', 'N/A')} ({confidence_str}) • {agents_info}{cost_info}</small>
                 </div>
                 """, unsafe_allow_html=True)
     
@@ -912,24 +1020,91 @@ def show_chat_interface():
     with st.form("message_form"):
         user_message = st.text_area("Type your message:", height=100)
         submitted = st.form_submit_button("Send Message")
-        
+
         if submitted and user_message:
             send_message(user_message)
+
+
+def send_azure_openai_message(message: str, session_id: str) -> Dict[str, Any]:
+    """Send a message through Azure OpenAI mode with real AI responses."""
+    import asyncio
+
+    try:
+        azure = get_azure_mode()
+
+        # Run the async pipeline
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+
+        try:
+            result = loop.run_until_complete(azure.process_message(message, session_id))
+        finally:
+            loop.close()
+
+        # Convert PipelineResult to dict format expected by the rest of the code
+        agents_involved = [step.agent_name for step in result.pipeline_steps]
+
+        return {
+            'success': result.success,
+            'message_id': result.message_id,
+            'session_id': result.session_id,
+            'response': result.response,
+            'intent': result.intent,
+            'confidence': result.intent_confidence,
+            'processing_time_ms': result.total_latency_ms,
+            'trace_id': result.trace_id,
+            'agents_involved': agents_involved,
+            'escalation_needed': result.escalation_needed,
+            'blocked': result.blocked,
+            'block_reason': result.block_reason,
+            'cost_usd': result.total_cost_usd,
+            'pipeline_steps': [
+                {
+                    'agent': step.agent_name,
+                    'action': step.action,
+                    'latency_ms': step.latency_ms,
+                    'cost_usd': step.cost_usd,
+                    'success': step.success
+                }
+                for step in result.pipeline_steps
+            ]
+        }
+
+    except Exception as e:
+        return {
+            'success': False,
+            'error': str(e),
+            'message_id': f"msg-{uuid.uuid4().hex[:12]}",
+            'session_id': session_id,
+            'response': f"Azure OpenAI error: {str(e)}",
+            'intent': 'error',
+            'confidence': 0,
+            'processing_time_ms': 0,
+            'agents_involved': ['azure-openai-error'],
+            'escalation_needed': True
+        }
+
 
 def send_message(message: str):
     """Send a message and get response from agents."""
     timestamp = datetime.now().strftime("%H:%M:%S")
-    
+
     # Add user message to history
     st.session_state.conversation_history.append({
         'type': 'user',
         'content': message,
         'timestamp': timestamp
     })
-    
-    # Send to agent system
-    with st.spinner("Processing..."):
-        response_data = api.send_message_to_agents(message, st.session_state.current_session_id)
+
+    # Check if Azure OpenAI mode is enabled
+    if st.session_state.azure_openai_mode and AZURE_MODE_AVAILABLE:
+        # Use Azure OpenAI mode
+        with st.spinner("Processing with Azure OpenAI..."):
+            response_data = send_azure_openai_message(message, st.session_state.current_session_id)
+    else:
+        # Use standard mock/AGNTCY mode
+        with st.spinner("Processing..."):
+            response_data = api.send_message_to_agents(message, st.session_state.current_session_id)
     
     # Handle different response structures
     if not response_data.get('success', True):
@@ -949,7 +1124,7 @@ def send_message(message: str):
     else:
         # Success case - extract response
         response_content = response_data.get('response', 'I apologize, but I was unable to generate a proper response.')
-        
+
         agent_response = {
             'type': 'agent',
             'content': response_content,
@@ -959,7 +1134,10 @@ def send_message(message: str):
             'confidence': response_data.get('confidence', 0),
             'escalation_needed': response_data.get('escalation_needed', False),
             'agents_involved': response_data.get('agents_involved', []),
-            'error': False
+            'error': False,
+            'cost_usd': response_data.get('cost_usd', 0),  # Azure OpenAI cost
+            'blocked': response_data.get('blocked', False),
+            'azure_mode': st.session_state.azure_openai_mode
         }
     
     # Add agent response to history

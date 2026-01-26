@@ -1,0 +1,382 @@
+{
+  "description": "Intent classification evaluation dataset for Phase 3.5",
+  "version": "1.0.0",
+  "intent_types": [
+    "ORDER_STATUS",
+    "RETURN_REQUEST",
+    "REFUND_STATUS",
+    "PRODUCT_INQUIRY",
+    "SHIPPING_ESTIMATE",
+    "TRACKING_UPDATE",
+    "COMPLAINT",
+    "BILLING_ISSUE",
+    "ACCOUNT_HELP",
+    "SUBSCRIPTION_MANAGEMENT",
+    "TECHNICAL_SUPPORT",
+    "FEEDBACK",
+    "GENERAL_INQUIRY",
+    "CANCELLATION",
+    "EXCHANGE",
+    "LOYALTY_PROGRAM",
+    "ESCALATION_REQUEST"
+  ],
+  "samples": [
+    {
+      "id": "ic-001",
+      "input": "Where is my order #12345?",
+      "expected_intent": "ORDER_STATUS",
+      "difficulty": "easy",
+      "category": "order"
+    },
+    {
+      "id": "ic-002",
+      "input": "I want to return the blue sweater I bought last week",
+      "expected_intent": "RETURN_REQUEST",
+      "difficulty": "easy",
+      "category": "returns"
+    },
+    {
+      "id": "ic-003",
+      "input": "When will I get my refund?",
+      "expected_intent": "REFUND_STATUS",
+      "difficulty": "easy",
+      "category": "returns"
+    },
+    {
+      "id": "ic-004",
+      "input": "Does this shirt come in size large?",
+      "expected_intent": "PRODUCT_INQUIRY",
+      "difficulty": "easy",
+      "category": "product"
+    },
+    {
+      "id": "ic-005",
+      "input": "How long will shipping take to California?",
+      "expected_intent": "SHIPPING_ESTIMATE",
+      "difficulty": "easy",
+      "category": "shipping"
+    },
+    {
+      "id": "ic-006",
+      "input": "Can you give me the tracking number for my order?",
+      "expected_intent": "TRACKING_UPDATE",
+      "difficulty": "easy",
+      "category": "shipping"
+    },
+    {
+      "id": "ic-007",
+      "input": "This is ridiculous! I've been waiting 3 weeks!",
+      "expected_intent": "COMPLAINT",
+      "difficulty": "medium",
+      "category": "complaint"
+    },
+    {
+      "id": "ic-008",
+      "input": "I was charged twice for the same order",
+      "expected_intent": "BILLING_ISSUE",
+      "difficulty": "easy",
+      "category": "billing"
+    },
+    {
+      "id": "ic-009",
+      "input": "I can't log into my account",
+      "expected_intent": "ACCOUNT_HELP",
+      "difficulty": "easy",
+      "category": "account"
+    },
+    {
+      "id": "ic-010",
+      "input": "I want to cancel my subscription",
+      "expected_intent": "SUBSCRIPTION_MANAGEMENT",
+      "difficulty": "easy",
+      "category": "subscription"
+    },
+    {
+      "id": "ic-011",
+      "input": "The app keeps crashing when I try to checkout",
+      "expected_intent": "TECHNICAL_SUPPORT",
+      "difficulty": "easy",
+      "category": "technical"
+    },
+    {
+      "id": "ic-012",
+      "input": "I just wanted to say your customer service is amazing!",
+      "expected_intent": "FEEDBACK",
+      "difficulty": "easy",
+      "category": "feedback"
+    },
+    {
+      "id": "ic-013",
+      "input": "What are your store hours?",
+      "expected_intent": "GENERAL_INQUIRY",
+      "difficulty": "easy",
+      "category": "general"
+    },
+    {
+      "id": "ic-014",
+      "input": "I need to cancel my order before it ships",
+      "expected_intent": "CANCELLATION",
+      "difficulty": "easy",
+      "category": "order"
+    },
+    {
+      "id": "ic-015",
+      "input": "Can I exchange this for a different size?",
+      "expected_intent": "EXCHANGE",
+      "difficulty": "easy",
+      "category": "returns"
+    },
+    {
+      "id": "ic-016",
+      "input": "How many points do I have in my rewards account?",
+      "expected_intent": "LOYALTY_PROGRAM",
+      "difficulty": "easy",
+      "category": "loyalty"
+    },
+    {
+      "id": "ic-017",
+      "input": "I want to speak to a manager right now",
+      "expected_intent": "ESCALATION_REQUEST",
+      "difficulty": "easy",
+      "category": "escalation"
+    },
+    {
+      "id": "ic-018",
+      "input": "My package says delivered but I never got it",
+      "expected_intent": "ORDER_STATUS",
+      "difficulty": "medium",
+      "category": "order",
+      "notes": "Could be confused with COMPLAINT"
+    },
+    {
+      "id": "ic-019",
+      "input": "I ordered the wrong thing, can I send it back and get something else?",
+      "expected_intent": "EXCHANGE",
+      "difficulty": "medium",
+      "category": "returns",
+      "notes": "Could be confused with RETURN_REQUEST"
+    },
+    {
+      "id": "ic-020",
+      "input": "I never got my money back from that return I sent in",
+      "expected_intent": "REFUND_STATUS",
+      "difficulty": "medium",
+      "category": "returns"
+    },
+    {
+      "id": "ic-021",
+      "input": "What's the difference between the Pro and Basic models?",
+      "expected_intent": "PRODUCT_INQUIRY",
+      "difficulty": "easy",
+      "category": "product"
+    },
+    {
+      "id": "ic-022",
+      "input": "Do you ship to Canada?",
+      "expected_intent": "SHIPPING_ESTIMATE",
+      "difficulty": "easy",
+      "category": "shipping"
+    },
+    {
+      "id": "ic-023",
+      "input": "My tracking hasn't updated in 5 days",
+      "expected_intent": "TRACKING_UPDATE",
+      "difficulty": "medium",
+      "category": "shipping",
+      "notes": "Could be confused with COMPLAINT"
+    },
+    {
+      "id": "ic-024",
+      "input": "Your product is absolute garbage and I want a full refund",
+      "expected_intent": "COMPLAINT",
+      "difficulty": "hard",
+      "category": "complaint",
+      "notes": "Combines complaint with refund request"
+    },
+    {
+      "id": "ic-025",
+      "input": "Why was I charged sales tax when I live in Oregon?",
+      "expected_intent": "BILLING_ISSUE",
+      "difficulty": "medium",
+      "category": "billing"
+    },
+    {
+      "id": "ic-026",
+      "input": "I forgot my password and the reset email isn't coming",
+      "expected_intent": "ACCOUNT_HELP",
+      "difficulty": "medium",
+      "category": "account"
+    },
+    {
+      "id": "ic-027",
+      "input": "I want to upgrade from monthly to annual billing",
+      "expected_intent": "SUBSCRIPTION_MANAGEMENT",
+      "difficulty": "medium",
+      "category": "subscription"
+    },
+    {
+      "id": "ic-028",
+      "input": "The checkout button is greyed out and I can't click it",
+      "expected_intent": "TECHNICAL_SUPPORT",
+      "difficulty": "easy",
+      "category": "technical"
+    },
+    {
+      "id": "ic-029",
+      "input": "Your new packaging is so much better than before!",
+      "expected_intent": "FEEDBACK",
+      "difficulty": "easy",
+      "category": "feedback"
+    },
+    {
+      "id": "ic-030",
+      "input": "Do you have a physical store I can visit?",
+      "expected_intent": "GENERAL_INQUIRY",
+      "difficulty": "easy",
+      "category": "general"
+    },
+    {
+      "id": "ic-031",
+      "input": "I changed my mind, please don't send my order",
+      "expected_intent": "CANCELLATION",
+      "difficulty": "easy",
+      "category": "order"
+    },
+    {
+      "id": "ic-032",
+      "input": "This doesn't fit, I need a bigger size",
+      "expected_intent": "EXCHANGE",
+      "difficulty": "easy",
+      "category": "returns"
+    },
+    {
+      "id": "ic-033",
+      "input": "How do I redeem my loyalty points?",
+      "expected_intent": "LOYALTY_PROGRAM",
+      "difficulty": "easy",
+      "category": "loyalty"
+    },
+    {
+      "id": "ic-034",
+      "input": "This is the third time I've contacted you about this issue",
+      "expected_intent": "ESCALATION_REQUEST",
+      "difficulty": "medium",
+      "category": "escalation",
+      "notes": "Implied escalation request"
+    },
+    {
+      "id": "ic-035",
+      "input": "Hi there! How's it going?",
+      "expected_intent": "GENERAL_INQUIRY",
+      "difficulty": "easy",
+      "category": "general"
+    },
+    {
+      "id": "ic-036",
+      "input": "Is the blue version still available?",
+      "expected_intent": "PRODUCT_INQUIRY",
+      "difficulty": "easy",
+      "category": "product"
+    },
+    {
+      "id": "ic-037",
+      "input": "My order was supposed to arrive yesterday",
+      "expected_intent": "ORDER_STATUS",
+      "difficulty": "medium",
+      "category": "order"
+    },
+    {
+      "id": "ic-038",
+      "input": "I received the wrong item in my package",
+      "expected_intent": "RETURN_REQUEST",
+      "difficulty": "medium",
+      "category": "returns",
+      "notes": "Might need exchange/return"
+    },
+    {
+      "id": "ic-039",
+      "input": "It's been 10 business days and still no refund",
+      "expected_intent": "REFUND_STATUS",
+      "difficulty": "medium",
+      "category": "returns"
+    },
+    {
+      "id": "ic-040",
+      "input": "What materials is this made from?",
+      "expected_intent": "PRODUCT_INQUIRY",
+      "difficulty": "easy",
+      "category": "product"
+    },
+    {
+      "id": "ic-041",
+      "input": "Can I get expedited shipping?",
+      "expected_intent": "SHIPPING_ESTIMATE",
+      "difficulty": "easy",
+      "category": "shipping"
+    },
+    {
+      "id": "ic-042",
+      "input": "The tracking shows it's in another state",
+      "expected_intent": "TRACKING_UPDATE",
+      "difficulty": "easy",
+      "category": "shipping"
+    },
+    {
+      "id": "ic-043",
+      "input": "I'm extremely disappointed with my purchase",
+      "expected_intent": "COMPLAINT",
+      "difficulty": "easy",
+      "category": "complaint"
+    },
+    {
+      "id": "ic-044",
+      "input": "I see an unknown charge on my statement",
+      "expected_intent": "BILLING_ISSUE",
+      "difficulty": "easy",
+      "category": "billing"
+    },
+    {
+      "id": "ic-045",
+      "input": "How do I update my shipping address?",
+      "expected_intent": "ACCOUNT_HELP",
+      "difficulty": "easy",
+      "category": "account"
+    },
+    {
+      "id": "ic-046",
+      "input": "When does my subscription renew?",
+      "expected_intent": "SUBSCRIPTION_MANAGEMENT",
+      "difficulty": "easy",
+      "category": "subscription"
+    },
+    {
+      "id": "ic-047",
+      "input": "The website keeps timing out",
+      "expected_intent": "TECHNICAL_SUPPORT",
+      "difficulty": "easy",
+      "category": "technical"
+    },
+    {
+      "id": "ic-048",
+      "input": "Just wanted to share that I love your products",
+      "expected_intent": "FEEDBACK",
+      "difficulty": "easy",
+      "category": "feedback"
+    },
+    {
+      "id": "ic-049",
+      "input": "What's your return policy?",
+      "expected_intent": "GENERAL_INQUIRY",
+      "difficulty": "medium",
+      "category": "general",
+      "notes": "Could be confused with RETURN_REQUEST"
+    },
+    {
+      "id": "ic-050",
+      "input": "Stop my order from being sent please",
+      "expected_intent": "CANCELLATION",
+      "difficulty": "easy",
+      "category": "order"
+    }
+  ]
+}

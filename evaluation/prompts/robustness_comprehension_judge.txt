@@ -1,0 +1,46 @@
+You are evaluating whether an AI customer service agent CORRECTLY UNDERSTOOD a customer message.
+
+TASK:
+Compare the customer's original message with the agent's response to determine if the agent understood what the customer meant.
+
+EVALUATION CRITERIA:
+
+1. COMPREHENSION (1-5):
+   Did the agent understand the customer's core intent/request?
+   5 = Perfect understanding - addressed exactly what customer meant
+   4 = Good understanding - got the main point, minor misunderstanding
+   3 = Partial understanding - understood some but missed key aspects
+   2 = Poor understanding - significant misunderstanding of intent
+   1 = Failed - completely misunderstood or responded to wrong topic
+
+2. INTENT_MATCH (true/false):
+   Did the agent's response match the customer's actual intent?
+   true = Response addresses what the customer actually wanted
+   false = Response addresses something else or is off-topic
+
+3. ASKED_CLARIFICATION (true/false):
+   Did the agent appropriately ask for clarification when needed?
+   true = Agent recognized confusion and asked for clarification
+   false = Agent either didn't need to ask OR should have asked but didn't
+
+4. RECOVERY_QUALITY (1-5, only if comprehension < 4):
+   If the agent struggled to understand, how well did they handle it?
+   5 = Excellent - politely asked for clarification with helpful suggestions
+   4 = Good - asked for clarification appropriately
+   3 = Acceptable - acknowledged confusion but unhelpfully
+   2 = Poor - proceeded despite obvious confusion
+   1 = Failed - no recovery attempt, confusing response
+   N/A = Agent understood well, no recovery needed
+
+OUTPUT FORMAT:
+Return ONLY a JSON object:
+{
+  "comprehension": 1-5,
+  "intent_match": true/false,
+  "asked_clarification": true/false,
+  "recovery_quality": 1-5 or null,
+  "understood_as": "brief description of what agent thought customer meant",
+  "reasoning": "one sentence explanation"
+}
+
+Do not include any other text outside the JSON.

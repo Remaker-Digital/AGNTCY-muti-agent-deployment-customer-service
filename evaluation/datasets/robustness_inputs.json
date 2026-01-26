@@ -1,0 +1,479 @@
+{
+  "description": "Robustness evaluation dataset - testing comprehension and appropriateness at edge cases",
+  "version": "1.0",
+  "created": "2026-01-25",
+  "dimensions": [
+    {
+      "id": "misspelling",
+      "name": "Extreme Misspellings / Pseudo-Language",
+      "description": "Tests handling of garbled input from mobile typing, non-native speakers, or accessibility needs"
+    },
+    {
+      "id": "formal",
+      "name": "Obscure Vocabulary / Formal Grammar",
+      "description": "Tests handling of archaic, formal, or unusually structured language"
+    },
+    {
+      "id": "slang",
+      "name": "Contemporary Youth Slang",
+      "description": "Tests understanding of current informal language and appropriate tone matching"
+    },
+    {
+      "id": "jargon",
+      "name": "Professional / Technical Jargon",
+      "description": "Tests handling of industry-specific terminology and acronyms"
+    }
+  ],
+  "samples": [
+    {
+      "id": "rob-001",
+      "dimension": "misspelling",
+      "severity": "mild",
+      "input": "I wnat to retrun my ordr, it doesnt fit rite",
+      "intended_meaning": "I want to return my order, it doesn't fit right",
+      "context": {"order_id": "12345", "item": "Blue Jacket (L)", "return_eligible": true},
+      "expected_intent": "return_request",
+      "notes": "Common typos, message is still clearly understandable"
+    },
+    {
+      "id": "rob-002",
+      "dimension": "misspelling",
+      "severity": "moderate",
+      "input": "wen wil my pakage arive?? i ordred it liek 5 days ago nd still nothin",
+      "intended_meaning": "When will my package arrive? I ordered it like 5 days ago and still nothing",
+      "context": {"order_id": "23456", "status": "In Transit", "expected_delivery": "2026-01-27"},
+      "expected_intent": "order_status",
+      "notes": "Heavy phonetic spelling, missing punctuation"
+    },
+    {
+      "id": "rob-003",
+      "dimension": "misspelling",
+      "severity": "severe",
+      "input": "halp!! produkt iz brok af, ned refnd asap pls pls pls",
+      "intended_meaning": "Help! Product is broken, need refund ASAP please",
+      "context": {"order_id": "34567", "item": "Bluetooth Speaker", "refund_eligible": true},
+      "expected_intent": "refund_request",
+      "notes": "Extreme abbreviation, internet slang mixed with misspelling"
+    },
+    {
+      "id": "rob-004",
+      "dimension": "misspelling",
+      "severity": "severe",
+      "input": "y u charg me 2x??? dis is bs i wan my $$ bak rite now!!!1!",
+      "intended_meaning": "Why did you charge me twice? This is unacceptable, I want my money back right now!",
+      "context": {"order_id": "45678", "charge_status": "Single charge, pending authorization"},
+      "expected_intent": "billing_complaint",
+      "notes": "Angry customer with extreme abbreviation and symbols"
+    },
+    {
+      "id": "rob-005",
+      "dimension": "misspelling",
+      "severity": "extreme",
+      "input": "omgggg thx 4 da fast shpng ur da best!!! luv it sm 💕💕",
+      "intended_meaning": "Thank you for the fast shipping, you're the best! Love it so much",
+      "context": {"order_id": "56789", "delivered": true},
+      "expected_intent": "positive_feedback",
+      "notes": "Extreme text speak with emojis"
+    },
+    {
+      "id": "rob-006",
+      "dimension": "misspelling",
+      "severity": "extreme",
+      "input": "cn i gt difrent colr?? dis 1 iz uglee lol sry bt tru",
+      "intended_meaning": "Can I get a different color? This one is ugly, sorry but true",
+      "context": {"order_id": "67890", "item": "Sweater - Orange", "exchange_eligible": true},
+      "expected_intent": "exchange_request",
+      "notes": "Extreme abbreviation with casual rudeness"
+    },
+    {
+      "id": "rob-007",
+      "dimension": "misspelling",
+      "severity": "extreme",
+      "input": "wer tf is my stuf??? ben w8ing 4evr smh 😤😤😤",
+      "intended_meaning": "Where is my stuff? I've been waiting forever",
+      "context": {"order_id": "78901", "status": "Delayed", "new_eta": "2026-01-28"},
+      "expected_intent": "order_status",
+      "notes": "Profanity abbreviation, extreme text speak, emojis"
+    },
+    {
+      "id": "rob-008",
+      "dimension": "misspelling",
+      "severity": "incomprehensible",
+      "input": "hlp plz thng brk nd i dnt knw wht 2 do abt it???",
+      "intended_meaning": "Help please, the thing broke and I don't know what to do about it",
+      "context": {"customer_history": "Previous order for blender"},
+      "expected_intent": "product_issue",
+      "notes": "Nearly incomprehensible, context required to understand"
+    },
+    {
+      "id": "rob-009",
+      "dimension": "misspelling",
+      "severity": "incomprehensible",
+      "input": "jsjsjsj i accidentally ordrd 2 pls cancl 1 ty ty",
+      "intended_meaning": "I accidentally ordered two, please cancel one, thank you",
+      "context": {"order_id": "89012", "quantity": 2, "cancellation_possible": true},
+      "expected_intent": "cancellation_request",
+      "notes": "Keyboard mashing plus abbreviations"
+    },
+    {
+      "id": "rob-010",
+      "dimension": "misspelling",
+      "severity": "incomprehensible",
+      "input": "asdfjkl nvm figurd it out thx",
+      "intended_meaning": "Never mind, I figured it out, thanks",
+      "context": {},
+      "expected_intent": "resolved",
+      "notes": "Keyboard mashing, extreme brevity"
+    },
+    {
+      "id": "rob-011",
+      "dimension": "formal",
+      "severity": "mild",
+      "input": "I would be most grateful if you could provide me with information regarding the status of my recent purchase.",
+      "intended_meaning": "What's the status of my order?",
+      "context": {"order_id": "11111", "status": "Processing"},
+      "expected_intent": "order_status",
+      "notes": "Polite formal language, easily understood"
+    },
+    {
+      "id": "rob-012",
+      "dimension": "formal",
+      "severity": "moderate",
+      "input": "I find myself compelled to lodge a formal complaint regarding the egregiously tardy delivery of my merchandise.",
+      "intended_meaning": "I want to complain about my very late delivery",
+      "context": {"order_id": "22222", "days_late": 5},
+      "expected_intent": "complaint",
+      "notes": "Formal vocabulary, slightly archaic phrasing"
+    },
+    {
+      "id": "rob-013",
+      "dimension": "formal",
+      "severity": "severe",
+      "input": "It has come to my attention that the pecuniary sum extracted from my financial instrument exceeds that which was mutually agreed upon at the point of transaction.",
+      "intended_meaning": "I was charged more than the price shown",
+      "context": {"order_id": "33333", "charged": "$89.99", "listed_price": "$79.99"},
+      "expected_intent": "billing_dispute",
+      "notes": "Archaic vocabulary, complex sentence structure"
+    },
+    {
+      "id": "rob-014",
+      "dimension": "formal",
+      "severity": "severe",
+      "input": "I hereby request, with all due deference to your esteemed establishment, that the aforementioned article be expeditiously replaced with one of superior craftsmanship.",
+      "intended_meaning": "Please replace this defective item quickly",
+      "context": {"order_id": "44444", "item": "Watch", "defect": "Stopped working"},
+      "expected_intent": "replacement_request",
+      "notes": "Legal/formal register, verbose"
+    },
+    {
+      "id": "rob-015",
+      "dimension": "formal",
+      "severity": "extreme",
+      "input": "Notwithstanding the considerable vexation occasioned by the manifold deficiencies of the aforementioned commodity, I remain sanguine that an equitable resolution may yet be achieved through the good offices of your customer liaison department.",
+      "intended_meaning": "Despite my frustration with this defective product, I hope we can work something out",
+      "context": {"order_id": "55555", "item": "Furniture", "issue": "Assembly defects"},
+      "expected_intent": "complaint_with_resolution_request",
+      "notes": "Extremely formal, Victorian-style prose"
+    },
+    {
+      "id": "rob-016",
+      "dimension": "formal",
+      "severity": "extreme",
+      "input": "Pursuant to the provisions set forth in your published returns policy, I am hereby exercising my right to restitution for the unsatisfactory goods received on the fifteenth instant.",
+      "intended_meaning": "According to your return policy, I want a refund for items received on the 15th",
+      "context": {"order_id": "66666", "delivery_date": "2026-01-15"},
+      "expected_intent": "return_request",
+      "notes": "Legal language, date reference in archaic style"
+    },
+    {
+      "id": "rob-017",
+      "dimension": "formal",
+      "severity": "incomprehensible",
+      "input": "The conveyance of the procured articles having failed to materialise within the temporal parameters heretofore stipulated, I find myself in the unenviable position of necessitating intercession.",
+      "intended_meaning": "My order didn't arrive when expected and I need help",
+      "context": {"order_id": "77777", "expected": "2026-01-20", "status": "Unknown"},
+      "expected_intent": "order_status",
+      "notes": "Absurdly formal, requires parsing to understand"
+    },
+    {
+      "id": "rob-018",
+      "dimension": "slang",
+      "severity": "mild",
+      "input": "Hey, this product is pretty lit! Just wanted to say thanks for the quick shipping.",
+      "intended_meaning": "This product is great, thanks for fast shipping",
+      "context": {"order_id": "88888"},
+      "expected_intent": "positive_feedback",
+      "notes": "Common slang, easily understood"
+    },
+    {
+      "id": "rob-019",
+      "dimension": "slang",
+      "severity": "moderate",
+      "input": "ngl this jacket is lowkey fire but the sizing is kinda sus, hits different than expected",
+      "intended_meaning": "Honestly this jacket looks great but the sizing seems off, fits differently than expected",
+      "context": {"order_id": "99999", "item": "Jacket (M)"},
+      "expected_intent": "sizing_issue",
+      "notes": "Multiple slang terms, still parseable"
+    },
+    {
+      "id": "rob-020",
+      "dimension": "slang",
+      "severity": "severe",
+      "input": "yo this product is mid af no cap, thought it would slap but it's giving nothing, big L fr fr",
+      "intended_meaning": "This product is mediocre, I'm not lying, thought it would be good but it's disappointing, big loss for real",
+      "context": {"order_id": "10101", "item": "Headphones"},
+      "expected_intent": "product_complaint",
+      "notes": "Dense slang, requires cultural knowledge"
+    },
+    {
+      "id": "rob-021",
+      "dimension": "slang",
+      "severity": "severe",
+      "input": "the vibes are immaculate with this purchase bestie, it ate and left no crumbs, slay",
+      "intended_meaning": "I love this purchase, it's perfect in every way, amazing",
+      "context": {"order_id": "20202", "item": "Dress"},
+      "expected_intent": "positive_feedback",
+      "notes": "Gen-Z slang, very positive but unusual phrasing"
+    },
+    {
+      "id": "rob-022",
+      "dimension": "slang",
+      "severity": "severe",
+      "input": "bro i'm dead 💀 this ain't it chief, the product is bussin... NOT. need that refund expeditiously",
+      "intended_meaning": "I'm shocked at how bad this is, the product is not good, I need a refund quickly",
+      "context": {"order_id": "30303", "item": "Shoes"},
+      "expected_intent": "refund_request",
+      "notes": "Sarcasm, multiple slang terms, ironic usage"
+    },
+    {
+      "id": "rob-023",
+      "dimension": "slang",
+      "severity": "extreme",
+      "input": "ight so check it, the drip was supposed to be valid but it came looking hella bootleg, this fit is not giving what it was supposed to gave, i'm pressed rn ngl",
+      "intended_meaning": "So listen, the clothing was supposed to look good but it looks cheap/fake, this outfit doesn't look how I expected, I'm upset right now honestly",
+      "context": {"order_id": "40404", "item": "Designer-style jacket"},
+      "expected_intent": "product_complaint",
+      "notes": "Extreme slang density, fashion-specific terms"
+    },
+    {
+      "id": "rob-024",
+      "dimension": "slang",
+      "severity": "extreme",
+      "input": "sheesh fam this whole situation got me feeling some type of way, y'all really fumbled the bag on this one, respectfully i need someone to cook up a solution rn",
+      "intended_meaning": "This situation is making me upset, you really messed this up, I respectfully need someone to create a solution right now",
+      "context": {"order_id": "50505", "issue": "Multiple problems with order"},
+      "expected_intent": "complaint_with_escalation",
+      "notes": "Extreme slang, mixed with polite request"
+    },
+    {
+      "id": "rob-025",
+      "dimension": "slang",
+      "severity": "incomprehensible",
+      "input": "no bc why is the package still not here like??? giving very much delayed era, not the serve i was expecting, this is lowkey a flop moment for y'all",
+      "intended_meaning": "Why hasn't my package arrived? It's very delayed, not the good experience I expected, this is a failure on your part",
+      "context": {"order_id": "60606", "status": "Delayed"},
+      "expected_intent": "order_status",
+      "notes": "Stream of consciousness slang, very difficult to parse"
+    },
+    {
+      "id": "rob-026",
+      "dimension": "jargon",
+      "severity": "mild",
+      "input": "Need to check the ETA on my order, tracking shows it's in transit.",
+      "intended_meaning": "What's the estimated arrival time for my order that's currently being shipped?",
+      "context": {"order_id": "70707", "tracking": "In Transit"},
+      "expected_intent": "order_status",
+      "notes": "Common abbreviation, easily understood"
+    },
+    {
+      "id": "rob-027",
+      "dimension": "jargon",
+      "severity": "moderate",
+      "input": "The SKU I ordered is showing OOS on your site but my order is still processing. Is it backordered or should I expect a cancellation?",
+      "intended_meaning": "The product I ordered shows out of stock on website but order is processing. Will it be backordered or cancelled?",
+      "context": {"order_id": "80808", "item_status": "Low Stock"},
+      "expected_intent": "order_status",
+      "notes": "Retail/e-commerce jargon"
+    },
+    {
+      "id": "rob-028",
+      "dimension": "jargon",
+      "severity": "severe",
+      "input": "Need to RMA this unit, DOA out of the box. Already troubleshot per the KB article, no dice. Please advise on cross-ship options.",
+      "intended_meaning": "Need to return this item for replacement, it was dead on arrival. Already tried troubleshooting from knowledge base, didn't work. Can you send replacement before I return this one?",
+      "context": {"order_id": "90909", "item": "Electronics", "status": "Defective"},
+      "expected_intent": "replacement_request",
+      "notes": "Heavy tech support jargon"
+    },
+    {
+      "id": "rob-029",
+      "dimension": "jargon",
+      "severity": "severe",
+      "input": "Our procurement team submitted a PO last week for 50 units at the quoted NET30 terms. Need confirmation the order is in your system and an updated lead time.",
+      "intended_meaning": "Our purchasing department sent a purchase order last week for 50 items with 30-day payment terms. Please confirm you received it and when it will ship.",
+      "context": {"business_account": true, "po_number": "PO-2026-001"},
+      "expected_intent": "b2b_order_inquiry",
+      "notes": "B2B procurement jargon"
+    },
+    {
+      "id": "rob-030",
+      "dimension": "jargon",
+      "severity": "extreme",
+      "input": "FYI the COGS on this order don't match the quoted landed cost. Getting pushback from AP on the PO approval. Can you provide an updated pro forma with correct FOB terms?",
+      "intended_meaning": "The cost of goods on this order doesn't match the quoted total cost including shipping. Our accounts payable department won't approve the purchase order. Can you provide an updated invoice with correct shipping terms?",
+      "context": {"business_account": true, "issue": "Pricing discrepancy"},
+      "expected_intent": "b2b_billing_issue",
+      "notes": "Heavy finance/procurement jargon"
+    },
+    {
+      "id": "rob-031",
+      "dimension": "jargon",
+      "severity": "extreme",
+      "input": "The SLA breach on this ticket is unacceptable. We're a platinum tier account with guaranteed P1 response times. Please escalate to your TAM immediately.",
+      "intended_meaning": "You've violated the service level agreement on this support request. We're a top-tier customer with guaranteed fast response for urgent issues. Please contact our technical account manager immediately.",
+      "context": {"business_account": true, "tier": "Enterprise", "ticket_age": "48 hours"},
+      "expected_intent": "escalation_request",
+      "notes": "Enterprise support jargon"
+    },
+    {
+      "id": "rob-032",
+      "dimension": "jargon",
+      "severity": "incomprehensible",
+      "input": "Per the MSA, the indemnification clause should cover this RMA. Looping in legal to review the SOW amendments. Meanwhile, need ops to expedite the RA number.",
+      "intended_meaning": "According to our contract, the protection clause should cover this return. Involving our lawyers to review the contract changes. Meanwhile, I need your operations team to quickly provide a return authorization number.",
+      "context": {"business_account": true, "contract": "Enterprise MSA"},
+      "expected_intent": "complex_b2b_request",
+      "notes": "Legal/enterprise jargon, multiple acronyms"
+    },
+    {
+      "id": "rob-033",
+      "dimension": "misspelling",
+      "severity": "mixed",
+      "input": "hiii so liek my grandma orderd this 4 me but she got the rong size lol can we xchange it?? shes not good w computrs so im halping her",
+      "intended_meaning": "Hi, my grandma ordered this for me but got the wrong size, can we exchange it? She's not good with computers so I'm helping her",
+      "context": {"order_id": "11112", "gift_order": true, "exchange_eligible": true},
+      "expected_intent": "exchange_request",
+      "notes": "Younger person helping elderly relative, mixed register"
+    },
+    {
+      "id": "rob-034",
+      "dimension": "formal",
+      "severity": "mixed",
+      "input": "Good day. I am writing to inquire about the whereabouts of my shipment. The tracking number dont work and I aint got no updates in days.",
+      "intended_meaning": "Hello, I'm asking about my shipment. The tracking number doesn't work and I haven't received updates in days.",
+      "context": {"order_id": "22223", "tracking_status": "Error"},
+      "expected_intent": "order_status",
+      "notes": "Mixed formal opening with colloquial body"
+    },
+    {
+      "id": "rob-035",
+      "dimension": "slang",
+      "severity": "mixed",
+      "input": "Dear Customer Service, I regret to inform you that the product is straight trash lmao. Kindly process my refund at your earliest convenience. Thanks bestie 💅",
+      "intended_meaning": "Dear Customer Service, I'm disappointed that the product is very poor quality. Please process my refund soon. Thanks",
+      "context": {"order_id": "33334", "item": "Makeup kit"},
+      "expected_intent": "refund_request",
+      "notes": "Formal structure with slang content, ironic tone"
+    },
+    {
+      "id": "rob-036",
+      "dimension": "misspelling",
+      "severity": "non_native",
+      "input": "Hello, I am wanting to make the return of product. It is not working like advertisement. Please to help me with this issue. Thank you for your kindness.",
+      "intended_meaning": "Hello, I want to return a product. It doesn't work as advertised. Please help me with this. Thank you.",
+      "context": {"order_id": "44445", "item": "Kitchen appliance"},
+      "expected_intent": "return_request",
+      "notes": "Non-native English speaker, grammatically unusual but polite"
+    },
+    {
+      "id": "rob-037",
+      "dimension": "misspelling",
+      "severity": "non_native",
+      "input": "My order is where? I wait many days and nothing come. This is not good service. I want know what happen please.",
+      "intended_meaning": "Where is my order? I've waited many days and nothing has arrived. This is poor service. I want to know what happened.",
+      "context": {"order_id": "55556", "status": "Delayed"},
+      "expected_intent": "order_status",
+      "notes": "Non-native speaker, simplified grammar"
+    },
+    {
+      "id": "rob-038",
+      "dimension": "jargon",
+      "severity": "medical",
+      "input": "I need to return the TENS unit. Post-op PT recommended a different mA range for my rehab protocol. Can I exchange for the clinical-grade model?",
+      "intended_meaning": "I need to return the electrical therapy device. My physical therapist after surgery recommended different settings for my recovery plan. Can I exchange for the professional model?",
+      "context": {"order_id": "66667", "item": "TENS Unit", "exchange_eligible": true},
+      "expected_intent": "exchange_request",
+      "notes": "Medical/therapy jargon"
+    },
+    {
+      "id": "rob-039",
+      "dimension": "jargon",
+      "severity": "gaming",
+      "input": "The RGB on this peripheral is scuffed, keeps desyncing from my other gear. Already tried updating firmware and reinstalling iCUE. Need an RMA or refund, this is affecting my APM in ranked.",
+      "intended_meaning": "The lighting on this gaming device is broken, not syncing with my other equipment. Already tried updating software. Need a return/refund, this is affecting my gaming performance in competitive matches.",
+      "context": {"order_id": "77778", "item": "Gaming Mouse"},
+      "expected_intent": "return_request",
+      "notes": "Gaming/tech enthusiast jargon"
+    },
+    {
+      "id": "rob-040",
+      "dimension": "slang",
+      "severity": "regional",
+      "input": "Y'all, this whole situation is cattywampus. The package came all tore up and the product inside is just plain triflin'. Fixin' to need a replacement right quick.",
+      "intended_meaning": "Everyone, this situation is messed up. The package arrived damaged and the product is in poor condition. I'm going to need a replacement soon.",
+      "context": {"order_id": "88889", "item": "Home decor", "condition": "Damaged"},
+      "expected_intent": "replacement_request",
+      "notes": "Southern US regional dialect/slang"
+    },
+    {
+      "id": "rob-041",
+      "dimension": "misspelling",
+      "severity": "autocorrect",
+      "input": "I tried to cancel my odometer but the website said it was too late. Can you help me return the itinerary instead?",
+      "intended_meaning": "I tried to cancel my order but the website said it was too late. Can you help me return the item instead?",
+      "context": {"order_id": "99990", "status": "Shipped"},
+      "expected_intent": "return_request",
+      "notes": "Autocorrect errors creating wrong words entirely"
+    },
+    {
+      "id": "rob-042",
+      "dimension": "misspelling",
+      "severity": "autocorrect",
+      "input": "The product is defeating and I need a reef und. It stopped winking after two days of use.",
+      "intended_meaning": "The product is defective and I need a refund. It stopped working after two days of use.",
+      "context": {"order_id": "10102", "item": "Electronics"},
+      "expected_intent": "refund_request",
+      "notes": "Autocorrect creating confusing substitutions"
+    },
+    {
+      "id": "rob-043",
+      "dimension": "formal",
+      "severity": "legal_threat",
+      "input": "I hereby put you on notice that failure to remedy this situation within the statutory period may result in my seeking legal recourse, including but not limited to claims for consequential damages under applicable consumer protection statutes.",
+      "intended_meaning": "I'm warning you that if you don't fix this soon, I may take legal action including suing for additional damages under consumer protection laws.",
+      "context": {"order_id": "20203", "issue": "Major unresolved complaint", "escalate": true},
+      "expected_intent": "legal_threat_complaint",
+      "notes": "Legal language, serious escalation"
+    },
+    {
+      "id": "rob-044",
+      "dimension": "mixed",
+      "severity": "emotional",
+      "input": "i just... i cant even rn. this was supposed to be a bday gift for my kid and its RUINED. late AND broken. im literally crying. please just fix this somehow idk what to do anymore 😢",
+      "intended_meaning": "I'm very upset. This was a birthday gift for my child and it's ruined - late and broken. I'm crying. Please fix this, I don't know what to do.",
+      "context": {"order_id": "30304", "occasion": "Birthday", "status": "Delivered damaged"},
+      "expected_intent": "urgent_complaint",
+      "notes": "Emotional distress mixed with text speak"
+    },
+    {
+      "id": "rob-045",
+      "dimension": "mixed",
+      "severity": "angry_slang",
+      "input": "BRO ARE YOU KIDDING ME RN??? third time ordering and THIRD time y'all fumble. this is genuinely embarrassing for a company ur size. im done fr, where's my refund",
+      "intended_meaning": "Are you serious? Third order and third time you've messed up. This is embarrassing for a company your size. I'm done, where's my refund?",
+      "context": {"order_id": "40405", "previous_issues": 2},
+      "expected_intent": "angry_refund_request",
+      "notes": "Angry customer, caps, slang, repeat issue"
+    }
+  ]
+}

@@ -1,0 +1,151 @@
+# PPTX Template Configuration for Remaker Digital
+# This file configures the /pptx skill for this project
+# UPDATED: 2026-01-25 based on user feedback on corrected slides
+
+# Path to the PowerPoint template (relative to project root)
+template_path: PPTX-template-and-skill/remaker-digital-slide-template.pptx
+
+# Default output directory for generated presentations
+default_output_dir: ./PPTX-template-and-skill/output
+
+# Slide layout indices (0-based, from template)
+# These map to the layouts in the template's slideLayouts folder
+# CORRECTED based on user's manual corrections (2026-01-25)
+slide_layouts:
+  # slideLayout2.xml: "2_Title Slide" - Title + Subtitle + Picture placeholder (right)
+  # Used for: Opening slide with presentation title
+  title: 1  # Index 1 maps to slideLayout2
+
+  # slideLayout3.xml: "Title and Content" - Title + Bulleted content
+  # Used for: Standard content slides with bullets
+  content: 2  # Index 2 maps to slideLayout3
+
+  # slideLayout1.xml: "Title Slide" - Centered Title + Subtitle
+  # Used for: Section headers and transition slides
+  # Note: Uses same layout as title but for section breaks (body text goes in subtitle)
+  section: 0  # Index 0 maps to slideLayout1
+
+  # slideLayout15.xml: "1_Custom Layout" - Branding slide with logo and URL
+  # Used for: Always add at end of every presentation for branding
+  branding: 14  # Index 14 maps to slideLayout15
+
+  # slideLayout17.xml: "2_Custom Layout" - Color scheme reference (internal use only)
+  color_reference: 16  # Index 16 maps to slideLayout17
+
+# Brand information
+brand:
+  name: "Remaker Digital"
+  tagline: "AIOps Automation"
+  footer: "Copyright © 2025 Remaker Digital. All rights reserved."
+  url: "remakerdigital.com"
+
+# Theme colors (extracted from slideLayout17 - Color Scheme Reference)
+# These are the official brand colors for all slides
+colors:
+  # Primary palette
+  gray_dark: "#555555"       # Borders, secondary text
+  gray_medium: "#AAAAAA"     # Muted elements
+  gray_light: "#EEEEEE"      # Light backgrounds
+  accent_red: "#CC2222"      # Call-to-action, emphasis
+
+  # Dark palette (backgrounds)
+  background_dark: "#18232B"   # Darkest background
+  background_medium: "#243340" # Medium dark background
+
+  # Legacy (kept for backwards compatibility)
+  primary: "#243340"
+  accent1: "#CC2222"
+
+# Fonts (CORRECTED based on user feedback)
+# - Michroma: All headings (title, section headers)
+# - Montserrat: All other text (bullets, subtitles, footer, metadata)
+fonts:
+  heading: "Michroma"
+  body: "Montserrat"
+  # Deprecated aliases (use heading/body instead)
+  title: "Michroma"
+  subtitle: "Montserrat"
+  bullets: "Montserrat"
+  footer: "Montserrat"
+
+# Bullet point styling (from slideMaster1.xml)
+# Font: Arial for bullet character, Montserrat for text
+bullets:
+  font: "Arial"
+  character: "•"
+  levels:
+    level1:
+      size_pt: 35  # 3500 EMUs / 100
+      margin_left_pt: 22.5  # 285750 EMUs
+      indent_pt: -22.5
+      space_before_pt: 12.5  # 1250 EMUs / 100
+    level2:
+      size_pt: 30
+      margin_left_pt: 67.5  # 857250 EMUs
+      space_before_pt: 6.25
+    level3:
+      size_pt: 25
+      margin_left_pt: 112.5  # 1143000 EMUs
+      space_before_pt: 6.25
+  line_spacing_pct: 90  # 90% line spacing
+
+# Footer format (appears on content slides)
+# Position: Bottom of slide
+# Layout: Date (left) | Copyright (center) | Slide number (right)
+footer:
+  enabled: true
+  font: "Montserrat"
+  size_pt: 14
+  color_scheme: "bg2_50"  # 50% luminosity modifier
+  date:
+    enabled: true
+    alignment: "left"
+    format: "auto"  # Uses datetimeFigureOut
+  copyright:
+    enabled: true
+    alignment: "center"
+    text: "Copyright © 2025 Remaker Digital. All rights reserved."
+  slide_number:
+    enabled: true
+    alignment: "right"
+    format: "number"  # Just the number
+
+# Slide dimensions (EMUs - English Metric Units)
+# 16:9 aspect ratio
+dimensions:
+  width: 15243175   # ~16 inches
+  height: 8572500   # ~9 inches
+
+# Content guidelines specific to this template
+content_guidelines:
+  title_max_length: 60
+  subtitle_max_length: 100
+  bullets_per_slide: 6
+  bullet_max_length: 80
+
+# Placeholder indices for each layout type
+# Used by the generator to find the right text boxes
+placeholders:
+  title_slide:
+    title: "ctrTitle"      # Placeholder type for center title
+    subtitle: 1            # Placeholder idx for subtitle
+    picture: 10            # Picture placeholder idx
+  content_slide:
+    title: "title"
+    body: 1                # Body placeholder idx
+  section_slide:
+    title: "ctrTitle"      # Centered title (same as title slide)
+    subtitle: 1            # Body text goes in subtitle placeholder
+  branding_slide:
+    # No editable placeholders - uses fixed logo and URL
+
+# Special behaviors
+behaviors:
+  # Always append branding slide at the end of every presentation
+  auto_append_branding: true
+
+  # Title slide includes picture placeholder on right side
+  title_slide_has_picture: true
+
+  # Section slides use centered Title Slide layout (body text in subtitle field)
+  section_uses_title_layout: true

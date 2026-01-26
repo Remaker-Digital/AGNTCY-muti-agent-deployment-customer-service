@@ -1,0 +1,471 @@
+{
+  "description": "Escalation detection evaluation dataset - 50 multi-turn conversations",
+  "version": "1.0",
+  "created": "2026-01-25",
+  "scenarios": [
+    {
+      "id": "esc-001",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "Hi, I'd like to check on my order status."},
+        {"role": "agent", "content": "I'd be happy to help! Could you provide your order number?"},
+        {"role": "customer", "content": "It's ORDER-12345"}
+      ],
+      "notes": "Simple order status inquiry"
+    },
+    {
+      "id": "esc-002",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "How long does standard shipping take?"},
+        {"role": "agent", "content": "Standard shipping typically takes 5-7 business days."},
+        {"role": "customer", "content": "Thanks, that works for me!"}
+      ],
+      "notes": "Simple question, satisfied customer"
+    },
+    {
+      "id": "esc-003",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "I want to return a sweater I bought last week."},
+        {"role": "agent", "content": "No problem! I can help with that return. Do you have the order number?"},
+        {"role": "customer", "content": "Yes, it's ORDER-54321. The sweater doesn't fit."}
+      ],
+      "notes": "Straightforward return request"
+    },
+    {
+      "id": "esc-004",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "Do you have this jacket in size medium?"}
+      ],
+      "notes": "Simple product inquiry"
+    },
+    {
+      "id": "esc-005",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "I'm a bit frustrated that my package is delayed, but I understand there are shipping issues. Can you give me an updated delivery date?"}
+      ],
+      "notes": "Mild frustration but reasonable"
+    },
+    {
+      "id": "esc-006",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "The color of the item looks different than the picture. Not thrilled about it but I'll keep it anyway."}
+      ],
+      "notes": "Minor complaint, no escalation needed"
+    },
+    {
+      "id": "esc-007",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "Can I change my shipping address? I moved last week."},
+        {"role": "agent", "content": "Let me check if your order has shipped yet."},
+        {"role": "customer", "content": "Okay, thanks for checking."}
+      ],
+      "notes": "Standard address change request"
+    },
+    {
+      "id": "esc-008",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "What's your return policy?"}
+      ],
+      "notes": "Policy question"
+    },
+    {
+      "id": "esc-009",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "I received an email about my loyalty points. How do I redeem them?"}
+      ],
+      "notes": "Loyalty program question"
+    },
+    {
+      "id": "esc-010",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "The website was slow earlier but it's working now. Just wanted to let you know."}
+      ],
+      "notes": "Informational feedback, issue resolved"
+    },
+    {
+      "id": "esc-011",
+      "category": "explicit_request",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I want to speak to a manager right now."}
+      ],
+      "notes": "Direct escalation request"
+    },
+    {
+      "id": "esc-012",
+      "category": "explicit_request",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "Can you connect me with a human? I don't want to talk to a bot."}
+      ],
+      "notes": "Request for human agent"
+    },
+    {
+      "id": "esc-013",
+      "category": "explicit_request",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "Transfer me to customer service immediately. This is unacceptable."}
+      ],
+      "notes": "Transfer request with frustration"
+    },
+    {
+      "id": "esc-014",
+      "category": "explicit_request",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I need to talk to a real person about this. Your automated system isn't helping."}
+      ],
+      "notes": "Dissatisfaction with automation"
+    },
+    {
+      "id": "esc-015",
+      "category": "explicit_request",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "Let me speak to your supervisor. I've been dealing with this issue for a week."}
+      ],
+      "notes": "Supervisor request"
+    },
+    {
+      "id": "esc-016",
+      "category": "repeated_failure",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "This is the fourth time I've contacted you about my missing refund!"},
+        {"role": "agent", "content": "I apologize for the inconvenience. Let me check on that for you."},
+        {"role": "customer", "content": "That's what the last three agents said and nothing happened!"}
+      ],
+      "notes": "Multiple contacts, unresolved issue"
+    },
+    {
+      "id": "esc-017",
+      "category": "repeated_failure",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I've already explained this problem three times. Why do I have to keep repeating myself?"}
+      ],
+      "notes": "Frustration with repetition"
+    },
+    {
+      "id": "esc-018",
+      "category": "repeated_failure",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "My issue still isn't resolved from last week."},
+        {"role": "agent", "content": "I'm sorry to hear that. Can you tell me what the issue is?"},
+        {"role": "customer", "content": "I already explained it twice. You should have this on file. I'm done explaining."}
+      ],
+      "notes": "Customer refusing to re-explain"
+    },
+    {
+      "id": "esc-019",
+      "category": "repeated_failure",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "This is my FIFTH email about the same issue. At this point I just want someone who can actually fix this."}
+      ],
+      "notes": "Multiple contacts emphasized"
+    },
+    {
+      "id": "esc-020",
+      "category": "repeated_failure",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I was told this would be resolved within 24 hours. That was a week ago. I've called back three times since then."}
+      ],
+      "notes": "Broken promises, multiple contacts"
+    },
+    {
+      "id": "esc-021",
+      "category": "high_frustration",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "THIS IS ABSOLUTELY RIDICULOUS! I HAVE BEEN WAITING FOR THREE WEEKS FOR MY ORDER!"}
+      ],
+      "notes": "All caps, extreme frustration"
+    },
+    {
+      "id": "esc-022",
+      "category": "high_frustration",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "Your company is a complete joke. I'm going to leave reviews everywhere about how terrible this service is."}
+      ],
+      "notes": "Threats of public complaints"
+    },
+    {
+      "id": "esc-023",
+      "category": "high_frustration",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I'm done with this crap. If you can't fix this today, I'm taking my business to your competitor permanently."}
+      ],
+      "notes": "Threat to leave for competitor"
+    },
+    {
+      "id": "esc-024",
+      "category": "high_frustration",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "This is the worst customer service I've ever experienced. I'm filing a complaint with the BBB."}
+      ],
+      "notes": "Formal complaint threat"
+    },
+    {
+      "id": "esc-025",
+      "category": "high_frustration",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I swear to god if you don't fix this I'm going to lose my mind. This is BEYOND unacceptable."}
+      ],
+      "notes": "Extreme exasperation"
+    },
+    {
+      "id": "esc-026",
+      "category": "high_frustration",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "What the hell is wrong with your company? Do you people even know what you're doing?"}
+      ],
+      "notes": "Hostile language"
+    },
+    {
+      "id": "esc-027",
+      "category": "high_frustration",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I'm so angry right now I can barely type. You've charged my card TWICE and now I can't pay my rent."}
+      ],
+      "notes": "Financial impact causing extreme distress"
+    },
+    {
+      "id": "esc-028",
+      "category": "complex_issue",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I received the wrong item, was charged for shipping, and now my promotional code won't work on the reorder. This is a mess."}
+      ],
+      "notes": "Multiple interrelated problems"
+    },
+    {
+      "id": "esc-029",
+      "category": "complex_issue",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I know it's past the return window, but I was in the hospital. Can you make an exception?"}
+      ],
+      "notes": "Request for policy exception"
+    },
+    {
+      "id": "esc-030",
+      "category": "complex_issue",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I want compensation for all the trouble this has caused. I've spent hours on this and had to take time off work."}
+      ],
+      "notes": "Compensation request"
+    },
+    {
+      "id": "esc-031",
+      "category": "complex_issue",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "Your product caused damage to my property. I need to know how to file a claim and what your liability coverage is."}
+      ],
+      "notes": "Potential legal/liability issue"
+    },
+    {
+      "id": "esc-032",
+      "category": "complex_issue",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I was charged for a subscription I never signed up for. This looks like fraud to me and I'm considering contacting my bank."}
+      ],
+      "notes": "Fraud allegation"
+    },
+    {
+      "id": "esc-033",
+      "category": "complex_issue",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I'm a business customer with over $50,000 in annual purchases. I need someone with authority to discuss our contract terms."}
+      ],
+      "notes": "High-value customer requiring special handling"
+    },
+    {
+      "id": "esc-034",
+      "category": "safety_concern",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "My child found a sharp piece of plastic inside the product. This is a serious safety hazard."}
+      ],
+      "notes": "Product safety issue"
+    },
+    {
+      "id": "esc-035",
+      "category": "safety_concern",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "The product started smoking when I plugged it in. I'm worried it could have caused a fire."}
+      ],
+      "notes": "Fire hazard report"
+    },
+    {
+      "id": "esc-036",
+      "category": "safety_concern",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I had an allergic reaction to your product even though the ingredients listed don't include the allergen."}
+      ],
+      "notes": "Health concern, possible mislabeling"
+    },
+    {
+      "id": "esc-037",
+      "category": "safety_concern",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "The battery in the device is swelling. I think it might be dangerous."}
+      ],
+      "notes": "Battery safety issue"
+    },
+    {
+      "id": "esc-038",
+      "category": "safety_concern",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I cut myself badly on broken packaging. This needs immediate attention and I may need to see a doctor."}
+      ],
+      "notes": "Injury report"
+    },
+    {
+      "id": "esc-039",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "I'm a little annoyed the delivery was a day late, but at least it arrived. Thanks for your help."}
+      ],
+      "notes": "Mild annoyance, issue resolved"
+    },
+    {
+      "id": "esc-040",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "Can you help me track my package? The tracking number isn't working on the website."},
+        {"role": "agent", "content": "I'd be happy to look that up for you. What's the order number?"},
+        {"role": "customer", "content": "ORDER-78901. Thanks for helping!"}
+      ],
+      "notes": "Simple tracking help, cooperative customer"
+    },
+    {
+      "id": "esc-041",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "Not super happy with the quality but I'll give it another try with a different product."}
+      ],
+      "notes": "Dissatisfaction but willing to continue"
+    },
+    {
+      "id": "esc-042",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "I accidentally ordered two of the same item. Can I cancel one?"}
+      ],
+      "notes": "Simple cancellation request"
+    },
+    {
+      "id": "esc-043",
+      "category": "high_frustration",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I'm at my wit's end. I've been on hold for an hour, chatted with three different people, and STILL no one can tell me where my order is. This is absolutely pathetic."}
+      ],
+      "notes": "Long wait times, multiple contacts, strong language"
+    },
+    {
+      "id": "esc-044",
+      "category": "complex_issue",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I need to return a gift but I don't have the receipt and the person who bought it is no longer alive. Is there any way to make this work?"}
+      ],
+      "notes": "Sensitive situation requiring human judgment"
+    },
+    {
+      "id": "esc-045",
+      "category": "explicit_request",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "I appreciate you trying to help, but this issue is too complicated for a chatbot. Please transfer me to a human representative."}
+      ],
+      "notes": "Polite but clear request for human"
+    },
+    {
+      "id": "esc-046",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "Do you have any promotions running right now?"}
+      ],
+      "notes": "Simple promotional inquiry"
+    },
+    {
+      "id": "esc-047",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "I'd like to leave some positive feedback. Your delivery driver was very friendly and careful with my package!"}
+      ],
+      "notes": "Positive feedback"
+    },
+    {
+      "id": "esc-048",
+      "category": "repeated_failure",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "OK so last time I was told to do X, and it didn't work. Then I was told to do Y, and that didn't work either. Now what?"}
+      ],
+      "notes": "Previous solutions failed"
+    },
+    {
+      "id": "esc-049",
+      "category": "high_frustration",
+      "expected_escalate": true,
+      "conversation": [
+        {"role": "customer", "content": "My lawyer will be in touch if this isn't resolved by end of day. I'm not joking."}
+      ],
+      "notes": "Legal threat"
+    },
+    {
+      "id": "esc-050",
+      "category": "no_escalation",
+      "expected_escalate": false,
+      "conversation": [
+        {"role": "customer", "content": "The app crashed while I was placing an order. Can you check if the order went through?"}
+      ],
+      "notes": "Technical issue, simple verification needed"
+    }
+  ]
+}

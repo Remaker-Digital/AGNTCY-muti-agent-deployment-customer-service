@@ -1,0 +1,307 @@
+{
+  "description": "RAG retrieval evaluation queries - 50 queries with expected relevant documents",
+  "version": "1.0",
+  "created": "2026-01-25",
+  "queries": [
+    {
+      "id": "rag-001",
+      "query": "What is your return policy?",
+      "expected_docs": ["doc-001"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-002",
+      "query": "How long does shipping take?",
+      "expected_docs": ["doc-002"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-003",
+      "query": "When will I get my refund?",
+      "expected_docs": ["doc-003"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-004",
+      "query": "Do you price match?",
+      "expected_docs": ["doc-004"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-005",
+      "query": "How do I exchange an item for a different size?",
+      "expected_docs": ["doc-005"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-006",
+      "query": "What warranty do your products have?",
+      "expected_docs": ["doc-006"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-007",
+      "query": "How do I earn loyalty points?",
+      "expected_docs": ["doc-007"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-008",
+      "query": "Do gift cards expire?",
+      "expected_docs": ["doc-008"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-009",
+      "query": "What happens to my personal data?",
+      "expected_docs": ["doc-009"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-010",
+      "query": "I received a damaged item, what should I do?",
+      "expected_docs": ["doc-010"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-011",
+      "query": "Tell me about the wireless headphones",
+      "expected_docs": ["doc-011"],
+      "category": "product"
+    },
+    {
+      "id": "rag-012",
+      "query": "What features does the smart watch have?",
+      "expected_docs": ["doc-012"],
+      "category": "product"
+    },
+    {
+      "id": "rag-013",
+      "query": "Is the office chair good for back support?",
+      "expected_docs": ["doc-013"],
+      "category": "product"
+    },
+    {
+      "id": "rag-014",
+      "query": "What size TV do you have?",
+      "expected_docs": ["doc-014"],
+      "category": "product"
+    },
+    {
+      "id": "rag-015",
+      "query": "How powerful is the blender?",
+      "expected_docs": ["doc-015"],
+      "category": "product"
+    },
+    {
+      "id": "rag-016",
+      "query": "Tell me about your mattresses",
+      "expected_docs": ["doc-016"],
+      "category": "product"
+    },
+    {
+      "id": "rag-017",
+      "query": "Is the speaker waterproof?",
+      "expected_docs": ["doc-017"],
+      "category": "product"
+    },
+    {
+      "id": "rag-018",
+      "query": "Does the robot vacuum work on carpet?",
+      "expected_docs": ["doc-018"],
+      "category": "product"
+    },
+    {
+      "id": "rag-019",
+      "query": "What's included in the cookware set?",
+      "expected_docs": ["doc-019"],
+      "category": "product"
+    },
+    {
+      "id": "rag-020",
+      "query": "How long does the fitness tracker battery last?",
+      "expected_docs": ["doc-020"],
+      "category": "product"
+    },
+    {
+      "id": "rag-021",
+      "query": "How can I track my order?",
+      "expected_docs": ["doc-021"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-022",
+      "query": "Can I cancel my order?",
+      "expected_docs": ["doc-022"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-023",
+      "query": "What payment methods do you accept?",
+      "expected_docs": ["doc-023"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-024",
+      "query": "Where do I enter my coupon code?",
+      "expected_docs": ["doc-024"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-025",
+      "query": "Do you ship internationally?",
+      "expected_docs": ["doc-025", "doc-002"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-026",
+      "query": "I forgot my password",
+      "expected_docs": ["doc-026"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-027",
+      "query": "What are your store hours?",
+      "expected_docs": ["doc-027"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-028",
+      "query": "How do I create an account?",
+      "expected_docs": ["doc-028"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-029",
+      "query": "Tell me about your subscription boxes",
+      "expected_docs": ["doc-029"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-030",
+      "query": "How can I contact customer service?",
+      "expected_docs": ["doc-030"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-031",
+      "query": "My package says delivered but I never got it",
+      "expected_docs": ["doc-031"],
+      "category": "troubleshooting"
+    },
+    {
+      "id": "rag-032",
+      "query": "I can't log into my account",
+      "expected_docs": ["doc-032"],
+      "category": "troubleshooting"
+    },
+    {
+      "id": "rag-033",
+      "query": "My credit card was declined",
+      "expected_docs": ["doc-033"],
+      "category": "troubleshooting"
+    },
+    {
+      "id": "rag-034",
+      "query": "My discount code doesn't work",
+      "expected_docs": ["doc-034"],
+      "category": "troubleshooting"
+    },
+    {
+      "id": "rag-035",
+      "query": "The app won't sync my data",
+      "expected_docs": ["doc-035"],
+      "category": "troubleshooting"
+    },
+    {
+      "id": "rag-036",
+      "query": "What winter coats do you have?",
+      "expected_docs": ["doc-036"],
+      "category": "product"
+    },
+    {
+      "id": "rag-037",
+      "query": "Do your wallets have RFID protection?",
+      "expected_docs": ["doc-037"],
+      "category": "product"
+    },
+    {
+      "id": "rag-038",
+      "query": "What's the thickness of the yoga mat?",
+      "expected_docs": ["doc-038"],
+      "category": "product"
+    },
+    {
+      "id": "rag-039",
+      "query": "Does the coffee maker have a grinder?",
+      "expected_docs": ["doc-039"],
+      "category": "product"
+    },
+    {
+      "id": "rag-040",
+      "query": "What age is the kids bike for?",
+      "expected_docs": ["doc-040"],
+      "category": "product"
+    },
+    {
+      "id": "rag-041",
+      "query": "Is there a student discount?",
+      "expected_docs": ["doc-041"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-042",
+      "query": "Do you offer military discount?",
+      "expected_docs": ["doc-042"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-043",
+      "query": "How do I know what size to order?",
+      "expected_docs": ["doc-043"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-044",
+      "query": "Can you gift wrap my order?",
+      "expected_docs": ["doc-044"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-045",
+      "query": "Can I pick up my order at the store?",
+      "expected_docs": ["doc-045"],
+      "category": "faq"
+    },
+    {
+      "id": "rag-046",
+      "query": "You sent me the wrong item",
+      "expected_docs": ["doc-046"],
+      "category": "troubleshooting"
+    },
+    {
+      "id": "rag-047",
+      "query": "I was charged twice for my order",
+      "expected_docs": ["doc-047"],
+      "category": "troubleshooting"
+    },
+    {
+      "id": "rag-048",
+      "query": "When will backordered items ship?",
+      "expected_docs": ["doc-048"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-049",
+      "query": "Do you have bulk order discounts?",
+      "expected_docs": ["doc-049"],
+      "category": "policy"
+    },
+    {
+      "id": "rag-050",
+      "query": "Is your packaging eco-friendly?",
+      "expected_docs": ["doc-050"],
+      "category": "faq"
+    }
+  ]
+}

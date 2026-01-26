@@ -143,6 +143,36 @@ Config: /config.yaml (mounted)
 Authentication: Gateway password
 ```
 
+**SLIM Configuration File** (`config/slim/server-config.yaml`):
+```yaml
+# SLIM v0.6.1 Configuration - IMPORTANT: Use correct schema
+# Reference: https://docs.agntcy.org/slim/slim-data-plane-config/
+
+tracing:
+  log_level: info
+  display_thread_names: true
+  display_thread_ids: true
+
+runtime:
+  n_cores: 0  # 0 = auto-detect
+  thread_name: "slim-data-plane"
+  drain_timeout: 10s
+
+services:
+  slim/1:
+    dataplane:
+      servers:
+        - endpoint: "0.0.0.0:46357"  # IMPORTANT: No http:// scheme
+          tls:
+            insecure: true  # Disable TLS for local dev
+      clients: []
+```
+
+**Common Configuration Mistakes:**
+- **Incorrect**: `server:` top-level key (SLIM doesn't recognize this)
+- **Incorrect**: `endpoint: "http://0.0.0.0:46357"` (don't include scheme)
+- **Correct**: `endpoint: "0.0.0.0:46357"` (host:port only)
+
 #### **ClickHouse Database**
 ```yaml
 Image: clickhouse/clickhouse-server

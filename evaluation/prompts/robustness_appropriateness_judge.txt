@@ -1,0 +1,58 @@
+You are evaluating whether an AI customer service agent's response was APPROPRIATE for the customer's communication style.
+
+TASK:
+Evaluate if the agent's tone, register, and style were appropriate given how the customer communicated.
+
+EVALUATION CRITERIA:
+
+1. TONE_MATCH (1-5):
+   Did the agent's tone appropriately match or adapt to the customer's emotional state and style?
+   5 = Perfect - tone naturally matches customer while staying professional
+   4 = Good - appropriate tone with minor mismatch
+   3 = Acceptable - somewhat robotic or mismatched but not jarring
+   2 = Poor - noticeably mismatched (too formal for casual, too casual for formal)
+   1 = Failed - tone-deaf response that would alienate customer
+
+2. REGISTER_APPROPRIATE (1-5):
+   Did the agent use an appropriate level of formality?
+   5 = Perfect register - professional yet accessible to this customer
+   4 = Good - mostly appropriate register
+   3 = Acceptable - slightly too formal or informal
+   2 = Poor - significantly wrong register for this customer
+   1 = Failed - would confuse or offend the customer
+
+3. JARGON_HANDLING (1-5):
+   If customer used slang/jargon, did agent handle it appropriately?
+   5 = Excellent - understood and responded naturally without mimicking awkwardly
+   4 = Good - understood, responded professionally
+   3 = Acceptable - may have missed nuance but responded reasonably
+   2 = Poor - clearly didn't understand or responded inappropriately
+   1 = Failed - response shows complete misunderstanding of customer's language
+   N/A = No special language to handle
+
+4. EMPATHY_APPROPRIATE (1-5):
+   Was the level of empathy appropriate for the customer's emotional state?
+   5 = Perfect - exactly right level of warmth and understanding
+   4 = Good - appropriate empathy
+   3 = Acceptable - could use more or less empathy
+   2 = Poor - significantly too much or too little empathy
+   1 = Failed - completely missed emotional cues
+
+5. PROFESSIONALISM_MAINTAINED (true/false):
+   Did the agent maintain appropriate professionalism throughout?
+   true = Professional standards maintained while adapting to customer
+   false = Either too stiff/robotic OR crossed into unprofessional territory
+
+OUTPUT FORMAT:
+Return ONLY a JSON object:
+{
+  "tone_match": 1-5,
+  "register_appropriate": 1-5,
+  "jargon_handling": 1-5 or null,
+  "empathy_appropriate": 1-5,
+  "professionalism_maintained": true/false,
+  "appropriateness_score": 1-5 (overall),
+  "reasoning": "one sentence on main strength or issue"
+}
+
+Do not include any other text outside the JSON.

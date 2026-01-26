@@ -14,6 +14,7 @@ A comprehensive development and testing interface for the AGNTCY multi-agent cus
 - Test personas (Sarah, Mike, Jennifer, David) with quick message templates
 - Real-time conversation with AGNTCY agents
 - Escalation indicators and agent involvement tracking
+- **NEW: Azure OpenAI Mode** - Real AI responses using GPT-4o-mini with Phase 3.5 optimized prompts
 
 ### 📊 Agent Metrics
 - Performance metrics for all agents (latency, success rate, cost)
@@ -32,7 +33,7 @@ A comprehensive development and testing interface for the AGNTCY multi-agent cus
 
 ## Quick Start
 
-### Option 1: Local Development
+### Option 1: Web Console (Streamlit)
 ```powershell
 # Start the console locally
 .\start-console.ps1
@@ -41,7 +42,21 @@ A comprehensive development and testing interface for the AGNTCY multi-agent cus
 streamlit run console/app.py --server.port 8080
 ```
 
-### Option 2: Docker
+The console will be available at: http://localhost:8080
+
+### Option 2: Command-Line Interface
+```powershell
+# Interactive console chat with Azure OpenAI
+python -m evaluation.console_chat
+
+# With debug mode (shows agent pipeline details)
+python -m evaluation.console_chat --debug
+
+# With specific context
+python -m evaluation.console_chat --context product
+```
+
+### Option 3: Docker
 ```powershell
 # Start with Docker Compose
 .\start-console.ps1 -Mode docker
@@ -49,8 +64,6 @@ streamlit run console/app.py --server.port 8080
 # Or manually
 docker-compose up --build console
 ```
-
-The console will be available at: http://localhost:8080
 
 ## Prerequisites
 
@@ -68,9 +81,32 @@ The console will be available at: http://localhost:8080
 The console integrates with the real AGNTCY multi-agent system through:
 
 1. **Real Agent Communication**: Uses A2A protocol to communicate with live agents
-2. **OpenTelemetry Traces**: Collects real performance data from agent executions  
+2. **OpenTelemetry Traces**: Collects real performance data from agent executions
 3. **ClickHouse Storage**: Retrieves conversation history and metrics
 4. **Mock API Monitoring**: Tracks health and performance of mock services
+
+### Azure OpenAI Mode (Phase 3.5)
+
+Enable **Azure OpenAI Mode** in the Chat Interface to use real AI responses:
+
+1. Toggle "🔌 Azure OpenAI Mode" in the Chat Interface
+2. Select a context type (order, return, product, billing, empty)
+3. Send messages to get real GPT-4o-mini responses
+
+**Features:**
+- Full agent pipeline: Critic/Supervisor → Intent Classification → Escalation Detection → Response Generation
+- Uses Phase 3.5 optimized prompts (98% intent accuracy, 88.4% response quality)
+- Real-time cost and latency tracking per message
+- Blocked message detection (prompt injection, jailbreaks)
+
+**Requirements:**
+```bash
+# Set Azure OpenAI environment variables
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_KEY=your-api-key
+AZURE_OPENAI_API_VERSION=2024-02-15-preview
+AZURE_OPENAI_GPT4O_MINI_DEPLOYMENT=gpt-4o-mini
+```
 
 ### Fallback Behavior
 
@@ -136,7 +172,8 @@ LOG_LEVEL=INFO
 ```
 console/
 ├── app.py                 # Main Streamlit application
-├── agntcy_integration.py  # AGNTCY system integration
+├── agntcy_integration.py  # AGNTCY system integration (mock/local mode)
+├── azure_openai_mode.py   # Azure OpenAI integration (Phase 3.5 prompts)
 ├── requirements.txt       # Python dependencies
 ├── Dockerfile            # Container configuration
 └── README.md             # This file
@@ -156,6 +193,65 @@ console/
 - Install dependencies: `pip install -r console/requirements.txt`
 - Verify port availability: `netstat -an | findstr :8080`
 
+### Streamlit Shows Old/Cached Content
+This is a common issue where Streamlit serves cached content instead of loading updated code.
+
+**Symptoms:**
+- Code changes don't appear in the browser
+- New features/toggles don't show up
+- Debug statements don't execute
+
+**Solutions:**
+1. **Kill all Python processes and use a fresh port:**
+   ```powershell
+   # Kill any existing Streamlit/Python processes
+   Get-Process python* | Stop-Process -Force -ErrorAction SilentlyContinue
+
+   # Start on a fresh port (not the previously used port)
+   streamlit run console/app.py --server.port 8085
+   ```
+
+2. **Clear browser cache:** Use Ctrl+Shift+R (hard refresh) or open in incognito/private window
+
+3. **Clear Python cache:**
+   ```powershell
+   Remove-Item -Path console/__pycache__ -Recurse -Force -ErrorAction SilentlyContinue
+   ```
+
+4. **Clear Streamlit cache:**
+   ```powershell
+   python -m streamlit cache clear
+   ```
+
+**Root Cause:** Streamlit maintains WebSocket connections. If an old process is still running on a port, the browser may reconnect to it instead of the new process. Always ensure the old process is fully terminated before restarting.
+
+### Azure OpenAI Mode Not Available
+If the "🔌 Azure OpenAI Mode" toggle doesn't appear in Chat Interface:
+
+1. **Check sidebar status:** Look for "🔧 Azure OpenAI Status" in the sidebar
+   - If "Available: False" - check environment variables
+   - If "Import Error" shown - check module installation
+
+2. **Verify environment variables are set:**
+   ```powershell
+   echo $env:AZURE_OPENAI_ENDPOINT
+   echo $env:AZURE_OPENAI_API_KEY
+   echo $env:AZURE_OPENAI_GPT4O_MINI_DEPLOYMENT
+   ```
+
+3. **Test Azure OpenAI connection directly:**
+   ```powershell
+   python -c "from console.azure_openai_mode import get_azure_mode; azure = get_azure_mode(); print(azure.initialize())"
+   ```
+
+### Azure OpenAI Responses Blocked
+If messages are blocked with "Content blocked by Azure safety filter":
+
+- This is Azure's built-in content moderation working correctly
+- The filter may trigger on certain word patterns or phrases
+- Rephrase the message to avoid triggering the filter
+- This is defense-in-depth: Azure filter + Critic/Supervisor agent both validate content
+
 ### No Agent Responses
 - Ensure AGNTCY infrastructure is running: `docker-compose up -d`
 - Check SLIM connectivity: `curl http://localhost:46357/health`
@@ -167,7 +263,9 @@ console/
 - Verify tracing is enabled: `AGNTCY_ENABLE_TRACING=true`
 
 ### Mock API Errors
-- Start mock services: `docker-compose up -d mock-shopify mock-zendesk mock-mailchimp mock-google-analytics`
+- Mock API connection errors are **expected** when Docker containers aren't running
+- Azure OpenAI mode works independently without mock services
+- Start mock services if needed: `docker-compose up -d mock-shopify mock-zendesk mock-mailchimp mock-google-analytics`
 - Check service health: Visit http://localhost:8001/health (Shopify), etc.
 
 ## Phase 2 Integration

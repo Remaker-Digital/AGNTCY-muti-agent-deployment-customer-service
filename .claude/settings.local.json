@@ -73,7 +73,26 @@
       "Bash(docker history:*)",
       "Bash(gh issue view:*)",
       "Bash(gh project:*)",
-      "Bash(gh api:*)"
+      "Bash(gh api:*)",
+      "Bash(grep:*)",
+      "Bash(docker run:*)",
+      "Bash(timeout:*)",
+      "Bash(ping:*)",
+      "Bash(Copy-Item \"agntcy-sdk-evaluation.pptx\" \"agntcy-sdk-evaluation.zip\" -Force)",
+      "Bash(Remove-Item -Path \"agntcy-extracted\" -Recurse -Force -ErrorAction SilentlyContinue)",
+      "Bash(Expand-Archive \"agntcy-sdk-evaluation.zip\" -DestinationPath \"agntcy-extracted\" -Force)",
+      "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" label list --repo Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service)",
+      "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" issue create:*)",
+      "Bash(./venv/Scripts/pip.exe install:*)",
+      "Bash(./venv/Scripts/python.exe:*)",
+      "Bash(copy \"C:\\\\Users\\\\micha\\\\OneDrive\\\\Desktop\\\\AGNTCY-muti-agent-deployment-customer-service\\\\evaluation\\\\prompts\\\\critic_input_validation_v2.txt\" \"C:\\\\Users\\\\micha\\\\OneDrive\\\\Desktop\\\\AGNTCY-muti-agent-deployment-customer-service\\\\evaluation\\\\prompts\\\\critic_input_validation_final.txt\")",
+      "Bash(cmd /c copy:*)",
+      "Bash(gh auth status:*)",
+      "Bash(gh issue close:*)",
+      "Bash(tasklist /FI \"IMAGENAME eq python.exe\")",
+      "Bash(tasklist:*)",
+      "Bash(venv/Scripts/python.exe -m streamlit:*)",
+      "Bash(venv/Scripts/python.exe:*)"
     ]
   },
   "shortcuts": {

@@ -1,0 +1,414 @@
+{
+  "description": "Response quality evaluation dataset - 30 customer scenarios with context",
+  "version": "1.0",
+  "created": "2026-01-25",
+  "scenarios": [
+    {
+      "id": "rq-001",
+      "category": "order_status",
+      "customer_name": "Sarah",
+      "customer_message": "Hi, I placed an order 3 days ago and haven't received any shipping confirmation yet. Order #12345. Is everything okay?",
+      "context": {
+        "order_id": "12345",
+        "order_date": "2026-01-22",
+        "status": "Processing",
+        "items": ["Blue Sweater (M)", "Black Jeans (32)"],
+        "expected_ship_date": "2026-01-26"
+      },
+      "key_requirements": ["acknowledge concern", "provide status", "give expected timeline", "reassure"]
+    },
+    {
+      "id": "rq-002",
+      "category": "return_request",
+      "customer_name": "Michael",
+      "customer_message": "I need to return a jacket I bought. It doesn't fit right. Order #67890.",
+      "context": {
+        "order_id": "67890",
+        "order_date": "2026-01-15",
+        "item": "Winter Jacket (L)",
+        "price": "$149.99",
+        "return_eligible": true,
+        "return_window_ends": "2026-02-14"
+      },
+      "key_requirements": ["confirm return eligible", "explain process", "provide timeframe", "offer size exchange"]
+    },
+    {
+      "id": "rq-003",
+      "category": "frustrated_customer",
+      "customer_name": "Jennifer",
+      "customer_message": "This is ridiculous! My package was supposed to arrive 5 days ago and it's still not here. I needed this for an event!",
+      "context": {
+        "order_id": "11111",
+        "tracking_number": "1Z999AA10123456784",
+        "carrier": "UPS",
+        "status": "In Transit - Delayed",
+        "original_delivery": "2026-01-20",
+        "updated_delivery": "2026-01-27"
+      },
+      "key_requirements": ["acknowledge frustration empathetically", "provide tracking info", "explain delay", "offer solution"]
+    },
+    {
+      "id": "rq-004",
+      "category": "product_inquiry",
+      "customer_name": "David",
+      "customer_message": "I'm looking at the wireless headphones on your site. Do they work with iPhone? And how's the battery life?",
+      "context": {
+        "product": "Premium Wireless Headphones WH-1000X",
+        "price": "$299.99",
+        "features": ["Bluetooth 5.0", "30-hour battery", "Active noise cancellation", "Works with all Bluetooth devices"],
+        "in_stock": true
+      },
+      "key_requirements": ["answer compatibility question", "answer battery question", "highlight key features", "encourage purchase"]
+    },
+    {
+      "id": "rq-005",
+      "category": "refund_status",
+      "customer_name": "Emily",
+      "customer_message": "I returned my order 2 weeks ago and still haven't seen my refund. What's going on?",
+      "context": {
+        "order_id": "22222",
+        "return_received": "2026-01-11",
+        "refund_status": "Processed",
+        "refund_date": "2026-01-18",
+        "refund_amount": "$89.99",
+        "payment_method": "Visa ending in 4242"
+      },
+      "key_requirements": ["confirm refund processed", "provide date and amount", "explain bank processing time", "reassure"]
+    },
+    {
+      "id": "rq-006",
+      "category": "shipping_question",
+      "customer_name": "Alex",
+      "customer_message": "Do you ship to Canada? How much would shipping cost for a medium-sized package?",
+      "context": {
+        "ships_to_canada": true,
+        "canada_shipping_cost": "$15.99-$24.99",
+        "canada_delivery_time": "7-14 business days",
+        "duties_note": "Customs duties may apply"
+      },
+      "key_requirements": ["confirm Canada shipping", "provide cost range", "mention delivery time", "note customs"]
+    },
+    {
+      "id": "rq-007",
+      "category": "damaged_item",
+      "customer_name": "Chris",
+      "customer_message": "My order arrived but the box was crushed and the item inside is damaged. This is unacceptable!",
+      "context": {
+        "order_id": "33333",
+        "item": "Ceramic Vase",
+        "price": "$59.99",
+        "delivery_date": "2026-01-24",
+        "replacement_available": true
+      },
+      "key_requirements": ["apologize for damage", "offer replacement immediately", "explain no need to return damaged item", "expedite resolution"]
+    },
+    {
+      "id": "rq-008",
+      "category": "loyalty_program",
+      "customer_name": "Amanda",
+      "customer_message": "How do I check my rewards points? And when do they expire?",
+      "context": {
+        "customer_points": 450,
+        "points_value": "$22.50",
+        "tier": "Standard",
+        "next_tier": "Silver (500 points)",
+        "expiration": "Points expire after 12 months of inactivity"
+      },
+      "key_requirements": ["provide current points", "explain value", "mention tier status", "explain expiration"]
+    },
+    {
+      "id": "rq-009",
+      "category": "technical_issue",
+      "customer_name": "Ryan",
+      "customer_message": "I can't log into my account. I've tried resetting my password but I'm not getting the email.",
+      "context": {
+        "account_email": "r***@email.com",
+        "account_exists": true,
+        "last_login": "2026-01-10",
+        "email_status": "Emails sending successfully"
+      },
+      "key_requirements": ["acknowledge issue", "suggest spam folder check", "offer alternative reset method", "provide contact option"]
+    },
+    {
+      "id": "rq-010",
+      "category": "cancellation",
+      "customer_name": "Lisa",
+      "customer_message": "I need to cancel order #44444 please. I ordered the wrong thing by mistake.",
+      "context": {
+        "order_id": "44444",
+        "order_date": "2026-01-25",
+        "order_time": "30 minutes ago",
+        "status": "Pending",
+        "cancellable": true
+      },
+      "key_requirements": ["confirm cancellation possible", "process cancellation", "explain refund timeline", "offer to help reorder"]
+    },
+    {
+      "id": "rq-011",
+      "category": "exchange",
+      "customer_name": "Tom",
+      "customer_message": "The shirt I bought is too small. Can I exchange it for a larger size?",
+      "context": {
+        "order_id": "55555",
+        "item": "Cotton Shirt (S)",
+        "size_available": ["M", "L", "XL"],
+        "exchange_eligible": true,
+        "free_exchange": true
+      },
+      "key_requirements": ["confirm exchange available", "list available sizes", "explain free exchange", "provide process"]
+    },
+    {
+      "id": "rq-012",
+      "category": "billing_issue",
+      "customer_name": "Karen",
+      "customer_message": "I was charged twice for my order! I need this fixed immediately.",
+      "context": {
+        "order_id": "66666",
+        "charge_1": "$129.99 (actual charge)",
+        "charge_2": "$129.99 (pending authorization)",
+        "explanation": "Second charge is a pending authorization that will drop off within 3-5 business days"
+      },
+      "key_requirements": ["acknowledge concern immediately", "explain authorization vs charge", "reassure only one charge", "provide timeline"]
+    },
+    {
+      "id": "rq-013",
+      "category": "product_availability",
+      "customer_name": "James",
+      "customer_message": "The item I want shows out of stock. Will it be back? I really need it.",
+      "context": {
+        "product": "Ergonomic Office Chair",
+        "current_status": "Out of Stock",
+        "restock_date": "2026-02-05",
+        "backorder_available": true,
+        "similar_items": ["Executive Chair", "Mesh Office Chair"]
+      },
+      "key_requirements": ["confirm out of stock", "provide restock date", "offer backorder option", "suggest alternatives"]
+    },
+    {
+      "id": "rq-014",
+      "category": "promo_code",
+      "customer_name": "Nicole",
+      "customer_message": "My promo code SAVE20 isn't working. It says invalid but I just got it in an email.",
+      "context": {
+        "promo_code": "SAVE20",
+        "status": "Active",
+        "discount": "20% off",
+        "minimum_purchase": "$75",
+        "customer_cart_total": "$62.50",
+        "exclusions": "Sale items excluded"
+      },
+      "key_requirements": ["acknowledge frustration", "explain minimum requirement", "suggest adding items", "confirm code is valid"]
+    },
+    {
+      "id": "rq-015",
+      "category": "gift_order",
+      "customer_name": "Robert",
+      "customer_message": "I want to send this as a gift. Can you include a gift message and not show the price?",
+      "context": {
+        "gift_wrapping_available": true,
+        "gift_wrapping_cost": "$5.99",
+        "gift_message_limit": "150 characters",
+        "gift_receipt_included": true
+      },
+      "key_requirements": ["confirm gift options", "explain gift wrap cost", "mention gift receipt", "offer gift message"]
+    },
+    {
+      "id": "rq-016",
+      "category": "warranty_claim",
+      "customer_name": "Patricia",
+      "customer_message": "My blender stopped working after 8 months. It just makes a grinding noise. Is this covered under warranty?",
+      "context": {
+        "product": "BlendMax Pro",
+        "purchase_date": "2026-05-15",
+        "warranty_period": "2 years",
+        "warranty_status": "Active",
+        "claim_process": "Contact support with proof of purchase and photos"
+      },
+      "key_requirements": ["confirm warranty coverage", "express sympathy", "explain claim process", "provide timeline"]
+    },
+    {
+      "id": "rq-017",
+      "category": "address_change",
+      "customer_name": "Steven",
+      "customer_message": "I need to change the shipping address on my order. I just moved.",
+      "context": {
+        "order_id": "77777",
+        "order_status": "Processing",
+        "address_changeable": true,
+        "new_address_needed": true
+      },
+      "key_requirements": ["confirm address change possible", "request new address", "explain any delays", "reassure"]
+    },
+    {
+      "id": "rq-018",
+      "category": "subscription",
+      "customer_name": "Michelle",
+      "customer_message": "I want to pause my subscription box for next month. Is that possible?",
+      "context": {
+        "subscription": "Beauty Box Monthly",
+        "next_billing_date": "2026-02-01",
+        "pause_allowed": true,
+        "max_pause_duration": "3 months"
+      },
+      "key_requirements": ["confirm pause possible", "explain how to pause", "mention billing date", "offer resume info"]
+    },
+    {
+      "id": "rq-019",
+      "category": "wrong_item",
+      "customer_name": "Daniel",
+      "customer_message": "I received the wrong item in my order. I ordered blue but got red.",
+      "context": {
+        "order_id": "88888",
+        "ordered_item": "Backpack - Blue",
+        "received_item": "Backpack - Red",
+        "correct_item_in_stock": true,
+        "prepaid_label": "Will be emailed"
+      },
+      "key_requirements": ["apologize for error", "confirm correct item available", "explain return process", "expedite correct item"]
+    },
+    {
+      "id": "rq-020",
+      "category": "positive_feedback",
+      "customer_name": "Elizabeth",
+      "customer_message": "Just wanted to say the product is amazing and shipping was super fast! Great job!",
+      "context": {
+        "customer_status": "Repeat customer",
+        "total_orders": 5,
+        "loyalty_points": 320
+      },
+      "key_requirements": ["thank sincerely", "acknowledge loyalty", "mention rewards", "invite to shop again"]
+    },
+    {
+      "id": "rq-021",
+      "category": "store_pickup",
+      "customer_name": "William",
+      "customer_message": "Can someone else pick up my order? My wife will get it for me.",
+      "context": {
+        "order_id": "99999",
+        "pickup_location": "Downtown Store",
+        "pickup_ready": true,
+        "alternate_pickup_allowed": true,
+        "requirements": "Order confirmation email and photo ID"
+      },
+      "key_requirements": ["confirm alternate pickup", "explain requirements", "provide pickup location", "mention hold time"]
+    },
+    {
+      "id": "rq-022",
+      "category": "price_match",
+      "customer_name": "Jessica",
+      "customer_message": "I bought this TV last week and now it's $50 cheaper! Can I get the difference?",
+      "context": {
+        "order_id": "10101",
+        "purchase_date": "2026-01-18",
+        "original_price": "$599.99",
+        "current_price": "$549.99",
+        "price_match_window": "14 days",
+        "eligible": true
+      },
+      "key_requirements": ["confirm price match eligible", "calculate refund amount", "explain process", "apologize for price change"]
+    },
+    {
+      "id": "rq-023",
+      "category": "bulk_order",
+      "customer_name": "George",
+      "customer_message": "I need to order 50 of the same item for a corporate event. Do you offer bulk discounts?",
+      "context": {
+        "bulk_discount_tiers": ["10+ items: 10% off", "25+ items: 15% off", "50+ items: 20% off"],
+        "corporate_sales_contact": "corporate@example.com",
+        "lead_time": "2-3 weeks for large orders"
+      },
+      "key_requirements": ["confirm bulk discount", "explain discount tier", "provide contact", "mention lead time"]
+    },
+    {
+      "id": "rq-024",
+      "category": "safety_concern",
+      "customer_name": "Linda",
+      "customer_message": "I found a small crack in the battery compartment of the toy I bought for my child. Is this safe?",
+      "context": {
+        "product": "Electronic Learning Toy",
+        "order_id": "20202",
+        "safety_priority": "HIGH",
+        "action": "Discontinue use immediately, full refund provided"
+      },
+      "key_requirements": ["take concern seriously", "advise to stop using", "offer immediate refund", "request photos for quality team"]
+    },
+    {
+      "id": "rq-025",
+      "category": "international",
+      "customer_name": "Maria",
+      "customer_message": "I'm ordering from Germany. Will I have to pay customs fees?",
+      "context": {
+        "country": "Germany",
+        "ships_international": true,
+        "customs_note": "Orders may be subject to local customs duties and taxes",
+        "delivery_time": "10-14 business days"
+      },
+      "key_requirements": ["confirm international shipping", "explain customs responsibility", "provide delivery estimate", "be helpful"]
+    },
+    {
+      "id": "rq-026",
+      "category": "payment_options",
+      "customer_name": "Charles",
+      "customer_message": "Can I pay in installments? This item is a bit expensive for me right now.",
+      "context": {
+        "cart_total": "$450",
+        "financing_available": true,
+        "financing_provider": "Affirm",
+        "financing_terms": "4 interest-free payments of $112.50",
+        "minimum_for_financing": "$100"
+      },
+      "key_requirements": ["confirm financing available", "explain terms", "mention interest-free", "explain how to select at checkout"]
+    },
+    {
+      "id": "rq-027",
+      "category": "account_deletion",
+      "customer_name": "Barbara",
+      "customer_message": "I want to delete my account and all my data. How do I do that?",
+      "context": {
+        "deletion_available": true,
+        "deletion_timeline": "30 days",
+        "data_included": "Account info, order history, saved addresses",
+        "points_warning": "Any unused rewards points will be forfeited"
+      },
+      "key_requirements": ["respect request", "explain process", "mention timeline", "warn about points loss"]
+    },
+    {
+      "id": "rq-028",
+      "category": "compliment_staff",
+      "customer_name": "Susan",
+      "customer_message": "I spoke with an agent named Mark yesterday who was incredibly helpful. Please pass on my thanks!",
+      "context": {
+        "previous_agent": "Mark",
+        "previous_case": "Return assistance",
+        "customer_satisfaction": "High"
+      },
+      "key_requirements": ["thank customer warmly", "confirm feedback will be passed on", "acknowledge great service", "offer future assistance"]
+    },
+    {
+      "id": "rq-029",
+      "category": "compare_products",
+      "customer_name": "Kevin",
+      "customer_message": "What's the difference between the Smart Watch Pro and the Fitness Tracker Band? Which should I get?",
+      "context": {
+        "product_1": {"name": "Smart Watch Pro", "price": "$399.99", "features": ["GPS", "Heart rate", "Apps", "7-day battery"]},
+        "product_2": {"name": "Fitness Tracker Band", "price": "$49.99", "features": ["Steps", "Heart rate", "Sleep", "5-day battery"]},
+        "recommendation": "Smart Watch Pro for full features, Fitness Tracker for budget-friendly basics"
+      },
+      "key_requirements": ["compare key differences", "mention price difference", "provide recommendation", "help with decision"]
+    },
+    {
+      "id": "rq-030",
+      "category": "multi_issue",
+      "customer_name": "Margaret",
+      "customer_message": "I have several issues: my order is late, I was charged wrong, and my promo code didn't apply. This is frustrating!",
+      "context": {
+        "order_id": "30303",
+        "shipping_status": "Delayed - arriving tomorrow",
+        "charge_issue": "Extra $10 due to promo not applying",
+        "promo_code": "WELCOME10",
+        "resolution": "Refund $10, order arriving tomorrow"
+      },
+      "key_requirements": ["acknowledge multiple issues", "address each systematically", "apologize sincerely", "provide complete resolution"]
+    }
+  ]
+}

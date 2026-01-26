@@ -1,0 +1,307 @@
+{
+  "description": "Knowledge base for RAG retrieval evaluation - 50 documents covering products, policies, and FAQs",
+  "version": "1.0",
+  "created": "2026-01-25",
+  "documents": [
+    {
+      "id": "doc-001",
+      "category": "policy",
+      "title": "Return Policy",
+      "content": "Our return policy allows customers to return most items within 30 days of purchase for a full refund. Items must be unused and in original packaging. Electronics have a 15-day return window. Final sale items cannot be returned. To initiate a return, visit our returns portal or contact customer service."
+    },
+    {
+      "id": "doc-002",
+      "category": "policy",
+      "title": "Shipping Policy",
+      "content": "We offer free standard shipping on orders over $50. Standard shipping takes 5-7 business days. Express shipping (2-3 business days) is available for $12.99. Overnight shipping is $24.99. We ship to all 50 US states and Canada. International shipping is available to select countries with rates calculated at checkout."
+    },
+    {
+      "id": "doc-003",
+      "category": "policy",
+      "title": "Refund Processing",
+      "content": "Refunds are processed within 5-7 business days after we receive your returned item. The refund will be credited to your original payment method. Credit card refunds may take an additional 3-5 business days to appear on your statement. Store credit refunds are available immediately."
+    },
+    {
+      "id": "doc-004",
+      "category": "policy",
+      "title": "Price Match Guarantee",
+      "content": "We offer a price match guarantee within 14 days of purchase. If you find the same item at a lower price from an authorized retailer, we will match that price. Contact customer service with proof of the lower price. Excludes marketplace sellers, auction sites, and clearance items."
+    },
+    {
+      "id": "doc-005",
+      "category": "policy",
+      "title": "Exchange Policy",
+      "content": "Exchanges can be made within 30 days of purchase for a different size, color, or similar item of equal value. If exchanging for a higher-priced item, you will be charged the difference. If exchanging for a lower-priced item, the difference will be refunded. Visit our exchanges portal or any store location."
+    },
+    {
+      "id": "doc-006",
+      "category": "policy",
+      "title": "Warranty Information",
+      "content": "All products come with a manufacturer's warranty. Electronics have a 1-year warranty covering defects. Appliances have a 2-year warranty. Furniture has a 5-year warranty on frames. Warranty claims should be filed through our warranty portal with proof of purchase and photos of the defect."
+    },
+    {
+      "id": "doc-007",
+      "category": "policy",
+      "title": "Loyalty Program Terms",
+      "content": "Our Rewards Club members earn 1 point per dollar spent. 100 points equals $5 in rewards. Points expire after 12 months of account inactivity. Silver members (500+ points/year) get free shipping on all orders. Gold members (1000+ points/year) get early access to sales and exclusive discounts."
+    },
+    {
+      "id": "doc-008",
+      "category": "policy",
+      "title": "Gift Card Policy",
+      "content": "Gift cards can be purchased in denominations from $25 to $500. Gift cards never expire and have no fees. Lost or stolen gift cards cannot be replaced without proof of purchase. Gift cards can be used online or in-store. Remaining balances can be checked on our website."
+    },
+    {
+      "id": "doc-009",
+      "category": "policy",
+      "title": "Privacy Policy Summary",
+      "content": "We collect personal information to process orders and improve your experience. We never sell your data to third parties. You can opt out of marketing emails at any time. Account data can be deleted upon request within 30 days. We use industry-standard encryption to protect your information."
+    },
+    {
+      "id": "doc-010",
+      "category": "policy",
+      "title": "Damaged or Defective Items",
+      "content": "If you receive a damaged or defective item, contact us within 48 hours with photos of the damage. We will send a replacement at no cost or provide a full refund including shipping. Do not discard the damaged item until instructed. For safety-related defects, stop using the product immediately."
+    },
+    {
+      "id": "doc-011",
+      "category": "product",
+      "title": "Premium Wireless Headphones",
+      "content": "Model: WH-1000X. Features active noise cancellation, 30-hour battery life, Bluetooth 5.0, and premium leather ear cushions. Compatible with all Bluetooth devices. Includes carrying case, charging cable, and 3.5mm audio cable for wired use. Available in black, silver, and midnight blue. Price: $299.99."
+    },
+    {
+      "id": "doc-012",
+      "category": "product",
+      "title": "Smart Watch Pro",
+      "content": "Model: SW-Pro. Features heart rate monitoring, GPS, sleep tracking, and water resistance to 50m. Compatible with iOS and Android. Battery lasts 7 days with typical use. Available in 42mm and 46mm sizes. Interchangeable bands sold separately. Price: $399.99."
+    },
+    {
+      "id": "doc-013",
+      "category": "product",
+      "title": "Ergonomic Office Chair",
+      "content": "Model: ErgoMax 3000. Features adjustable lumbar support, mesh back, adjustable armrests, and seat height adjustment. Supports up to 300 lbs. Includes 5-year frame warranty. Assembly required (approximately 30 minutes). Available in black, gray, and blue. Price: $449.99."
+    },
+    {
+      "id": "doc-014",
+      "category": "product",
+      "title": "4K Ultra HD Television",
+      "content": "Model: TV-55X. 55-inch 4K UHD display with HDR10+ support. Smart TV features with built-in streaming apps. 120Hz refresh rate for smooth motion. 3 HDMI ports, 2 USB ports. Wall-mountable (mount sold separately). Includes remote and quick start guide. Price: $599.99."
+    },
+    {
+      "id": "doc-015",
+      "category": "product",
+      "title": "Professional Blender",
+      "content": "Model: BlendMax Pro. 1500-watt motor with variable speed control. 64oz BPA-free pitcher. Includes tamper for thick blends. Pre-programmed settings for smoothies, soups, and ice crushing. Self-cleaning function. 2-year motor warranty. Price: $249.99."
+    },
+    {
+      "id": "doc-016",
+      "category": "product",
+      "title": "Memory Foam Mattress",
+      "content": "Model: DreamCloud Queen. 12-inch memory foam mattress with cooling gel layer. Medium-firm support. CertiPUR-US certified foam. Includes 100-night trial and 10-year warranty. Delivered compressed in a box. Allow 24-48 hours for full expansion. Price: $899.99."
+    },
+    {
+      "id": "doc-017",
+      "category": "product",
+      "title": "Portable Bluetooth Speaker",
+      "content": "Model: SoundWave Mini. Waterproof (IPX7 rated). 12-hour battery life. 360-degree sound. Built-in microphone for calls. Pairs with second speaker for stereo sound. Includes USB-C charging cable. Available in 6 colors. Price: $79.99."
+    },
+    {
+      "id": "doc-018",
+      "category": "product",
+      "title": "Robot Vacuum Cleaner",
+      "content": "Model: CleanBot X5. Features smart mapping, scheduled cleaning, and app control. Works on carpet and hard floors. 120-minute runtime. Auto-returns to charging dock. Compatible with Alexa and Google Home. Includes extra filters and side brushes. Price: $399.99."
+    },
+    {
+      "id": "doc-019",
+      "category": "product",
+      "title": "Stainless Steel Cookware Set",
+      "content": "Model: ChefPro 10-Piece. Includes 8\" and 10\" frying pans, 1.5qt and 3qt saucepans with lids, 6qt stockpot with lid. Tri-ply stainless steel construction. Oven safe to 500F. Dishwasher safe. Lifetime warranty. Price: $299.99."
+    },
+    {
+      "id": "doc-020",
+      "category": "product",
+      "title": "Fitness Tracker Band",
+      "content": "Model: FitBand Lite. Tracks steps, calories, heart rate, and sleep. Water resistant. 5-day battery life. Syncs with smartphone app. Interchangeable bands. Available in small and large sizes. Comes with charging dock. Price: $49.99."
+    },
+    {
+      "id": "doc-021",
+      "category": "faq",
+      "title": "How to Track My Order",
+      "content": "To track your order: 1) Log into your account on our website. 2) Go to Order History. 3) Click on the order you want to track. 4) Click 'Track Package' to see current status. You can also track using the tracking number sent to your email. Allow 24 hours after shipping for tracking to update."
+    },
+    {
+      "id": "doc-022",
+      "category": "faq",
+      "title": "How to Cancel an Order",
+      "content": "Orders can be cancelled within 1 hour of placement if they haven't been processed. To cancel: 1) Log into your account. 2) Go to Order History. 3) Select the order. 4) Click 'Cancel Order'. If the cancel button is not available, the order has already been processed. Contact customer service for assistance."
+    },
+    {
+      "id": "doc-023",
+      "category": "faq",
+      "title": "Payment Methods Accepted",
+      "content": "We accept Visa, Mastercard, American Express, Discover, PayPal, Apple Pay, Google Pay, and Shop Pay. Gift cards can be combined with other payment methods. Financing is available through Affirm for orders over $100. All transactions are encrypted and secure."
+    },
+    {
+      "id": "doc-024",
+      "category": "faq",
+      "title": "How to Apply a Promo Code",
+      "content": "To apply a promo code: 1) Add items to your cart. 2) Proceed to checkout. 3) Enter the promo code in the 'Discount Code' field. 4) Click 'Apply'. The discount will be reflected in your order total. Only one promo code can be used per order. Some exclusions may apply."
+    },
+    {
+      "id": "doc-025",
+      "category": "faq",
+      "title": "International Shipping Information",
+      "content": "We ship to Canada, UK, Australia, Germany, France, and Japan. International orders may be subject to customs duties and taxes. Delivery times range from 7-21 business days depending on destination. Tracking is available for all international shipments. Some products cannot be shipped internationally."
+    },
+    {
+      "id": "doc-026",
+      "category": "faq",
+      "title": "How to Reset Password",
+      "content": "To reset your password: 1) Go to the login page. 2) Click 'Forgot Password'. 3) Enter your email address. 4) Check your email for the reset link. 5) Click the link and create a new password. The reset link expires in 24 hours. If you don't receive the email, check your spam folder."
+    },
+    {
+      "id": "doc-027",
+      "category": "faq",
+      "title": "Store Locations and Hours",
+      "content": "We have 50 retail locations across the United States. Most stores are open Monday-Saturday 10am-9pm and Sunday 11am-6pm. Holiday hours may vary. Use our store locator on the website to find the nearest location, hours, and services available. Some stores offer same-day pickup for online orders."
+    },
+    {
+      "id": "doc-028",
+      "category": "faq",
+      "title": "How to Create an Account",
+      "content": "To create an account: 1) Click 'Sign Up' on our website. 2) Enter your email address. 3) Create a password (minimum 8 characters). 4) Add your name and contact information. 5) Opt in to receive marketing emails (optional). Benefits include order tracking, faster checkout, and loyalty rewards."
+    },
+    {
+      "id": "doc-029",
+      "category": "faq",
+      "title": "Subscription Box Program",
+      "content": "Our monthly subscription boxes deliver curated products to your door. Choose from Beauty, Home, Tech, or Fitness themes. Boxes are $39.99/month with free shipping. Skip or cancel anytime. Subscribers get 20% off full-size products. Each box is valued at $80+ in retail products."
+    },
+    {
+      "id": "doc-030",
+      "category": "faq",
+      "title": "Contact Customer Service",
+      "content": "Customer service is available: Phone: 1-800-555-0123 (Mon-Fri 8am-8pm, Sat-Sun 9am-5pm ET). Email: support@example.com (response within 24 hours). Live Chat: Available on website during business hours. Social Media: @ExampleStore on Twitter and Facebook for quick questions."
+    },
+    {
+      "id": "doc-031",
+      "category": "troubleshooting",
+      "title": "Order Not Received",
+      "content": "If your order shows delivered but you haven't received it: 1) Check with household members or neighbors. 2) Check around your property for the package. 3) Contact the carrier with your tracking number. 4) If still not found after 48 hours, contact us for a replacement or refund. Keep the tracking information handy."
+    },
+    {
+      "id": "doc-032",
+      "category": "troubleshooting",
+      "title": "Website Login Issues",
+      "content": "If you can't log in: 1) Verify you're using the correct email address. 2) Try resetting your password. 3) Clear your browser cache and cookies. 4) Try a different browser or device. 5) Check if caps lock is on. If problems persist, contact customer service with your account email."
+    },
+    {
+      "id": "doc-033",
+      "category": "troubleshooting",
+      "title": "Payment Declined",
+      "content": "If your payment is declined: 1) Verify card details are entered correctly. 2) Check card hasn't expired. 3) Ensure billing address matches your card. 4) Contact your bank to ensure the transaction wasn't blocked. 5) Try a different payment method. Your cart items will be saved for 24 hours."
+    },
+    {
+      "id": "doc-034",
+      "category": "troubleshooting",
+      "title": "Promo Code Not Working",
+      "content": "If your promo code isn't working: 1) Check the code hasn't expired. 2) Verify minimum purchase requirement is met. 3) Ensure items in cart qualify (some exclusions apply). 4) Make sure no other discount has been applied. 5) Enter code exactly as shown (case-sensitive). Contact support if issues persist."
+    },
+    {
+      "id": "doc-035",
+      "category": "troubleshooting",
+      "title": "App Not Syncing",
+      "content": "If the mobile app isn't syncing: 1) Check your internet connection. 2) Log out and log back in. 3) Update the app to the latest version. 4) Restart your device. 5) Uninstall and reinstall the app. Your data is stored in the cloud and won't be lost. Contact support if syncing still fails."
+    },
+    {
+      "id": "doc-036",
+      "category": "product",
+      "title": "Winter Jacket Collection",
+      "content": "Our winter jackets feature 650-fill down insulation, waterproof shells, and adjustable hoods. Temperature rated to -20F. Available in men's and women's sizes XS-3XL. Colors include black, navy, forest green, and burgundy. Machine washable. Prices range from $149.99 to $249.99."
+    },
+    {
+      "id": "doc-037",
+      "category": "product",
+      "title": "Leather Wallet Collection",
+      "content": "Genuine leather wallets handcrafted from full-grain leather. Features RFID blocking technology. Bifold and trifold styles available. Multiple card slots and bill compartments. Available in brown, black, and tan. Personalized monogramming available. Prices: $49.99-$79.99."
+    },
+    {
+      "id": "doc-038",
+      "category": "product",
+      "title": "Yoga Mat Premium",
+      "content": "Model: YogaPro Plus. 6mm thick eco-friendly TPE material. Non-slip texture on both sides. 72\" x 26\" size fits most users. Includes carrying strap. Easy to clean with soap and water. Available in 8 colors. Latex-free and PVC-free. Price: $59.99."
+    },
+    {
+      "id": "doc-039",
+      "category": "product",
+      "title": "Coffee Maker Deluxe",
+      "content": "Model: BrewMaster 12. Programmable 12-cup coffee maker with thermal carafe. Built-in grinder for fresh beans. Adjustable brew strength. Auto-start timer. Removable water reservoir. 2-year warranty. Includes reusable filter and cleaning brush. Price: $179.99."
+    },
+    {
+      "id": "doc-040",
+      "category": "product",
+      "title": "Kids Bicycle",
+      "content": "Model: KidRide 16. 16-inch wheels suitable for ages 4-7. Training wheels included. Coaster brake and front hand brake. Adjustable seat and handlebars. Steel frame with colorful decals. Assembly required. Available in red, blue, and pink. Price: $149.99."
+    },
+    {
+      "id": "doc-041",
+      "category": "policy",
+      "title": "Student Discount Program",
+      "content": "Students with a valid .edu email address receive 15% off all orders. Verify your student status through our partner SheerID. Discount applies to regular-priced items only. Cannot be combined with other promotional offers. Verification is valid for 1 year and can be renewed."
+    },
+    {
+      "id": "doc-042",
+      "category": "policy",
+      "title": "Military Discount",
+      "content": "Active duty military, veterans, and military families receive 20% off all orders. Verify your status through ID.me. Discount applies to regular-priced and sale items. Can be used in-store with valid military ID. Thank you for your service."
+    },
+    {
+      "id": "doc-043",
+      "category": "faq",
+      "title": "Size Guide",
+      "content": "Our size guide is available on each product page. Click 'Size Guide' to see measurements. We recommend measuring a similar item you own for comparison. Fit varies by brand and style. If between sizes, we recommend sizing up. Free exchanges are available within 30 days."
+    },
+    {
+      "id": "doc-044",
+      "category": "faq",
+      "title": "Gift Wrapping Service",
+      "content": "Gift wrapping is available for $5.99 per item. Select 'Gift Wrap' during checkout. Choose from 5 wrapping paper designs. Include a personalized gift message (up to 150 characters). Gift receipts are included showing no prices. Gift wrapping is not available for oversized items."
+    },
+    {
+      "id": "doc-045",
+      "category": "faq",
+      "title": "Buy Online Pick Up In Store",
+      "content": "BOPIS orders are ready within 2 hours during store hours. You'll receive an email when your order is ready. Bring your order confirmation and photo ID. Items are held for 7 days. Someone else can pick up with your confirmation email and their ID. Available at all store locations."
+    },
+    {
+      "id": "doc-046",
+      "category": "troubleshooting",
+      "title": "Wrong Item Received",
+      "content": "If you received the wrong item: 1) Keep the item in its packaging. 2) Contact customer service within 48 hours. 3) We'll send a prepaid return label. 4) Ship the wrong item back. 5) We'll send the correct item with expedited shipping at no charge. We apologize for the inconvenience."
+    },
+    {
+      "id": "doc-047",
+      "category": "troubleshooting",
+      "title": "Charged Twice for Order",
+      "content": "If you see duplicate charges: 1) Check if one is a pending authorization (will drop off). 2) Verify you didn't accidentally place two orders. 3) Contact your bank to confirm actual charges. 4) If truly charged twice, contact us with order numbers. We'll refund the duplicate within 3-5 business days."
+    },
+    {
+      "id": "doc-048",
+      "category": "policy",
+      "title": "Backorder Policy",
+      "content": "Items on backorder will ship when available. You'll be charged when the item ships. Expected availability dates are estimates and may change. You can cancel backordered items anytime before shipping. We'll notify you of any significant delays. Partial shipments may result in separate shipping charges."
+    },
+    {
+      "id": "doc-049",
+      "category": "policy",
+      "title": "Bulk Order Discounts",
+      "content": "Orders of 10+ items receive 10% off. Orders of 25+ items receive 15% off. Orders of 50+ items receive 20% off. Contact our business sales team for orders over 100 items. Custom branding and packaging available for corporate orders. Lead time is 2-4 weeks for bulk orders."
+    },
+    {
+      "id": "doc-050",
+      "category": "faq",
+      "title": "Environmental Commitment",
+      "content": "We are committed to sustainability. All packaging is recyclable or compostable. We offset carbon emissions from shipping. Our products increasingly use recycled materials. Free in-store recycling for electronics. Partner with One Tree Planted - we plant a tree for every $100 spent."
+    }
+  ]
+}

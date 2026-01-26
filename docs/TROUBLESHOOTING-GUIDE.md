@@ -273,6 +273,61 @@ sleep 10
 curl http://localhost:8080/health
 ```
 
+### Issue: SLIM Configuration Schema Error
+
+**Error**:
+```
+thread 'main' panicked at core/slim/src/bin/main.rs:27:55:
+failed to load configuration: InvalidKey("server")
+```
+
+**Cause**: SLIM v0.6.1 uses a specific configuration schema. Common mistakes:
+- Using `server:` as top-level key (invalid)
+- Including `http://` scheme in endpoint (invalid)
+
+**Solution**: Use the correct SLIM configuration schema:
+
+```yaml
+# config/slim/server-config.yaml - CORRECT FORMAT
+
+tracing:
+  log_level: info
+  display_thread_names: true
+  display_thread_ids: true
+
+runtime:
+  n_cores: 0  # 0 = auto-detect
+  thread_name: "slim-data-plane"
+  drain_timeout: 10s
+
+services:
+  slim/1:
+    dataplane:
+      servers:
+        - endpoint: "0.0.0.0:46357"  # NO http:// prefix!
+          tls:
+            insecure: true
+      clients: []
+```
+
+**Common Mistakes**:
+```yaml
+# WRONG - "server:" is not a valid key
+server:
+  host: 0.0.0.0
+  port: 46357
+
+# WRONG - don't include http:// in endpoint
+endpoint: "http://0.0.0.0:46357"
+
+# CORRECT - just host:port
+endpoint: "0.0.0.0:46357"
+```
+
+**Reference**: See [SLIM-CONFIGURATION-ISSUE.md](./SLIM-CONFIGURATION-ISSUE.md) for full details.
+
+---
+
 ### Issue: Mock API Services Not Responding
 
 **Error**:
@@ -1084,5 +1139,99 @@ If issue not covered in this guide:
 
 ---
 
+## Streamlit Console Issues
+
+### Issue: Streamlit Shows Old/Cached Content
+
+**Symptoms**:
+- Code changes don't appear in the browser
+- New features/toggles don't show up (e.g., Azure OpenAI mode toggle missing)
+- Debug statements in code don't execute
+- Browser shows stale UI even after code modifications
+
+**Root Cause**: Streamlit maintains persistent WebSocket connections. If an old Streamlit process is still running on a port, the browser reconnects to it instead of the new process. Additionally, Python's `__pycache__` may contain outdated compiled bytecode.
+
+**Diagnosis**:
+```powershell
+# Check if multiple Python/Streamlit processes are running
+Get-Process python* | Select-Object Id, ProcessName, StartTime
+
+# Check what's using specific ports
+netstat -an | findstr :8080
+netstat -an | findstr :8085
+```
+
+**Solution**:
+```powershell
+# Step 1: Kill ALL Python processes (careful if other Python apps running)
+Get-Process python* | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# Step 2: Clear Python cache
+Remove-Item -Path console/__pycache__ -Recurse -Force -ErrorAction SilentlyContinue
+Remove-Item -Path evaluation/__pycache__ -Recurse -Force -ErrorAction SilentlyContinue
+
+# Step 3: Clear Streamlit cache
+python -m streamlit cache clear
+
+# Step 4: Start on a FRESH PORT (not previously used)
+streamlit run console/app.py --server.port 8085
+
+# Step 5: Open browser to the NEW port
+# http://localhost:8085
+```
+
+**Prevention**:
+- Always stop Streamlit with Ctrl+C before restarting
+- Use a fresh port number when troubleshooting
+- Hard refresh browser with Ctrl+Shift+R
+- Use incognito/private browsing window
+
+**OneDrive Consideration**: If project is in OneDrive folder, sync delays can cause the running process to see older file versions. The filesystem reports the new content but the process may have cached the old version. Restarting the process resolves this.
+
+### Issue: Azure OpenAI Mode Toggle Not Appearing
+
+**Symptoms**:
+- Chat Interface shows no "🔌 Azure OpenAI Mode" toggle
+- Sidebar doesn't show "🔧 Azure OpenAI Status" debug info
+
+**Diagnosis**:
+1. Check sidebar for "🔧 Azure OpenAI Status" section
+2. If "Available: False" - environment variables not set
+3. If "Import Error" shown - module installation issue
+
+**Solution**:
+```powershell
+# 1. Verify environment variables
+echo $env:AZURE_OPENAI_ENDPOINT
+echo $env:AZURE_OPENAI_API_KEY
+echo $env:AZURE_OPENAI_GPT4O_MINI_DEPLOYMENT
+
+# 2. Test import directly
+python -c "from console.azure_openai_mode import is_azure_mode_available; print('Available:', is_azure_mode_available())"
+
+# 3. Test full initialization
+python -c "from console.azure_openai_mode import get_azure_mode; azure = get_azure_mode(); print(azure.initialize())"
+
+# 4. If working in Python but not Streamlit, follow "Streamlit Shows Old/Cached Content" above
+```
+
+### Issue: Azure OpenAI Responses Blocked
+
+**Symptoms**:
+- Messages return "Content blocked by Azure safety filter 🚫 BLOCKED"
+- 0% confidence, only Critic/Supervisor agent shown
+
+**Cause**: Azure's built-in content moderation filter detected potentially problematic content. This is defense-in-depth working correctly.
+
+**Solution**:
+- Rephrase the message to avoid triggering the filter
+- This is expected behavior for certain word patterns
+- The Critic/Supervisor agent provides additional validation layer
+
+**Note**: Blocked messages still cost a small amount (~$0.0001) for the API call.
+
+---
+
 **Version History**:
+- v1.1 (2026-01-25): Added Streamlit Console troubleshooting section
 - v1.0 (2026-01-25): Initial release for Phase 3

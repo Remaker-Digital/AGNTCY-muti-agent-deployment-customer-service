@@ -112,23 +112,46 @@ git push origin master
 
 The architecture document references several other potential wiki pages. Consider creating these:
 
-#### 1. Getting Started (Quick start guide)
+#### 1. Cost Management (CREATED 2026-01-25)
+**Content:** Phase 5 accounts, subscriptions, cost scaling, optimization
+**Filename:** `Phase5-Accounts-Cost-Management.md`
+**Source:** `docs/WIKI-Phase5-Accounts-Cost-Management.md`
+**Audience:** Operators managing Azure costs
+
+#### 2. Phase 3.5 AI Model Optimization Results (CREATED 2026-01-25)
+**Content:** Evaluation results, model selection, production prompts
+**Filename:** `Phase35-AI-Model-Optimization-Results.md`
+**Source:** `docs/WIKI-Phase35-AI-Model-Optimization-Results.md`
+**Audience:** Developers deploying AI models
+
+#### 3. UCP Integration Guide (CREATED 2026-01-26)
+**Content:** Universal Commerce Protocol benefits, use cases, implementation guide
+**Filename:** `UCP-Integration-Guide.md`
+**Source:** `docs/WIKI-UCP-Integration-Guide.md`
+**Audience:** Developers and architects evaluating/implementing UCP
+**Related docs:**
+- `docs/EVALUATION-Universal-Commerce-Protocol-UCP.md` (evaluation)
+- `docs/UCP-IMPLEMENTATION-COMPLEXITY-ANALYSIS.md` (complexity analysis)
+- `docs/MCP-TESTING-VALIDATION-APPROACH.md` (testing approach)
+- `docs/COMPARISON-Shopify-Shop-Chat-Agent.md` (competitor comparison)
+
+#### 4. Getting Started (Quick start guide)
 **Content:** Installation, local setup, first run
 **Filename:** `Getting-Started.md`
 
-#### 2. Agent Development Guide
+#### 5. Agent Development Guide
 **Content:** How to create new agents, AGNTCY SDK patterns
 **Filename:** `Agent-Development.md`
 
-#### 3. Deployment Guide
+#### 6. Deployment Guide
 **Content:** Azure deployment steps, Terraform usage
 **Filename:** `Deployment.md`
 
-#### 4. Troubleshooting
+#### 7. Troubleshooting
 **Content:** Common issues, debugging tips
 **Filename:** `Troubleshooting.md`
 
-#### 5. API Reference
+#### 8. API Reference
 **Content:** Agent API specs, message formats
 **Filename:** `API-Reference.md`
 
@@ -147,11 +170,28 @@ The architecture document references several other potential wiki pages. Conside
 
 - [Home](Home)
 - [Architecture](Architecture)
+- [Phase 3.5 AI Model Results](Phase35-AI-Model-Optimization-Results)
+- [UCP Integration Guide](UCP-Integration-Guide)
+- [Cost Management](Phase5-Accounts-Cost-Management)
 - [Getting Started](Getting-Started)
 - [Agent Development](Agent-Development)
 - [Deployment](Deployment)
 - [API Reference](API-Reference)
 - [Troubleshooting](Troubleshooting)
+
+### Commerce Integration
+
+- [UCP Overview](UCP-Integration-Guide#overview)
+- [UCP Benefits](UCP-Integration-Guide#benefits-for-this-project)
+- [Implementation Roadmap](UCP-Integration-Guide#implementation-roadmap)
+- [UCP vs Alternatives](UCP-Integration-Guide#technical-advantages-vs-alternatives)
+
+### Operations
+
+- [Accounts & Subscriptions](Phase5-Accounts-Cost-Management#required-accounts--subscriptions)
+- [Cost Scaling](Phase5-Accounts-Cost-Management#cost-scaling-analysis)
+- [Cost Optimization](Phase5-Accounts-Cost-Management#cost-optimization-strategies)
+- [Monitoring & Alerts](Phase5-Accounts-Cost-Management#monitoring--alerts)
 
 ### Project Management
 
@@ -163,6 +203,7 @@ The architecture document references several other potential wiki pages. Conside
 
 - [AGNTCY SDK Docs](https://docs.agntcy.com)
 - [Azure Architecture Center](https://learn.microsoft.com/azure/architecture/)
+- [Azure Pricing Calculator](https://azure.microsoft.com/pricing/calculator/)
 - [PROJECT-README.txt](https://github.com/Remaker-Digital/AGNTCY-muti-agent-deployment-customer-service/blob/main/PROJECT-README.txt)
 ```
 
@@ -345,5 +386,5 @@ If you find errors in the architecture documentation, please:
 ---
 
 **Created:** 2026-01-22
-**Last Updated:** 2026-01-22
+**Last Updated:** 2026-01-26
 **Maintained By:** Project contributors
