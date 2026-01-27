@@ -33,9 +33,37 @@ A comprehensive development and testing interface for the AGNTCY multi-agent cus
 
 ## Quick Start
 
-### Option 1: Web Console (Streamlit)
+### Option 1: Local Console with Azure OpenAI (Recommended for Phase 5)
+
+This configuration runs the console locally while connecting to Azure OpenAI for real AI responses.
+
 ```powershell
-# Start the console locally
+# 1. Copy and configure Azure environment file
+Copy-Item .env.azure.example .env.azure
+notepad .env.azure  # Add your Azure OpenAI credentials
+
+# 2. Set environment file
+$env:DOTENV_FILE = ".env.azure"
+
+# 3. Start the console
+streamlit run console/app.py --server.port 8080
+
+# 4. Open browser
+Start-Process "http://localhost:8080"
+```
+
+**Required credentials in `.env.azure`:**
+```bash
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_KEY=your-api-key
+AZURE_OPENAI_GPT4O_MINI_DEPLOYMENT=gpt-4o-mini
+```
+
+See [.env.azure.example](../.env.azure.example) for full configuration options.
+
+### Option 2: Local Development (Mock Mode)
+```powershell
+# Start the console locally (uses mock responses)
 .\start-console.ps1
 
 # Or manually with Streamlit
@@ -44,7 +72,7 @@ streamlit run console/app.py --server.port 8080
 
 The console will be available at: http://localhost:8080
 
-### Option 2: Command-Line Interface
+### Option 3: Command-Line Interface
 ```powershell
 # Interactive console chat with Azure OpenAI
 python -m evaluation.console_chat
@@ -56,7 +84,7 @@ python -m evaluation.console_chat --debug
 python -m evaluation.console_chat --context product
 ```
 
-### Option 3: Docker
+### Option 4: Docker
 ```powershell
 # Start with Docker Compose
 .\start-console.ps1 -Mode docker
@@ -267,6 +295,63 @@ If messages are blocked with "Content blocked by Azure safety filter":
 - Azure OpenAI mode works independently without mock services
 - Start mock services if needed: `docker-compose up -d mock-shopify mock-zendesk mock-mailchimp mock-google-analytics`
 - Check service health: Visit http://localhost:8001/health (Shopify), etc.
+
+## Phase 5 Integration (Azure Backend)
+
+### Architecture: Local Console + Azure Backend
+
+For Phase 5 production testing, the console runs **locally** while connecting to Azure services:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                    Your Local Machine                            │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  Streamlit Console (http://localhost:8080)                 │  │
+│  │  - Chat Interface                                          │  │
+│  │  - Agent Metrics                                           │  │
+│  │  - Trace Viewer                                            │  │
+│  └──────────────────────────┬────────────────────────────────┘  │
+└─────────────────────────────┼────────────────────────────────────┘
+                              │ HTTPS (API calls)
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Azure Cloud                                   │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  Azure OpenAI Service (West US)                            │  │
+│  │  - GPT-4o-mini (intent, critic, escalation)               │  │
+│  │  - GPT-4o (response generation)                            │  │
+│  │  - text-embedding-3-large (RAG)                            │  │
+│  └───────────────────────────────────────────────────────────┘  │
+│                                                                  │
+│  ┌───────────────────────────────────────────────────────────┐  │
+│  │  Azure Container Instances (East US 2) - Private VNet     │  │
+│  │  SLIM Gateway │ NATS │ 6 Agents                           │  │
+│  │  (10.0.1.4)   │(10.0.1.5)│ (10.0.1.6-11)                  │  │
+│  └───────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+**Why Local Console?**
+- **Security**: No public endpoint needed for development console
+- **Cost Savings**: ~$15-30/month saved on Azure App Service
+- **Flexibility**: Easy iteration and debugging during development
+- **Accessibility**: Works from any developer workstation
+
+### Connection Modes
+
+| Mode | Use Case | Network Requirements |
+|------|----------|---------------------|
+| **Azure OpenAI Only** | Phase 5 testing, prompt validation | Internet access |
+| **Full Azure Backend** | Production simulation | VPN to Azure VNet |
+| **Local Docker** | Offline development | None |
+
+### Test Users for Phase 5
+
+See [docs/PHASE-5-TEST-USER-STRATEGY.md](../docs/PHASE-5-TEST-USER-STRATEGY.md) for:
+- 8 test personas with scripted scenarios
+- Validation checklist with KPIs
+- Test execution templates
+- Security/safety test cases
 
 ## Phase 2 Integration
 

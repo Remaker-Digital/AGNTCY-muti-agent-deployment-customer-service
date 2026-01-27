@@ -37,6 +37,8 @@ ENV/
 .env
 .env.local
 .env.*.local
+.env.azure
+.env.phase3.5
 
 # Testing
 .pytest_cache/
@@ -91,4 +93,3 @@ PPTX-template-and-skill/output/
 PPTX-template-and-skill/template-extracted/
 PPTX-template-and-skill/template.zip
 PPTX-template-and-skill/test-content.json
-.env.phase3.5
