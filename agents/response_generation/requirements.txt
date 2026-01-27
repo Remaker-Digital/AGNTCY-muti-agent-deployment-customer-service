@@ -1,5 +1,5 @@
-agntcy-app-sdk>=0.2.0
-python-dotenv>=1.0.0
-httpx>=0.27.0
-openai>=1.10.0
-azure-identity>=1.15.0
+# Response Generation Agent - Agent-specific dependencies
+# Common dependencies are in ../../requirements-agents.txt
+#
+# This agent has no additional dependencies beyond the shared ones.
+# File kept for Dockerfile compatibility and future extensibility.

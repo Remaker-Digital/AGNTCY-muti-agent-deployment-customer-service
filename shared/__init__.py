@@ -10,6 +10,7 @@ This package provides:
 """
 
 from shared.factory import get_factory, shutdown_factory
+from shared.base_agent import BaseAgent, run_agent
 from shared.models import (
     AgentCard,
     CustomerMessage,
@@ -71,6 +72,10 @@ __all__ = [
     # Factory
     "get_factory",
     "shutdown_factory",
+
+    # Base Agent
+    "BaseAgent",
+    "run_agent",
 
     # Models
     "AgentCard",

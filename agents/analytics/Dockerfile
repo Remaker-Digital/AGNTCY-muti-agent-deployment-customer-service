@@ -3,7 +3,7 @@
 # =============================================================================
 # Optimizations Applied:
 # - Multi-stage build to separate build and runtime environments
-# - Layer caching optimized (requirements first, then code)
+# - Shared requirements installed first for better layer caching
 # - Non-root user for security
 # - Specific Python version pinning
 # - Minimal final image size
@@ -22,10 +22,15 @@ RUN apt-get update && \
         gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and install requirements (cached layer if requirements unchanged)
-COPY agents/analytics/requirements.txt .
+# Copy and install SHARED requirements first (changes rarely - better caching)
+COPY requirements-agents.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --user --no-warn-script-location -r requirements.txt
+    pip install --user --no-warn-script-location -r requirements-agents.txt
+
+# Copy and install agent-specific requirements (if any)
+COPY agents/analytics/requirements.txt agent-requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --user --no-warn-script-location -r agent-requirements.txt 2>/dev/null || true
 
 # -----------------------------------------------------------------------------
 # Stage 2: Runtime - Minimal production image

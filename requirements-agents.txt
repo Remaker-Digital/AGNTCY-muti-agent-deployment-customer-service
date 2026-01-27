@@ -1,0 +1,24 @@
+# =============================================================================
+# Shared Agent Dependencies
+# =============================================================================
+# Common dependencies for all 6 agents (intent, knowledge, response,
+# escalation, analytics, critic_supervisor)
+#
+# Usage: Each agent's Dockerfile should install this file FIRST, then any
+# agent-specific requirements from agents/{agent}/requirements.txt
+#
+# This eliminates duplication and ensures consistent versions across agents.
+# =============================================================================
+
+# AGNTCY SDK - Core multi-agent framework (requires Python 3.12+)
+agntcy-app-sdk>=0.2.0
+
+# Configuration management
+python-dotenv>=1.0.0
+
+# Azure OpenAI integration (Phase 4+)
+openai>=1.12.0
+azure-identity>=1.15.0
+
+# HTTP client for external API calls (used by escalation, analytics, knowledge)
+httpx>=0.27.0

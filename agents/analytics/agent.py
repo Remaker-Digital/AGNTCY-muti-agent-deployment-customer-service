@@ -4,28 +4,28 @@ Collects metrics and events from all agents for KPI tracking
 
 Phase 1: Mock Google Analytics integration
 Phase 2: Coffee/brewing business - KPI tracking (automation rate, response time, sentiment, escalations)
+
+Refactored to use BaseAgent pattern for reduced code duplication.
 """
 
-import sys, asyncio, httpx
-from pathlib import Path
-from typing import Dict
+import asyncio
+import httpx
 from datetime import datetime
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from typing import Dict, List
 
-from shared import get_factory, shutdown_factory, setup_logging, load_config, handle_graceful_shutdown
+from shared.base_agent import BaseAgent, run_agent
 from shared.models import AnalyticsEvent, create_a2a_message, extract_message_content, generate_message_id
 
-class AnalyticsAgent:
+
+class AnalyticsAgent(BaseAgent):
     """Passive listener collecting metrics from all agent communication."""
-    
+
+    agent_name = "analytics-agent"
+    default_topic = "analytics"
+
     def __init__(self):
-        self.config = load_config()
-        self.agent_topic = self.config["agent_topic"]
-        self.logger = setup_logging(self.agent_topic, self.config["log_level"])
-        self.logger.info(f"Initializing Analytics Agent: {self.agent_topic}")
-        self.factory = get_factory()
-        self.transport, self.client = None, None
-        self.events_collected = 0
+        """Initialize the Analytics Agent."""
+        super().__init__()
         self.http_client = httpx.AsyncClient(timeout=10.0)
 
         # Phase 2: KPI Tracking for coffee/brewing business
@@ -40,54 +40,107 @@ class AnalyticsAgent:
             "auto_approvals": 0,  # Auto-approved refunds
             "avg_confidence": []  # Confidence scores
         }
-
         self.conversation_start_times = {}  # Track conversation start for response time
-    
-    async def initialize(self):
-        self.logger.info("Creating NATS transport for high-throughput analytics...")
-        try:
-            # Use NATS for analytics (high-throughput pub-sub)
-            self.transport = self.factory.create_nats_transport(f"{self.agent_topic}-transport")
-            if self.transport:
-                self.client = self.factory.create_a2a_client(self.agent_topic, self.transport)
-                self.logger.info("Agent initialized with NATS transport")
-        except Exception as e:
-            self.logger.warning(f"NATS not available, falling back: {e}")
-    
-    async def handle_message(self, message: dict) -> None:
+
+    async def process_message(self, content: dict, message: dict) -> None:
         """
         Collect analytics event and update KPIs.
-        Phase 2: Coffee/brewing business KPI tracking.
+
+        Args:
+            content: Extracted message content
+            message: Full A2A message
+
+        Returns:
+            None (analytics is fire-and-forget)
         """
-        self.events_collected += 1
-        try:
-            content = extract_message_content(message)
-            event = AnalyticsEvent(
-                event_id=generate_message_id(),
-                event_type=content.get("event_type", "unknown"),
-                context_id=message.get("contextId", "unknown"),
-                agent_source=content.get("agent_source", "unknown"),
-                metrics=content.get("metrics", {}),
-                metadata=content.get("metadata", {})
-            )
+        event = AnalyticsEvent(
+            event_id=generate_message_id(),
+            event_type=content.get("event_type", "unknown"),
+            context_id=message.get("contextId", "unknown"),
+            agent_source=content.get("agent_source", "unknown"),
+            metrics=content.get("metrics", {}),
+            metadata=content.get("metadata", {})
+        )
 
-            self.logger.debug(f"Collected event: {event.event_type} from {event.agent_source}")
+        self.logger.debug(f"Collected event: {event.event_type} from {event.agent_source}")
 
-            # Update KPIs based on event type
-            self._update_kpis(event)
+        # Update KPIs based on event type
+        self._update_kpis(event)
 
-            # Send to Google Analytics (mock)
-            await self._send_to_google_analytics_mock(event)
+        # Send to Google Analytics (mock)
+        await self._send_to_google_analytics_mock(event)
 
-        except Exception as e:
-            self.logger.error(f"Error collecting event: {e}", exc_info=True)
+        return {"status": "collected", "event_id": event.event_id}
+
+    def get_demo_messages(self) -> List[dict]:
+        """Return sample messages for demo mode - Phase 2 coffee/brewing KPI tracking examples."""
+        # Simulate 3 complete conversation flows as sequential events
+        events = []
+
+        # Conversation 1: Order status query - automated
+        for event_data in [
+            {"event_type": "conversation_started", "agent_source": "system", "metrics": {}},
+            {"event_type": "intent_classified", "agent_source": "intent-classifier",
+             "metrics": {"intent": "order_status", "confidence": 0.92}},
+            {"event_type": "knowledge_retrieved", "agent_source": "knowledge-retrieval",
+             "metrics": {"results_found": 1, "search_time_ms": 85}},
+            {"event_type": "response_generated", "agent_source": "response-generator",
+             "metrics": {"confidence": 0.88}},
+            {"event_type": "escalation_decision", "agent_source": "escalation",
+             "metrics": {"should_escalate": False, "reason": "Standard query - automated"}}
+        ]:
+            events.append({
+                "contextId": "demo-ctx-001",
+                "parts": [{"type": "text", "content": event_data}]
+            })
+
+        # Conversation 2: Refund request - auto-approved
+        for event_data in [
+            {"event_type": "conversation_started", "agent_source": "system", "metrics": {}},
+            {"event_type": "intent_classified", "agent_source": "intent-classifier",
+             "metrics": {"intent": "refund_status", "confidence": 0.87}},
+            {"event_type": "sentiment_detected", "agent_source": "intent-classifier",
+             "metrics": {"sentiment": "neutral"}},
+            {"event_type": "escalation_decision", "agent_source": "escalation",
+             "metrics": {"should_escalate": False, "reason": "Refund auto-approved", "auto_approved": True}},
+            {"event_type": "response_generated", "agent_source": "response-generator",
+             "metrics": {"confidence": 0.90}}
+        ]:
+            events.append({
+                "contextId": "demo-ctx-002",
+                "parts": [{"type": "text", "content": event_data}]
+            })
+
+        # Conversation 3: Brewer defect - escalated
+        for event_data in [
+            {"event_type": "conversation_started", "agent_source": "system", "metrics": {}},
+            {"event_type": "intent_classified", "agent_source": "intent-classifier",
+             "metrics": {"intent": "brewer_support", "confidence": 0.95}},
+            {"event_type": "sentiment_detected", "agent_source": "intent-classifier",
+             "metrics": {"sentiment": "negative"}},
+            {"event_type": "escalation_decision", "agent_source": "escalation",
+             "metrics": {"should_escalate": True, "reason": "Brewer defect - technical support needed"}},
+            {"event_type": "response_generated", "agent_source": "response-generator",
+             "metrics": {"confidence": 0.85}}
+        ]:
+            events.append({
+                "contextId": "demo-ctx-003",
+                "parts": [{"type": "text", "content": event_data}]
+            })
+
+        return events
+
+    def cleanup(self) -> None:
+        """Cleanup with KPI report."""
+        self._log_kpi_summary()
+        asyncio.create_task(self.http_client.aclose())
+        super().cleanup()
 
     def _update_kpis(self, event: AnalyticsEvent):
         """Update KPI metrics based on event type."""
         context_id = event.context_id
         event_type = event.event_type
         metrics = event.metrics
-        metadata = event.metadata
 
         # Track conversation starts
         if event_type == "conversation_started":
@@ -136,7 +189,7 @@ class AnalyticsAgent:
                 self.logger.debug(f"Response time for {context_id}: {response_time_ms:.2f}ms")
 
         # Log KPI summary periodically (every 10 events)
-        if self.events_collected % 10 == 0:
+        if self.messages_processed % 10 == 0:
             self._log_kpi_summary()
 
     def _log_kpi_summary(self):
@@ -164,7 +217,7 @@ class AnalyticsAgent:
         self.logger.info(f"Auto-Approvals: {self.kpis['auto_approvals']}")
         self.logger.info(f"Avg Response Time: {avg_response_time:.2f}ms")
         self.logger.info(f"Avg Confidence: {avg_confidence:.2f}")
-        self.logger.info(f"Events Collected: {self.events_collected}")
+        self.logger.info(f"Events Collected: {self.messages_processed}")
         self.logger.info("=" * 60)
 
     def get_kpi_report(self) -> Dict:
@@ -186,13 +239,13 @@ class AnalyticsAgent:
             "intents_distribution": self.kpis["intents_classified"],
             "sentiment_distribution": self.kpis["sentiment_distribution"],
             "escalation_reasons": self.kpis["escalation_reasons"],
-            "events_collected": self.events_collected
+            "events_collected": self.messages_processed
         }
-    
+
     async def _send_to_google_analytics_mock(self, event: AnalyticsEvent):
         """Send event to mock Google Analytics API."""
         try:
-            ga_url = self.config["google_analytics_url"]
+            ga_url = self.config.get("google_analytics_url", "http://localhost:8004")
             # Mock GA4 Measurement Protocol
             response = await self.http_client.post(
                 f"{ga_url}/v1beta/properties/123456789/runReport",
@@ -206,116 +259,7 @@ class AnalyticsAgent:
                 self.logger.debug(f"Sent analytics event to GA")
         except Exception as e:
             self.logger.error(f"GA send failed: {e}")
-    
-    def cleanup(self):
-        self.logger.info(f"Cleaning up... (collected {self.events_collected} events)")
-        asyncio.create_task(self.http_client.aclose())
-        shutdown_factory()
-    
-    async def run_demo_mode(self):
-        """Run in demo mode - Phase 2 coffee/brewing KPI tracking examples."""
-        self.logger.info("Running in DEMO MODE - Phase 2 Coffee/Brewing KPI Tracking")
-        self.logger.info("Simulating multi-agent conversation flow events...")
 
-        # Simulate 3 complete conversation flows
-        conversations = [
-            {
-                "context_id": "demo-ctx-001",
-                "scenario": "Order status query - automated",
-                "events": [
-                    {"event_type": "conversation_started", "agent_source": "system", "metrics": {}},
-                    {"event_type": "intent_classified", "agent_source": "intent-classifier",
-                     "metrics": {"intent": "order_status", "confidence": 0.92}},
-                    {"event_type": "knowledge_retrieved", "agent_source": "knowledge-retrieval",
-                     "metrics": {"results_found": 1, "search_time_ms": 85}},
-                    {"event_type": "response_generated", "agent_source": "response-generator",
-                     "metrics": {"confidence": 0.88}},
-                    {"event_type": "escalation_decision", "agent_source": "escalation",
-                     "metrics": {"should_escalate": False, "reason": "Standard query - automated"}}
-                ]
-            },
-            {
-                "context_id": "demo-ctx-002",
-                "scenario": "Refund request - auto-approved",
-                "events": [
-                    {"event_type": "conversation_started", "agent_source": "system", "metrics": {}},
-                    {"event_type": "intent_classified", "agent_source": "intent-classifier",
-                     "metrics": {"intent": "refund_status", "confidence": 0.87}},
-                    {"event_type": "sentiment_detected", "agent_source": "intent-classifier",
-                     "metrics": {"sentiment": "neutral"}},
-                    {"event_type": "knowledge_retrieved", "agent_source": "knowledge-retrieval",
-                     "metrics": {"results_found": 2, "search_time_ms": 120}},
-                    {"event_type": "escalation_decision", "agent_source": "escalation",
-                     "metrics": {"should_escalate": False, "reason": "Refund auto-approved", "auto_approved": True}},
-                    {"event_type": "response_generated", "agent_source": "response-generator",
-                     "metrics": {"confidence": 0.90}}
-                ]
-            },
-            {
-                "context_id": "demo-ctx-003",
-                "scenario": "Brewer defect - escalated",
-                "events": [
-                    {"event_type": "conversation_started", "agent_source": "system", "metrics": {}},
-                    {"event_type": "intent_classified", "agent_source": "intent-classifier",
-                     "metrics": {"intent": "brewer_support", "confidence": 0.95}},
-                    {"event_type": "sentiment_detected", "agent_source": "intent-classifier",
-                     "metrics": {"sentiment": "negative"}},
-                    {"event_type": "knowledge_retrieved", "agent_source": "knowledge-retrieval",
-                     "metrics": {"results_found": 1, "search_time_ms": 95}},
-                    {"event_type": "escalation_decision", "agent_source": "escalation",
-                     "metrics": {"should_escalate": True, "reason": "Brewer defect - technical support needed"}},
-                    {"event_type": "response_generated", "agent_source": "response-generator",
-                     "metrics": {"confidence": 0.85}}
-                ]
-            }
-        ]
-
-        for conv in conversations:
-            self.logger.info(f"\nSimulating: {conv['scenario']}")
-            for event_data in conv["events"]:
-                mock_message = {
-                    "contextId": conv["context_id"],
-                    "parts": [{
-                        "type": "text",
-                        "content": {
-                            "event_type": event_data["event_type"],
-                            "agent_source": event_data["agent_source"],
-                            "metrics": event_data["metrics"],
-                            "metadata": {}
-                        }
-                    }]
-                }
-                await self.handle_message(mock_message)
-                await asyncio.sleep(0.5)
-
-        # Generate final KPI report
-        self.logger.info("\n" + "=" * 60)
-        self.logger.info("FINAL KPI REPORT")
-        self.logger.info("=" * 60)
-        report = self.get_kpi_report()
-        for key, value in report.items():
-            if isinstance(value, dict):
-                self.logger.info(f"{key}:")
-                for sub_key, sub_value in value.items():
-                    self.logger.info(f"  {sub_key}: {sub_value}")
-            else:
-                self.logger.info(f"{key}: {value}")
-        self.logger.info("=" * 60)
-
-        self.logger.info("\nDemo complete. Keeping alive for health checks...")
-        while True:
-            await asyncio.sleep(30)
-
-async def main():
-    agent = AnalyticsAgent()
-    handle_graceful_shutdown(agent.logger, agent.cleanup)
-    try:
-        await agent.initialize()
-        await agent.run_demo_mode() if agent.client is None else await asyncio.sleep(float('inf'))
-    except KeyboardInterrupt:
-        pass
-    finally:
-        agent.cleanup()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    run_agent(AnalyticsAgent)
