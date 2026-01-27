@@ -94,9 +94,9 @@ This is an **educational example project** demonstrating how to build a cost-eff
 
 ---
 
-### Phase 4: Azure Production Setup - INFRASTRUCTURE DEPLOYED ✅
+### Phase 4: Azure Production Setup - CONTAINERS RUNNING ✅
 
-**Status as of 2026-01-26:** All infrastructure and containers deployed
+**Status as of 2026-01-27:** All infrastructure deployed, all containers running (0 restarts)
 
 **Deployed Azure Resources:**
 - Resource Group: `agntcy-prod-rg` (East US 2)
@@ -107,30 +107,36 @@ This is an **educational example project** demonstrating how to build a cost-eff
 - Application Insights: `agntcy-cs-prod-appinsights-rc6vcp`
 - Azure OpenAI: GPT-4o, GPT-4o-mini, text-embedding-3-large deployed
 
-**Container Groups Running:**
-| Container | Private IP | Port | Status |
-|-----------|------------|------|--------|
-| SLIM Gateway | 10.0.1.4 | 8443 | ✅ Succeeded |
-| NATS JetStream | 10.0.1.5 | 4222 | ✅ Succeeded |
-| Knowledge Retrieval | 10.0.1.6 | 8080 | ✅ Succeeded |
-| Critic/Supervisor | 10.0.1.7 | 8080 | ✅ Succeeded |
-| Response Generator | 10.0.1.8 | 8080 | ✅ Succeeded |
-| Analytics | 10.0.1.9 | 8080 | ✅ Succeeded |
-| Intent Classifier | 10.0.1.10 | 8080 | ✅ Succeeded |
-| Escalation | 10.0.1.11 | 8080 | ✅ Succeeded |
+**Container Groups Running (All Healthy - 0 Restarts):**
+| Container | Private IP | Port | Status | Image |
+|-----------|------------|------|--------|-------|
+| SLIM Gateway | 10.0.1.4 | 8443 | ✅ Running | slim-gateway:latest (custom) |
+| NATS JetStream | 10.0.1.5 | 4222 | ✅ Running | nats:2.10-alpine |
+| Knowledge Retrieval | 10.0.1.6 | 8080 | ✅ Running | knowledge-retrieval:v1.1.1-fix |
+| Critic/Supervisor | 10.0.1.8 | 8080 | ✅ Running | critic-supervisor:v1.1.0-openai |
+| Analytics | 10.0.1.9 | 8080 | ✅ Running | analytics:v1.1.0-openai |
+| Intent Classifier | 10.0.1.9 | 8080 | ✅ Running | intent-classifier:v1.1.0-openai |
+| Response Generator | 10.0.1.10 | 8080 | ✅ Running | response-generator:v1.1.0-openai |
+| Escalation | 10.0.1.11 | 8080 | ✅ Running | escalation:v1.1.0-openai |
+
+**Container Issues Fixed (2026-01-27):**
+1. **SLIM Gateway (ExitCode 2):** Created custom Docker image with config baked in. SLIM requires `--config /config.yaml`, not `--port`. See `infrastructure/slim/Dockerfile`.
+2. **Knowledge Retrieval (ExitCode 1):** Fixed Dockerfile to copy all Python files, added `__init__.py` for package imports, updated `.dockerignore` to include `test-data/knowledge-base/`.
 
 **Completed Work:**
 - ✅ All Terraform infrastructure provisioned
-- ✅ All 8 container images built and pushed to ACR (v1.1.0-openai)
+- ✅ All 8 container images built and pushed to ACR
 - ✅ Private VNet networking configured
 - ✅ Azure OpenAI integration complete
 - ✅ PII Tokenization module created and tested (24 unit tests)
 - ✅ Security validation (bandit scan, prompt injection tests)
+- ✅ Real API integrations (Shopify, Zendesk, Mailchimp, Google Analytics)
+- ✅ Container crash issues resolved (SLIM, Knowledge)
 
 **Remaining Phase 4 Work:**
 - ⏳ Multi-language support (fr-CA, es)
-- ⏳ Real API integrations (Shopify, Zendesk, Mailchimp)
 - ⏳ Azure DevOps pipelines
+- ⏳ Application Gateway for public HTTPS endpoint
 
 **Current Monthly Cost:** ~$214-285/month (estimated)
 **Budget:** $310-360/month

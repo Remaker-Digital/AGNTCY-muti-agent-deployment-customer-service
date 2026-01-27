@@ -22,10 +22,14 @@ RUN apt-get update && \
         gcc \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy and install requirements (cached layer if requirements unchanged)
-COPY agents/knowledge_retrieval/requirements.txt .
+# Copy and install shared requirements first (better cache reuse across agents)
+COPY requirements-agents.txt .
 RUN --mount=type=cache,target=/root/.cache/pip \
-    pip install --user --no-warn-script-location -r requirements.txt
+    pip install --user --no-warn-script-location -r requirements-agents.txt
+# Install any agent-specific requirements (silently continue if empty)
+COPY agents/knowledge_retrieval/requirements.txt ./agent-requirements.txt
+RUN --mount=type=cache,target=/root/.cache/pip \
+    pip install --user --no-warn-script-location -r agent-requirements.txt 2>/dev/null || true
 
 # -----------------------------------------------------------------------------
 # Stage 2: Runtime - Minimal production image
@@ -46,7 +50,12 @@ ENV PATH=/home/appuser/.local/bin:$PATH
 
 # Copy shared utilities and agent code (last for better layer caching)
 COPY --chown=appuser:appuser shared/ /app/shared/
-COPY --chown=appuser:appuser agents/knowledge_retrieval/agent.py .
+# Copy agents package __init__.py for proper Python import structure
+COPY --chown=appuser:appuser agents/__init__.py /app/agents/
+# Copy all agent Python files (agent.py imports from shopify_client.py and knowledge_base_client.py)
+COPY --chown=appuser:appuser agents/knowledge_retrieval/*.py /app/agents/knowledge_retrieval/
+# Copy test data for knowledge base
+COPY --chown=appuser:appuser test-data/knowledge-base/ /app/test-data/knowledge-base/
 
 # Switch to non-root user
 USER appuser
@@ -55,4 +64,6 @@ USER appuser
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD python -c "import sys; sys.exit(0)" || exit 1
 
-CMD ["python", "agent.py"]
+# Run the agent (PYTHONPATH includes /app for shared imports)
+ENV PYTHONPATH=/app
+CMD ["python", "agents/knowledge_retrieval/agent.py"]

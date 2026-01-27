@@ -67,8 +67,9 @@ resource "azurerm_container_group" "slim_gateway" {
     cpu    = 1.0
     memory = 2.0
 
-    # SLIM requires explicit command - see docker-compose.yml
-    commands = ["/slim", "--port", "8443"]
+    # Custom SLIM image has config baked in with: CMD ["/slim", "--config", "/config.yaml"]
+    # Config file: config/slim/azure-server-config.yaml (embedded in image)
+    # See: infrastructure/slim/Dockerfile
 
     ports {
       port     = 8443
@@ -224,7 +225,7 @@ resource "azurerm_container_group" "knowledge_retrieval" {
 
   container {
     name   = "knowledge-retrieval"
-    image  = "${azurerm_container_registry.main.login_server}/knowledge-retrieval:v1.1.0-openai"
+    image  = "${azurerm_container_registry.main.login_server}/knowledge-retrieval:v1.1.1-fix"
     cpu    = local.agents["knowledge-retrieval"].cpu
     memory = local.agents["knowledge-retrieval"].memory
 

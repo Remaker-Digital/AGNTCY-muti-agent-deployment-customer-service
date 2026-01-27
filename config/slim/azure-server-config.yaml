@@ -1,0 +1,32 @@
+# SLIM Server Configuration for Azure Container Instances
+# This configuration sets up the SLIM messaging backbone for agent communication
+#
+# SLIM (Secure Low-Latency Interactive Messaging) v0.6.1
+# Used in Phase 4-5 for Azure production deployment
+#
+# Reference: https://docs.agntcy.org/messaging/slim-controller/
+
+# Tracing and logging configuration
+tracing:
+  log_level: info
+  display_thread_names: true
+  display_thread_ids: true
+
+# Runtime configuration
+runtime:
+  n_cores: 0  # 0 = auto-detect available cores
+  thread_name: "slim-data-plane"
+  drain_timeout: 10s
+
+# Service configuration
+services:
+  # Main SLIM service instance
+  slim/1:
+    dataplane:
+      # Server endpoints this SLIM instance exposes
+      servers:
+        - endpoint: "0.0.0.0:8443"
+          tls:
+            insecure: true  # TLS handled by Azure VNet (internal traffic only)
+      # Client connections (none needed for standalone mode)
+      clients: []

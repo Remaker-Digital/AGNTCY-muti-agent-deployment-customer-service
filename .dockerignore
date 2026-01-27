@@ -41,7 +41,14 @@ coverage.xml
 *.cover
 .hypothesis/
 tests/
-test-data/
+# Exclude test-data except knowledge-base (needed for Knowledge Retrieval Agent)
+test-data/conversations/
+test-data/customers/
+test-data/google-analytics/
+test-data/mailchimp/
+test-data/shopify/
+test-data/zendesk/
+test-data/*.json
 
 # Git
 .git/

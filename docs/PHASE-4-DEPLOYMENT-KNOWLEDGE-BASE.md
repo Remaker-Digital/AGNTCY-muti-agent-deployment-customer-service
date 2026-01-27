@@ -69,63 +69,93 @@ docker push acragntcycsprodrc6vcp.azurecr.io/slim-gateway:latest
 
 ---
 
-### Issue 2: SLIM Container "No Command Specified" Error
+### Issue 2: SLIM Container Crash Loop (ExitCode 2)
 
 **Symptoms:**
 ```
-to generate container spec: no command specified
+Container slim-gateway terminated with ExitCode 2.
 ```
 
-Container failed to start immediately after creation.
+Container starts but crashes after ~6 seconds with 200+ restart attempts.
 
-**Root Cause:** The `ghcr.io/agntcy/slim:0.6.1` Docker image has null CMD and ENTRYPOINT directives. Azure Container Instances requires an explicit command when the image doesn't define one.
+**Root Cause:** SLIM v0.6.1 does NOT support a `--port` flag. The correct command is `--config /path/to/config.yaml`. The initial workaround using `commands = ["/slim", "--port", "8443"]` was incorrect.
 
 **Diagnosis Steps:**
 ```bash
-# Check container events
-az container show --name agntcy-cs-prod-cg-slim --resource-group agntcy-prod-rg --query "containers[0].instanceView.events" --output table
+# Check container events and restart count
+az container show --name agntcy-cs-prod-cg-slim --resource-group agntcy-prod-rg \
+  --query "{state: containers[0].instanceView.currentState.state, restartCount: containers[0].instanceView.restartCount, exitCode: containers[0].instanceView.previousState.exitCode}"
 
-# Inspect image locally
-docker inspect ghcr.io/agntcy/slim:0.6.1 --format='{{.Config.Cmd}} {{.Config.Entrypoint}}'
-# Output: [] []  (both null)
+# Check container logs for error
+az container logs --name agntcy-cs-prod-cg-slim --resource-group agntcy-prod-rg
 ```
 
 **Resolution:**
-Add explicit `commands` parameter to the Terraform container configuration:
+Create a custom SLIM Docker image with the configuration file baked in:
 
+1. **Create Dockerfile** (`infrastructure/slim/Dockerfile`):
+```dockerfile
+FROM ghcr.io/agntcy/slim:0.6.1
+COPY config/slim/azure-server-config.yaml /config.yaml
+CMD ["/slim", "--config", "/config.yaml"]
+EXPOSE 8443
+```
+
+2. **Create config file** (`config/slim/azure-server-config.yaml`):
+```yaml
+tracing:
+  log_level: info
+runtime:
+  n_cores: 0
+  thread_name: "slim-data-plane"
+  drain_timeout: 10s
+services:
+  slim/1:
+    dataplane:
+      servers:
+        - endpoint: "0.0.0.0:8443"
+          tls:
+            insecure: true
+      clients: []
+```
+
+3. **Build and push**:
+```bash
+docker build -t slim-gateway:latest -f infrastructure/slim/Dockerfile .
+docker tag slim-gateway:latest acragntcycsprodrc6vcp.azurecr.io/slim-gateway:latest
+docker push acragntcycsprodrc6vcp.azurecr.io/slim-gateway:latest
+```
+
+4. **Remove the `commands` from Terraform** (the image now has the correct CMD):
 ```hcl
-# In containers.tf
+# In containers.tf - NO commands needed, image has correct CMD baked in
 container {
   name   = "slim-gateway"
   image  = "${azurerm_container_registry.main.login_server}/slim-gateway:latest"
   cpu    = 1.0
   memory = 2.0
-
-  # SLIM requires explicit command - image has no default CMD/ENTRYPOINT
-  commands = ["/slim", "--port", "8443"]
-
+  # Custom SLIM image has config baked in with: CMD ["/slim", "--config", "/config.yaml"]
   ports {
     port     = 8443
     protocol = "TCP"
   }
-  # ... rest of configuration
 }
 ```
 
-**Recovery Steps After Failed Container:**
+5. **Redeploy**:
 ```bash
-# Delete failed container group
 az container delete --name agntcy-cs-prod-cg-slim --resource-group agntcy-prod-rg --yes
-
-# Refresh Terraform state
 cd terraform/phase4_prod
 terraform refresh
+terraform plan -target=azurerm_container_group.slim_gateway -out=slim-fix.plan
+terraform apply slim-fix.plan
+```
 
-# Create new plan with fix
-terraform plan -out=phase4-containers-fixed.plan
-
-# Apply fixed plan
-terraform apply phase4-containers-fixed.plan
+**Verification:**
+```bash
+az container show --name agntcy-cs-prod-cg-slim --resource-group agntcy-prod-rg \
+  --query "{state: containers[0].instanceView.currentState.state, restartCount: containers[0].instanceView.restartCount}"
+# Expected: {"restartCount": 0, "state": "Running"}
 ```
 
 ---
@@ -186,7 +216,100 @@ CMD ["python", "agent.py"]
 
 ---
 
-### Issue 4: Long Container Creation Times
+### Issue 4: Knowledge Container Crash Loop (ExitCode 1)
+
+**Symptoms:**
+```
+Container knowledge-retrieval terminated with ExitCode 1.
+```
+
+Knowledge Retrieval container restarts 200+ times with ExitCode 1 (import error).
+
+**Root Cause:** The Dockerfile only copied `agent.py` but the agent imports from `agents.knowledge_retrieval.shopify_client` and `agents.knowledge_retrieval.knowledge_base_client`. These files were not included in the container.
+
+Additionally:
+1. Missing `__init__.py` files for Python package imports
+2. `test-data/` directory was in `.dockerignore`
+3. Empty `requirements.txt` meant shared dependencies weren't installed
+
+**Diagnosis Steps:**
+```bash
+# Check restart count
+az container show --name agntcy-cs-prod-cg-knowledge --resource-group agntcy-prod-rg \
+  --query "{state: containers[0].instanceView.currentState.state, restartCount: containers[0].instanceView.restartCount, exitCode: containers[0].instanceView.previousState.exitCode}"
+
+# Logs show "None" due to immediate crash on import
+az container logs --name agntcy-cs-prod-cg-knowledge --resource-group agntcy-prod-rg
+```
+
+**Resolution:**
+
+1. **Update Dockerfile** to copy all required files:
+```dockerfile
+# Copy shared requirements (not agent-specific)
+COPY requirements-agents.txt .
+RUN pip install --user --no-warn-script-location -r requirements-agents.txt
+
+# Copy agents package structure (needed for imports)
+COPY --chown=appuser:appuser agents/__init__.py /app/agents/
+COPY --chown=appuser:appuser agents/knowledge_retrieval/*.py /app/agents/knowledge_retrieval/
+
+# Copy knowledge base test data
+COPY --chown=appuser:appuser test-data/knowledge-base/ /app/test-data/knowledge-base/
+
+# Set PYTHONPATH for imports
+ENV PYTHONPATH=/app
+CMD ["python", "agents/knowledge_retrieval/agent.py"]
+```
+
+2. **Create `__init__.py` files**:
+```bash
+echo "# AGNTCY Customer Service - Agent Package" > agents/__init__.py
+echo "# Knowledge Retrieval Agent Package" > agents/knowledge_retrieval/__init__.py
+```
+
+3. **Update `.dockerignore`** to allow knowledge-base:
+```
+# Exclude test-data except knowledge-base
+test-data/conversations/
+test-data/customers/
+test-data/google-analytics/
+test-data/mailchimp/
+test-data/shopify/
+test-data/zendesk/
+test-data/*.json
+# test-data/knowledge-base/ is NOT excluded
+```
+
+4. **Rebuild and push**:
+```bash
+docker build -t knowledge-retrieval:v1.1.1-fix -f agents/knowledge_retrieval/Dockerfile .
+docker tag knowledge-retrieval:v1.1.1-fix acragntcycsprodrc6vcp.azurecr.io/knowledge-retrieval:v1.1.1-fix
+docker push acragntcycsprodrc6vcp.azurecr.io/knowledge-retrieval:v1.1.1-fix
+```
+
+5. **Update Terraform to use new image tag**:
+```hcl
+image  = "${azurerm_container_registry.main.login_server}/knowledge-retrieval:v1.1.1-fix"
+```
+
+6. **Redeploy**:
+```bash
+az container delete --name agntcy-cs-prod-cg-knowledge --resource-group agntcy-prod-rg --yes
+terraform refresh && terraform plan -target=azurerm_container_group.knowledge_retrieval -out=knowledge-fix.plan
+terraform apply knowledge-fix.plan
+```
+
+**Verification:**
+```bash
+az container show --name agntcy-cs-prod-cg-knowledge --resource-group agntcy-prod-rg \
+  --query "{state: containers[0].instanceView.currentState.state, restartCount: containers[0].instanceView.restartCount}"
+# Expected: {"restartCount": 0, "state": "Running"}
+```
+
+---
+
+### Issue 5: Long Container Creation Times
 
 **Symptoms:** SLIM gateway and NATS containers took 20+ minutes to create initially.
 
