@@ -843,6 +843,36 @@ When in doubt, optimize for:
 
 ## Recent Updates
 
+### 2026-01-26: Phase 5 Test User Strategy and Console Configuration ✅
+- ✅ Created `.env.azure.example` for local console connecting to Azure backend
+- ✅ Created `docs/PHASE-5-TEST-USER-STRATEGY.md` with comprehensive test plan
+- ✅ Updated `console/README.md` with Azure connection instructions
+- ✅ Verified console functional with Azure OpenAI mode
+
+**Phase 5 Test Strategy:**
+- 8 test personas (4 existing + 4 new: Frustrated, International, Edge Cases, High-Value)
+- 11 test scenarios (Happy path, Escalation, Security/Safety, Edge cases)
+- Validation checklist with KPIs (Intent >95%, Latency <3s P95, Cost <$0.05/conv)
+- Prompt injection test cases for Critic/Supervisor validation
+
+**Console Access:**
+- **Local URL:** http://localhost:8501 (Streamlit)
+- **Azure OpenAI Mode:** ✅ Functional (1004ms connection latency)
+- **Configuration:** `.env.azure` with Azure OpenAI credentials
+- **Fallback:** Mock mode when Azure not configured
+
+**New Files:**
+- `.env.azure.example` - Azure backend connection template
+- `docs/PHASE-5-TEST-USER-STRATEGY.md` - Complete test user strategy
+
+**Console Test Results:**
+| Test | Result |
+|------|--------|
+| Ambiguous message ("Can I test?") | ✅ Blocked (correct - potential probe) |
+| Order inquiry ("Where is my order?") | ✅ Passed, Intent: ORDER_STATUS (95%) |
+| Cost per message | ~$0.0006 |
+| End-to-end latency | ~2580ms |
+
 ### 2026-01-26: Azure OpenAI Integration COMPLETE ✅
 - ✅ Created shared Azure OpenAI client module (`shared/azure_openai.py`)
 - ✅ Updated all 5 agents to use Azure OpenAI with fallback to mock responses
@@ -1006,7 +1036,7 @@ USE_AZURE_OPENAI=true
 ---
 
 **Last Updated:** 2026-01-26
-**Project Phase:** Phase 4 Infrastructure + Containers Deployed ✅
+**Project Phase:** Phase 4 Infrastructure + Containers Deployed ✅ | Phase 5 Test Strategy Ready ✅
 **Current Budget Status:** Full infrastructure running (~$214-285/month estimated)
 **Phase 4-5 Budget:** $310-360/month (+$15-25 for UCP)
 **Agent Count:** 6 agents deployed (Intent, Knowledge, Response, Escalation, Analytics, Critic/Supervisor)
@@ -1014,4 +1044,6 @@ USE_AZURE_OPENAI=true
 **UCP Adoption:** Approved for Phase 4-5 (80-120 hours, MCP binding approach)
 **Azure Resources:** VNet, Cosmos DB, Key Vault, ACR, App Insights, Private Endpoints, 8 Container Groups
 **Container IPs:** SLIM (10.0.1.4), NATS (10.0.1.5), Agents (10.0.1.6-11)
+**Console Status:** Local Streamlit (localhost:8501) with Azure OpenAI mode ✅
+**Phase 5 Testing:** 8 personas, 11 scenarios, KPI validation checklist ready
 **GitHub Project**: https://github.com/orgs/Remaker-Digital/projects/1
