@@ -16,8 +16,16 @@ This guide walks you through setting up the development environment for Phase 1.
 
 ### Required Software
 
+| Software | Download URL | Documentation | License |
+|----------|--------------|---------------|---------|
+| **Python 3.12+** | [python.org/downloads](https://www.python.org/downloads/) | [Python Docs](https://docs.python.org/3/) | PSF License (OSS) |
+| **Docker Desktop** | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) | [Docker Docs](https://docs.docker.com/) | Free for <250 employees AND <$10M revenue |
+| **Git** | [git-scm.com/download/win](https://git-scm.com/download/win) | [Git Docs](https://git-scm.com/doc) | GPL v2 (OSS) |
+| **GitHub Desktop** | [desktop.github.com](https://desktop.github.com/) | [GitHub Docs](https://docs.github.com/en/desktop) | MIT (OSS) |
+| **VS Code** | [code.visualstudio.com](https://code.visualstudio.com/) | [VS Code Docs](https://code.visualstudio.com/docs) | MIT (OSS) |
+
 #### 1. Python 3.12+
-**Download**: https://www.python.org/downloads/
+**Download**: [python.org/downloads](https://www.python.org/downloads/)
 
 **Verify installation:**
 ```powershell
@@ -28,7 +36,9 @@ python --version
 **Important**: Check "Add Python to PATH" during installation.
 
 #### 2. Docker Desktop for Windows
-**Download**: https://www.docker.com/products/docker-desktop/
+**Download**: [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
+
+**Licensing**: Free for companies with <250 employees AND <$10M annual revenue. See [Docker Pricing](https://www.docker.com/pricing/).
 
 **Verify installation:**
 ```powershell
@@ -39,8 +49,9 @@ docker-compose --version
 **Important**: Ensure Docker Desktop is running before proceeding.
 
 #### 3. Git / GitHub Desktop
-**Git**: https://git-scm.com/download/win
-**GitHub Desktop**: https://desktop.github.com/
+- **Git**: [git-scm.com/download/win](https://git-scm.com/download/win)
+- **GitHub Desktop**: [desktop.github.com](https://desktop.github.com/)
+- **GitHub Account**: [github.com/signup](https://github.com/signup) (free)
 
 **Verify installation:**
 ```powershell
@@ -48,7 +59,7 @@ git --version
 ```
 
 #### 4. Visual Studio Code (Recommended)
-**Download**: https://code.visualstudio.com/
+**Download**: [code.visualstudio.com](https://code.visualstudio.com/)
 
 **Recommended Extensions:**
 - Python (Microsoft)
@@ -563,6 +574,21 @@ A: Check this troubleshooting section first, then open a GitHub issue with:
 - Error message (copy/paste)
 - Command you ran
 - Output of `docker-compose ps` and `docker-compose logs`
+
+### Phase 4-5 Account Sign-Up Links
+
+When you're ready for production deployment, you'll need these accounts:
+
+| Service | Sign-Up URL | Free Tier | Required Permissions |
+|---------|-------------|-----------|---------------------|
+| **Azure** | [azure.microsoft.com/free](https://azure.microsoft.com/free) | $200 credit | Owner role |
+| **Shopify Partners** | [shopify.com/partners](https://www.shopify.com/partners) | Free | Partner access |
+| **Zendesk** | [zendesk.com/register](https://www.zendesk.com/register) | 14-day trial | Admin |
+| **Mailchimp** | [mailchimp.com/signup](https://mailchimp.com/signup/) | 250 contacts | API access |
+| **Google Analytics** | [analytics.google.com](https://analytics.google.com) | Free | Editor |
+| **Azure DevOps** | [dev.azure.com](https://dev.azure.com) | Free (5 users) | Basic |
+
+See [CLAUDE.md](CLAUDE.md) for complete API key locations and setup instructions.
 
 ---
 

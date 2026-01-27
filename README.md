@@ -79,16 +79,27 @@ The platform aims to demonstrate:
 
 ### Prerequisites
 
-**Required:**
-- Windows 11 (or compatible OS)
-- Python 3.12 or higher
-- Docker Desktop
-- Git / GitHub Desktop
-- VS Code (recommended)
+**Required (Phase 1-3):**
 
-**Optional:**
-- Azure subscription (Phase 4-5 only)
-- Shopify/Zendesk/Mailchimp accounts (Phase 4-5 only)
+| Requirement | Download URL | Documentation |
+|-------------|--------------|---------------|
+| Windows 11 (or compatible OS) | - | - |
+| Python 3.12+ | [python.org/downloads](https://www.python.org/downloads/) | [Python Docs](https://docs.python.org/3/) |
+| Docker Desktop | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) | [Docker Docs](https://docs.docker.com/) |
+| Git | [git-scm.com/downloads](https://git-scm.com/downloads) | [Git Docs](https://git-scm.com/doc) |
+| VS Code (recommended) | [code.visualstudio.com](https://code.visualstudio.com/) | [VS Code Docs](https://code.visualstudio.com/docs) |
+
+**Optional (Phase 4-5 Production):**
+
+| Service | Sign-Up URL | Free Tier |
+|---------|-------------|-----------|
+| Azure Subscription | [azure.microsoft.com/free](https://azure.microsoft.com/free) | $200 credit |
+| Shopify Partners | [shopify.com/partners](https://www.shopify.com/partners) | Free |
+| Zendesk | [zendesk.com/register](https://www.zendesk.com/register) | 14-day trial |
+| Mailchimp | [mailchimp.com/signup](https://mailchimp.com/signup/) | 250 contacts |
+| Google Analytics | [analytics.google.com](https://analytics.google.com) | Free |
+
+See [SETUP-GUIDE.md](SETUP-GUIDE.md) for detailed installation instructions and [CLAUDE.md](CLAUDE.md) for API key locations.
 
 ### Installation
 
@@ -319,11 +330,16 @@ See `docs/cost-optimization.md` for detailed breakdown.
 All external services are mocked locally.
 
 ### Phase 4-5: Real APIs (Accounts required)
-- **Shopify**: Partner account (free)
-- **Zendesk**: Trial or Sandbox (free)
-- **Mailchimp**: Free tier (500 contacts)
-- **Google Analytics**: GA4 property (free)
-- **Azure**: Subscription (~$310-360/month for Phase 4-5)
+
+| Service | Sign-Up URL | Cost | API Key Location |
+|---------|-------------|------|------------------|
+| **Shopify** | [shopify.com/partners](https://www.shopify.com/partners) | Free | Partner Dashboard → Apps → API credentials |
+| **Zendesk** | [zendesk.com/register](https://www.zendesk.com/register) | Free trial | Admin → APIs → Zendesk API |
+| **Mailchimp** | [mailchimp.com/signup](https://mailchimp.com/signup/) | Free (250) | Account → Extras → API keys |
+| **Google Analytics** | [analytics.google.com](https://analytics.google.com) | Free | [console.cloud.google.com](https://console.cloud.google.com) → IAM → Service Accounts |
+| **Azure** | [azure.microsoft.com/free](https://azure.microsoft.com/free) | ~$310-360/month | [portal.azure.com](https://portal.azure.com) → Resource → Keys |
+
+> **Full Setup Instructions**: See [CLAUDE.md](CLAUDE.md#third-party-service-accounts-required) for complete sign-up procedures, required permissions, and API key locations.
 
 ## 🤝 Contributing
 
@@ -372,9 +388,14 @@ If ports are already in use, edit `docker-compose.yml` to change mappings.
 
 ## 📚 Learning Resources
 
-- **AGNTCY SDK**: https://github.com/agntcy/app-sdk
-- **Azure Architecture**: https://learn.microsoft.com/azure/architecture/
-- **Multi-Agent Systems**: https://remakerdigital.com/blog/
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **AGNTCY SDK** | [github.com/agntcy/app-sdk](https://github.com/agntcy/app-sdk) | Multi-agent orchestration framework |
+| **AGNTCY Docs** | [docs.agntcy.com](https://docs.agntcy.com) | Official SDK documentation |
+| **Azure Architecture** | [learn.microsoft.com/azure/architecture](https://learn.microsoft.com/azure/architecture/) | Cloud design patterns |
+| **Azure OpenAI** | [learn.microsoft.com/azure/ai-services/openai](https://learn.microsoft.com/azure/ai-services/openai/) | LLM integration guides |
+| **Terraform Azure** | [registry.terraform.io/providers/hashicorp/azurerm](https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs) | Infrastructure as Code |
+| **Blog Series** | [remakerdigital.com/blog](https://remakerdigital.com/blog/) | Project tutorials |
 
 ## 📄 License
 

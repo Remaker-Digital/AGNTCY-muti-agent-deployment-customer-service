@@ -491,6 +491,28 @@ pip install -r requirements.txt
 - **Project specs:** Review [PROJECT-README.txt](PROJECT-README.txt) for full specifications
 - **AGNTCY SDK:** Refer to [AGNTCY-REVIEW.md](AGNTCY-REVIEW.md) for integration patterns
 
+## External Resources & Account Sign-Up
+
+### Development Tools
+| Tool | Download URL | Documentation |
+|------|--------------|---------------|
+| Python 3.12+ | [python.org/downloads](https://www.python.org/downloads/) | [Python Docs](https://docs.python.org/3/) |
+| Docker Desktop | [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/) | [Docker Docs](https://docs.docker.com/) |
+| Git | [git-scm.com/downloads](https://git-scm.com/downloads) | [Git Docs](https://git-scm.com/doc) |
+| VS Code | [code.visualstudio.com](https://code.visualstudio.com/) | [VS Code Docs](https://code.visualstudio.com/docs) |
+| Terraform | [terraform.io/downloads](https://developer.hashicorp.com/terraform/install) | [Terraform Docs](https://developer.hashicorp.com/terraform/docs) |
+
+### Phase 4-5 Accounts
+| Service | Sign-Up URL | Documentation |
+|---------|-------------|---------------|
+| Azure | [azure.microsoft.com/free](https://azure.microsoft.com/free) | [Azure Docs](https://learn.microsoft.com/azure) |
+| Shopify Partners | [shopify.com/partners](https://www.shopify.com/partners) | [Shopify API Docs](https://shopify.dev/docs/api) |
+| Zendesk | [zendesk.com/register](https://www.zendesk.com/register) | [Zendesk API Docs](https://developer.zendesk.com) |
+| Mailchimp | [mailchimp.com/signup](https://mailchimp.com/signup/) | [Mailchimp API Docs](https://mailchimp.com/developer/) |
+| Google Analytics | [analytics.google.com](https://analytics.google.com) | [GA4 API Docs](https://developers.google.com/analytics/devguides/reporting/data/v1) |
+
+See [CLAUDE.md](CLAUDE.md#third-party-service-accounts-required) for complete API key locations and permissions.
+
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.

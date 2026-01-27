@@ -50,23 +50,43 @@ This directory contains Terraform configuration for deploying the AGNTCY Multi-A
 
 ## Prerequisites
 
-1. **Azure CLI** installed and authenticated
-   ```bash
-   az login --tenant 1836296d-c9f8-4fd3-8cf3-ce94f6358cc3
-   az account set --subscription "828eb521-88bb-4b01-ac3e-7ba779c55212"
-   ```
+### Required Accounts & Tools
 
-2. **Terraform** >= 1.5.0
-   ```bash
-   terraform --version
-   ```
+| Requirement | Sign-Up / Download URL | Documentation |
+|-------------|------------------------|---------------|
+| **Azure Subscription** | [azure.microsoft.com/free](https://azure.microsoft.com/free) | [Azure Docs](https://learn.microsoft.com/azure) |
+| **Azure CLI** | [Install Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli) | [CLI Reference](https://learn.microsoft.com/cli/azure/reference-index) |
+| **Terraform** (>= 1.5.0) | [terraform.io/downloads](https://developer.hashicorp.com/terraform/install) | [Terraform Docs](https://developer.hashicorp.com/terraform/docs) |
+| **Azure OpenAI Access** | [aka.ms/oai/access](https://aka.ms/oai/access) | [OpenAI Quickstart](https://learn.microsoft.com/azure/ai-services/openai/quickstart) |
 
-3. **Existing Resource Group**
-   - Name: `agntcy-prod-rg` (East US 2)
+### 1. Azure CLI - Install and Authenticate
 
-4. **Existing Azure OpenAI** in West US
-   - Resource: `myOAIResource3aa68d`
-   - Deployments: `gpt-4o-mini`, `gpt-4o`, `text-embedding-3-large`
+**Install:** Download from [learn.microsoft.com/cli/azure/install-azure-cli](https://learn.microsoft.com/cli/azure/install-azure-cli)
+
+**Authenticate:**
+```bash
+az login --tenant 1836296d-c9f8-4fd3-8cf3-ce94f6358cc3
+az account set --subscription "828eb521-88bb-4b01-ac3e-7ba779c55212"
+```
+
+### 2. Terraform - Install
+
+**Install:** Download from [developer.hashicorp.com/terraform/install](https://developer.hashicorp.com/terraform/install)
+
+**Verify:**
+```bash
+terraform --version
+```
+
+### 3. Existing Resource Group
+- Name: `agntcy-prod-rg` (East US 2)
+- **Create via Portal:** [portal.azure.com](https://portal.azure.com) → Resource Groups → Create
+
+### 4. Existing Azure OpenAI (West US)
+- **Create:** [portal.azure.com](https://portal.azure.com) → Create Resource → "Azure OpenAI"
+- **Request Access:** [aka.ms/oai/access](https://aka.ms/oai/access) (if needed)
+- Resource: `myOAIResource3aa68d`
+- Deployments: `gpt-4o-mini`, `gpt-4o`, `text-embedding-3-large`
 
 ## Quick Start
 
@@ -163,14 +183,14 @@ terraform/phase4_prod/
 
 ### Key Vault Secrets
 
-| Secret Name | Purpose |
-|-------------|---------|
-| azure-openai-api-key | Azure OpenAI authentication |
-| shopify-api-key | Shopify API (if configured) |
-| shopify-api-secret | Shopify API (if configured) |
-| zendesk-api-token | Zendesk API (if configured) |
-| mailchimp-api-key | Mailchimp API (if configured) |
-| google-analytics-credentials | GA4 service account (if configured) |
+| Secret Name | Purpose | Where to Obtain |
+|-------------|---------|-----------------|
+| azure-openai-api-key | Azure OpenAI authentication | [portal.azure.com](https://portal.azure.com) → OpenAI Resource → Keys and Endpoint |
+| shopify-api-key | Shopify API (if configured) | [partners.shopify.com](https://www.shopify.com/partners) → Apps → API credentials |
+| shopify-api-secret | Shopify API (if configured) | [partners.shopify.com](https://www.shopify.com/partners) → Apps → API credentials |
+| zendesk-api-token | Zendesk API (if configured) | Admin Center → Apps and integrations → APIs → [Zendesk API](https://developer.zendesk.com/api-reference) |
+| mailchimp-api-key | Mailchimp API (if configured) | [mailchimp.com](https://mailchimp.com) → Account → Extras → API keys |
+| google-analytics-credentials | GA4 service account (if configured) | [console.cloud.google.com](https://console.cloud.google.com/iam-admin/serviceaccounts) → Service Accounts → Keys |
 
 ## Security
 

@@ -130,19 +130,23 @@ ERROR: This package requires Python 3.12 or higher
 # Check Python version
 python --version
 
-# Install Python 3.14 (recommended)
-# Windows: https://www.python.org/downloads/
-# macOS: brew install python@3.14
-# Linux: sudo apt install python3.14
+# Install Python 3.12+ (required)
+# Windows: Download from https://www.python.org/downloads/
+# macOS: brew install python@3.12
+# Linux: sudo apt install python3.12
 
 # Verify installation
-python3.14 --version
+python3.12 --version
 
 # Create virtual environment
-python3.14 -m venv venv
+python3.12 -m venv venv
 source venv/bin/activate  # macOS/Linux
 venv\Scripts\activate  # Windows
 ```
+
+**Download Links:**
+- **Python**: [python.org/downloads](https://www.python.org/downloads/)
+- **Documentation**: [docs.python.org/3](https://docs.python.org/3/)
 
 ### Issue: Missing Dependencies
 
@@ -166,6 +170,11 @@ pip install pytest pytest-cov pytest-asyncio psutil locust pyyaml
 pip list | grep agntcy
 pip list | grep pytest
 ```
+
+**Package Documentation:**
+- **AGNTCY SDK**: [github.com/agntcy/app-sdk](https://github.com/agntcy/app-sdk)
+- **pytest**: [docs.pytest.org](https://docs.pytest.org/)
+- **Locust**: [locust.io](https://locust.io/)
 
 ### Issue: Environment Variables Not Loaded
 
@@ -230,6 +239,11 @@ docker compose version
 # If not installed, download from:
 # https://www.docker.com/products/docker-desktop
 ```
+
+**Docker Resources:**
+- **Download**: [docker.com/products/docker-desktop](https://www.docker.com/products/docker-desktop/)
+- **Documentation**: [docs.docker.com](https://docs.docker.com/)
+- **Troubleshooting**: [docs.docker.com/desktop/troubleshoot](https://docs.docker.com/desktop/troubleshoot/)
 
 ### Issue: SLIM Service Not Reachable
 

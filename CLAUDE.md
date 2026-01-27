@@ -468,28 +468,92 @@ streamlit run console/app.py --server.port 8085
 
 ## Third-Party Service Accounts Required
 
+> **Sign-Up Links Summary:** All account sign-up pages are listed below with their source-of-record URLs.
+
 ### Phase 1-3: None
 All services are mocked locally. No API keys needed.
 
 ### Phase 3.5: Azure OpenAI Only
 - **Azure OpenAI Service:** ~$20-50/month (pay-per-token)
+  - **Sign-Up:** [Azure Portal](https://portal.azure.com) → Create Resource → "Azure OpenAI"
+  - **Documentation:** [Azure OpenAI Quickstart](https://learn.microsoft.com/azure/ai-services/openai/quickstart)
+  - **API Keys:** Azure Portal → Your OpenAI Resource → Keys and Endpoint
   - GPT-4o-mini deployment (intent, critic/supervisor testing)
   - GPT-4o deployment (response generation testing)
   - text-embedding-3-large deployment (RAG testing)
 - **No other Azure services required** (no Container Instances, Cosmos DB, etc.)
 
 ### Phase 4-5: Required
-- **Azure:** Subscription (~$310-360/month - **REVISED 2026-01-22**), DevOps organization (free), Service Principal
-- **Shopify:** Partner account (free), Development Store (free)
-- **Zendesk:** Trial/Sandbox account ($0-49/month) - monitor budget impact
-- **Mailchimp:** Free tier account (up to 500 contacts, $0)
-- **Google Analytics:** GA4 property (free), Service Account (free)
-- **AI Models:** Azure OpenAI Service (~$48-62/month estimated token usage - **REVISED**)
+
+#### Azure Subscription & Services
+| Service | Sign-Up URL | Cost | Permissions Required |
+|---------|-------------|------|---------------------|
+| **Azure Subscription** | [azure.microsoft.com/free](https://azure.microsoft.com/free) | ~$310-360/month | Owner or Contributor |
+| **Azure OpenAI Service** | [portal.azure.com](https://portal.azure.com) → Create Resource | ~$48-62/month | Cognitive Services Contributor |
+| **Azure DevOps** | [dev.azure.com](https://dev.azure.com) | Free | Basic access |
+| **Service Principal** | [Azure CLI](https://learn.microsoft.com/cli/azure/ad/sp#az-ad-sp-create-for-rbac) | Free | App Registration permissions |
+
+**Azure Key Locations:**
+- **API Keys:** Azure Portal → Resource → Keys and Endpoint
+- **Connection Strings:** Azure Portal → Resource → Connection Strings
+- **Service Principal:** `az ad sp create-for-rbac --name "agntcy-cs-prod-sp"`
+
+#### Shopify Partner Account
+| Item | Sign-Up URL | Cost | Permissions Required |
+|------|-------------|------|---------------------|
+| **Partner Account** | [partners.shopify.com](https://www.shopify.com/partners) | Free | Email verification |
+| **Development Store** | Partner Dashboard → Stores → Add store | Free | Partner account |
+| **Admin API Access** | Partner Dashboard → Apps → Create app | Free | `read_orders`, `read_products`, `read_customers`, `read_inventory` |
+
+**Shopify Key Locations:**
+- **API Key/Secret:** Partner Dashboard → Apps → Your App → API credentials
+- **Access Token:** Partner Dashboard → Apps → Install app → Get token
+- **Storefront Token:** Partner Dashboard → Apps → Storefront API access
+
+#### Zendesk
+| Item | Sign-Up URL | Cost | Permissions Required |
+|------|-------------|------|---------------------|
+| **Developer Account** | [developer.zendesk.com](https://developer.zendesk.com) | Free trial | Email verification |
+| **Sandbox** | [zendesk.com/register](https://www.zendesk.com/register) | Free (trial) | Admin access |
+| **API Token** | Admin → Channels → API | Free | Admin role |
+
+**Zendesk Key Locations:**
+- **API Token:** Admin Center → Apps and integrations → APIs → Zendesk API
+- **Subdomain:** Your Zendesk URL (e.g., `yourcompany.zendesk.com`)
+
+#### Mailchimp
+| Item | Sign-Up URL | Cost | Permissions Required |
+|------|-------------|------|---------------------|
+| **Account** | [mailchimp.com/signup](https://mailchimp.com/signup/) | Free (250 contacts) | Email verification |
+| **API Key** | Account → Extras → API keys | Free | Account owner |
+
+**Mailchimp Key Locations:**
+- **API Key:** Account → Profile → Extras → API keys → Create New Key
+- **Server Prefix:** Found in API key (e.g., `us21` from `xxx-us21`)
+
+#### Google Analytics
+| Item | Sign-Up URL | Cost | Permissions Required |
+|------|-------------|------|---------------------|
+| **Google Account** | [accounts.google.com](https://accounts.google.com/signup) | Free | - |
+| **GA4 Property** | [analytics.google.com](https://analytics.google.com) | Free | Google account |
+| **Service Account** | [console.cloud.google.com](https://console.cloud.google.com/iam-admin/serviceaccounts) | Free | Editor role |
+| **API Enable** | [console.cloud.google.com/apis](https://console.cloud.google.com/apis/library/analyticsdata.googleapis.com) | Free | Project owner |
+
+**Google Analytics Key Locations:**
+- **Property ID:** GA4 Admin → Property → Property details
+- **Service Account JSON:** GCP Console → IAM → Service Accounts → Keys → Create key (JSON)
+- **Measurement ID:** GA4 Admin → Data Streams → Web stream details
+
+#### AI Models
+- **Azure OpenAI Service:** (~$48-62/month estimated token usage - **REVISED**)
+  - **Sign-Up:** [portal.azure.com](https://portal.azure.com) → Create Resource → Azure OpenAI
+  - **Request Access:** [aka.ms/oai/access](https://aka.ms/oai/access) (if not already approved)
   - GPT-4o-mini for intent classification + Critic/Supervisor validation
   - GPT-4o for response generation
   - text-embedding-3-large for RAG embeddings
   - **Alternative:** Microsoft Foundry (Anthropic Claude via Azure) - also within secure perimeter
 - **Tracing:** Azure Application Insights + Monitor Logs (~$10-15/month for execution traces)
+  - **Sign-Up:** Azure Portal → Create Resource → Application Insights
 
 **Budget Breakdown (Phase 4-5):**
 - Azure infrastructure (Container Instances, Cosmos DB, Key Vault, Networking): ~$200-220/month
