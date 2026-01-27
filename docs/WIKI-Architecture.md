@@ -94,9 +94,9 @@ This is an **educational example project** demonstrating how to build a cost-eff
 
 ---
 
-### Phase 4: Azure Production Setup - CONTAINERS RUNNING ✅
+### Phase 4: Azure Production Setup - APPLICATION GATEWAY DEPLOYED ✅
 
-**Status as of 2026-01-27:** All infrastructure deployed, all containers running (0 restarts)
+**Status as of 2026-01-27:** All infrastructure deployed, Application Gateway active, all containers running (0 restarts)
 
 **Deployed Azure Resources:**
 - Resource Group: `agntcy-prod-rg` (East US 2)
@@ -105,7 +105,14 @@ This is an **educational example project** demonstrating how to build a cost-eff
 - Cosmos DB: `cosmos-agntcy-cs-prod-rc6vcp` (Serverless)
 - Key Vault: `kv-agntcy-cs-prod-rc6vcp`
 - Application Insights: `agntcy-cs-prod-appinsights-rc6vcp`
+- **Application Gateway: `agntcy-cs-prod-appgw` (Standard_v2, TLS 1.2)**
 - Azure OpenAI: GPT-4o, GPT-4o-mini, text-embedding-3-large deployed
+
+**Public Access:**
+- **Public IP:** 20.110.214.55
+- **FQDN:** https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com
+- **TLS Policy:** AppGwSslPolicy20220101S (TLS 1.2 minimum, modern cipher suites)
+- **Autoscaling:** 0-2 instances (cost-optimized, scales to zero when idle)
 
 **Container Groups Running (All Healthy - 0 Restarts):**
 | Container | Private IP | Port | Status | Image |
@@ -136,7 +143,7 @@ This is an **educational example project** demonstrating how to build a cost-eff
 **Remaining Phase 4 Work:**
 - ⏳ Multi-language support (fr-CA, es)
 - ⏳ Azure DevOps pipelines
-- ⏳ Application Gateway for public HTTPS endpoint
+- ✅ Application Gateway for public HTTPS endpoint (deployed 2026-01-27)
 
 **Current Monthly Cost:** ~$214-285/month (estimated)
 **Budget:** $310-360/month

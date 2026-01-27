@@ -84,9 +84,15 @@ credentials/
 *.key
 *.pem
 *.crt
+*.pfx
+*.cer
 *secret*
 *password*
 *token*
+
+# Application Gateway certificates
+terraform/phase4_prod/certs/*.pfx
+terraform/phase4_prod/certs/*.cer
 
 # PPTX Skill - Generated presentations (keep templates)
 PPTX-template-and-skill/output/

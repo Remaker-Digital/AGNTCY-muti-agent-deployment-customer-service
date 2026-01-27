@@ -275,3 +275,20 @@ variable "deploy_containers" {
   type        = bool
   default     = false # Set to true after images are pushed to ACR
 }
+
+# ============================================================================
+# APPLICATION GATEWAY
+# ============================================================================
+
+variable "enable_application_gateway" {
+  description = "Enable Application Gateway for public HTTPS access"
+  type        = bool
+  default     = false # Set to true when ready for public access
+}
+
+variable "ssl_certificate_password" {
+  description = "Password for the SSL certificate PFX file"
+  type        = string
+  sensitive   = true
+  default     = ""
+}

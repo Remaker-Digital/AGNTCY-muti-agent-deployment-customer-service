@@ -111,10 +111,33 @@ output "azure_openai_endpoint" {
 # DEPLOYMENT INFO
 # ============================================================================
 
+# ============================================================================
+# APPLICATION GATEWAY
+# ============================================================================
+
+output "appgateway_public_ip" {
+  description = "Application Gateway public IP address"
+  value       = var.enable_application_gateway ? azurerm_public_ip.appgateway[0].ip_address : null
+}
+
+output "appgateway_fqdn" {
+  description = "Application Gateway FQDN (DNS name)"
+  value       = var.enable_application_gateway ? azurerm_public_ip.appgateway[0].fqdn : null
+}
+
+output "appgateway_id" {
+  description = "Application Gateway ID"
+  value       = var.enable_application_gateway ? azurerm_application_gateway.main[0].id : null
+}
+
+# ============================================================================
+# DEPLOYMENT SUMMARY
+# ============================================================================
+
 output "deployment_summary" {
   description = "Summary of deployed resources"
   value = {
-    phase               = "Phase 4"
+    phase               = "Phase 4/5"
     region              = local.location
     azure_openai_region = "westus"
     agent_count         = 6
@@ -124,5 +147,6 @@ output "deployment_summary" {
     private_endpoints   = var.enable_private_endpoints
     nats_enabled        = var.enable_nats_jetstream
     containers_deployed = var.deploy_containers
+    appgateway_enabled  = var.enable_application_gateway
   }
 }
