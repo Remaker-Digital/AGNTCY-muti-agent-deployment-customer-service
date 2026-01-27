@@ -9,6 +9,113 @@ This document provides context and guidance for AI assistants (Claude, GitHub Co
 **License:** Public (educational use)
 **Audience:** Developers learning multi-agent architectures, Azure deployment, and cost optimization
 
+---
+
+## ⚠️ MANDATORY STANDARDS FOR ALL ARTIFACTS
+
+> **These requirements apply to ALL code, configuration, and documentation artifacts that will remain present at Phase 5 completion. Compliance is non-negotiable.**
+
+### 1. ENTERPRISE CAPABILITIES AND QUALITIES
+
+This project illustrates design and development best practices for **enterprise-class systems**. All artifacts must demonstrate:
+
+| Quality | Requirement | How to Verify |
+|---------|-------------|---------------|
+| **Scalability** | Design for horizontal scaling; no hardcoded limits | Load test results, architecture docs |
+| **Performance** | Meet defined SLAs (P95 <2s response time) | Performance benchmarks, APM metrics |
+| **Reliability** | Graceful degradation, retry logic, circuit breakers | Chaos testing, error handling review |
+| **Maintainability** | Clean code, DRY principles, clear separation of concerns | Code review checklist, linting scores |
+| **Security** | Defense in depth, least privilege, secrets management | Security scans, threat modeling |
+| **Observability** | Structured logging, distributed tracing, metrics | Dashboard availability, trace coverage |
+| **Usability** | Clear admin interfaces, operational runbooks | Operator feedback, documentation review |
+| **Cost Efficiency** | Right-sized resources, auto-scaling, budget alerts | Cost monitoring, optimization reports |
+
+### 2. EDUCATIONAL UTILITY
+
+Because this is an educational project, **ALL code and configuration artifacts must be thoroughly documented**:
+
+#### Comment Requirements
+
+```python
+# ============================================================================
+# EXAMPLE: Proper Educational Documentation
+# ============================================================================
+# Purpose: Intent classification using Azure OpenAI GPT-4o-mini
+#
+# Why GPT-4o-mini? Cost-effective for classification tasks (~$0.15/1M tokens)
+# vs GPT-4o (~$2.50/1M tokens). Accuracy validated at 98% in Phase 3.5.
+# See: evaluation/results/intent-classification-results.md
+#
+# Architecture Decision: Async HTTP client for non-blocking I/O
+# See: docs/architecture-requirements-phase2-5.md#async-patterns
+#
+# Related Documentation:
+# - Azure OpenAI API: https://learn.microsoft.com/azure/ai-services/openai/
+# - AGNTCY SDK Patterns: AGNTCY-REVIEW.md#factory-pattern
+# - Test Results: tests/integration/test_intent_classification.py
+# ============================================================================
+```
+
+#### Documentation Standards
+
+| Element | Requirement | Example |
+|---------|-------------|---------|
+| **Purpose** | Every file, class, and function explains WHY it exists | "Handles PII tokenization before sending to external AI services" |
+| **Rationale** | Architectural decisions include reasoning | "Using Cosmos DB Serverless for pay-per-request billing (see budget constraints)" |
+| **References** | Cite authoritative sources | Links to Azure docs, test results, architecture decisions |
+| **Sources of Record** | Point to definitive documentation | "Configuration schema: docs/CONFIGURATION-DECISION-RECORD.md" |
+| **Trade-offs** | Document what was considered and why | "Chose SLIM over NATS for transport (see AGNTCY-REVIEW.md#transport-choice)" |
+
+#### Terraform/IaC Standards
+
+```hcl
+# ============================================================================
+# Resource: Azure Container Instance - Intent Classification Agent
+# ============================================================================
+# Purpose: Runs the intent classification agent in production
+#
+# Why Container Instances (not AKS)?
+# - Budget constraint: AKS minimum ~$70-100/month vs ACI ~$8-15/month
+# - Sufficient for 6 agents at current scale (100 concurrent users)
+# - See: docs/architecture-requirements-phase2-5.md#compute-decisions
+#
+# Scaling Configuration:
+# - CPU: 0.5 vCPU (validated via load testing, see tests/load/results/)
+# - Memory: 1 GB (profiled peak usage: 450 MB)
+# - Auto-restart: Always (ensures availability)
+#
+# Cost Impact: ~$12/month at current utilization
+# See: docs/PHASE-5-COMPLETION-CHECKLIST.md#budget-status
+# ============================================================================
+```
+
+#### Configuration File Standards
+
+```yaml
+# ============================================================================
+# Configuration: Agent Confidence Thresholds
+# ============================================================================
+# Purpose: Controls when agents escalate vs auto-respond
+#
+# Tuning History:
+# - 2026-01-25: Initial value 0.7 caused 70% escalation rate
+# - 2026-01-26: Reduced to 0.5, escalation rate dropped to 30%
+# - See: docs/PHASE-5-CONFIGURATION-INTERFACE.md#daily-tuning
+#
+# Operational Guidance:
+# - Lower threshold = fewer escalations, more automation
+# - Higher threshold = more human review, higher quality assurance
+# - Monitor via: Application Insights > Custom Metrics > confidence_score
+#
+# Source of Record: Azure App Configuration (production)
+# Test Results: evaluation/results/intent-classification-results.md
+# ============================================================================
+intent:
+  confidence_threshold: 0.5  # Range: 0.0-1.0, Default: 0.7
+```
+
+---
+
 ## Critical Context
 
 ### Budget Constraints (HIGHEST PRIORITY)
