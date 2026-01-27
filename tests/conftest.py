@@ -185,3 +185,56 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "asyncio: Async tests using pytest-asyncio"
     )
+    config.addinivalue_line(
+        "markers", "pool: Tests for connection pooling components"
+    )
+    config.addinivalue_line(
+        "markers", "autoscaling: Tests for auto-scaling functionality"
+    )
+
+
+# =============================================================================
+# Connection Pool Fixtures (Auto-Scaling Support)
+# =============================================================================
+
+@pytest.fixture
+def mock_pool_config():
+    """Mock pool configuration for testing."""
+    return {
+        "min_connections": 2,
+        "max_connections": 10,
+        "connection_timeout": 30.0,
+        "max_retries": 3,
+        "enable_circuit_breaker": True,
+        "circuit_breaker_threshold": 5,
+        "circuit_breaker_timeout": 30.0
+    }
+
+
+@pytest.fixture
+def mock_pool_metrics():
+    """Mock pool metrics for testing."""
+    return {
+        "connections_created": 5,
+        "connections_closed": 0,
+        "total_acquires": 100,
+        "total_releases": 98,
+        "total_errors": 2,
+        "total_timeouts": 0,
+        "circuit_breaker_trips": 0,
+        "peak_active": 4,
+        "avg_acquire_time_ms": 15.5
+    }
+
+
+@pytest.fixture
+def mock_cosmos_config():
+    """Mock Cosmos DB configuration for testing."""
+    return {
+        "endpoint": "https://test-cosmos.documents.azure.com:443/",
+        "key": "test-key-12345",
+        "database_name": "test-db",
+        "preferred_regions": ["East US 2"],
+        "max_retry_attempts": 9,
+        "enable_endpoint_discovery": True
+    }

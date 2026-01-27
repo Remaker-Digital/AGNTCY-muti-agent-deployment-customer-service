@@ -1,0 +1,41 @@
+{
+  "total_requests": 16,
+  "successful_requests": 16,
+  "failed_requests": 0,
+  "error_rate": "0.00%",
+  "avg_response_time_ms": 12792.77,
+  "median_response_time_ms": 13574.3,
+  "p95_response_time_ms": 14880.96,
+  "p99_response_time_ms": 14880.96,
+  "min_response_time_ms": 4346.61,
+  "max_response_time_ms": 14880.96,
+  "throughput_rps": 0.22,
+  "duration_seconds": 73.57,
+  "concurrent_users": 3,
+  "scenario_breakdown": {
+    "order_status": {
+      "count": 10,
+      "success_rate": 1.0,
+      "avg_time_ms": 12410.004997253418,
+      "p95_time_ms": 14132.2021484375
+    },
+    "product_inquiry": {
+      "count": 3,
+      "success_rate": 1.0,
+      "avg_time_ms": 12828.266779581705,
+      "p95_time_ms": 14122.682809829712
+    },
+    "return_request": {
+      "count": 2,
+      "success_rate": 1.0,
+      "avg_time_ms": 14294.770121574402,
+      "p95_time_ms": 14880.956888198853
+    },
+    "escalation": {
+      "count": 1,
+      "success_rate": 1.0,
+      "avg_time_ms": 13509.908437728882,
+      "p95_time_ms": 13509.908437728882
+    }
+  }
+}

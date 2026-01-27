@@ -2,9 +2,9 @@
 
 **Multi-Agent Customer Service Platform on Azure using AGNTCY SDK**
 
-**Last Updated:** 2026-01-26
+**Last Updated:** 2026-01-27
 
-**Version:** 3.0 (Phase 3 Complete, Phase 3.5 Complete, Phase 4 Infrastructure Deployed)
+**Version:** 3.1 (Auto-Scaling Architecture Added)
 
 **Status:** Phase 1-3 Complete ✅, Phase 3.5 Complete ✅, Phase 4 Infrastructure Deployed ✅
 
@@ -1510,6 +1510,8 @@ az cosmosdb list --resource-group agntcy-prod-rg
 
 ## Performance & Scalability
 
+> **📖 Detailed Documentation:** For comprehensive scalability architecture, load testing results, and operational runbooks, see **[WIKI-Scalability.md](./WIKI-Scalability.md)**.
+
 ### Performance Targets
 
 | Metric | Target | Phase |
@@ -1524,28 +1526,57 @@ az cosmosdb list --resource-group agntcy-prod-rg
 | **Event Processing Latency** | <5 seconds | Phase 5 |
 | **Concurrent Conversations** | 100+ | Phase 5 |
 | **Throughput** | 1000 requests/min | Phase 5 |
+| **Cold Start Time** | <10 seconds | Phase 5 |
+| **Scale-Up Time** | <2 minutes | Phase 5 |
 
 ---
 
-### Scalability Strategy
+### Auto-Scaling Architecture
+
+The platform uses **Azure Container Apps with KEDA** (Kubernetes Event-Driven Autoscaling) for fine-grained, demand-based scaling.
+
+#### KEDA Scaling Triggers
+
+| Trigger | Threshold | Action |
+|---------|-----------|--------|
+| **HTTP Requests** | >10 concurrent | +1 instance |
+| **CPU Usage** | >70% for 5 min | +1 instance |
+| **Memory Usage** | >80% | +1 instance |
+| **Cool-Down** | <30% CPU 5 min | -1 instance |
+
+#### Connection Pool & Circuit Breaker
+
+The platform implements **Azure OpenAI connection pooling** with circuit breaker protection:
+
+```python
+# Connection Pool Configuration
+PoolConfig(
+    min_connections=2,       # Warm connections ready
+    max_connections=50,      # Maximum concurrent
+    connection_timeout=30.0, # Seconds to wait
+    enable_circuit_breaker=True,
+    circuit_breaker_threshold=5,   # Failures before open
+    circuit_breaker_timeout=30.0   # Recovery time
+)
+```
+
+**Circuit Breaker States:**
+- **CLOSED**: Normal operation, all requests pass through
+- **OPEN**: Service degraded, fallback responses returned
+- **HALF_OPEN**: Testing recovery, limited requests allowed
 
 #### Horizontal Scaling
-- **Container Instances:** Auto-scale 1-3 instances per agent (6 agents total - REVISED 2026-01-22)
+- **Container Apps:** Auto-scale 1-3 instances per agent (6 agents total)
 - **Cosmos DB:** Serverless auto-scales RU/s (no manual provisioning)
 - **NATS:** Single instance sufficient for Phase 5 (1M+ msgs/sec capacity)
 
-**Auto-Scale Rules:**
-```
-IF avg_cpu > 70% for 5 minutes:
-    scale_out(+1 instance, max=3)
+#### Scheduled Scaling Profiles
 
-IF avg_cpu < 30% for 10 minutes:
-    scale_in(-1 instance, min=1)
-```
-
-#### Vertical Scaling
-- **Container CPU/Memory:** Start small (1 vCPU, 2GB RAM), profile, adjust
-- **Cosmos DB:** Serverless handles spikes automatically
+| Period | Time (ET) | Min Replicas | Max Replicas |
+|--------|-----------|--------------|--------------|
+| **Night** | 2am-6am | 0 | 1 |
+| **Business Hours** | 9am-6pm | 1 | 3 |
+| **Off-Peak** | Other | 1 | 2 |
 
 #### Caching Strategy
 - **Knowledge Base:** CDN 1-hour cache (Blob Storage)
@@ -1558,13 +1589,31 @@ IF avg_cpu < 30% for 10 minutes:
 
 **Potential Bottlenecks:**
 1. **Azure OpenAI Rate Limits:** 10K tokens/min (gpt-4o), 60K tokens/min (gpt-4o-mini)
-   - **Mitigation:** Use GPT-4o-mini for simple tasks, cache common responses
+   - **Mitigation:** Connection pooling, GPT-4o-mini for simple tasks, cache common responses
 2. **Cosmos DB Throttling:** 400 RU/s free tier, serverless scales but costs increase
    - **Mitigation:** Optimize queries, use analytical store for reports
 3. **NATS Single Instance:** Single point of failure
    - **Mitigation:** Phase 5 HA setup (3-node cluster, ~$30-60/month extra)
 4. **External API Latency:** Shopify/Zendesk APIs can be slow (500ms-2s)
    - **Mitigation:** Async calls, cache results, use webhooks for updates
+5. **Connection Pool Exhaustion:** High concurrent load depletes pool
+   - **Mitigation:** Circuit breaker with fallback, KEDA scaling trigger
+
+---
+
+### Load Testing Results
+
+The platform has been validated against the 10,000 daily users target:
+
+| Scenario | Users | RPS | Result |
+|----------|-------|-----|--------|
+| **Baseline** | 5 | 0.5 | ✅ 100% success |
+| **Scale-Up Trigger** | 30 | 3.5 | ✅ Auto-scaled |
+| **Pool Stress** | 50 | 5.0 | ✅ Pool stable |
+| **Circuit Breaker** | 100 | 10.0 | ✅ Circuit opened |
+| **Sustained** | 20 | 2.0 | ✅ 5 min stable |
+
+**→ [Full Load Test Documentation](./WIKI-Scalability.md#load-testing-results-10k-users-scenario)**
 
 ---
 

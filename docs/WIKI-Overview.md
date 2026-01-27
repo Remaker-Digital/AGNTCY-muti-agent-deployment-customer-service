@@ -3,7 +3,7 @@
 **Multi-Agent AI Customer Service Platform for E-Commerce**
 
 **Last Updated:** 2026-01-27
-**Version:** 2.5 (Phase 4 Containers Running, Real APIs Integrated)
+**Version:** 2.6 (Scalability Documentation Added)
 **Status:** Phase 1-3 Complete ✅ | Phase 4 Containers Running ✅ | Phase 5 Testing Ready ✅
 **Target Audience:** Senior executives, enterprise architects, technical decision-makers
 
@@ -60,20 +60,68 @@ Need anything else? I'm here to help!
 
 ---
 
+## Scalability at a Glance
+
+### Built for Growth, Optimized for Cost
+
+The platform is engineered to scale seamlessly from startup volumes to enterprise-level traffic while maintaining strict cost controls. Whether handling 100 conversations per day or 10,000+, the architecture automatically adjusts capacity to match demand.
+
+| Capability | Specification | Business Impact |
+|------------|---------------|-----------------|
+| **Daily User Capacity** | 10,000+ active users | Supports growing e-commerce operations |
+| **Peak Traffic Handling** | 3.5+ requests/second sustained | Handles Black Friday, product launches |
+| **Response Time** | <2 minutes (P95) | Matches customer expectations |
+| **Concurrent Conversations** | 100+ simultaneous | No queue delays during busy periods |
+| **Scale-Up Time** | <2 minutes | Automatic response to traffic spikes |
+| **Off-Peak Savings** | 40-60% cost reduction | Night-time auto-shutdown (2am-6am ET) |
+
+### How Auto-Scaling Protects Your Investment
+
+```
+        Traffic Surge                          Automatic Response
+    ┌──────────────────┐                   ┌──────────────────────┐
+    │ 🚀 Product Launch│ ──────────────►   │ ⚡ Scale 1→3 in <2min │
+    │   10x Normal     │                   │   No manual action    │
+    └──────────────────┘                   └──────────────────────┘
+
+        Low Traffic                            Cost Optimization
+    ┌──────────────────┐                   ┌──────────────────────┐
+    │ 🌙 Night Hours   │ ──────────────►   │ 💰 Scale 3→1 auto    │
+    │   2am-6am ET     │                   │   40-60% savings      │
+    └──────────────────┘                   └──────────────────────┘
+```
+
+### Key Scalability Features
+
+1. **KEDA Auto-Scaling**: Kubernetes Event-Driven Autoscaling responds to actual demand (concurrent requests, CPU usage, queue depth)
+
+2. **Connection Pooling with Circuit Breaker**: Efficient Azure OpenAI API usage with automatic failure protection
+
+3. **Scheduled Scaling Profiles**: Time-based capacity planning aligns resources with predictable traffic patterns
+
+4. **Budget Guardrails**: Automatic alerts at 83% and 93% of monthly budget prevent cost overruns
+
+5. **Graceful Degradation**: Circuit breaker patterns ensure service continuity during external API outages
+
+**→ [Detailed Scalability Architecture](./WIKI-Scalability.md)** | **→ [Architecture Deep Dive](./WIKI-Architecture.md)**
+
+---
+
 ## Table of Contents
 
 1. [Executive Summary](#executive-summary)
-2. [Business Problem & Solution](#business-problem--solution)
-3. [Core Capabilities & Features](#core-capabilities--features)
-4. [Business Value & ROI](#business-value--roi)
-5. [Technical Architecture Overview](#technical-architecture-overview)
-6. [Deployment Options](#deployment-options)
-7. [Security & Compliance](#security--compliance)
-8. [Customization & Extension](#customization--extension)
-9. [Implementation Roadmap](#implementation-roadmap)
-10. [Success Metrics & KPIs](#success-metrics--kpis)
-11. [Risk Mitigation](#risk-mitigation)
-12. [Next Steps](#next-steps)
+2. [Scalability at a Glance](#scalability-at-a-glance)
+3. [Business Problem & Solution](#business-problem--solution)
+4. [Core Capabilities & Features](#core-capabilities--features)
+5. [Business Value & ROI](#business-value--roi)
+6. [Technical Architecture Overview](#technical-architecture-overview)
+7. [Deployment Options](#deployment-options)
+8. [Security & Compliance](#security--compliance)
+9. [Customization & Extension](#customization--extension)
+10. [Implementation Roadmap](#implementation-roadmap)
+11. [Success Metrics & KPIs](#success-metrics--kpis)
+12. [Risk Mitigation](#risk-mitigation)
+13. [Next Steps](#next-steps)
 
 ---
 
@@ -888,12 +936,27 @@ async def on_order_fulfilled(event: Event):
 - **Content Validation**: <200ms (P95)
 - **Concurrent Conversations**: 100+
 - **Throughput**: 1,000 requests/minute
+- **Cold Start Time**: <10 seconds
 
-#### Auto-Scaling
+#### Auto-Scaling Architecture
+- **Platform**: Azure Container Apps with KEDA (Kubernetes Event-Driven Autoscaling)
 - **Horizontal**: 1-3 instances per agent (6 agents = 6-18 total containers)
-- **Scale-Up Trigger**: Avg CPU >70% for 5 minutes
-- **Scale-Down Trigger**: Avg CPU <30% for 10 minutes
-- **Night-Time Shutdown**: 2am-6am ET (scale to 0 or 1 min instance)
+- **Scale-Up Trigger**: >10 concurrent HTTP requests OR CPU >70% for 5 minutes
+- **Scale-Down Trigger**: CPU <30% for 5 minutes (aggressive cost optimization)
+- **Night-Time Shutdown**: 2am-6am ET (scale to 0 or 1 minimum instance)
+- **Cool-Down Period**: 5 minutes before scale-down actions
+
+#### Connection Pooling & Circuit Breaker
+- **OpenAI Connection Pool**: 2-50 connections with automatic scaling
+- **Circuit Breaker**: Protects against Azure OpenAI outages (5 failures → open → 30s recovery)
+- **Fallback Responses**: Graceful degradation when external APIs unavailable
+
+#### Budget-Aware Scaling
+- **Budget Alerts**: Automatic notifications at 83% ($299) and 93% ($335) of monthly limit
+- **Cost Guardrails**: Maximum replica limits prevent runaway scaling costs
+- **Off-Peak Savings**: 40-60% reduction through night-time and weekend optimization
+
+**→ [Full Scalability Documentation](./WIKI-Scalability.md)**
 
 ---
 

@@ -73,6 +73,34 @@ resource "azurerm_network_security_group" "containers" {
     destination_address_prefix = var.subnet_containers
   }
 
+  # Allow Application Gateway subnet to reach API Gateway (port 8080)
+  # Required for AppGW backend health probes and traffic routing
+  security_rule {
+    name                       = "allow-appgw-to-api-gateway"
+    priority                   = 103
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "8080"
+    source_address_prefix      = var.subnet_appgateway
+    destination_address_prefix = var.subnet_containers
+  }
+
+  # Allow Application Gateway subnet to reach SLIM (port 8443)
+  # Required for AppGW backend health probes and traffic routing
+  security_rule {
+    name                       = "allow-appgw-to-slim"
+    priority                   = 105
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "8443"
+    source_address_prefix      = var.subnet_appgateway
+    destination_address_prefix = var.subnet_containers
+  }
+
   # Allow inter-container communication (SLIM protocol)
   security_rule {
     name                       = "allow-slim-internal"

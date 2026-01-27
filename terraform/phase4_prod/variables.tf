@@ -157,6 +157,12 @@ variable "subnet_private_endpoints" {
   default     = "10.0.2.0/24"
 }
 
+variable "subnet_appgateway" {
+  description = "Subnet CIDR for Application Gateway"
+  type        = string
+  default     = "10.0.3.0/24"
+}
+
 # ============================================================================
 # CONTAINER CONFIGURATION
 # ============================================================================

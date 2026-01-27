@@ -85,33 +85,76 @@ resource "azurerm_application_gateway" "main" {
   # ============================================================================
   # BACKEND POOLS
   # ============================================================================
+  # Purpose: Define backend targets for Application Gateway routing
+  #
+  # Why dynamic IPs? Azure Container Instances get private IPs assigned at creation.
+  # Using Terraform references ensures the Application Gateway always points to
+  # the correct container IPs, even after redeployments.
+  #
+  # See: https://learn.microsoft.com/azure/application-gateway/application-gateway-components
+  # Source of Record: terraform/phase4_prod/containers.tf (container group definitions)
+  # ============================================================================
 
-  # SLIM Gateway backend (main entry point for agents)
+  # API Gateway backend (HTTP REST API for load testing and external access)
+  # Why separate API Gateway? SLIM uses gRPC (HTTP/2 + protobufs) which Application
+  # Gateway doesn't fully support for health probes. This FastAPI service provides
+  # HTTP/1.1 REST endpoints that AppGW can properly health-check.
+  # Cost Impact: ~$12-18/month (0.5 vCPU + 1GB RAM)
+  # See: api_gateway/main.py for endpoint definitions
+  backend_address_pool {
+    name         = "api-gateway-backend-pool"
+    ip_addresses = var.deploy_containers ? [azurerm_container_group.api_gateway[0].ip_address] : ["10.0.1.7"]
+  }
+
+  # SLIM Gateway backend (internal gRPC - kept for reference but not used by AppGW)
+  # Why not used? SLIM uses gRPC which AppGW can't health-probe properly.
+  # Agent-to-agent communication uses SLIM directly, bypassing AppGW.
   backend_address_pool {
     name         = "slim-backend-pool"
-    ip_addresses = ["10.0.1.4"] # SLIM gateway private IP
+    ip_addresses = var.deploy_containers ? [azurerm_container_group.slim_gateway[0].ip_address] : ["10.0.1.4"]
   }
 
   # Direct agent access (optional, for debugging/monitoring)
+  # Use with path-based routing rules for direct agent health checks
   backend_address_pool {
     name         = "agents-backend-pool"
-    ip_addresses = [
-      "10.0.1.6",  # Knowledge Retrieval
-      "10.0.1.7",  # Critic/Supervisor
-      "10.0.1.8",  # Response Generator
-      "10.0.1.9",  # Analytics
-      "10.0.1.10", # Intent Classifier
-      "10.0.1.11"  # Escalation
-    ]
+    ip_addresses = var.deploy_containers ? [
+      azurerm_container_group.knowledge_retrieval[0].ip_address,
+      azurerm_container_group.critic_supervisor[0].ip_address,
+      azurerm_container_group.response_generator[0].ip_address,
+      azurerm_container_group.analytics[0].ip_address,
+      azurerm_container_group.intent_classifier[0].ip_address,
+      azurerm_container_group.escalation[0].ip_address
+    ] : ["10.0.1.6", "10.0.1.7", "10.0.1.8", "10.0.1.9", "10.0.1.10", "10.0.1.11"]
   }
 
   # ============================================================================
   # BACKEND HTTP SETTINGS
   # ============================================================================
+  # Purpose: Define how Application Gateway communicates with backend pools
+  #
+  # Why pick_host_name_from_backend_address = true?
+  # When health probes use pick_host_name_from_backend_http_settings, the backend
+  # settings must also use pick_host_name_from_backend_address for compatibility.
+  # This tells AppGW to use the backend's IP address as the Host header.
+  #
+  # See: https://learn.microsoft.com/azure/application-gateway/configuration-http-settings
+  # ============================================================================
 
-  # HTTPS backend settings for SLIM (TLS termination at SLIM)
-  # Note: For production, you'd add a trusted_root_certificate block
-  # For this educational project, we allow untrusted backend certs
+  # HTTP backend settings for API Gateway (main traffic)
+  # The API Gateway FastAPI service listens on port 8080
+  backend_http_settings {
+    name                                = "api-gateway-http-settings"
+    cookie_based_affinity               = "Disabled"
+    port                                = 8080
+    protocol                            = "Http"
+    request_timeout                     = 60
+    pick_host_name_from_backend_address = true
+    probe_name                          = "api-gateway-health-probe"
+  }
+
+  # HTTPS backend settings for SLIM (internal gRPC - NOT USED by Application Gateway)
+  # Kept for reference; SLIM uses gRPC which AppGW can't health-probe properly
   backend_http_settings {
     name                                = "slim-https-settings"
     cookie_based_affinity               = "Disabled"
@@ -121,13 +164,14 @@ resource "azurerm_application_gateway" "main" {
     pick_host_name_from_backend_address = true
   }
 
-  # HTTP backend settings for direct agent access
+  # HTTP backend settings for direct agent access (debugging/monitoring)
   backend_http_settings {
-    name                  = "agents-http-settings"
-    cookie_based_affinity = "Disabled"
-    port                  = 8080
-    protocol              = "Http"
-    request_timeout       = 30
+    name                                = "agents-http-settings"
+    cookie_based_affinity               = "Disabled"
+    port                                = 8080
+    protocol                            = "Http"
+    request_timeout                     = 30
+    pick_host_name_from_backend_address = true
   }
 
   # ============================================================================
@@ -176,14 +220,14 @@ resource "azurerm_application_gateway" "main" {
     redirect_configuration_name = "http-to-https"
   }
 
-  # Main HTTPS routing rule - routes to SLIM gateway
+  # Main HTTPS routing rule - routes to API Gateway
   request_routing_rule {
-    name                       = "https-to-slim"
+    name                       = "https-to-api-gateway"
     priority                   = 200
     rule_type                  = "Basic"
     http_listener_name         = "https-listener"
-    backend_address_pool_name  = "slim-backend-pool"
-    backend_http_settings_name = "slim-https-settings"
+    backend_address_pool_name  = "api-gateway-backend-pool"
+    backend_http_settings_name = "api-gateway-http-settings"
   }
 
   # ============================================================================
@@ -201,29 +245,60 @@ resource "azurerm_application_gateway" "main" {
   # ============================================================================
   # HEALTH PROBES
   # ============================================================================
+  # Purpose: Monitor backend health to enable automatic failover
+  #
+  # Why pick_host_name_from_backend_http_settings?
+  # - Allows Application Gateway to use the backend's IP from the pool
+  # - Avoids hardcoding IPs that may change on container redeployment
+  # - Standard pattern for dynamic backend pools
+  #
+  # See: https://learn.microsoft.com/azure/application-gateway/application-gateway-probe-overview
+  # ============================================================================
 
+  # API Gateway health probe (main traffic)
+  # The API Gateway exposes GET /health endpoint returning 200 OK with JSON body
+  # See: api_gateway/main.py:health_check()
   probe {
-    name                = "slim-health-probe"
-    protocol            = "Https"
-    path                = "/health"
-    host                = "slim.internal"
-    interval            = 30
-    timeout             = 30
-    unhealthy_threshold = 3
+    name                                      = "api-gateway-health-probe"
+    protocol                                  = "Http"
+    path                                      = "/health"
+    pick_host_name_from_backend_http_settings = true
+    interval                                  = 30
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
 
     match {
       status_code = ["200-399"]
     }
   }
 
+  # SLIM health probe (internal gRPC - NOT USED by Application Gateway)
+  # Why kept? For reference and potential future use if SLIM adds HTTP health endpoint
+  # Currently SLIM uses gRPC which AppGW can't health-probe via HTTP
   probe {
-    name                = "agents-health-probe"
-    protocol            = "Http"
-    path                = "/health"
-    interval            = 30
-    timeout             = 30
-    unhealthy_threshold = 3
+    name                                      = "slim-health-probe"
+    protocol                                  = "Https"
+    path                                      = "/health"
     pick_host_name_from_backend_http_settings = true
+    interval                                  = 30
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
+
+    match {
+      status_code = ["200-399"]
+    }
+  }
+
+  # Agents health probe (for direct access testing)
+  # Individual agents expose /health endpoints for container health checks
+  probe {
+    name                                      = "agents-health-probe"
+    protocol                                  = "Http"
+    path                                      = "/health"
+    pick_host_name_from_backend_http_settings = true
+    interval                                  = 30
+    timeout                                   = 30
+    unhealthy_threshold                       = 3
 
     match {
       status_code = ["200-399"]

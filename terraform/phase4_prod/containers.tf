@@ -485,6 +485,73 @@ resource "azurerm_container_group" "critic_supervisor" {
 }
 
 # ============================================================================
+# API GATEWAY (HTTP REST API for Application Gateway)
+# ============================================================================
+# This container provides HTTP endpoints for the Application Gateway to route to.
+# SLIM uses gRPC (HTTP/2 + protobufs) which Application Gateway doesn't fully support.
+# This API Gateway bridges HTTP REST calls to the agent pipeline.
+
+resource "azurerm_container_group" "api_gateway" {
+  count               = var.deploy_containers ? 1 : 0
+  name                = "${local.name_prefix}-cg-api-gateway"
+  location            = local.location
+  resource_group_name = data.azurerm_resource_group.main.name
+  os_type             = "Linux"
+  ip_address_type     = "Private"
+  subnet_ids          = [azurerm_subnet.containers.id]
+  restart_policy      = "Always"
+
+  identity {
+    type         = "UserAssigned"
+    identity_ids = [azurerm_user_assigned_identity.containers.id]
+  }
+
+  image_registry_credential {
+    server                    = azurerm_container_registry.main.login_server
+    user_assigned_identity_id = azurerm_user_assigned_identity.containers.id
+  }
+
+  container {
+    name   = "api-gateway"
+    image  = "${azurerm_container_registry.main.login_server}/api-gateway:v1.1.2-openai"
+    cpu    = 0.5
+    memory = 1.0
+
+    ports {
+      port     = 8080
+      protocol = "TCP"
+    }
+
+    # Environment variables for API Gateway
+    # Note: Variable names must match evaluation/config.py expectations
+    # See: evaluation/config.py for expected env var names
+    environment_variables = {
+      API_PORT                              = "8080"
+      API_HOST                              = "0.0.0.0"
+      # Azure OpenAI Configuration (must match evaluation/config.py names)
+      AZURE_OPENAI_ENDPOINT                 = var.azure_openai_endpoint
+      AZURE_OPENAI_API_KEY                  = var.azure_openai_api_key
+      AZURE_OPENAI_API_VERSION              = "2024-02-15-preview"
+      AZURE_OPENAI_GPT4O_MINI_DEPLOYMENT    = var.gpt4o_mini_deployment
+      AZURE_OPENAI_GPT4O_DEPLOYMENT         = var.gpt4o_deployment
+      AZURE_OPENAI_EMBEDDING_DEPLOYMENT     = var.embedding_deployment
+      USE_AZURE_OPENAI                      = "true"
+      # Observability
+      APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.main.connection_string
+      # SLIM Gateway for agent communication
+      SLIM_ENDPOINT                         = var.deploy_containers ? azurerm_container_group.slim_gateway[0].ip_address : ""
+      SLIM_PORT                             = "8443"
+    }
+  }
+
+  tags = merge(local.common_tags, { Service = "api-gateway" })
+
+  depends_on = [azurerm_container_group.slim_gateway]
+
+  # Cost: ~$12-18/month (0.5 vCPU + 1GB RAM)
+}
+
+# ============================================================================
 # OUTPUTS
 # ============================================================================
 
@@ -508,4 +575,9 @@ output "agent_ips" {
     analytics           = azurerm_container_group.analytics[0].ip_address
     critic-supervisor   = azurerm_container_group.critic_supervisor[0].ip_address
   } : null
+}
+
+output "api_gateway_ip" {
+  description = "API Gateway private IP address"
+  value       = var.deploy_containers ? azurerm_container_group.api_gateway[0].ip_address : null
 }

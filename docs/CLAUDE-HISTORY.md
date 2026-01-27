@@ -7,6 +7,40 @@ For current project context, see CLAUDE.md.
 
 ## Recent Updates Archive
 
+### 2026-01-27: Auto-Scaling Testing & Wiki Documentation ✅
+- ✅ Created comprehensive auto-scaling test suite evaluation
+- ✅ Created unit tests for connection pool (`tests/unit/test_openai_pool.py` - 31 tests)
+- ✅ Created unit tests for Cosmos DB client (`tests/unit/test_cosmosdb_pool.py` - 26 tests)
+- ✅ Created integration tests for pool endpoints (`tests/integration/test_api_gateway_pool.py` - 17 tests)
+- ✅ Created load test suite for auto-scaling (`tests/load/autoscaling_load_test.py` - 7 scenarios)
+- ✅ Updated `tests/conftest.py` with pool fixtures and markers
+- ✅ Created `docs/AUTO-SCALING-TESTING-EVALUATION.md` with test coverage analysis
+
+**Wiki Documentation:**
+- ✅ Created `docs/WIKI-Scalability.md` - Complete scalability architecture guide
+- ✅ Updated `docs/WIKI-Overview.md` - Added "Scalability at a Glance" section
+- ✅ Updated `docs/WIKI-Architecture.md` - Enhanced Performance & Scalability section
+
+**Test Coverage Impact:**
+- Tests increased from 107 to 188 (+81 new tests)
+- 7 load test scenarios: Baseline, Scale-Up, Scale-Down, Pool Stress, Circuit Breaker, Cold Start, Sustained
+- New pytest markers: `pool`, `autoscaling`
+
+### 2026-01-27: Auto-Scaling Architecture Implementation ✅
+- ✅ Created Container Apps Terraform config (`terraform/phase4_prod/container_apps.tf`)
+- ✅ Created scaling alerts (`terraform/phase4_prod/scaling_alerts.tf`)
+- ✅ Created OpenAI connection pool with circuit breaker (`shared/openai_pool.py`)
+- ✅ Created Cosmos DB client wrapper (`shared/cosmosdb_pool.py`)
+- ✅ Created operational runbooks (`docs/RUNBOOK-AUTO-SCALING-OPERATIONS.md`)
+- ✅ Created architecture documentation (`docs/AUTO-SCALING-ARCHITECTURE.md`)
+- ✅ Created work item evaluation (`docs/AUTO-SCALING-WORK-ITEM-EVALUATION.md`)
+
+**Scaling Features:**
+- KEDA triggers: HTTP (>10 concurrent), CPU (>70%), Memory (>80%)
+- Scheduled profiles: Business Hours, Night, Weekend
+- Connection pool: 2-50 connections with circuit breaker (5 failures → open → 30s recovery)
+- Budget alerts: 83% ($299), 93% ($335)
+
 ### 2026-01-26: Phase 5 Test User Strategy and Console Configuration ✅
 - ✅ Created `.env.azure.example` for local console connecting to Azure backend
 - ✅ Created `docs/PHASE-5-TEST-USER-STRATEGY.md` with comprehensive test plan
