@@ -134,7 +134,10 @@
       "Bash(git reset:*)",
       "Bash(gh issue edit:*)",
       "Bash(Get-ChildItem -Path . -Directory)",
-      "Bash(Select-Object Name)"
+      "Bash(Select-Object Name)",
+      "Bash(pip show:*)",
+      "Bash(pip index:*)",
+      "Bash(./venv/Scripts/pip.exe:*)"
     ]
   },
   "shortcuts": {
