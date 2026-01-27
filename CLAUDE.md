@@ -779,6 +779,38 @@ When in doubt, optimize for:
 
 ## Recent Updates
 
+### 2026-01-26: Azure OpenAI Integration COMPLETE ✅
+- ✅ Created shared Azure OpenAI client module (`shared/azure_openai.py`)
+- ✅ Updated all 5 agents to use Azure OpenAI with fallback to mock responses
+- ✅ Created cost monitoring module (`shared/cost_monitor.py`)
+- ✅ Integrated Phase 3.5 production prompts into agents
+- ✅ Added integration tests for Azure OpenAI connectivity
+- ✅ Updated requirements.txt with Azure OpenAI dependencies
+
+**Agents Updated:**
+| Agent | Model | Use Case |
+|-------|-------|----------|
+| Intent Classification | gpt-4o-mini | 17 intent categories (98% accuracy prompt) |
+| Critic/Supervisor | gpt-4o-mini | Input/output validation (0% FP prompt) |
+| Response Generation | gpt-4o | Natural customer responses (88.4% quality prompt) |
+| Escalation | gpt-4o-mini | Human escalation detection (100% precision prompt) |
+| Knowledge Retrieval | text-embedding-3-large | Semantic search (RAG) |
+
+**New Files:**
+- `shared/azure_openai.py` - Unified Azure OpenAI client with token tracking
+- `shared/cost_monitor.py` - Budget alerts and usage reporting
+- `tests/integration/test_azure_openai.py` - Integration test suite
+- `docs/AZURE-OPENAI-INTEGRATION-SUMMARY.md` - Implementation documentation
+
+**Environment Variables:**
+```bash
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_KEY=your-api-key
+USE_AZURE_OPENAI=true
+```
+
+**See:** `docs/AZURE-OPENAI-INTEGRATION-SUMMARY.md` for complete details
+
 ### 2026-01-26: Phase 4 Container Deployment COMPLETE ✅
 - ✅ All 8 container groups deployed and running in Azure
 - ✅ Created Critic/Supervisor agent (agents/critic_supervisor/)

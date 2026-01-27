@@ -4,28 +4,96 @@ Generates customer-facing responses based on intent and knowledge context
 
 Phase 1: Canned template responses
 Phase 2: Coffee/brewing business - Option C (Detailed & Helpful) templates
+Phase 4+: Azure OpenAI GPT-4o for LLM-based response generation
 """
 
-import sys, asyncio
+import sys
+import os
+import asyncio
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from shared import get_factory, shutdown_factory, setup_logging, load_config, handle_graceful_shutdown
-from shared.models import (ResponseRequest, GeneratedResponse, Intent, Sentiment, create_a2a_message,
-                           extract_message_content, generate_message_id)
+from shared import (
+    get_factory, shutdown_factory, setup_logging, load_config, handle_graceful_shutdown,
+    get_openai_client, shutdown_openai_client
+)
+from shared.models import (
+    ResponseRequest, GeneratedResponse, Intent, Sentiment, create_a2a_message,
+    extract_message_content, generate_message_id
+)
+
+
+# Production response generation prompt from Phase 3.5 optimization
+# Achieved 88.4% quality score in evaluation (target was >80%)
+RESPONSE_GENERATION_PROMPT = """You are a friendly, helpful customer service representative for BrewVi Coffee Company.
+
+BRAND VOICE:
+- Warm, approachable, and conversational (like talking to a knowledgeable friend)
+- Use the customer's name when available
+- Be thorough but not overwhelming
+- Show genuine care for customer satisfaction
+
+RESPONSE STRUCTURE:
+1. Acknowledge the customer's question/concern
+2. Provide clear, helpful information
+3. Include relevant details (order status, product info, policy details)
+4. Offer additional help or next steps
+5. End with an open question to continue assisting
+
+REGISTER MATCHING (CRITICAL):
+- Match the customer's communication style and formality level
+- If customer is brief and casual, be concise and friendly
+- If customer is detailed and formal, provide comprehensive responses
+- If customer is frustrated, be empathetic and solution-focused
+- If customer is enthusiastic, mirror their positive energy
+
+STYLE GUIDELINES:
+- Use markdown formatting for clarity (bold for emphasis, lists for multiple items)
+- Keep responses under 200 words unless complexity requires more
+- Avoid corporate jargon - use plain, friendly language
+- Never say "I cannot" or "Unfortunately" - focus on what you CAN do
+- Don't apologize excessively - one apology is enough
+
+KNOWLEDGE CONTEXT:
+You will receive relevant information about:
+- Order details (status, tracking, items)
+- Product information (features, prices, availability)
+- Policy details (returns, shipping, loyalty program)
+
+Use this context to provide accurate, specific responses. If information is missing, acknowledge what you can help with and what additional info you need.
+
+IMPORTANT:
+- Never make up order numbers, tracking numbers, or specific details
+- If you don't have specific information, say so and offer to help find it
+- Always provide accurate policy information
+- Be honest about what you can and cannot do"""
+
 
 class ResponseGenerationAgent:
-    """Generates customer responses using templates (Phase 1) or LLM (Phase 2+)."""
-    
+    """
+    Generates customer responses using templates (Phase 1-3) or LLM (Phase 4+).
+
+    Phase 4+: Uses Azure OpenAI GPT-4o for natural, context-aware responses.
+    Falls back to template responses when OpenAI is unavailable.
+    """
+
     def __init__(self):
         self.config = load_config()
-        self.agent_topic = self.config["agent_topic"]
-        self.logger = setup_logging(self.agent_topic, self.config["log_level"])
+        self.agent_topic = self.config.get("agent_topic", "response-generator")
+        self.logger = setup_logging(self.agent_topic, self.config.get("log_level", "INFO"))
         self.logger.info(f"Initializing Response Generation Agent: {self.agent_topic}")
         self.factory = get_factory()
         self.transport, self.client, self.container = None, None, None
+
+        # Azure OpenAI client
+        self.openai_client = None
+        self._use_openai = os.getenv("USE_AZURE_OPENAI", "true").lower() == "true"
+
+        # Statistics
         self.responses_generated = 0
-    
+        self.openai_responses = 0
+        self.template_responses = 0
+
     async def initialize(self):
         self.logger.info("Creating SLIM transport and A2A client...")
         try:
@@ -33,8 +101,28 @@ class ResponseGenerationAgent:
             if self.transport:
                 self.client = self.factory.create_a2a_client(self.agent_topic, self.transport)
                 self.logger.info("Agent initialized successfully")
+
+            # Initialize Azure OpenAI client (Phase 4+)
+            if self._use_openai:
+                await self._initialize_openai()
+
         except Exception as e:
             self.logger.error(f"Initialization failed: {e}", exc_info=True)
+
+    async def _initialize_openai(self):
+        """Initialize Azure OpenAI client for response generation."""
+        try:
+            self.openai_client = get_openai_client()
+            success = await self.openai_client.initialize()
+
+            if success:
+                self.logger.info("Azure OpenAI client initialized for response generation (GPT-4o)")
+            else:
+                self.logger.warning("Azure OpenAI not available. Using template responses.")
+                self.openai_client = None
+        except Exception as e:
+            self.logger.warning(f"Failed to initialize Azure OpenAI: {e}. Using template responses.")
+            self.openai_client = None
     
     async def handle_message(self, message: dict) -> dict:
         self.responses_generated += 1
@@ -51,31 +139,155 @@ class ResponseGenerationAgent:
 
             self.logger.info(f"Generating response for intent: {request.intent.value}")
 
-            # Generate response (returns tuple: (text, requires_escalation) for Issue #29)
-            # Phase 2 Enhancement: Return requests check $50 threshold for auto-approval vs. escalation
-            response_data = self._generate_canned_response(request)
-
-            # Handle both old string returns and new tuple returns (backward compatibility)
-            if isinstance(response_data, tuple):
-                response_text, requires_escalation = response_data
+            # Generate response using Azure OpenAI (Phase 4+) or templates (fallback)
+            if self.openai_client:
+                response_text = await self._generate_openai_response(request)
+                self.openai_responses += 1
+                confidence = 0.85  # Higher confidence for LLM responses
             else:
-                response_text = response_data
-                # Fallback: Check sentiment for escalation (legacy behavior)
-                requires_escalation = request.sentiment == Sentiment.VERY_NEGATIVE if request.sentiment else False
+                # Fallback to template responses (returns tuple: (text, requires_escalation) for Issue #29)
+                response_data = self._generate_canned_response(request)
+                self.template_responses += 1
+                confidence = 0.75
+
+                # Handle both old string returns and new tuple returns (backward compatibility)
+                if isinstance(response_data, tuple):
+                    response_text, requires_escalation_template = response_data
+                else:
+                    response_text = response_data
+                    requires_escalation_template = False
+
+            # Determine escalation need
+            requires_escalation = self._check_escalation_needed(request, response_text)
 
             result = GeneratedResponse(
                 request_id=request.request_id,
                 context_id=request.context_id,
                 response_text=response_text,
-                confidence=0.75,
+                confidence=confidence,
                 requires_escalation=requires_escalation
             )
-            
-            return create_a2a_message("assistant", result, request.context_id, message.get("taskId"),
-                                     {"agent": self.agent_topic, "responses_generated": self.responses_generated})
+
+            return create_a2a_message(
+                "assistant", result, request.context_id, message.get("taskId"),
+                {
+                    "agent": self.agent_topic,
+                    "responses_generated": self.responses_generated,
+                    "generation_method": "openai" if self.openai_client else "template"
+                }
+            )
         except Exception as e:
             self.logger.error(f"Error generating response: {e}", exc_info=True)
             return create_a2a_message("assistant", {"error": str(e)}, message.get("contextId", "unknown"))
+
+    async def _generate_openai_response(self, request: ResponseRequest) -> str:
+        """Generate response using Azure OpenAI GPT-4o."""
+        try:
+            # Build context for the LLM
+            context = self._build_llm_context(request)
+
+            response = await self.openai_client.generate_response(
+                context=context,
+                system_prompt=RESPONSE_GENERATION_PROMPT,
+                temperature=0.7,  # Some creativity for natural responses
+                max_tokens=500
+            )
+
+            self.logger.debug(f"OpenAI response generated ({len(response)} chars)")
+            return response
+
+        except Exception as e:
+            self.logger.error(f"OpenAI response generation error: {e}")
+            # Fall back to template response
+            self.logger.info("Falling back to template response")
+            response_data = self._generate_canned_response(request)
+            if isinstance(response_data, tuple):
+                return response_data[0]
+            return response_data
+
+    def _build_llm_context(self, request: ResponseRequest) -> str:
+        """Build context string for the LLM from request data."""
+        import json
+
+        context_parts = []
+
+        # Customer message
+        context_parts.append(f"Customer Message: {request.customer_message}")
+
+        # Intent
+        context_parts.append(f"Detected Intent: {request.intent.value}")
+
+        # Sentiment if available
+        if request.sentiment:
+            context_parts.append(f"Customer Sentiment: {request.sentiment.value}")
+
+        # Knowledge context
+        if request.knowledge_context:
+            context_parts.append("\nRelevant Information:")
+            for item in request.knowledge_context:
+                item_type = item.get("type", "info")
+                if item_type == "order":
+                    context_parts.append(f"\nOrder Details:")
+                    context_parts.append(f"  - Order Number: {item.get('order_number', 'N/A')}")
+                    context_parts.append(f"  - Status: {item.get('status', 'N/A')}")
+                    if item.get("tracking"):
+                        tracking = item["tracking"]
+                        context_parts.append(f"  - Carrier: {tracking.get('carrier', 'N/A')}")
+                        context_parts.append(f"  - Tracking: {tracking.get('tracking_number', 'N/A')}")
+                        context_parts.append(f"  - Expected Delivery: {tracking.get('expected_delivery', 'N/A')}")
+                    if item.get("items"):
+                        items_text = ", ".join([f"{i['quantity']}x {i['name']}" for i in item["items"]])
+                        context_parts.append(f"  - Items: {items_text}")
+                    if item.get("shipping_address", {}).get("name"):
+                        context_parts.append(f"  - Customer Name: {item['shipping_address']['name']}")
+
+                elif item_type == "product":
+                    context_parts.append(f"\nProduct Information:")
+                    context_parts.append(f"  - Name: {item.get('name', 'N/A')}")
+                    context_parts.append(f"  - Price: ${item.get('price', 0):.2f}")
+                    context_parts.append(f"  - Description: {item.get('description', 'N/A')}")
+                    if item.get("features"):
+                        context_parts.append(f"  - Features: {', '.join(item['features'][:3])}")
+                    context_parts.append(f"  - In Stock: {'Yes' if item.get('in_stock', True) else 'No'}")
+
+                elif item_type == "policy":
+                    context_parts.append(f"\nPolicy Information:")
+                    context_parts.append(f"  - Topic: {item.get('title', 'N/A')}")
+                    context_parts.append(f"  - Details: {item.get('content', item.get('quick_answer', 'N/A'))[:300]}")
+
+                else:
+                    # Generic context item
+                    context_parts.append(f"\nAdditional Context ({item_type}):")
+                    for key, value in item.items():
+                        if key not in ["type", "source"] and value:
+                            context_parts.append(f"  - {key}: {str(value)[:200]}")
+
+        return "\n".join(context_parts)
+
+    def _check_escalation_needed(self, request: ResponseRequest, response_text: str) -> bool:
+        """Determine if escalation is needed based on various factors."""
+        # Escalation intent
+        if request.intent == Intent.ESCALATION_NEEDED:
+            return True
+
+        # Very negative sentiment
+        if request.sentiment == Sentiment.VERY_NEGATIVE:
+            return True
+
+        # High-value return check ($50 threshold from Issue #29)
+        if request.intent == Intent.RETURN_REQUEST:
+            for item in request.knowledge_context:
+                if item.get("type") == "order":
+                    total = item.get("total", 0)
+                    if total > 50.00:
+                        return True
+
+        # Check knowledge context for escalation flags
+        for item in request.knowledge_context:
+            if item.get("escalation_needed") or item.get("escalation_reason"):
+                return True
+
+        return False
     
     def _generate_canned_response(self, request: ResponseRequest) -> str:
         """
@@ -991,6 +1203,20 @@ Is there anything else I can assist you with in the meantime?"""
     
     def cleanup(self):
         self.logger.info("Cleaning up Response Generation Agent...")
+        self.logger.info(
+            f"Statistics - Total: {self.responses_generated}, "
+            f"OpenAI: {self.openai_responses}, "
+            f"Template: {self.template_responses}"
+        )
+
+        # Log token usage if available
+        if self.openai_client:
+            usage = self.openai_client.get_total_usage()
+            self.logger.info(
+                f"Token usage - Total: {usage['total_tokens']}, "
+                f"Cost: ${usage['total_cost']:.4f}"
+            )
+
         shutdown_factory()
     
     async def run_demo_mode(self):

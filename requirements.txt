@@ -64,11 +64,14 @@ locust>=2.20.0
 playwright>=1.41.0
 
 # ============================================================================
-# Optional: LLM Integration (Phase 4-5, but can prepare now)
+# Azure OpenAI Integration (Phase 4+)
 # ============================================================================
 
-# Azure OpenAI / OpenAI (commented out for Phase 1-3 to avoid costs)
-# openai>=1.10.0
+# Azure OpenAI SDK
+openai>=1.10.0
+
+# Azure Identity for managed identity authentication
+azure-identity>=1.15.0
 
 # ============================================================================
 # Version Constraints

@@ -4,13 +4,15 @@ Searches internal knowledge bases, product catalogs, and documentation
 
 Phase 1: Mock API calls to Shopify, Zendesk, internal docs
 Phase 2: Coffee/brewing business specific with real Shopify integration
+Phase 4+: Azure OpenAI embeddings for semantic search (RAG)
 """
 
 import sys
+import os
 import asyncio
 import httpx
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 # Add shared utilities to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -20,7 +22,9 @@ from shared import (
     shutdown_factory,
     setup_logging,
     load_config,
-    handle_graceful_shutdown
+    handle_graceful_shutdown,
+    get_openai_client,
+    shutdown_openai_client
 )
 from shared.models import (
     KnowledgeQuery,
@@ -46,18 +50,19 @@ class KnowledgeRetrievalAgent:
     - Shopify API (product catalog, orders, inventory)
     - Zendesk API (previous tickets, customer history)
     - Internal documentation (FAQs, policies)
+    - Azure OpenAI embeddings for semantic search (Phase 4+)
     """
 
     def __init__(self):
         """Initialize the Knowledge Retrieval Agent."""
         # Load configuration
         self.config = load_config()
-        self.agent_topic = self.config["agent_topic"]
+        self.agent_topic = self.config.get("agent_topic", "knowledge-retrieval")
 
         # Setup logging
         self.logger = setup_logging(
             name=self.agent_topic,
-            level=self.config["log_level"]
+            level=self.config.get("log_level", "INFO")
         )
 
         self.logger.info(f"Initializing Knowledge Retrieval Agent on topic: {self.agent_topic}")
@@ -82,11 +87,18 @@ class KnowledgeRetrievalAgent:
 
         self.logger.info(f"Phase 2 clients initialized (Shopify: {shopify_url}, KB: {kb_path})")
 
+        # Phase 4+: Azure OpenAI for embeddings
+        self.openai_client = None
+        self._use_openai = os.getenv("USE_AZURE_OPENAI", "true").lower() == "true"
+        self._embedding_cache: Dict[str, List[float]] = {}  # Cache for embeddings
+
         # Query counters
         self.queries_processed = 0
+        self.semantic_searches = 0
+        self.keyword_searches = 0
 
     async def initialize(self):
-        """Initialize AGNTCY SDK components."""
+        """Initialize AGNTCY SDK components and Azure OpenAI."""
         self.logger.info("Creating SLIM transport...")
 
         try:
@@ -100,27 +112,45 @@ class KnowledgeRetrievalAgent:
                     "SLIM transport not created (SDK may not be available). "
                     "Running in demo mode."
                 )
-                return
+            else:
+                self.logger.info(f"SLIM transport created: {self.transport}")
 
-            self.logger.info(f"SLIM transport created: {self.transport}")
+                # Create MCP client for tool-based retrieval
+                self.logger.info("Creating MCP client...")
+                self.client = self.factory.create_mcp_client(
+                    agent_topic=self.agent_topic,
+                    transport=self.transport
+                )
 
-            # Create MCP client for tool-based retrieval
-            self.logger.info("Creating MCP client...")
-            self.client = self.factory.create_mcp_client(
-                agent_topic=self.agent_topic,
-                transport=self.transport
-            )
+                if self.client is None:
+                    self.logger.warning("MCP client not created. Running in demo mode.")
+                else:
+                    self.logger.info(f"MCP client created for topic: {self.agent_topic}")
 
-            if self.client is None:
-                self.logger.warning("MCP client not created. Running in demo mode.")
-                return
+            # Initialize Azure OpenAI client (Phase 4+)
+            if self._use_openai:
+                await self._initialize_openai()
 
-            self.logger.info(f"MCP client created for topic: {self.agent_topic}")
             self.logger.info("Agent initialization complete")
 
         except Exception as e:
             self.logger.error(f"Failed to initialize AGNTCY components: {e}", exc_info=True)
             raise
+
+    async def _initialize_openai(self):
+        """Initialize Azure OpenAI client for embedding-based search."""
+        try:
+            self.openai_client = get_openai_client()
+            success = await self.openai_client.initialize()
+
+            if success:
+                self.logger.info("Azure OpenAI client initialized for embeddings (text-embedding-3-large)")
+            else:
+                self.logger.warning("Azure OpenAI not available. Using keyword-based search only.")
+                self.openai_client = None
+        except Exception as e:
+            self.logger.warning(f"Failed to initialize Azure OpenAI: {e}. Using keyword-based search only.")
+            self.openai_client = None
 
     async def handle_message(self, message: dict) -> dict:
         """
@@ -932,6 +962,101 @@ class KnowledgeRetrievalAgent:
 
         return min(avg_relevance + diversity_boost, 1.0)
 
+    async def _generate_embedding(self, text: str) -> Optional[List[float]]:
+        """
+        Generate embedding for text using Azure OpenAI text-embedding-3-large.
+
+        Args:
+            text: Text to embed
+
+        Returns:
+            Embedding vector (1536 dimensions) or None if unavailable
+        """
+        if not self.openai_client:
+            return None
+
+        # Check cache first
+        cache_key = text[:200]  # Use first 200 chars as cache key
+        if cache_key in self._embedding_cache:
+            return self._embedding_cache[cache_key]
+
+        try:
+            embeddings = await self.openai_client.generate_embeddings([text])
+            if embeddings:
+                # Cache the embedding
+                self._embedding_cache[cache_key] = embeddings[0]
+                return embeddings[0]
+        except Exception as e:
+            self.logger.warning(f"Embedding generation failed: {e}")
+
+        return None
+
+    def _calculate_cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
+        """Calculate cosine similarity between two vectors."""
+        import math
+
+        dot_product = sum(a * b for a, b in zip(vec1, vec2))
+        magnitude1 = math.sqrt(sum(a * a for a in vec1))
+        magnitude2 = math.sqrt(sum(b * b for b in vec2))
+
+        if magnitude1 == 0 or magnitude2 == 0:
+            return 0.0
+
+        return dot_product / (magnitude1 * magnitude2)
+
+    async def _semantic_search_knowledge_base(
+        self,
+        query_text: str,
+        documents: List[Dict[str, Any]],
+        top_k: int = 5
+    ) -> List[Dict[str, Any]]:
+        """
+        Perform semantic search over documents using embeddings.
+
+        Phase 4+: Uses Azure OpenAI text-embedding-3-large for vector similarity search.
+
+        Args:
+            query_text: User query
+            documents: List of documents with 'content' field
+            top_k: Number of results to return
+
+        Returns:
+            Top-k documents ranked by semantic similarity
+        """
+        if not self.openai_client:
+            # Fallback to keyword search
+            self.keyword_searches += 1
+            return documents[:top_k]
+
+        try:
+            self.semantic_searches += 1
+
+            # Generate query embedding
+            query_embedding = await self._generate_embedding(query_text)
+            if not query_embedding:
+                return documents[:top_k]
+
+            # Generate document embeddings and calculate similarity
+            scored_docs = []
+            for doc in documents:
+                doc_text = doc.get("content", "") or doc.get("description", "") or str(doc)
+                doc_embedding = await self._generate_embedding(doc_text[:1000])  # Limit text length
+
+                if doc_embedding:
+                    similarity = self._calculate_cosine_similarity(query_embedding, doc_embedding)
+                    doc["relevance"] = similarity
+                    scored_docs.append((similarity, doc))
+                else:
+                    scored_docs.append((0.5, doc))
+
+            # Sort by similarity (descending) and return top-k
+            scored_docs.sort(key=lambda x: x[0], reverse=True)
+            return [doc for _, doc in scored_docs[:top_k]]
+
+        except Exception as e:
+            self.logger.error(f"Semantic search failed: {e}")
+            return documents[:top_k]
+
     async def cleanup_async(self):
         """Async cleanup of HTTP clients."""
         try:
@@ -943,6 +1068,19 @@ class KnowledgeRetrievalAgent:
     def cleanup(self):
         """Cleanup resources on shutdown."""
         self.logger.info("Cleaning up Knowledge Retrieval Agent...")
+        self.logger.info(
+            f"Statistics - Total: {self.queries_processed}, "
+            f"Semantic: {self.semantic_searches}, "
+            f"Keyword: {self.keyword_searches}"
+        )
+
+        # Log token usage if available
+        if self.openai_client:
+            usage = self.openai_client.get_total_usage()
+            self.logger.info(
+                f"Token usage - Total: {usage['total_tokens']}, "
+                f"Cost: ${usage['total_cost']:.4f}"
+            )
 
         # Close HTTP clients synchronously
         try:

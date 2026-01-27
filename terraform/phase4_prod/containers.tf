@@ -167,7 +167,7 @@ resource "azurerm_container_group" "intent_classifier" {
 
   container {
     name   = "intent-classifier"
-    image  = "${azurerm_container_registry.main.login_server}/intent-classifier:latest"
+    image  = "${azurerm_container_registry.main.login_server}/intent-classifier:v1.1.0-openai"
     cpu    = local.agents["intent-classifier"].cpu
     memory = local.agents["intent-classifier"].memory
 
@@ -182,6 +182,8 @@ resource "azurerm_container_group" "intent_classifier" {
       SLIM_PORT                             = "8443"
       AZURE_OPENAI_ENDPOINT                 = var.azure_openai_endpoint
       AZURE_OPENAI_DEPLOYMENT               = var.gpt4o_mini_deployment
+      AZURE_OPENAI_API_KEY                  = var.azure_openai_api_key
+      USE_AZURE_OPENAI                      = "true"
       COSMOS_ENDPOINT                       = azurerm_cosmosdb_account.main.endpoint
       KEYVAULT_URI                          = azurerm_key_vault.main.vault_uri
       APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.main.connection_string
@@ -222,7 +224,7 @@ resource "azurerm_container_group" "knowledge_retrieval" {
 
   container {
     name   = "knowledge-retrieval"
-    image  = "${azurerm_container_registry.main.login_server}/knowledge-retrieval:latest"
+    image  = "${azurerm_container_registry.main.login_server}/knowledge-retrieval:v1.1.0-openai"
     cpu    = local.agents["knowledge-retrieval"].cpu
     memory = local.agents["knowledge-retrieval"].memory
 
@@ -237,6 +239,8 @@ resource "azurerm_container_group" "knowledge_retrieval" {
       SLIM_PORT                             = "8443"
       AZURE_OPENAI_ENDPOINT                 = var.azure_openai_endpoint
       AZURE_OPENAI_EMBEDDING_DEPLOYMENT     = var.embedding_deployment
+      AZURE_OPENAI_API_KEY                  = var.azure_openai_api_key
+      USE_AZURE_OPENAI                      = "true"
       COSMOS_ENDPOINT                       = azurerm_cosmosdb_account.main.endpoint
       KEYVAULT_URI                          = azurerm_key_vault.main.vault_uri
       APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.main.connection_string
@@ -277,7 +281,7 @@ resource "azurerm_container_group" "response_generator" {
 
   container {
     name   = "response-generator"
-    image  = "${azurerm_container_registry.main.login_server}/response-generator:latest"
+    image  = "${azurerm_container_registry.main.login_server}/response-generator:v1.1.0-openai"
     cpu    = local.agents["response-generator"].cpu
     memory = local.agents["response-generator"].memory
 
@@ -292,6 +296,8 @@ resource "azurerm_container_group" "response_generator" {
       SLIM_PORT                             = "8443"
       AZURE_OPENAI_ENDPOINT                 = var.azure_openai_endpoint
       AZURE_OPENAI_DEPLOYMENT               = var.gpt4o_deployment
+      AZURE_OPENAI_API_KEY                  = var.azure_openai_api_key
+      USE_AZURE_OPENAI                      = "true"
       COSMOS_ENDPOINT                       = azurerm_cosmosdb_account.main.endpoint
       KEYVAULT_URI                          = azurerm_key_vault.main.vault_uri
       APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.main.connection_string
@@ -332,7 +338,7 @@ resource "azurerm_container_group" "escalation" {
 
   container {
     name   = "escalation"
-    image  = "${azurerm_container_registry.main.login_server}/escalation:latest"
+    image  = "${azurerm_container_registry.main.login_server}/escalation:v1.1.0-openai"
     cpu    = local.agents["escalation"].cpu
     memory = local.agents["escalation"].memory
 
@@ -347,6 +353,8 @@ resource "azurerm_container_group" "escalation" {
       SLIM_PORT                             = "8443"
       AZURE_OPENAI_ENDPOINT                 = var.azure_openai_endpoint
       AZURE_OPENAI_DEPLOYMENT               = var.gpt4o_mini_deployment
+      AZURE_OPENAI_API_KEY                  = var.azure_openai_api_key
+      USE_AZURE_OPENAI                      = "true"
       COSMOS_ENDPOINT                       = azurerm_cosmosdb_account.main.endpoint
       KEYVAULT_URI                          = azurerm_key_vault.main.vault_uri
       APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.main.connection_string
@@ -389,7 +397,7 @@ resource "azurerm_container_group" "analytics" {
 
   container {
     name   = "analytics"
-    image  = "${azurerm_container_registry.main.login_server}/analytics:latest"
+    image  = "${azurerm_container_registry.main.login_server}/analytics:v1.1.0-openai"
     cpu    = local.agents["analytics"].cpu
     memory = local.agents["analytics"].memory
 
@@ -402,6 +410,7 @@ resource "azurerm_container_group" "analytics" {
       AGENT_NAME                            = "analytics"
       SLIM_ENDPOINT                         = var.deploy_containers ? azurerm_container_group.slim_gateway[0].ip_address : ""
       SLIM_PORT                             = "8443"
+      USE_AZURE_OPENAI                      = "true"
       COSMOS_ENDPOINT                       = azurerm_cosmosdb_account.main.endpoint
       KEYVAULT_URI                          = azurerm_key_vault.main.vault_uri
       APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.main.connection_string
@@ -443,7 +452,7 @@ resource "azurerm_container_group" "critic_supervisor" {
 
   container {
     name   = "critic-supervisor"
-    image  = "${azurerm_container_registry.main.login_server}/critic-supervisor:latest"
+    image  = "${azurerm_container_registry.main.login_server}/critic-supervisor:v1.1.0-openai"
     cpu    = local.agents["critic-supervisor"].cpu
     memory = local.agents["critic-supervisor"].memory
 
@@ -458,6 +467,8 @@ resource "azurerm_container_group" "critic_supervisor" {
       SLIM_PORT                             = "8443"
       AZURE_OPENAI_ENDPOINT                 = var.azure_openai_endpoint
       AZURE_OPENAI_DEPLOYMENT               = var.gpt4o_mini_deployment
+      AZURE_OPENAI_API_KEY                  = var.azure_openai_api_key
+      USE_AZURE_OPENAI                      = "true"
       COSMOS_ENDPOINT                       = azurerm_cosmosdb_account.main.endpoint
       KEYVAULT_URI                          = azurerm_key_vault.main.vault_uri
       APPLICATIONINSIGHTS_CONNECTION_STRING = azurerm_application_insights.main.connection_string
