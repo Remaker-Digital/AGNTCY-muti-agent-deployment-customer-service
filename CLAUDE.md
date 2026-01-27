@@ -869,6 +869,17 @@ USE_AZURE_OPENAI=true
 
 ---
 
+## Security Advisories
+
+### Active: CVE-2026-0994 (protobuf)
+- **Severity:** High | **Risk to Project:** Low
+- **Status:** Monitoring - No patch available
+- **Package:** protobuf 6.33.4 (transitive via streamlit)
+- **Details:** `docs/SECURITY-ADVISORY-2026-01-27.md`
+- **Next Review:** 2026-02-03
+
+---
+
 ## Optimization & Maintenance
 
 ### Token Usage Optimization
