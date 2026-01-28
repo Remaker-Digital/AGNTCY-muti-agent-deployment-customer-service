@@ -68,7 +68,7 @@ from shared.models import (
     create_a2a_message,
     extract_message_content,
     generate_context_id,
-    generate_message_id
+    generate_message_id,
 )
 
 # Import agents for testing
@@ -112,7 +112,9 @@ class TestReturnRefundFlow:
         agent = KnowledgeRetrievalAgent()
         # Override Shopify client to use localhost for tests
         agent.shopify_client.base_url = "http://localhost:8001"
-        agent.logger.info(f"Test override: Using Shopify URL {agent.shopify_client.base_url}")
+        agent.logger.info(
+            f"Test override: Using Shopify URL {agent.shopify_client.base_url}"
+        )
         yield agent
         agent.cleanup()
 
@@ -157,7 +159,9 @@ class TestReturnRefundFlow:
 
         # STEP 1: Simulate customer return request
         context_id = generate_context_id()
-        customer_query = "I want to return order #10125, the lavender soap doesn't match my decor"
+        customer_query = (
+            "I want to return order #10125, the lavender soap doesn't match my decor"
+        )
 
         customer_message = CustomerMessage(
             message_id=generate_message_id(),
@@ -165,14 +169,14 @@ class TestReturnRefundFlow:
             content=customer_query,
             channel="chat",
             context_id=context_id,
-            language=Language.EN
+            language=Language.EN,
         )
 
         intent_request = create_a2a_message(
             role="user",
             content=customer_message,
             context_id=context_id,
-            metadata={"test": "return_auto_approve"}
+            metadata={"test": "return_auto_approve"},
         )
 
         # STEP 2: Intent Classification Agent processes query
@@ -180,18 +184,26 @@ class TestReturnRefundFlow:
         intent_result_data = extract_message_content(intent_response)
 
         # Validate intent classification
-        assert intent_result_data["intent"] == Intent.RETURN_REQUEST.value, \
-            "Intent should be classified as RETURN_REQUEST"
-        assert intent_result_data["confidence"] >= 0.80, \
-            "Confidence should be high (>80%) for clear return request"
-        assert "order_number" in intent_result_data["extracted_entities"], \
-            "Order number should be extracted from query"
-        assert intent_result_data["extracted_entities"]["order_number"] == "10125", \
-            "Extracted order number should match '10125'"
+        assert (
+            intent_result_data["intent"] == Intent.RETURN_REQUEST.value
+        ), "Intent should be classified as RETURN_REQUEST"
+        assert (
+            intent_result_data["confidence"] >= 0.80
+        ), "Confidence should be high (>80%) for clear return request"
+        assert (
+            "order_number" in intent_result_data["extracted_entities"]
+        ), "Order number should be extracted from query"
+        assert (
+            intent_result_data["extracted_entities"]["order_number"] == "10125"
+        ), "Extracted order number should match '10125'"
 
-        print(f"[OK] Step 1 Complete: Intent classified as {intent_result_data['intent']}")
+        print(
+            f"[OK] Step 1 Complete: Intent classified as {intent_result_data['intent']}"
+        )
         print(f"  - Confidence: {intent_result_data['confidence']:.2%}")
-        print(f"  - Order number: {intent_result_data['extracted_entities']['order_number']}")
+        print(
+            f"  - Order number: {intent_result_data['extracted_entities']['order_number']}"
+        )
 
         # STEP 3: Knowledge Retrieval Agent fetches order + validates return eligibility
         knowledge_query = KnowledgeQuery(
@@ -199,22 +211,23 @@ class TestReturnRefundFlow:
             context_id=context_id,
             query_text=customer_query,
             intent=Intent.RETURN_REQUEST,
-            filters={"order_number": intent_result_data["extracted_entities"]["order_number"]},
-            max_results=5
+            filters={
+                "order_number": intent_result_data["extracted_entities"]["order_number"]
+            },
+            max_results=5,
         )
 
         knowledge_request = create_a2a_message(
-            role="assistant",
-            content=knowledge_query,
-            context_id=context_id
+            role="assistant", content=knowledge_query, context_id=context_id
         )
 
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_result_data = extract_message_content(knowledge_response)
 
         # Validate knowledge retrieval
-        assert knowledge_result_data["total_results"] > 0, \
-            "Knowledge agent should find order #10125"
+        assert (
+            knowledge_result_data["total_results"] > 0
+        ), "Knowledge agent should find order #10125"
 
         order_data = knowledge_result_data["results"][0]
         assert order_data["type"] == "order", "Result should be an order"
@@ -223,8 +236,9 @@ class TestReturnRefundFlow:
         assert order_data["status"] == "delivered", "Order should be delivered"
 
         # CRITICAL: Validate auto-approval threshold logic
-        assert order_data["total"] <= 50.00, \
-            "Order total must be ≤$50 for auto-approval"
+        assert (
+            order_data["total"] <= 50.00
+        ), "Order total must be ≤$50 for auto-approval"
 
         print(f"[OK] Step 2 Complete: Order retrieved")
         print(f"  - Order total: ${order_data['total']:.2f}")
@@ -237,44 +251,49 @@ class TestReturnRefundFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=Intent.RETURN_REQUEST,
-            knowledge_context=knowledge_result_data["results"]
+            knowledge_context=knowledge_result_data["results"],
         )
 
         response_gen_request = create_a2a_message(
-            role="assistant",
-            content=response_request,
-            context_id=context_id
+            role="assistant", content=response_request, context_id=context_id
         )
 
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         generated_response_data = extract_message_content(response_gen_response)
 
         # Validate generated response
         response_text = generated_response_data["response_text"]
         assert len(response_text) > 50, "Response should be substantial (>50 chars)"
-        assert "Sarah" in response_text, \
-            "Response should address customer by name (personalization)"
+        assert (
+            "Sarah" in response_text
+        ), "Response should address customer by name (personalization)"
         assert "10125" in response_text, "Response should mention order number"
 
         # Check for RMA number (format: RMA-YYYYMMDD-NNNNN)
-        assert "RMA" in response_text or "return authorization" in response_text.lower(), \
-            "Response should include RMA number or authorization reference"
+        assert (
+            "RMA" in response_text or "return authorization" in response_text.lower()
+        ), "Response should include RMA number or authorization reference"
 
-        assert not generated_response_data["requires_escalation"], \
-            "Order under $50 should NOT require escalation"
+        assert not generated_response_data[
+            "requires_escalation"
+        ], "Order under $50 should NOT require escalation"
 
         print(f"[OK] Step 3 Complete: Auto-approval response generated")
         print(f"  - Response length: {len(response_text)} characters")
         print(f"  - Personalized: {'Sarah' in response_text}")
         print(f"  - RMA included: {'RMA' in response_text}")
-        print(f"  - Escalation required: {generated_response_data['requires_escalation']}")
+        print(
+            f"  - Escalation required: {generated_response_data['requires_escalation']}"
+        )
 
         # Final validation: Complete response preview
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("FINAL CUSTOMER RESPONSE (AUTO-APPROVED):")
-        print("="*60)
+        print("=" * 60)
         print(response_text)
-        print("="*60)
+        print("=" * 60)
 
     @pytest.mark.asyncio
     async def test_return_escalate_over_threshold(
@@ -307,10 +326,12 @@ class TestReturnRefundFlow:
             customer_id="persona_001",
             content=customer_query,
             channel="chat",
-            context_id=context_id
+            context_id=context_id,
         )
 
-        intent_request = create_a2a_message(role="user", content=customer_message, context_id=context_id)
+        intent_request = create_a2a_message(
+            role="user", content=customer_message, context_id=context_id
+        )
         intent_response = await intent_agent.handle_message(intent_request)
         intent_data = extract_message_content(intent_response)
 
@@ -323,10 +344,12 @@ class TestReturnRefundFlow:
             context_id=context_id,
             query_text=customer_query,
             intent=Intent.RETURN_REQUEST,
-            filters={"order_number": "10234"}
+            filters={"order_number": "10234"},
         )
 
-        knowledge_request = create_a2a_message(role="assistant", content=knowledge_query, context_id=context_id)
+        knowledge_request = create_a2a_message(
+            role="assistant", content=knowledge_query, context_id=context_id
+        )
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_data = extract_message_content(knowledge_response)
 
@@ -336,8 +359,7 @@ class TestReturnRefundFlow:
         assert order["total"] == 86.37, "Order total should be $86.37"
 
         # CRITICAL: Validate escalation threshold logic
-        assert order["total"] > 50.00, \
-            "Order total must be >$50 for escalation"
+        assert order["total"] > 50.00, "Order total must be >$50 for escalation"
 
         print(f"[OK] Order over threshold")
         print(f"  - Order total: ${order['total']:.2f}")
@@ -349,27 +371,35 @@ class TestReturnRefundFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=Intent.RETURN_REQUEST,
-            knowledge_context=knowledge_data["results"]
+            knowledge_context=knowledge_data["results"],
         )
 
-        response_gen_request = create_a2a_message(role="assistant", content=response_request, context_id=context_id)
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_request = create_a2a_message(
+            role="assistant", content=response_request, context_id=context_id
+        )
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         response_data = extract_message_content(response_gen_response)
 
         response_text = response_data["response_text"]
 
         # Validate escalation response
-        assert response_data["requires_escalation"] == True, \
-            "Order over $50 MUST require escalation"
-        assert "support" in response_text.lower() or "team" in response_text.lower(), \
-            "Response should mention support team"
+        assert (
+            response_data["requires_escalation"] == True
+        ), "Order over $50 MUST require escalation"
+        assert (
+            "support" in response_text.lower() or "team" in response_text.lower()
+        ), "Response should mention support team"
 
         print(f"[OK] Escalation response generated")
         print(f"  - Escalation flag: {response_data['requires_escalation']}")
         print(f"  - Mentions support: {'support' in response_text.lower()}")
 
     @pytest.mark.asyncio
-    async def test_return_order_not_found(self, intent_agent, knowledge_agent, response_agent):
+    async def test_return_order_not_found(
+        self, intent_agent, knowledge_agent, response_agent
+    ):
         """
         Test Case: Return request for non-existent order.
 
@@ -389,10 +419,12 @@ class TestReturnRefundFlow:
             customer_id="unknown_customer",
             content=customer_query,
             channel="chat",
-            context_id=context_id
+            context_id=context_id,
         )
 
-        intent_request = create_a2a_message(role="user", content=customer_message, context_id=context_id)
+        intent_request = create_a2a_message(
+            role="user", content=customer_message, context_id=context_id
+        )
         intent_response = await intent_agent.handle_message(intent_request)
         intent_data = extract_message_content(intent_response)
 
@@ -405,18 +437,22 @@ class TestReturnRefundFlow:
             context_id=context_id,
             query_text=customer_query,
             intent=Intent.RETURN_REQUEST,
-            filters={"order_number": "99999"}
+            filters={"order_number": "99999"},
         )
 
-        knowledge_request = create_a2a_message(role="assistant", content=knowledge_query, context_id=context_id)
+        knowledge_request = create_a2a_message(
+            role="assistant", content=knowledge_query, context_id=context_id
+        )
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_data = extract_message_content(knowledge_response)
 
         # Should have error result or empty
         if knowledge_data["total_results"] > 0:
             result = knowledge_data["results"][0]
-            assert result.get("type") == "error" or result.get("error_code") == "ORDER_NOT_FOUND", \
-                "Non-existent order should return error result"
+            assert (
+                result.get("type") == "error"
+                or result.get("error_code") == "ORDER_NOT_FOUND"
+            ), "Non-existent order should return error result"
 
         print("[OK] Order not found scenario handled gracefully")
         print(f"  - Results: {knowledge_data['total_results']}")
@@ -430,9 +466,9 @@ async def run_manual_test():
     Run with: python -m pytest tests/integration/test_return_refund_flow.py -v -s
     Or: python tests/integration/test_return_refund_flow.py
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("MANUAL TEST: Return/Refund Request Flow (Issue #29)")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     test_suite = TestReturnRefundFlow()
 

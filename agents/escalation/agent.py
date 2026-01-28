@@ -16,10 +16,13 @@ from typing import Dict, Any, List
 
 from shared.base_agent import BaseAgent, run_agent
 from shared.models import (
-    EscalationDecision, Sentiment, Priority, create_a2a_message,
-    extract_message_content, generate_message_id
+    EscalationDecision,
+    Sentiment,
+    Priority,
+    create_a2a_message,
+    extract_message_content,
+    generate_message_id,
 )
-
 
 # Production escalation detection prompt from Phase 3.5 optimization
 # Achieved 100% precision and recall in evaluation (target was >90%/>95%)
@@ -145,7 +148,7 @@ class EscalationAgent(BaseAgent):
                 customer_message=customer_message,
                 intent=intent,
                 escalation_reason=escalation_reason,
-                knowledge_context=knowledge_context
+                knowledge_context=knowledge_context,
             )
             self.openai_decisions += 1
         else:
@@ -153,7 +156,7 @@ class EscalationAgent(BaseAgent):
                 customer_message=customer_message,
                 intent=intent,
                 escalation_reason=escalation_reason,
-                knowledge_context=knowledge_context
+                knowledge_context=knowledge_context,
             )
             self.rule_decisions += 1
 
@@ -172,11 +175,13 @@ class EscalationAgent(BaseAgent):
             reason=reason,
             priority=priority,
             sentiment=self._detect_sentiment(customer_message),
-            complexity_score=escalation_result.get("complexity_score", 0.5)
+            complexity_score=escalation_result.get("complexity_score", 0.5),
         )
 
-        self.logger.info(f"Escalation decision: {'ESCALATE' if should_escalate else 'AUTO-HANDLE'} "
-                        f"(reason={reason}, priority={priority.value})")
+        self.logger.info(
+            f"Escalation decision: {'ESCALATE' if should_escalate else 'AUTO-HANDLE'} "
+            f"(reason={reason}, priority={priority.value})"
+        )
 
         # If escalating, create Zendesk ticket with context
         if should_escalate:
@@ -185,7 +190,7 @@ class EscalationAgent(BaseAgent):
                 intent=intent,
                 reason=reason,
                 priority=priority,
-                context=knowledge_context
+                context=knowledge_context,
             )
             decision.zendesk_ticket_id = ticket_id
 
@@ -201,42 +206,50 @@ class EscalationAgent(BaseAgent):
         return [
             {
                 "contextId": "demo-001",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "customer_message": "I need a refund for my damaged coffee pods",
-                        "intent": "refund_status",
-                        "knowledge_context": [{
-                            "type": "order",
-                            "order_number": "10512",
-                            "total": 49.98,
-                            "order_date": "2026-01-10T13:20:00Z"
-                        }]
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "customer_message": "I need a refund for my damaged coffee pods",
+                            "intent": "refund_status",
+                            "knowledge_context": [
+                                {
+                                    "type": "order",
+                                    "order_number": "10512",
+                                    "total": 49.98,
+                                    "order_date": "2026-01-10T13:20:00Z",
+                                }
+                            ],
+                        },
                     }
-                }]
+                ],
             },
             {
                 "contextId": "demo-002",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "customer_message": "My brewer stopped working completely!",
-                        "intent": "brewer_support",
-                        "escalation_reason": "brewer_defect"
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "customer_message": "My brewer stopped working completely!",
+                            "intent": "brewer_support",
+                            "escalation_reason": "brewer_defect",
+                        },
                     }
-                }]
+                ],
             },
             {
                 "contextId": "demo-003",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "customer_message": "I broke out in a rash after drinking your coffee",
-                        "intent": "complaint",
-                        "escalation_reason": "health_safety"
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "customer_message": "I broke out in a rash after drinking your coffee",
+                            "intent": "complaint",
+                            "escalation_reason": "health_safety",
+                        },
                     }
-                }]
-            }
+                ],
+            },
         ]
 
     def cleanup(self) -> None:
@@ -256,15 +269,18 @@ class EscalationAgent(BaseAgent):
         super().cleanup()
 
     async def _evaluate_escalation_openai(
-        self, customer_message: str, intent: str,
-        escalation_reason: str, knowledge_context: list
+        self,
+        customer_message: str,
+        intent: str,
+        escalation_reason: str,
+        knowledge_context: list,
     ) -> dict:
         """Evaluate escalation using Azure OpenAI GPT-4o-mini."""
         try:
             # Build context for the LLM
             context_parts = [
                 f"Customer Message: {customer_message}",
-                f"Detected Intent: {intent}"
+                f"Detected Intent: {intent}",
             ]
 
             if escalation_reason:
@@ -275,16 +291,20 @@ class EscalationAgent(BaseAgent):
                 context_parts.append("\nRelevant Context:")
                 for item in knowledge_context:
                     if item.get("type") == "order":
-                        context_parts.append(f"  - Order #{item.get('order_number')}: ${item.get('total', 0):.2f}")
+                        context_parts.append(
+                            f"  - Order #{item.get('order_number')}: ${item.get('total', 0):.2f}"
+                        )
                     elif item.get("escalation_reason"):
-                        context_parts.append(f"  - Escalation Flag: {item.get('escalation_reason')}")
+                        context_parts.append(
+                            f"  - Escalation Flag: {item.get('escalation_reason')}"
+                        )
 
             context = "\n".join(context_parts)
 
             result = await self.openai_client.detect_escalation(
                 conversation=context,
                 system_prompt=ESCALATION_DETECTION_PROMPT,
-                temperature=0.0
+                temperature=0.0,
             )
 
             # Map priority string to enum
@@ -293,15 +313,17 @@ class EscalationAgent(BaseAgent):
                 "urgent": Priority.URGENT,
                 "high": Priority.HIGH,
                 "normal": Priority.NORMAL,
-                "low": Priority.LOW
+                "low": Priority.LOW,
             }
-            priority = priority_map.get(result.get("priority", "normal"), Priority.NORMAL)
+            priority = priority_map.get(
+                result.get("priority", "normal"), Priority.NORMAL
+            )
 
             return {
                 "should_escalate": result.get("escalate", False),
                 "reason": result.get("reason", "AI evaluation"),
                 "priority": priority,
-                "complexity_score": result.get("confidence", 0.5)
+                "complexity_score": result.get("confidence", 0.5),
             }
 
         except Exception as e:
@@ -311,8 +333,13 @@ class EscalationAgent(BaseAgent):
                 customer_message, intent, escalation_reason, knowledge_context
             )
 
-    def _evaluate_escalation_rules(self, customer_message: str, intent: str,
-                                  escalation_reason: str, knowledge_context: list) -> dict:
+    def _evaluate_escalation_rules(
+        self,
+        customer_message: str,
+        intent: str,
+        escalation_reason: str,
+        knowledge_context: list,
+    ) -> dict:
         """
         Evaluate Phase 2 escalation rules for coffee/brewing business.
 
@@ -331,7 +358,7 @@ class EscalationAgent(BaseAgent):
                 "should_escalate": True,
                 "reason": "Health/safety concern - allergic reaction or medical issue",
                 "priority": Priority.URGENT,
-                "complexity_score": 1.0
+                "complexity_score": 1.0,
             }
 
         # Priority 2: Customer Frustration
@@ -340,7 +367,7 @@ class EscalationAgent(BaseAgent):
                 "should_escalate": True,
                 "reason": "Customer frustration detected after multiple unclear exchanges",
                 "priority": Priority.URGENT,
-                "complexity_score": 0.85
+                "complexity_score": 0.85,
             }
 
         # Priority 3: Brewer Defect
@@ -349,16 +376,19 @@ class EscalationAgent(BaseAgent):
                 "should_escalate": True,
                 "reason": "Brewer defect reported - technical support and warranty replacement needed",
                 "priority": Priority.HIGH,
-                "complexity_score": 0.80
+                "complexity_score": 0.80,
             }
 
         # Priority 4: Missing/Stolen Delivery
-        if any(word in text_lower for word in ["stolen", "missing", "never received", "didn't receive"]):
+        if any(
+            word in text_lower
+            for word in ["stolen", "missing", "never received", "didn't receive"]
+        ):
             return {
                 "should_escalate": True,
                 "reason": "Missing or stolen delivery - requires investigation and replacement",
                 "priority": Priority.HIGH,
-                "complexity_score": 0.75
+                "complexity_score": 0.75,
             }
 
         # Priority 5: Refund Requests - Check Auto-Approval Rules
@@ -375,7 +405,7 @@ class EscalationAgent(BaseAgent):
                         "reason": f"Refund auto-approved: ${order_amount:.2f} within {days_since_order} days",
                         "priority": Priority.NORMAL,
                         "complexity_score": 0.30,
-                        "auto_approved_action": "refund_approved"
+                        "auto_approved_action": "refund_approved",
                     }
 
             # Otherwise escalate for manual review
@@ -383,7 +413,7 @@ class EscalationAgent(BaseAgent):
                 "should_escalate": True,
                 "reason": f"Refund requires manual review: ${order_amount:.2f if order_amount else 'unknown'}, {days_since_order} days since order",
                 "priority": Priority.NORMAL,
-                "complexity_score": 0.60
+                "complexity_score": 0.60,
             }
 
         # Priority 6: Product Defects (non-brewer)
@@ -392,16 +422,19 @@ class EscalationAgent(BaseAgent):
                 "should_escalate": True,
                 "reason": "Product defect reported - quality assurance review needed",
                 "priority": Priority.HIGH,
-                "complexity_score": 0.70
+                "complexity_score": 0.70,
             }
 
         # Priority 7: B2B/Wholesale Inquiries (always escalate to sales)
-        if any(word in text_lower for word in ["wholesale", "bulk", "business", "office", "company order"]):
+        if any(
+            word in text_lower
+            for word in ["wholesale", "bulk", "business", "office", "company order"]
+        ):
             return {
                 "should_escalate": True,
                 "reason": "B2B/wholesale inquiry - routing to sales team",
                 "priority": Priority.NORMAL,
-                "complexity_score": 0.65
+                "complexity_score": 0.65,
             }
 
         # No escalation needed - AI can handle
@@ -409,7 +442,7 @@ class EscalationAgent(BaseAgent):
             "should_escalate": False,
             "reason": "Standard inquiry - AI-assisted response appropriate",
             "priority": Priority.LOW,
-            "complexity_score": 0.40
+            "complexity_score": 0.40,
         }
 
     def _detect_sentiment(self, text: str) -> Sentiment:
@@ -417,15 +450,31 @@ class EscalationAgent(BaseAgent):
         text_lower = text.lower()
 
         # Very negative sentiment
-        if any(w in text_lower for w in ["angry", "furious", "terrible", "worst", "unacceptable", "ridiculous"]):
+        if any(
+            w in text_lower
+            for w in [
+                "angry",
+                "furious",
+                "terrible",
+                "worst",
+                "unacceptable",
+                "ridiculous",
+            ]
+        ):
             return Sentiment.VERY_NEGATIVE
 
         # Negative sentiment
-        elif any(w in text_lower for w in ["problem", "issue", "not working", "disappointed", "frustrated"]):
+        elif any(
+            w in text_lower
+            for w in ["problem", "issue", "not working", "disappointed", "frustrated"]
+        ):
             return Sentiment.NEGATIVE
 
         # Positive sentiment
-        elif any(w in text_lower for w in ["thanks", "thank you", "great", "love", "excellent", "perfect"]):
+        elif any(
+            w in text_lower
+            for w in ["thanks", "thank you", "great", "love", "excellent", "perfect"]
+        ):
             return Sentiment.POSITIVE
 
         # Neutral default
@@ -466,7 +515,9 @@ class EscalationAgent(BaseAgent):
                 order_date_str = item.get("order_date", "")
                 if order_date_str:
                     try:
-                        order_date = datetime.fromisoformat(order_date_str.replace("Z", "+00:00"))
+                        order_date = datetime.fromisoformat(
+                            order_date_str.replace("Z", "+00:00")
+                        )
                         now = datetime.now(order_date.tzinfo)
                         delta = now - order_date
                         return delta.days
@@ -474,8 +525,14 @@ class EscalationAgent(BaseAgent):
                         pass
         return None
 
-    async def _create_zendesk_ticket(self, customer_message: str, intent: str,
-                                    reason: str, priority: Priority, context: list) -> int:
+    async def _create_zendesk_ticket(
+        self,
+        customer_message: str,
+        intent: str,
+        reason: str,
+        priority: Priority,
+        context: list,
+    ) -> int:
         """
         Create Zendesk ticket with full context for human agent.
         Phase 2: Enhanced with coffee business context.
@@ -498,7 +555,9 @@ class EscalationAgent(BaseAgent):
             # Add relevant context
             for item in context:
                 if item.get("type") == "order":
-                    description += f"\n- Order #{item.get('order_number')}: {item.get('status')}"
+                    description += (
+                        f"\n- Order #{item.get('order_number')}: {item.get('status')}"
+                    )
                 elif item.get("type") == "product":
                     description += f"\n- Product: {item.get('name')}"
 
@@ -509,7 +568,7 @@ class EscalationAgent(BaseAgent):
                 Priority.URGENT: "urgent",
                 Priority.HIGH: "high",
                 Priority.NORMAL: "normal",
-                Priority.LOW: "low"
+                Priority.LOW: "low",
             }.get(priority, "normal")
 
             response = await self.http_client.post(
@@ -520,14 +579,16 @@ class EscalationAgent(BaseAgent):
                     "priority": zendesk_priority,
                     "type": "problem",
                     "tags": ["escalated", "ai-agent", intent.replace("_", "-")],
-                    "requester_id": 5001  # Mock customer ID
-                }
+                    "requester_id": 5001,  # Mock customer ID
+                },
             )
 
             if response.status_code == 200 or response.status_code == 201:
                 ticket = response.json().get("ticket", {})
                 ticket_id = ticket.get("id", 9999)
-                self.logger.info(f"Created Zendesk ticket {ticket_id} with priority {zendesk_priority}")
+                self.logger.info(
+                    f"Created Zendesk ticket {ticket_id} with priority {zendesk_priority}"
+                )
                 return ticket_id
             else:
                 self.logger.error(f"Zendesk API returned status {response.status_code}")

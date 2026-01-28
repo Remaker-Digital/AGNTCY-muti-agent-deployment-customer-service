@@ -20,6 +20,7 @@ try:
     from agntcy_app_sdk.factory import AgntcyFactory as SDK_Factory
     from agntcy_app_sdk.transports import SlimTransport, NatsTransport
     from agntcy_app_sdk.protocols import A2AProtocol, MCPProtocol
+
     AGNTCY_SDK_AVAILABLE = True
 except ImportError:
     AGNTCY_SDK_AVAILABLE = False
@@ -38,6 +39,7 @@ logger = logging.getLogger(__name__)
 # Singleton Factory Instance
 # =============================================================================
 
+
 class AgntcyFactorySingleton:
     """
     Thread-safe singleton wrapper for AGNTCY SDK Factory.
@@ -51,7 +53,7 @@ class AgntcyFactorySingleton:
         client = factory.create_a2a_client("my-agent", transport)
     """
 
-    _instance: Optional['AgntcyFactorySingleton'] = None
+    _instance: Optional["AgntcyFactorySingleton"] = None
     _lock: Lock = Lock()
     _initialized: bool = False
 
@@ -93,7 +95,7 @@ class AgntcyFactorySingleton:
                 self._sdk_factory = SDK_Factory(
                     name="CustomerServiceFactory",
                     enable_tracing=self._config["enable_tracing"],
-                    log_level=self._config["log_level"]
+                    log_level=self._config["log_level"],
                 )
                 logger.info(
                     f"AGNTCY Factory initialized successfully. "
@@ -110,13 +112,17 @@ class AgntcyFactorySingleton:
         """Load factory configuration from environment variables."""
         return {
             # Observability
-            "enable_tracing": os.getenv("AGNTCY_ENABLE_TRACING", "true").lower() == "true",
+            "enable_tracing": os.getenv("AGNTCY_ENABLE_TRACING", "true").lower()
+            == "true",
             "log_level": os.getenv("LOG_LEVEL", "INFO").upper(),
-            "otlp_endpoint": os.getenv("OTLP_HTTP_ENDPOINT", "http://otel-collector:4318"),
-
+            "otlp_endpoint": os.getenv(
+                "OTLP_HTTP_ENDPOINT", "http://otel-collector:4318"
+            ),
             # Transport endpoints
             "slim_endpoint": os.getenv("SLIM_ENDPOINT", "http://slim:46357"),
-            "slim_password": os.getenv("SLIM_GATEWAY_PASSWORD", "changeme_local_dev_password"),
+            "slim_password": os.getenv(
+                "SLIM_GATEWAY_PASSWORD", "changeme_local_dev_password"
+            ),
             "nats_endpoint": os.getenv("NATS_ENDPOINT", "nats://nats:4222"),
         }
 
@@ -138,11 +144,7 @@ class AgntcyFactorySingleton:
     # Transport Creation Methods
     # =========================================================================
 
-    def create_slim_transport(
-        self,
-        name: str = "slim-transport",
-        **kwargs
-    ):
+    def create_slim_transport(self, name: str = "slim-transport", **kwargs):
         """
         Create SLIM transport for secure low-latency messaging.
 
@@ -174,17 +176,13 @@ class AgntcyFactorySingleton:
                 endpoint=endpoint,
                 name=name,
                 gateway_password=gateway_password,
-                **kwargs
+                **kwargs,
             )
         except Exception as e:
             logger.error(f"Failed to create SLIM transport: {e}", exc_info=True)
             raise
 
-    def create_nats_transport(
-        self,
-        name: str = "nats-transport",
-        **kwargs
-    ):
+    def create_nats_transport(self, name: str = "nats-transport", **kwargs):
         """
         Create NATS transport for high-throughput messaging.
 
@@ -211,10 +209,7 @@ class AgntcyFactorySingleton:
 
         try:
             return self._sdk_factory.create_transport(
-                transport="NATS",
-                endpoint=endpoint,
-                name=name,
-                **kwargs
+                transport="NATS", endpoint=endpoint, name=name, **kwargs
             )
         except Exception as e:
             logger.error(f"Failed to create NATS transport: {e}", exc_info=True)
@@ -224,12 +219,7 @@ class AgntcyFactorySingleton:
     # Client Creation Methods
     # =========================================================================
 
-    def create_a2a_client(
-        self,
-        agent_topic: str,
-        transport,
-        **kwargs
-    ):
+    def create_a2a_client(self, agent_topic: str, transport, **kwargs):
         """
         Create A2A (Agent-to-Agent) protocol client.
 
@@ -259,21 +249,15 @@ class AgntcyFactorySingleton:
 
         try:
             return self._sdk_factory.create_client(
-                protocol="A2A",
-                agent_topic=agent_topic,
-                transport=transport,
-                **kwargs
+                protocol="A2A", agent_topic=agent_topic, transport=transport, **kwargs
             )
         except Exception as e:
-            logger.error(f"Failed to create A2A client for {agent_topic}: {e}", exc_info=True)
+            logger.error(
+                f"Failed to create A2A client for {agent_topic}: {e}", exc_info=True
+            )
             raise
 
-    def create_mcp_client(
-        self,
-        agent_topic: str,
-        transport,
-        **kwargs
-    ):
+    def create_mcp_client(self, agent_topic: str, transport, **kwargs):
         """
         Create MCP (Model Context Protocol) client.
 
@@ -303,13 +287,12 @@ class AgntcyFactorySingleton:
 
         try:
             return self._sdk_factory.create_client(
-                protocol="MCP",
-                agent_topic=agent_topic,
-                transport=transport,
-                **kwargs
+                protocol="MCP", agent_topic=agent_topic, transport=transport, **kwargs
             )
         except Exception as e:
-            logger.error(f"Failed to create MCP client for {agent_topic}: {e}", exc_info=True)
+            logger.error(
+                f"Failed to create MCP client for {agent_topic}: {e}", exc_info=True
+            )
             raise
 
     # =========================================================================
@@ -389,6 +372,7 @@ class AgntcyFactorySingleton:
 # Module-Level Functions (Preferred API)
 # =============================================================================
 
+
 def get_factory() -> AgntcyFactorySingleton:
     """
     Get the singleton AGNTCY Factory instance.
@@ -432,6 +416,4 @@ def shutdown_factory():
 if AGNTCY_SDK_AVAILABLE:
     logger.info("AGNTCY SDK factory module loaded successfully")
 else:
-    logger.warning(
-        "AGNTCY SDK not available. Install with: pip install agntcy-app-sdk"
-    )
+    logger.warning("AGNTCY SDK not available. Install with: pip install agntcy-app-sdk")

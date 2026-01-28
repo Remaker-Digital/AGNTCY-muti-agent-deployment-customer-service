@@ -30,17 +30,18 @@ from shared.models import (
     Language,
     generate_message_id,
     generate_context_id,
-    create_a2a_message
+    create_a2a_message,
 )
-
 
 # =============================================================================
 # Test Result Data Classes
 # =============================================================================
 
+
 @dataclass
 class LoadTestResult:
     """Container for load test results."""
+
     concurrent_users: int
     total_requests: int
     successful_requests: int
@@ -103,6 +104,7 @@ class LoadTestResult:
 # Load Test Runner
 # =============================================================================
 
+
 class LoadTestRunner:
     """Manages concurrent load testing of agents."""
 
@@ -119,9 +121,9 @@ class LoadTestRunner:
             from agents.response_generation.agent import ResponseGenerationAgent
 
             self.agents = {
-                'intent': IntentClassificationAgent(),
-                'knowledge': KnowledgeRetrievalAgent(),
-                'response': ResponseGenerationAgent(),
+                "intent": IntentClassificationAgent(),
+                "knowledge": KnowledgeRetrievalAgent(),
+                "response": ResponseGenerationAgent(),
             }
             print("Agents initialized successfully")
         except Exception as e:
@@ -151,36 +153,28 @@ class LoadTestRunner:
                 context_id=generate_context_id(),
                 content=message_content,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             # Process through intent agent
             a2a_msg = create_a2a_message(
                 role="user",
                 content=customer_msg.to_dict(),
-                context_id=customer_msg.context_id
+                context_id=customer_msg.context_id,
             )
 
-            result = await self.agents['intent'].handle_message(a2a_msg)
+            result = await self.agents["intent"].handle_message(a2a_msg)
 
             end_time = time.perf_counter()
             response_time = (end_time - start_time) * 1000  # Convert to ms
 
-            return {
-                "success": True,
-                "response_time": response_time,
-                "error": None
-            }
+            return {"success": True, "response_time": response_time, "error": None}
 
         except Exception as e:
             end_time = time.perf_counter()
             response_time = (end_time - start_time) * 1000
 
-            return {
-                "success": False,
-                "response_time": response_time,
-                "error": str(e)
-            }
+            return {"success": False, "response_time": response_time, "error": str(e)}
 
     def _get_scenario_message(self, scenario: str, user_id: int) -> str:
         """Get message content for given scenario."""
@@ -196,7 +190,7 @@ class LoadTestRunner:
         self,
         num_users: int,
         requests_per_user: int = 5,
-        scenario_distribution: Dict[str, float] = None
+        scenario_distribution: Dict[str, float] = None,
     ) -> LoadTestResult:
         """
         Run load test with specified number of concurrent users.
@@ -211,13 +205,15 @@ class LoadTestRunner:
         """
         if scenario_distribution is None:
             scenario_distribution = {
-                "order_status": 0.50,    # 50%
-                "product_info": 0.25,    # 25%
+                "order_status": 0.50,  # 50%
+                "product_info": 0.25,  # 25%
                 "return_request": 0.15,  # 15%
-                "account_support": 0.10, # 10%
+                "account_support": 0.10,  # 10%
             }
 
-        print(f"\nStarting load test: {num_users} concurrent users, {requests_per_user} req/user")
+        print(
+            f"\nStarting load test: {num_users} concurrent users, {requests_per_user} req/user"
+        )
         print(f"Total requests: {num_users * requests_per_user}")
 
         # Start monitoring resources
@@ -230,7 +226,9 @@ class LoadTestRunner:
         for user_id in range(num_users):
             for req_num in range(requests_per_user):
                 # Select scenario based on distribution
-                scenario = self._select_scenario(scenario_distribution, user_id, req_num)
+                scenario = self._select_scenario(
+                    scenario_distribution, user_id, req_num
+                )
                 task = self.simulate_user_request(user_id, scenario)
                 tasks.append(task)
 
@@ -288,10 +286,12 @@ class LoadTestRunner:
             total_duration=total_duration,
             response_times=response_times,
             cpu_usage_avg=cpu_avg,
-            memory_usage_avg=memory_avg
+            memory_usage_avg=memory_avg,
         )
 
-    def _select_scenario(self, distribution: Dict[str, float], user_id: int, req_num: int) -> str:
+    def _select_scenario(
+        self, distribution: Dict[str, float], user_id: int, req_num: int
+    ) -> str:
         """Select scenario based on distribution weights."""
         # Simple deterministic selection based on user_id and req_num
         scenarios = list(distribution.keys())
@@ -303,12 +303,13 @@ class LoadTestRunner:
 # Main Test Execution
 # =============================================================================
 
+
 async def run_load_tests():
     """Execute load tests with different user counts."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("MULTI-AGENT CUSTOMER SERVICE - LOAD TEST SUITE")
     print("Phase 3, Week 2, Days 8-9")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     runner = LoadTestRunner()
 
@@ -318,8 +319,8 @@ async def run_load_tests():
 
     # Test configurations
     test_configs = [
-        {"num_users": 10, "requests_per_user": 5},   # Light load (50 total requests)
-        {"num_users": 50, "requests_per_user": 5},   # Medium load (250 total requests)
+        {"num_users": 10, "requests_per_user": 5},  # Light load (50 total requests)
+        {"num_users": 50, "requests_per_user": 5},  # Medium load (250 total requests)
         {"num_users": 100, "requests_per_user": 5},  # Heavy load (500 total requests)
     ]
 
@@ -336,8 +337,12 @@ async def run_load_tests():
         # Print results
         print(f"\nRESULTS:")
         print(f"  Total Requests:      {result.total_requests}")
-        print(f"  Successful:          {result.successful_requests} ({result.success_rate:.2f}%)")
-        print(f"  Failed:              {result.failed_requests} ({result.failure_rate:.2f}%)")
+        print(
+            f"  Successful:          {result.successful_requests} ({result.success_rate:.2f}%)"
+        )
+        print(
+            f"  Failed:              {result.failed_requests} ({result.failure_rate:.2f}%)"
+        )
         print(f"  Duration:            {result.total_duration:.2f}s")
         print(f"  Throughput:          {result.throughput:.2f} req/s")
         print(f"  Avg Response Time:   {result.avg:.2f}ms")
@@ -356,7 +361,9 @@ async def run_load_tests():
     print(f"\n\n{'='*70}")
     print("LOAD TEST SUMMARY - ALL CONFIGURATIONS")
     print(f"{'='*70}\n")
-    print(f"{'Users':<8} {'Requests':<10} {'Success%':<10} {'Avg(ms)':<10} {'P95(ms)':<10} {'RPS':<10} {'CPU%':<8} {'Mem(MB)':<10}")
+    print(
+        f"{'Users':<8} {'Requests':<10} {'Success%':<10} {'Avg(ms)':<10} {'P95(ms)':<10} {'RPS':<10} {'CPU%':<8} {'Mem(MB)':<10}"
+    )
     print("-" * 88)
 
     for result in all_results:
@@ -371,9 +378,9 @@ async def run_load_tests():
             f"{result.memory_usage_avg:<10.2f}"
         )
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Load testing complete!")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     return all_results
 

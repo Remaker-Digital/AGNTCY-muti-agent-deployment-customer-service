@@ -8,7 +8,9 @@ from datetime import datetime
 from typing import List, Dict, Any, Tuple, Optional
 
 
-def extract_order_from_context(knowledge_context: List[Dict[str, Any]]) -> Dict[str, Any]:
+def extract_order_from_context(
+    knowledge_context: List[Dict[str, Any]],
+) -> Dict[str, Any]:
     """Extract order data from knowledge context list."""
     for item in knowledge_context:
         if item.get("type") == "order":
@@ -21,17 +23,25 @@ def format_order_status(knowledge_context: List[Dict[str, Any]]) -> str:
     order_data = extract_order_from_context(knowledge_context)
 
     if not order_data:
-        return ("I'd be happy to help you track your order! To provide the most accurate information, "
-               "could you please provide your order number? You can find it in your confirmation email "
-               "(it looks like #10234 or ORD-10234).")
+        return (
+            "I'd be happy to help you track your order! To provide the most accurate information, "
+            "could you please provide your order number? You can find it in your confirmation email "
+            "(it looks like #10234 or ORD-10234)."
+        )
 
     # Extract customer name if available
-    customer_name = order_data.get("shipping_address", {}).get("name", "").split()[0] if order_data.get("shipping_address") else ""
+    customer_name = (
+        order_data.get("shipping_address", {}).get("name", "").split()[0]
+        if order_data.get("shipping_address")
+        else ""
+    )
     greeting = f"Hi {customer_name},\n\n" if customer_name else ""
 
     order_number = order_data.get("order_number", "")
     status = order_data.get("status", "").title()
-    fulfillment_status = order_data.get("fulfillment_status", "").replace("_", " ").title()
+    fulfillment_status = (
+        order_data.get("fulfillment_status", "").replace("_", " ").title()
+    )
 
     # Build response based on order status
     if status == "Shipped" or fulfillment_status == "In Transit":
@@ -44,12 +54,16 @@ def format_order_status(knowledge_context: List[Dict[str, Any]]) -> str:
 
         # Format items
         items = order_data.get("items", [])
-        items_text = "\n".join([f"- {item['quantity']}x {item['name']}" for item in items])
+        items_text = "\n".join(
+            [f"- {item['quantity']}x {item['name']}" for item in items]
+        )
 
         # Format expected delivery date
         if expected_delivery:
             try:
-                delivery_date = datetime.fromisoformat(expected_delivery.replace("Z", "+00:00"))
+                delivery_date = datetime.fromisoformat(
+                    expected_delivery.replace("Z", "+00:00")
+                )
                 delivery_str = delivery_date.strftime("%b %d")
             except:
                 delivery_str = "soon"
@@ -108,11 +122,13 @@ If you have specific questions about this order or need assistance, I'm here to 
 
 def format_refund_status(knowledge_context: List[Dict[str, Any]]) -> str:
     """Format refund status response."""
-    return ("I'd be happy to check on your refund status! To look this up for you, "
-           "I'll need your order number or the email address associated with your order.\n\n"
-           "Typically, refunds are processed within 2 business days of receiving your return, "
-           "and appear in your account within 3-5 business days depending on your bank.\n\n"
-           "What's your order number?")
+    return (
+        "I'd be happy to check on your refund status! To look this up for you, "
+        "I'll need your order number or the email address associated with your order.\n\n"
+        "Typically, refunds are processed within 2 business days of receiving your return, "
+        "and appear in your account within 3-5 business days depending on your bank.\n\n"
+        "What's your order number?"
+    )
 
 
 def format_return_request(knowledge_context: List[Dict[str, Any]]) -> Tuple[str, bool]:
@@ -131,21 +147,28 @@ def format_return_request(knowledge_context: List[Dict[str, Any]]) -> Tuple[str,
     order_data = extract_order_from_context(knowledge_context)
 
     if not order_data:
-        return (("I'm sorry to hear you need to return something! I'm here to make this process as easy as possible.\n\n"
-               "We accept returns within 30 days of delivery for a full refund. "
-               "Items should be unopened and in original condition.\n\n"
-               "To process your return, I'll need:\n"
-               "- Your order number (e.g., #10234)\n"
-               "- Which item(s) you'd like to return\n"
-               "- Reason for return (optional, but helps us improve)\n\n"
-               "What's your order number?"), False)
+        return (
+            (
+                "I'm sorry to hear you need to return something! I'm here to make this process as easy as possible.\n\n"
+                "We accept returns within 30 days of delivery for a full refund. "
+                "Items should be unopened and in original condition.\n\n"
+                "To process your return, I'll need:\n"
+                "- Your order number (e.g., #10234)\n"
+                "- Which item(s) you'd like to return\n"
+                "- Reason for return (optional, but helps us improve)\n\n"
+                "What's your order number?"
+            ),
+            False,
+        )
 
     # Extract key order information
     order_number = order_data.get("order_number", "")
     order_total = order_data.get("total", 0.0)
 
     # Extract customer first name
-    customer_full_name = order_data.get("customer_name") or order_data.get("shipping_address", {}).get("name", "")
+    customer_full_name = order_data.get("customer_name") or order_data.get(
+        "shipping_address", {}
+    ).get("name", "")
     customer_name = customer_full_name.split()[0] if customer_full_name else ""
     greeting = f"Hi {customer_name},\n\n" if customer_name else ""
 
@@ -158,7 +181,9 @@ def format_return_request(knowledge_context: List[Dict[str, Any]]) -> Tuple[str,
         rma_number = f"RMA-{today}-{order_number}"
 
         items = order_data.get("items", [])
-        items_text = "\n".join([f"- {item['quantity']}x {item['name']}" for item in items])
+        items_text = "\n".join(
+            [f"- {item['quantity']}x {item['name']}" for item in items]
+        )
 
         response = f"""{greeting}I'm sorry to hear you'd like to return order #{order_number}! I want to make this as easy as possible for you.
 

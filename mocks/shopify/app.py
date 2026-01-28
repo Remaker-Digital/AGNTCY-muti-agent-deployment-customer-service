@@ -24,7 +24,7 @@ from pydantic import BaseModel
 app = FastAPI(
     title="Mock Shopify API",
     description="Mock Shopify REST Admin API for development and testing",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Data directory for JSON fixtures
@@ -45,6 +45,7 @@ def load_fixture(filename: str) -> Dict:
 # API Endpoints
 # ============================================================================
 
+
 @app.get("/")
 async def root():
     """API root - basic info."""
@@ -57,8 +58,8 @@ async def root():
             "/admin/api/2024-01/inventory_levels.json",
             "/admin/api/2024-01/orders.json",
             "/admin/api/2024-01/orders/{order_id}.json",
-            "/admin/api/2024-01/checkouts.json"
-        ]
+            "/admin/api/2024-01/checkouts.json",
+        ],
     }
 
 
@@ -73,7 +74,7 @@ async def get_products(
     limit: int = Query(50, ge=1, le=250),
     page_info: Optional[str] = None,
     title: Optional[str] = Query(None),  # Issue #25: Product search by name
-    x_shopify_access_token: str = Header(None)
+    x_shopify_access_token: str = Header(None),
 ):
     """
     Get products list with optional search by title.
@@ -103,22 +104,18 @@ async def get_products(
     if title:
         title_lower = title.lower()
         filtered_products = [
-            product for product in all_products
+            product
+            for product in all_products
             if title_lower in product.get("name", "").lower()
         ]
         return {"products": filtered_products[:limit]}
 
     # Simulate pagination (return subset of all products)
-    return {
-        "products": all_products[:limit]
-    }
+    return {"products": all_products[:limit]}
 
 
 @app.get("/admin/api/2024-01/products/{product_id}.json")
-async def get_product(
-    product_id: str,
-    x_shopify_access_token: str = Header(None)
-):
+async def get_product(product_id: str, x_shopify_access_token: str = Header(None)):
     """Get single product by ID (supports both string and numeric IDs)."""
     products_data = load_fixture("products.json")
     products = products_data.get("products", [])
@@ -135,7 +132,7 @@ async def get_product(
 async def get_inventory_levels(
     location_ids: Optional[str] = Query(None),
     inventory_item_ids: Optional[str] = Query(None),
-    x_shopify_access_token: str = Header(None)
+    x_shopify_access_token: str = Header(None),
 ):
     """
     Get inventory levels.
@@ -150,7 +147,7 @@ async def get_orders(
     status: Optional[str] = Query("any"),
     customer_email: Optional[str] = Query(None),
     limit: int = Query(50, ge=1, le=250),
-    x_shopify_access_token: str = Header(None)
+    x_shopify_access_token: str = Header(None),
 ):
     """
     Get orders list with optional filtering by customer email.
@@ -162,7 +159,8 @@ async def get_orders(
     # Filter by customer email if provided
     if customer_email:
         filtered_orders = [
-            order for order in all_orders
+            order
+            for order in all_orders
             if order.get("customer_email", "").lower() == customer_email.lower()
         ]
         return {"orders": filtered_orders[:limit]}
@@ -170,7 +168,8 @@ async def get_orders(
     # Filter by status if not "any"
     if status and status != "any":
         filtered_orders = [
-            order for order in all_orders
+            order
+            for order in all_orders
             if order.get("status", "").lower() == status.lower()
         ]
         return {"orders": filtered_orders[:limit]}
@@ -179,28 +178,25 @@ async def get_orders(
 
 
 @app.get("/admin/api/2024-01/orders/{order_id}.json")
-async def get_order(
-    order_id: str,
-    x_shopify_access_token: str = Header(None)
-):
+async def get_order(order_id: str, x_shopify_access_token: str = Header(None)):
     """Get single order by ID or order number (supports formats like 'ORD-10234' or '10234')."""
     orders_data = load_fixture("orders.json")
     orders = orders_data.get("orders", [])
 
     for order in orders:
         # Match by order_id, order_number, or just the numeric part
-        if (str(order.get("order_id")) == str(order_id) or
-            str(order.get("order_number")) == str(order_id) or
-            str(order.get("order_id")).replace("ORD-", "") == str(order_id)):
+        if (
+            str(order.get("order_id")) == str(order_id)
+            or str(order.get("order_number")) == str(order_id)
+            or str(order.get("order_id")).replace("ORD-", "") == str(order_id)
+        ):
             return {"order": order}
 
     raise HTTPException(status_code=404, detail="Order not found")
 
 
 @app.get("/admin/api/2024-01/checkouts.json")
-async def get_checkouts(
-    x_shopify_access_token: str = Header(None)
-):
+async def get_checkouts(x_shopify_access_token: str = Header(None)):
     """
     Get abandoned checkouts (carts).
     Important for cart abandonment KPI tracking.
@@ -210,9 +206,7 @@ async def get_checkouts(
 
 
 @app.post("/admin/api/2024-01/checkouts.json")
-async def create_checkout(
-    x_shopify_access_token: str = Header(None)
-):
+async def create_checkout(x_shopify_access_token: str = Header(None)):
     """
     Create new checkout.
     Mock response for cart creation.
@@ -222,7 +216,7 @@ async def create_checkout(
             "id": 123456789,
             "token": "mock-checkout-token",
             "created_at": "2024-01-18T12:00:00Z",
-            "status": "open"
+            "status": "open",
         }
     }
 
@@ -236,4 +230,5 @@ async def webhook_order_created():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

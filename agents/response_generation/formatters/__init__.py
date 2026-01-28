@@ -17,23 +17,23 @@ from agents.response_generation.formatters.order import (
     format_order_status,
     format_refund_status,
     format_return_request,
-    extract_order_from_context
+    extract_order_from_context,
 )
 from agents.response_generation.formatters.product import (
     format_product_info,
     format_product_recommendation,
     format_product_comparison,
-    format_brewer_support
+    format_brewer_support,
 )
 from agents.response_generation.formatters.support import (
     format_shipping_question,
     format_subscription,
     format_gift_card,
-    format_loyalty
+    format_loyalty,
 )
 from agents.response_generation.formatters.escalation import (
     format_escalation,
-    format_general
+    format_general,
 )
 
 __all__ = [
@@ -54,5 +54,5 @@ __all__ = [
     "format_loyalty",
     # Escalation formatters
     "format_escalation",
-    "format_general"
+    "format_general",
 ]

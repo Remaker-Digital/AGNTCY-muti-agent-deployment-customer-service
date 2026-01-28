@@ -61,7 +61,7 @@ from shared.models import (
     create_a2a_message,
     extract_message_content,
     generate_context_id,
-    generate_message_id
+    generate_message_id,
 )
 
 # Import agents for testing
@@ -138,7 +138,7 @@ class TestLoyaltyProgramFlow:
             content=customer_query,
             channel="chat",
             context_id=context_id,
-            language=Language.EN
+            language=Language.EN,
         )
 
         # Create A2A message format for agent communication
@@ -146,7 +146,7 @@ class TestLoyaltyProgramFlow:
             role="user",
             content=customer_message,
             context_id=context_id,
-            metadata={"test": "loyalty_balance_flow"}
+            metadata={"test": "loyalty_balance_flow"},
         )
 
         # STEP 2: Intent Classification Agent processes query
@@ -154,12 +154,16 @@ class TestLoyaltyProgramFlow:
         intent_result_data = extract_message_content(intent_response)
 
         # Validate intent classification
-        assert intent_result_data["intent"] == Intent.LOYALTY_PROGRAM.value, \
-            "Intent should be classified as LOYALTY_PROGRAM"
-        assert intent_result_data["confidence"] >= 0.80, \
-            "Confidence should be high (>80%) for clear loyalty program query"
+        assert (
+            intent_result_data["intent"] == Intent.LOYALTY_PROGRAM.value
+        ), "Intent should be classified as LOYALTY_PROGRAM"
+        assert (
+            intent_result_data["confidence"] >= 0.80
+        ), "Confidence should be high (>80%) for clear loyalty program query"
 
-        print(f"[OK] Step 1 Complete: Intent classified as {intent_result_data['intent']}")
+        print(
+            f"[OK] Step 1 Complete: Intent classified as {intent_result_data['intent']}"
+        )
         print(f"  - Confidence: {intent_result_data['confidence']:.2%}")
 
         # STEP 3: Knowledge Retrieval Agent fetches loyalty balance + program info
@@ -168,24 +172,26 @@ class TestLoyaltyProgramFlow:
             context_id=context_id,
             query_text=customer_query,
             intent=Intent.LOYALTY_PROGRAM,
-            filters={"customer_id": "persona_001"},  # Pass customer ID for personalization
-            max_results=5
+            filters={
+                "customer_id": "persona_001"
+            },  # Pass customer ID for personalization
+            max_results=5,
         )
 
         knowledge_request = create_a2a_message(
-            role="assistant",
-            content=knowledge_query,
-            context_id=context_id
+            role="assistant", content=knowledge_query, context_id=context_id
         )
 
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_result_data = extract_message_content(knowledge_response)
 
         # Validate knowledge retrieval
-        assert knowledge_result_data["total_results"] > 0, \
-            "Knowledge agent should find loyalty program data"
-        assert knowledge_result_data["search_time_ms"] < 500, \
-            "Search should complete in <500ms (P95 target)"
+        assert (
+            knowledge_result_data["total_results"] > 0
+        ), "Knowledge agent should find loyalty program data"
+        assert (
+            knowledge_result_data["search_time_ms"] < 500
+        ), "Search should complete in <500ms (P95 target)"
 
         # Find customer balance in results
         balance_result = None
@@ -195,12 +201,20 @@ class TestLoyaltyProgramFlow:
                 break
 
         assert balance_result is not None, "Customer balance should be in results"
-        assert balance_result["customer_id"] == "persona_001", "Customer ID should match"
-        assert balance_result["current_balance"] == 475, "Sarah's balance should be 475 points"
+        assert (
+            balance_result["customer_id"] == "persona_001"
+        ), "Customer ID should match"
+        assert (
+            balance_result["current_balance"] == 475
+        ), "Sarah's balance should be 475 points"
         assert balance_result["tier"] == "Bronze", "Sarah should be in Bronze tier"
-        assert balance_result["points_to_next_tier"] == 25, "Should be 25 points from Silver"
+        assert (
+            balance_result["points_to_next_tier"] == 25
+        ), "Should be 25 points from Silver"
 
-        print(f"[OK] Step 2 Complete: Balance retrieved in {knowledge_result_data['search_time_ms']:.2f}ms")
+        print(
+            f"[OK] Step 2 Complete: Balance retrieved in {knowledge_result_data['search_time_ms']:.2f}ms"
+        )
         print(f"  - Current Balance: {balance_result['current_balance']} points")
         print(f"  - Tier: {balance_result['tier']}")
         print(f"  - Points to next tier: {balance_result['points_to_next_tier']}")
@@ -211,29 +225,32 @@ class TestLoyaltyProgramFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=Intent.LOYALTY_PROGRAM,
-            knowledge_context=knowledge_result_data["results"]
+            knowledge_context=knowledge_result_data["results"],
         )
 
         response_gen_request = create_a2a_message(
-            role="assistant",
-            content=response_request,
-            context_id=context_id
+            role="assistant", content=response_request, context_id=context_id
         )
 
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         generated_response_data = extract_message_content(response_gen_response)
 
         # Validate generated response
         response_text = generated_response_data["response_text"]
         assert len(response_text) > 50, "Response should be substantial (>50 chars)"
-        assert "Sarah" in response_text, \
-            "Response should address customer by name (personalization)"
+        assert (
+            "Sarah" in response_text
+        ), "Response should address customer by name (personalization)"
         assert "475" in response_text, "Response should mention current balance"
         assert "Bronze" in response_text, "Response should mention tier"
-        assert "Silver" in response_text or "25" in response_text, \
-            "Response should mention progress to next tier"
-        assert not generated_response_data["requires_escalation"], \
-            "Standard loyalty query should not require escalation"
+        assert (
+            "Silver" in response_text or "25" in response_text
+        ), "Response should mention progress to next tier"
+        assert not generated_response_data[
+            "requires_escalation"
+        ], "Standard loyalty query should not require escalation"
 
         print(f"[OK] Step 3 Complete: Response generated")
         print(f"  - Response length: {len(response_text)} characters")
@@ -241,11 +258,11 @@ class TestLoyaltyProgramFlow:
         print(f"  - Includes balance: {'475' in response_text}")
 
         # Final validation: Complete response preview
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("FINAL CUSTOMER RESPONSE:")
-        print("="*60)
+        print("=" * 60)
         print(response_text)
-        print("="*60)
+        print("=" * 60)
 
     @pytest.mark.asyncio
     async def test_loyalty_general_info_without_customer_id(
@@ -276,13 +293,11 @@ class TestLoyaltyProgramFlow:
             customer_id=None,  # No customer ID (anonymous query)
             content=customer_query,
             channel="chat",
-            context_id=context_id
+            context_id=context_id,
         )
 
         intent_request = create_a2a_message(
-            role="user",
-            content=customer_message,
-            context_id=context_id
+            role="user", content=customer_message, context_id=context_id
         )
 
         intent_response = await intent_agent.handle_message(intent_request)
@@ -297,13 +312,11 @@ class TestLoyaltyProgramFlow:
             query_text=customer_query,
             intent=Intent.LOYALTY_PROGRAM,
             filters={},  # No customer_id filter
-            max_results=5
+            max_results=5,
         )
 
         knowledge_request = create_a2a_message(
-            role="assistant",
-            content=knowledge_query,
-            context_id=context_id
+            role="assistant", content=knowledge_query, context_id=context_id
         )
 
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
@@ -311,7 +324,9 @@ class TestLoyaltyProgramFlow:
 
         # Should have program sections but no customer balance
         assert knowledge_data["total_results"] > 0
-        has_balance = any(r.get("type") == "customer_balance" for r in knowledge_data["results"])
+        has_balance = any(
+            r.get("type") == "customer_balance" for r in knowledge_data["results"]
+        )
         assert not has_balance, "Should not have customer balance without customer_id"
 
         # Step 3: Response Generation (generic response)
@@ -320,21 +335,22 @@ class TestLoyaltyProgramFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=Intent.LOYALTY_PROGRAM,
-            knowledge_context=knowledge_data["results"]
+            knowledge_context=knowledge_data["results"],
         )
 
         response_gen_request = create_a2a_message(
-            role="assistant",
-            content=response_request,
-            context_id=context_id
+            role="assistant", content=response_request, context_id=context_id
         )
 
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         response_data = extract_message_content(response_gen_response)
 
         response_text = response_data["response_text"]
-        assert "1 point per $1" in response_text or "100 points" in response_text, \
-            "Generic response should include earning/redemption info"
+        assert (
+            "1 point per $1" in response_text or "100 points" in response_text
+        ), "Generic response should include earning/redemption info"
 
         print("[OK] General loyalty info scenario completed")
         print(f"  - No personalized balance: {not has_balance}")
@@ -367,11 +383,13 @@ class TestLoyaltyProgramFlow:
             customer_id="persona_002",  # Mike Thompson (1250 points, Gold tier)
             content=customer_query,
             channel="chat",
-            context_id=context_id
+            context_id=context_id,
         )
 
         # Intent Classification
-        intent_request = create_a2a_message(role="user", content=customer_message, context_id=context_id)
+        intent_request = create_a2a_message(
+            role="user", content=customer_message, context_id=context_id
+        )
         intent_response = await intent_agent.handle_message(intent_request)
         intent_data = extract_message_content(intent_response)
 
@@ -383,17 +401,26 @@ class TestLoyaltyProgramFlow:
             context_id=context_id,
             query_text=customer_query,
             intent=Intent.LOYALTY_PROGRAM,
-            filters={"customer_id": "persona_002"}
+            filters={"customer_id": "persona_002"},
         )
 
-        knowledge_request = create_a2a_message(role="assistant", content=knowledge_query, context_id=context_id)
+        knowledge_request = create_a2a_message(
+            role="assistant", content=knowledge_query, context_id=context_id
+        )
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_data = extract_message_content(knowledge_response)
 
         assert knowledge_data["total_results"] > 0
 
         # Find customer balance
-        balance = next((r for r in knowledge_data["results"] if r.get("type") == "customer_balance"), None)
+        balance = next(
+            (
+                r
+                for r in knowledge_data["results"]
+                if r.get("type") == "customer_balance"
+            ),
+            None,
+        )
         assert balance is not None
         assert balance["current_balance"] == 1250
         assert balance["tier"] == "Gold"
@@ -404,18 +431,23 @@ class TestLoyaltyProgramFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=Intent.LOYALTY_PROGRAM,
-            knowledge_context=knowledge_data["results"]
+            knowledge_context=knowledge_data["results"],
         )
 
-        response_gen_request = create_a2a_message(role="assistant", content=response_request, context_id=context_id)
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_request = create_a2a_message(
+            role="assistant", content=response_request, context_id=context_id
+        )
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         response_data = extract_message_content(response_gen_response)
 
         response_text = response_data["response_text"]
         assert "1250" in response_text, "Response should show current balance"
         assert "Gold" in response_text, "Response should show tier"
-        assert "100 points" in response_text or "redeem" in response_text.lower(), \
-            "Response should include redemption options"
+        assert (
+            "100 points" in response_text or "redeem" in response_text.lower()
+        ), "Response should include redemption options"
 
         print("[OK] Redemption query scenario completed")
         print(f"  - Balance shown: {'1250' in response_text}")
@@ -430,9 +462,9 @@ async def run_manual_test():
     Run with: python -m pytest tests/integration/test_loyalty_flow.py -v -s
     Or: python tests/integration/test_loyalty_flow.py
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("MANUAL TEST: Loyalty Program Inquiry Flow (Issue #34)")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     test_suite = TestLoyaltyProgramFlow()
 

@@ -23,7 +23,7 @@ from shared.models import (
     Intent,
     Language,
     extract_message_content,
-    generate_message_id
+    generate_message_id,
 )
 
 # Import Phase 2 clients
@@ -58,9 +58,13 @@ class KnowledgeRetrievalAgent(BaseAgent):
         self.shopify_client = ShopifyClient(base_url=shopify_url, logger=self.logger)
 
         kb_path = Path(__file__).parent.parent.parent / "test-data" / "knowledge-base"
-        self.kb_client = KnowledgeBaseClient(knowledge_base_path=kb_path, logger=self.logger)
+        self.kb_client = KnowledgeBaseClient(
+            knowledge_base_path=kb_path, logger=self.logger
+        )
 
-        self.logger.info(f"Phase 2 clients initialized (Shopify: {shopify_url}, KB: {kb_path})")
+        self.logger.info(
+            f"Phase 2 clients initialized (Shopify: {shopify_url}, KB: {kb_path})"
+        )
 
         # Phase 4+: Embedding cache for semantic search
         self._embedding_cache: Dict[str, List[float]] = {}
@@ -88,7 +92,7 @@ class KnowledgeRetrievalAgent(BaseAgent):
             intent=Intent(content.get("intent", "general_inquiry")),
             filters=content.get("filters", {}),
             max_results=content.get("max_results", 5),
-            language=Language(content.get("language", "en"))
+            language=Language(content.get("language", "en")),
         )
 
         self.logger.info(
@@ -108,7 +112,7 @@ class KnowledgeRetrievalAgent(BaseAgent):
             results=results,
             total_results=len(results),
             search_time_ms=search_time_ms,
-            confidence=self._calculate_confidence(results)
+            confidence=self._calculate_confidence(results),
         )
 
         self.logger.info(
@@ -124,43 +128,49 @@ class KnowledgeRetrievalAgent(BaseAgent):
             {
                 "contextId": "demo-ctx-001",
                 "taskId": "demo-task-001",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "query_id": "q-001",
-                        "query_text": "Where is my order?",
-                        "intent": "order_status",
-                        "filters": {"order_number": "10234"},
-                        "max_results": 3
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "query_id": "q-001",
+                            "query_text": "Where is my order?",
+                            "intent": "order_status",
+                            "filters": {"order_number": "10234"},
+                            "max_results": 3,
+                        },
                     }
-                }]
+                ],
             },
             {
                 "contextId": "demo-ctx-002",
                 "taskId": "demo-task-002",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "query_id": "q-002",
-                        "query_text": "espresso pods",
-                        "intent": "product_info",
-                        "max_results": 3
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "query_id": "q-002",
+                            "query_text": "espresso pods",
+                            "intent": "product_info",
+                            "max_results": 3,
+                        },
                     }
-                }]
+                ],
             },
             {
                 "contextId": "demo-ctx-003",
                 "taskId": "demo-task-003",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "query_id": "q-003",
-                        "query_text": "brewer won't turn on",
-                        "intent": "brewer_support",
-                        "max_results": 2
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "query_id": "q-003",
+                            "query_text": "brewer won't turn on",
+                            "intent": "brewer_support",
+                            "max_results": 2,
+                        },
                     }
-                }]
-            }
+                ],
+            },
         ]
 
     def cleanup(self) -> None:
@@ -223,7 +233,7 @@ class KnowledgeRetrievalAgent(BaseAgent):
             results.extend(await self._search_products(query))
             results.extend(self.kb_client.search_all_policies(query.query_text))
 
-        return results[:query.max_results]
+        return results[: query.max_results]
 
     # ========================================================================
     # Phase 2: Coffee-Specific Search Methods
@@ -240,36 +250,42 @@ class KnowledgeRetrievalAgent(BaseAgent):
             if order_number:
                 order = await self.shopify_client.get_order_by_number(order_number)
                 if order:
-                    results.append({
-                        "source": "shopify_order",
-                        "type": "order",
-                        "order_id": order.get("order_id"),
-                        "order_number": order.get("order_number"),
-                        "status": order.get("status"),
-                        "fulfillment_status": order.get("fulfillment_status"),
-                        "financial_status": order.get("financial_status"),
-                        "items": order.get("items", []),
-                        "tracking": order.get("tracking"),
-                        "shipping_address": order.get("shipping_address"),
-                        "total": order.get("total"),
-                        "order_date": order.get("order_date"),
-                        "relevance": 0.95
-                    })
+                    results.append(
+                        {
+                            "source": "shopify_order",
+                            "type": "order",
+                            "order_id": order.get("order_id"),
+                            "order_number": order.get("order_number"),
+                            "status": order.get("status"),
+                            "fulfillment_status": order.get("fulfillment_status"),
+                            "financial_status": order.get("financial_status"),
+                            "items": order.get("items", []),
+                            "tracking": order.get("tracking"),
+                            "shipping_address": order.get("shipping_address"),
+                            "total": order.get("total"),
+                            "order_date": order.get("order_date"),
+                            "relevance": 0.95,
+                        }
+                    )
                     self.logger.info(f"Found order {order_number}")
 
             elif customer_email:
-                orders = await self.shopify_client.get_orders_by_customer_email(customer_email)
+                orders = await self.shopify_client.get_orders_by_customer_email(
+                    customer_email
+                )
                 for order in orders[:3]:
-                    results.append({
-                        "source": "shopify_order_history",
-                        "type": "order",
-                        "order_id": order.get("order_id"),
-                        "order_number": order.get("order_number"),
-                        "status": order.get("status"),
-                        "total": order.get("total"),
-                        "order_date": order.get("order_date"),
-                        "relevance": 0.80
-                    })
+                    results.append(
+                        {
+                            "source": "shopify_order_history",
+                            "type": "order",
+                            "order_id": order.get("order_id"),
+                            "order_number": order.get("order_number"),
+                            "status": order.get("status"),
+                            "total": order.get("total"),
+                            "order_date": order.get("order_date"),
+                            "relevance": 0.80,
+                        }
+                    )
                 self.logger.info(f"Found {len(orders)} orders for {customer_email}")
 
         except Exception as e:
@@ -287,31 +303,47 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
             # Strip common question words/phrases
             question_words = [
-                "how much is the", "how much is", "how much",
-                "what is the price of the", "what is the price of", "price of the", "price of",
-                "tell me about the", "tell me about",
-                "is the", "is", "are the", "are",
-                "do you have the", "do you have",
-                "in stock", "available",
-                "what's the", "whats the"
+                "how much is the",
+                "how much is",
+                "how much",
+                "what is the price of the",
+                "what is the price of",
+                "price of the",
+                "price of",
+                "tell me about the",
+                "tell me about",
+                "is the",
+                "is",
+                "are the",
+                "are",
+                "do you have the",
+                "do you have",
+                "in stock",
+                "available",
+                "what's the",
+                "whats the",
             ]
 
             search_query_lower = search_query.lower()
             for phrase in sorted(question_words, key=len, reverse=True):
                 if search_query_lower.startswith(phrase):
-                    search_query = search_query[len(phrase):].strip()
+                    search_query = search_query[len(phrase) :].strip()
                     search_query_lower = search_query.lower()
                     break
 
-            search_query = search_query.rstrip('?!.,')
+            search_query = search_query.rstrip("?!.,")
 
             # Remove filler words
-            filler_words = ['your', 'my', 'the', 'our', 'about', 'tell me']
+            filler_words = ["your", "my", "the", "our", "about", "tell me"]
             search_words = search_query.split()
-            search_words = [word for word in search_words if word.lower() not in filler_words]
-            search_query = ' '.join(search_words)
+            search_words = [
+                word for word in search_words if word.lower() not in filler_words
+            ]
+            search_query = " ".join(search_words)
 
-            self.logger.debug(f"Product search: '{query.query_text}' → '{search_query}'")
+            self.logger.debug(
+                f"Product search: '{query.query_text}' → '{search_query}'"
+            )
 
             products = await self.shopify_client.search_products(search_query, limit=5)
 
@@ -324,24 +356,26 @@ class KnowledgeRetrievalAgent(BaseAgent):
                 if price is None and price_range:
                     price = price_range.get("min")
 
-                results.append({
-                    "source": "shopify_product",
-                    "type": "product",
-                    "product_id": product.get("id"),
-                    "sku": product.get("sku"),
-                    "name": product.get("name"),
-                    "description": product.get("description"),
-                    "price": price,
-                    "price_range": price_range,
-                    "category": product.get("category"),
-                    "features": product.get("features", []),
-                    "tags": product.get("tags", []),
-                    "in_stock": in_stock,
-                    "inventory_count": inventory_count,
-                    "variant_id": product.get("variant_id"),
-                    "variant_name": product.get("variant_name"),
-                    "relevance": 0.85
-                })
+                results.append(
+                    {
+                        "source": "shopify_product",
+                        "type": "product",
+                        "product_id": product.get("id"),
+                        "sku": product.get("sku"),
+                        "name": product.get("name"),
+                        "description": product.get("description"),
+                        "price": price,
+                        "price_range": price_range,
+                        "category": product.get("category"),
+                        "features": product.get("features", []),
+                        "tags": product.get("tags", []),
+                        "in_stock": in_stock,
+                        "inventory_count": inventory_count,
+                        "variant_id": product.get("variant_id"),
+                        "variant_name": product.get("variant_name"),
+                        "relevance": 0.85,
+                    }
+                )
 
             self.logger.info(f"Product search: Found {len(results)} products")
 
@@ -350,14 +384,18 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
         return results
 
-    async def _search_product_recommendations(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+    async def _search_product_recommendations(
+        self, query: KnowledgeQuery
+    ) -> List[Dict[str, Any]]:
         """Recommend coffee products based on customer preferences."""
         results = []
 
         try:
             query_lower = query.query_text.lower()
 
-            if any(word in query_lower for word in ["strong", "bold", "dark", "espresso"]):
+            if any(
+                word in query_lower for word in ["strong", "bold", "dark", "espresso"]
+            ):
                 search_term = "dark roast espresso"
             elif any(word in query_lower for word in ["light", "bright", "fruity"]):
                 search_term = "light roast"
@@ -373,16 +411,18 @@ class KnowledgeRetrievalAgent(BaseAgent):
             products = await self.shopify_client.search_products(search_term, limit=3)
 
             for product in products:
-                results.append({
-                    "source": "product_recommendation",
-                    "type": "recommendation",
-                    "product_id": product.get("id"),
-                    "name": product.get("name"),
-                    "price": product.get("price"),
-                    "description": product.get("description"),
-                    "why_recommended": f"Matches your preference for {search_term}",
-                    "relevance": 0.85
-                })
+                results.append(
+                    {
+                        "source": "product_recommendation",
+                        "type": "recommendation",
+                        "product_id": product.get("id"),
+                        "name": product.get("name"),
+                        "price": product.get("price"),
+                        "description": product.get("description"),
+                        "why_recommended": f"Matches your preference for {search_term}",
+                        "relevance": 0.85,
+                    }
+                )
 
             self.logger.info(f"Generated {len(results)} recommendations")
 
@@ -391,7 +431,9 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
         return results
 
-    async def _search_product_comparison(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+    async def _search_product_comparison(
+        self, query: KnowledgeQuery
+    ) -> List[Dict[str, Any]]:
         """Compare coffee products."""
         results = []
 
@@ -403,19 +445,23 @@ class KnowledgeRetrievalAgent(BaseAgent):
             elif "variety" in query_lower or "sampler" in query_lower:
                 products = await self.shopify_client.search_products("variety", limit=3)
             else:
-                products = await self.shopify_client.search_products("coffee pods", limit=3)
+                products = await self.shopify_client.search_products(
+                    "coffee pods", limit=3
+                )
 
             for product in products:
-                results.append({
-                    "source": "product_comparison",
-                    "type": "product",
-                    "product_id": product.get("id"),
-                    "name": product.get("name"),
-                    "price": product.get("price"),
-                    "features": product.get("features", []),
-                    "category": product.get("category"),
-                    "relevance": 0.80
-                })
+                results.append(
+                    {
+                        "source": "product_comparison",
+                        "type": "product",
+                        "product_id": product.get("id"),
+                        "name": product.get("name"),
+                        "price": product.get("price"),
+                        "features": product.get("features", []),
+                        "category": product.get("category"),
+                        "relevance": 0.80,
+                    }
+                )
 
             self.logger.info(f"Generated comparison for {len(results)} products")
 
@@ -424,23 +470,29 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
         return results
 
-    async def _search_refund_status(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+    async def _search_refund_status(
+        self, query: KnowledgeQuery
+    ) -> List[Dict[str, Any]]:
         """Search refund status and auto-approval rules."""
         results = []
 
         try:
-            auto_approval_rules = self.kb_client.get_auto_approval_rules("refund_status")
+            auto_approval_rules = self.kb_client.get_auto_approval_rules(
+                "refund_status"
+            )
 
             for rule in auto_approval_rules:
-                results.append({
-                    "source": "refund_policy",
-                    "type": "business_rule",
-                    "scenario": rule.get("scenario"),
-                    "condition": rule.get("condition"),
-                    "auto_approval": rule.get("auto_approval"),
-                    "action": rule.get("action"),
-                    "relevance": 0.90
-                })
+                results.append(
+                    {
+                        "source": "refund_policy",
+                        "type": "business_rule",
+                        "scenario": rule.get("scenario"),
+                        "condition": rule.get("condition"),
+                        "auto_approval": rule.get("auto_approval"),
+                        "action": rule.get("action"),
+                        "relevance": 0.90,
+                    }
+                )
 
             policy_results = self.kb_client.search_return_policy(query.query_text)
             results.extend(policy_results)
@@ -459,37 +511,45 @@ class KnowledgeRetrievalAgent(BaseAgent):
         try:
             order_number = query.filters.get("order_number")
             if order_number:
-                self.logger.info(f"Fetching order #{order_number} for return request validation")
+                self.logger.info(
+                    f"Fetching order #{order_number} for return request validation"
+                )
                 order = await self.shopify_client.get_order_by_number(order_number)
 
                 if order:
-                    results.append({
-                        "source": "shopify_order",
-                        "type": "order",
-                        "order_number": order.get("order_number"),
-                        "order_id": order.get("order_id"),
-                        "customer_email": order.get("customer_email"),
-                        "customer_name": order.get("customer_name"),
-                        "shipping_address": order.get("shipping_address"),
-                        "total": order.get("total"),
-                        "status": order.get("status"),
-                        "items": order.get("items", []),
-                        "order_date": order.get("created_at"),
-                        "delivery_date": order.get("delivered_at"),
-                        "return_eligible": order.get("status") == "delivered",
-                        "relevance": 1.0
-                    })
-                    self.logger.info(f"Order #{order_number} found: ${order.get('total'):.2f}")
+                    results.append(
+                        {
+                            "source": "shopify_order",
+                            "type": "order",
+                            "order_number": order.get("order_number"),
+                            "order_id": order.get("order_id"),
+                            "customer_email": order.get("customer_email"),
+                            "customer_name": order.get("customer_name"),
+                            "shipping_address": order.get("shipping_address"),
+                            "total": order.get("total"),
+                            "status": order.get("status"),
+                            "items": order.get("items", []),
+                            "order_date": order.get("created_at"),
+                            "delivery_date": order.get("delivered_at"),
+                            "return_eligible": order.get("status") == "delivered",
+                            "relevance": 1.0,
+                        }
+                    )
+                    self.logger.info(
+                        f"Order #{order_number} found: ${order.get('total'):.2f}"
+                    )
                 else:
                     self.logger.warning(f"Order #{order_number} not found")
-                    results.append({
-                        "source": "shopify_order",
-                        "type": "error",
-                        "error_code": "ORDER_NOT_FOUND",
-                        "error_message": f"Order #{order_number} not found.",
-                        "order_number": order_number,
-                        "relevance": 1.0
-                    })
+                    results.append(
+                        {
+                            "source": "shopify_order",
+                            "type": "error",
+                            "error_code": "ORDER_NOT_FOUND",
+                            "error_message": f"Order #{order_number} not found.",
+                            "order_number": order_number,
+                            "relevance": 1.0,
+                        }
+                    )
 
             policy_results = self.kb_client.search_return_policy(query.query_text)
             results.extend(policy_results)
@@ -501,7 +561,9 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
         return results
 
-    async def _search_shipping_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+    async def _search_shipping_info(
+        self, query: KnowledgeQuery
+    ) -> List[Dict[str, Any]]:
         """Search shipping policy and carrier information."""
         try:
             results = self.kb_client.search_shipping_policy(query.query_text)
@@ -511,25 +573,29 @@ class KnowledgeRetrievalAgent(BaseAgent):
             self.logger.error(f"Shipping info search failed: {e}", exc_info=True)
             return []
 
-    async def _search_subscription_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+    async def _search_subscription_info(
+        self, query: KnowledgeQuery
+    ) -> List[Dict[str, Any]]:
         """Search auto-delivery subscription information."""
         results = []
 
         try:
-            results.append({
-                "source": "subscription_policy",
-                "type": "policy",
-                "title": "Auto-Delivery Subscription",
-                "content": "Free shipping on all auto-delivery orders. Manage frequency, skip deliveries, or cancel anytime.",
-                "benefits": [
-                    "Never run out of your favorite coffee",
-                    "Free shipping on every order",
-                    "Flexible scheduling - change frequency anytime",
-                    "Skip or pause deliveries as needed",
-                    "Cancel anytime, no commitment"
-                ],
-                "relevance": 0.90
-            })
+            results.append(
+                {
+                    "source": "subscription_policy",
+                    "type": "policy",
+                    "title": "Auto-Delivery Subscription",
+                    "content": "Free shipping on all auto-delivery orders. Manage frequency, skip deliveries, or cancel anytime.",
+                    "benefits": [
+                        "Never run out of your favorite coffee",
+                        "Free shipping on every order",
+                        "Flexible scheduling - change frequency anytime",
+                        "Skip or pause deliveries as needed",
+                        "Cancel anytime, no commitment",
+                    ],
+                    "relevance": 0.90,
+                }
+            )
 
             self.logger.info(f"Returned subscription policy info")
 
@@ -538,7 +604,9 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
         return results
 
-    async def _search_brewer_support(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+    async def _search_brewer_support(
+        self, query: KnowledgeQuery
+    ) -> List[Dict[str, Any]]:
         """Search brewer troubleshooting and support information."""
         results = []
 
@@ -547,8 +615,17 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
             # Check if this is a product information query
             product_info_keywords = [
-                "how much", "price", "cost", "buy", "purchase", "tell me about",
-                "what is", "describe", "in stock", "available", "features"
+                "how much",
+                "price",
+                "cost",
+                "buy",
+                "purchase",
+                "tell me about",
+                "what is",
+                "describe",
+                "in stock",
+                "available",
+                "features",
             ]
 
             if any(keyword in query_lower for keyword in product_info_keywords):
@@ -558,54 +635,67 @@ class KnowledgeRetrievalAgent(BaseAgent):
                     return product_results
 
             # Troubleshooting queries
-            if any(word in query_lower for word in ["won't turn on", "not working", "broken"]):
-                results.append({
-                    "source": "brewer_support",
-                    "type": "troubleshooting",
-                    "issue": "Brewer won't turn on",
-                    "solutions": [
-                        "Check that power cord is firmly connected",
-                        "Verify outlet is working (test with another device)",
-                        "Try a different outlet",
-                        "Check for tripped circuit breaker"
-                    ],
-                    "escalation_needed": True,
-                    "relevance": 0.90
-                })
+            if any(
+                word in query_lower
+                for word in ["won't turn on", "not working", "broken"]
+            ):
+                results.append(
+                    {
+                        "source": "brewer_support",
+                        "type": "troubleshooting",
+                        "issue": "Brewer won't turn on",
+                        "solutions": [
+                            "Check that power cord is firmly connected",
+                            "Verify outlet is working (test with another device)",
+                            "Try a different outlet",
+                            "Check for tripped circuit breaker",
+                        ],
+                        "escalation_needed": True,
+                        "relevance": 0.90,
+                    }
+                )
 
-            elif any(word in query_lower for word in ["clean", "descale", "maintenance"]):
-                results.append({
-                    "source": "brewer_support",
-                    "type": "maintenance",
-                    "title": "Brewer Cleaning & Maintenance",
-                    "instructions": "Descale monthly using our 3-pack descaling solution.",
-                    "product_recommendation": "ACC-DESC-3PK - Descaling Solution 3-pack ($14.99)",
-                    "relevance": 0.85
-                })
+            elif any(
+                word in query_lower for word in ["clean", "descale", "maintenance"]
+            ):
+                results.append(
+                    {
+                        "source": "brewer_support",
+                        "type": "maintenance",
+                        "title": "Brewer Cleaning & Maintenance",
+                        "instructions": "Descale monthly using our 3-pack descaling solution.",
+                        "product_recommendation": "ACC-DESC-3PK - Descaling Solution 3-pack ($14.99)",
+                        "relevance": 0.85,
+                    }
+                )
 
             elif any(word in query_lower for word in ["weak", "taste", "flavor"]):
-                results.append({
-                    "source": "brewer_support",
-                    "type": "troubleshooting",
-                    "issue": "Coffee tastes weak or off",
-                    "solutions": [
-                        "Check brew strength settings (Medium or Bold)",
-                        "Ensure you're using fresh pods",
-                        "Run a descaling cycle if needed",
-                        "Try a different coffee blend"
-                    ],
-                    "relevance": 0.85
-                })
+                results.append(
+                    {
+                        "source": "brewer_support",
+                        "type": "troubleshooting",
+                        "issue": "Coffee tastes weak or off",
+                        "solutions": [
+                            "Check brew strength settings (Medium or Bold)",
+                            "Ensure you're using fresh pods",
+                            "Run a descaling cycle if needed",
+                            "Try a different coffee blend",
+                        ],
+                        "relevance": 0.85,
+                    }
+                )
 
             else:
-                results.append({
-                    "source": "brewer_support",
-                    "type": "general",
-                    "title": "Brewer Support Resources",
-                    "content": "For brewer technical issues, please contact support. Warranty covers 2 years.",
-                    "contact": "support@example.com or call 1-800-COFFEE",
-                    "relevance": 0.70
-                })
+                results.append(
+                    {
+                        "source": "brewer_support",
+                        "type": "general",
+                        "title": "Brewer Support Resources",
+                        "content": "For brewer technical issues, please contact support. Warranty covers 2 years.",
+                        "contact": "support@example.com or call 1-800-COFFEE",
+                        "relevance": 0.70,
+                    }
+                )
 
             self.logger.info(f"Found {len(results)} brewer support results")
 
@@ -614,7 +704,9 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
         return results
 
-    async def _search_gift_card_info(self, query: KnowledgeQuery) -> List[Dict[str, Any]]:
+    async def _search_gift_card_info(
+        self, query: KnowledgeQuery
+    ) -> List[Dict[str, Any]]:
         """Search gift card information."""
         results = []
 
@@ -622,28 +714,39 @@ class KnowledgeRetrievalAgent(BaseAgent):
             query_lower = query.query_text.lower()
 
             product_info_keywords = [
-                "how much", "price", "cost", "buy", "purchase", "available",
-                "denominations", "amounts", "in stock"
+                "how much",
+                "price",
+                "cost",
+                "buy",
+                "purchase",
+                "available",
+                "denominations",
+                "amounts",
+                "in stock",
             ]
 
             if any(keyword in query_lower for keyword in product_info_keywords):
                 product_results = await self._search_products(query)
                 if product_results:
-                    self.logger.info(f"Gift card query identified as product info request")
+                    self.logger.info(
+                        f"Gift card query identified as product info request"
+                    )
                     return product_results
 
-            results.append({
-                "source": "gift_card_policy",
-                "type": "policy",
-                "title": "Gift Cards",
-                "content": "Virtual and physical gift cards available in amounts from $25-$200. Never expire.",
-                "options": [
-                    "Virtual Gift Card - Delivered via email instantly",
-                    "Physical Gift Card - Mailed in gift packaging (2-5 business days)"
-                ],
-                "product_ids": ["PROD-060", "PROD-061"],
-                "relevance": 0.90
-            })
+            results.append(
+                {
+                    "source": "gift_card_policy",
+                    "type": "policy",
+                    "title": "Gift Cards",
+                    "content": "Virtual and physical gift cards available in amounts from $25-$200. Never expire.",
+                    "options": [
+                        "Virtual Gift Card - Delivered via email instantly",
+                        "Physical Gift Card - Mailed in gift packaging (2-5 business days)",
+                    ],
+                    "product_ids": ["PROD-060", "PROD-061"],
+                    "relevance": 0.90,
+                }
+            )
 
             self.logger.info(f"Returned gift card policy info")
 
@@ -659,8 +762,7 @@ class KnowledgeRetrievalAgent(BaseAgent):
         try:
             customer_id = query.filters.get("customer_id")
             results = self.kb_client.search_loyalty_program(
-                query.query_text,
-                customer_id=customer_id
+                query.query_text, customer_id=customer_id
             )
 
             self.logger.info(f"Loyalty program search: {len(results)} results")
@@ -704,7 +806,9 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
         return None
 
-    def _calculate_cosine_similarity(self, vec1: List[float], vec2: List[float]) -> float:
+    def _calculate_cosine_similarity(
+        self, vec1: List[float], vec2: List[float]
+    ) -> float:
         """Calculate cosine similarity between two vectors."""
         dot_product = sum(a * b for a, b in zip(vec1, vec2))
         magnitude1 = math.sqrt(sum(a * a for a in vec1))
@@ -716,10 +820,7 @@ class KnowledgeRetrievalAgent(BaseAgent):
         return dot_product / (magnitude1 * magnitude2)
 
     async def _semantic_search_knowledge_base(
-        self,
-        query_text: str,
-        documents: List[Dict[str, Any]],
-        top_k: int = 5
+        self, query_text: str, documents: List[Dict[str, Any]], top_k: int = 5
     ) -> List[Dict[str, Any]]:
         """Perform semantic search over documents using embeddings."""
         if not self.openai_client:
@@ -735,11 +836,15 @@ class KnowledgeRetrievalAgent(BaseAgent):
 
             scored_docs = []
             for doc in documents:
-                doc_text = doc.get("content", "") or doc.get("description", "") or str(doc)
+                doc_text = (
+                    doc.get("content", "") or doc.get("description", "") or str(doc)
+                )
                 doc_embedding = await self._generate_embedding(doc_text[:1000])
 
                 if doc_embedding:
-                    similarity = self._calculate_cosine_similarity(query_embedding, doc_embedding)
+                    similarity = self._calculate_cosine_similarity(
+                        query_embedding, doc_embedding
+                    )
                     doc["relevance"] = similarity
                     scored_docs.append((similarity, doc))
                 else:

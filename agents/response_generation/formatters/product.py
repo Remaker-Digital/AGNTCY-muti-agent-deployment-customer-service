@@ -12,14 +12,16 @@ def format_product_info(knowledge_context: List[Dict[str, Any]]) -> str:
     products = [item for item in knowledge_context if item.get("type") == "product"]
 
     if not products:
-        return ("I'd be happy to help you learn about our coffee and brewing products!\n\n"
-               "**What we offer:**\n"
-               "- **Brewers:** Premium single-serve coffee makers with smart features\n"
-               "- **Coffee Pods:** Light, medium, dark roasts, espresso, matcha, chai\n"
-               "- **Variety Packs:** Explorer packs and office bundles\n"
-               "- **Accessories:** Descaling solution, cleaning pods, travel mugs\n"
-               "- **Gift Cards:** Virtual and physical options\n\n"
-               "What specific product are you interested in?")
+        return (
+            "I'd be happy to help you learn about our coffee and brewing products!\n\n"
+            "**What we offer:**\n"
+            "- **Brewers:** Premium single-serve coffee makers with smart features\n"
+            "- **Coffee Pods:** Light, medium, dark roasts, espresso, matcha, chai\n"
+            "- **Variety Packs:** Explorer packs and office bundles\n"
+            "- **Accessories:** Descaling solution, cleaning pods, travel mugs\n"
+            "- **Gift Cards:** Virtual and physical options\n\n"
+            "What specific product are you interested in?"
+        )
 
     product = products[0]
 
@@ -34,7 +36,9 @@ def format_product_info(knowledge_context: List[Dict[str, Any]]) -> str:
     inventory_count = product.get("inventory_count")
     variant_name = product.get("variant_name", "")
 
-    features_text = "\n".join([f"- {feature}" for feature in features]) if features else ""
+    features_text = (
+        "\n".join([f"- {feature}" for feature in features]) if features else ""
+    )
 
     response = f"""**{name}**"""
 
@@ -62,7 +66,9 @@ Price: ${price:.2f}"""
         response += "Would you like me to notify you when this item is back in stock? "
         response += "I can also suggest similar products that are available now.\n\n"
     elif inventory_count is not None and inventory_count <= 5:
-        response += f"**Availability:** Only {inventory_count} left in stock - order soon!\n\n"
+        response += (
+            f"**Availability:** Only {inventory_count} left in stock - order soon!\n\n"
+        )
     else:
         response += "**Availability:** In stock and ready to ship!\n\n"
 
@@ -70,9 +76,9 @@ Price: ${price:.2f}"""
     if len(products) > 1:
         response += "**You might also like:**\n"
         for other_product in products[1:3]:
-            other_name = other_product.get('name', '')
-            other_price = other_product.get('price', 0)
-            other_in_stock = other_product.get('in_stock', True)
+            other_name = other_product.get("name", "")
+            other_price = other_product.get("price", 0)
+            other_in_stock = other_product.get("in_stock", True)
             stock_indicator = " ✓ In stock" if other_in_stock else " (Out of stock)"
             response += f"- {other_name} (${other_price:.2f}){stock_indicator}\n"
         response += "\n"
@@ -84,14 +90,18 @@ Price: ${price:.2f}"""
 
 def format_product_recommendation(knowledge_context: List[Dict[str, Any]]) -> str:
     """Format personalized product recommendations."""
-    recommendations = [item for item in knowledge_context if item.get("type") == "recommendation"]
+    recommendations = [
+        item for item in knowledge_context if item.get("type") == "recommendation"
+    ]
 
     if not recommendations:
-        return ("I'd love to help you find the perfect coffee! Tell me about your preferences:\n"
-               "- Do you prefer light, medium, or dark roast?\n"
-               "- Are you looking for espresso or regular coffee?\n"
-               "- Any flavor notes you enjoy (fruity, chocolatey, bold)?\n\n"
-               "I'll recommend the perfect pods for you!")
+        return (
+            "I'd love to help you find the perfect coffee! Tell me about your preferences:\n"
+            "- Do you prefer light, medium, or dark roast?\n"
+            "- Are you looking for espresso or regular coffee?\n"
+            "- Any flavor notes you enjoy (fruity, chocolatey, bold)?\n\n"
+            "I'll recommend the perfect pods for you!"
+        )
 
     response = "Based on your preferences, I think you'll love these:\n\n"
 
@@ -119,8 +129,10 @@ def format_product_comparison(knowledge_context: List[Dict[str, Any]]) -> str:
     products = [item for item in knowledge_context if item.get("type") == "product"]
 
     if len(products) < 2:
-        return ("I can help you compare our products! Which items would you like to compare? "
-               "For example, I can compare different brewers, coffee roasts, or variety packs.")
+        return (
+            "I can help you compare our products! Which items would you like to compare? "
+            "For example, I can compare different brewers, coffee roasts, or variety packs."
+        )
 
     response = "Here's a detailed comparison:\n\n"
 
@@ -152,15 +164,19 @@ def format_brewer_support(knowledge_context: List[Dict[str, Any]]) -> str:
         return format_product_info(knowledge_context)
 
     # Troubleshooting response
-    support_items = [item for item in knowledge_context if item.get("source") == "brewer_support"]
+    support_items = [
+        item for item in knowledge_context if item.get("source") == "brewer_support"
+    ]
 
     if not support_items:
-        return ("I'm here to help with your brewer! Common issues I can assist with:\n"
-               "- Brewer won't turn on or power issues\n"
-               "- Coffee tastes weak or off\n"
-               "- Cleaning and descaling\n"
-               "- Error messages\n\n"
-               "What specific issue are you experiencing?")
+        return (
+            "I'm here to help with your brewer! Common issues I can assist with:\n"
+            "- Brewer won't turn on or power issues\n"
+            "- Coffee tastes weak or off\n"
+            "- Cleaning and descaling\n"
+            "- Error messages\n\n"
+            "What specific issue are you experiencing?"
+        )
 
     issue_item = support_items[0]
     issue_type = issue_item.get("type", "")
@@ -181,8 +197,10 @@ Let's try these troubleshooting steps:
         response += "\nPlease try these steps and let me know if the issue persists. "
 
         if needs_escalation:
-            response += ("If none of these steps resolve the problem, I'll escalate this to our technical support team "
-                       "who can arrange a replacement if needed. Your brewer is covered by a 2-year warranty.")
+            response += (
+                "If none of these steps resolve the problem, I'll escalate this to our technical support team "
+                "who can arrange a replacement if needed. Your brewer is covered by a 2-year warranty."
+            )
 
     elif issue_type == "maintenance":
         title = issue_item.get("title", "")

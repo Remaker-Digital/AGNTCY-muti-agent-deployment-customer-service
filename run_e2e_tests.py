@@ -37,13 +37,20 @@ from dataclasses import dataclass, asdict
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-from shared.models import CustomerMessage, Intent, Language, generate_context_id, generate_message_id
+from shared.models import (
+    CustomerMessage,
+    Intent,
+    Language,
+    generate_context_id,
+    generate_message_id,
+)
 from shared import setup_logging
 
 # Import console integration for simulation mode
 try:
     sys.path.insert(0, str(project_root / "console"))
     from agntcy_integration import AGNTCYIntegration
+
     CONSOLE_AVAILABLE = True
 except ImportError:
     CONSOLE_AVAILABLE = False
@@ -53,6 +60,7 @@ except ImportError:
 @dataclass
 class TestTurnResult:
     """Result of a single conversation turn."""
+
     turn_number: int
     user_message: str
     ai_response: str
@@ -69,6 +77,7 @@ class TestTurnResult:
 @dataclass
 class TestScenarioResult:
     """Result of a complete test scenario."""
+
     scenario_id: str
     category: str
     persona: Optional[str]
@@ -97,7 +106,7 @@ class E2ETestRunner:
         self.output_dir.mkdir(exist_ok=True)
 
         # Load test scenarios
-        with open(scenarios_file, 'r') as f:
+        with open(scenarios_file, "r") as f:
             self.test_data = json.load(f)
 
         self.scenarios = self.test_data["test_scenarios"]
@@ -119,14 +128,16 @@ class E2ETestRunner:
             self.logger.info("Using console simulation mode for testing")
         else:
             self.integration = None
-            self.logger.warning("Console integration not available - some tests may fail")
+            self.logger.warning(
+                "Console integration not available - some tests may fail"
+            )
 
     def filter_scenarios(
         self,
         scenario_id: Optional[str] = None,
         category: Optional[str] = None,
         priority: Optional[str] = None,
-        persona: Optional[str] = None
+        persona: Optional[str] = None,
     ) -> List[Dict[str, Any]]:
         """Filter scenarios based on criteria."""
         filtered = self.scenarios
@@ -135,7 +146,9 @@ class E2ETestRunner:
             filtered = [s for s in filtered if s["scenario_id"] == scenario_id]
 
         if category:
-            filtered = [s for s in filtered if category.lower() in s["category"].lower()]
+            filtered = [
+                s for s in filtered if category.lower() in s["category"].lower()
+            ]
 
         if priority:
             filtered = [s for s in filtered if s["priority"] == priority.lower()]
@@ -183,16 +196,20 @@ class E2ETestRunner:
                 user_message=user_message,
                 persona_data=persona_data,
                 context_id=context_id,
-                expected=turn_def
+                expected=turn_def,
             )
 
             turn_results.append(turn_result)
 
             # Log turn result
             if turn_result.validation_passed:
-                self.logger.info(f"✓ PASS - Intent: {turn_result.intent_detected} ({turn_result.confidence:.2%})")
+                self.logger.info(
+                    f"✓ PASS - Intent: {turn_result.intent_detected} ({turn_result.confidence:.2%})"
+                )
             else:
-                self.logger.error(f"✗ FAIL - {len(turn_result.validation_failures)} validation errors")
+                self.logger.error(
+                    f"✗ FAIL - {len(turn_result.validation_failures)} validation errors"
+                )
                 for error in turn_result.validation_failures:
                     self.logger.error(f"  - {error}")
                 failures.extend(turn_result.validation_failures)
@@ -211,12 +228,14 @@ class E2ETestRunner:
             overall_passed=all_turns_passed,
             total_duration_ms=scenario_duration,
             failures=failures,
-            timestamp=datetime.now().isoformat()
+            timestamp=datetime.now().isoformat(),
         )
 
         # Log scenario result
         status = "✓ PASSED" if all_turns_passed else "✗ FAILED"
-        self.logger.info(f"\nScenario {scenario_id}: {status} ({scenario_duration:.0f}ms)")
+        self.logger.info(
+            f"\nScenario {scenario_id}: {status} ({scenario_duration:.0f}ms)"
+        )
 
         return result
 
@@ -225,7 +244,7 @@ class E2ETestRunner:
         user_message: str,
         persona_data: Optional[Dict],
         context_id: str,
-        expected: Dict[str, Any]
+        expected: Dict[str, Any],
     ) -> TestTurnResult:
         """Execute a single conversation turn and validate."""
         turn_start = time.time()
@@ -243,14 +262,14 @@ class E2ETestRunner:
                     customer_context = {
                         "customer_id": persona_data["id"],
                         "customer_email": persona_data["email"],
-                        "customer_name": persona_data["name"]
+                        "customer_name": persona_data["name"],
                     }
 
                 # Send customer message via console integration
                 response_data = await self.integration.send_customer_message(
                     message=user_message,
                     session_id=session_id,
-                    customer_context=customer_context
+                    customer_context=customer_context,
                 )
 
                 ai_response = response_data.get("response", "")
@@ -324,7 +343,7 @@ class E2ETestRunner:
                 escalation_reason=escalation_reason,
                 validation_passed=len(validation_failures) == 0,
                 validation_failures=validation_failures,
-                timestamp=datetime.now().isoformat()
+                timestamp=datetime.now().isoformat(),
             )
 
         except Exception as e:
@@ -340,7 +359,7 @@ class E2ETestRunner:
                 escalation_reason=None,
                 validation_passed=False,
                 validation_failures=[f"Exception: {str(e)}"],
-                timestamp=datetime.now().isoformat()
+                timestamp=datetime.now().isoformat(),
             )
 
     async def run_all(
@@ -348,20 +367,24 @@ class E2ETestRunner:
         scenario_id: Optional[str] = None,
         category: Optional[str] = None,
         priority: Optional[str] = None,
-        persona: Optional[str] = None
+        persona: Optional[str] = None,
     ):
         """Run all test scenarios (with optional filtering)."""
         self.start_time = datetime.now()
 
         # Filter scenarios
-        scenarios_to_run = self.filter_scenarios(scenario_id, category, priority, persona)
+        scenarios_to_run = self.filter_scenarios(
+            scenario_id, category, priority, persona
+        )
 
         self.logger.info(f"\n{'='*70}")
         self.logger.info(f"AUTOMATED END-TO-END TEST SUITE")
         self.logger.info(f"{'='*70}")
         self.logger.info(f"Total scenarios: {len(scenarios_to_run)}")
         self.logger.info(f"Start time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
-        self.logger.info(f"Mode: {'Simulation (Phase 2)' if CONSOLE_AVAILABLE else 'Direct Agent Calls'}")
+        self.logger.info(
+            f"Mode: {'Simulation (Phase 2)' if CONSOLE_AVAILABLE else 'Direct Agent Calls'}"
+        )
 
         # Run scenarios
         for scenario in scenarios_to_run:
@@ -395,8 +418,16 @@ class E2ETestRunner:
             for turn in result.turns:
                 all_response_times.append(turn.response_time_ms)
 
-        avg_response_time = sum(all_response_times) / len(all_response_times) if all_response_times else 0
-        p95_response_time = sorted(all_response_times)[int(len(all_response_times) * 0.95)] if all_response_times else 0
+        avg_response_time = (
+            sum(all_response_times) / len(all_response_times)
+            if all_response_times
+            else 0
+        )
+        p95_response_time = (
+            sorted(all_response_times)[int(len(all_response_times) * 0.95)]
+            if all_response_times
+            else 0
+        )
 
         # Log summary
         self.logger.info(f"Total Scenarios: {total_scenarios}")
@@ -404,7 +435,9 @@ class E2ETestRunner:
         self.logger.info(f"Failed: {failed_scenarios}")
         self.logger.info(f"Avg Response Time: {avg_response_time:.0f}ms")
         self.logger.info(f"P95 Response Time: {p95_response_time:.0f}ms")
-        self.logger.info(f"Duration: {(self.end_time - self.start_time).total_seconds():.1f}s")
+        self.logger.info(
+            f"Duration: {(self.end_time - self.start_time).total_seconds():.1f}s"
+        )
 
         # Pass/fail by priority
         for priority in ["critical", "high", "medium", "low"]:
@@ -412,10 +445,12 @@ class E2ETestRunner:
             if priority_results:
                 priority_passed = sum(1 for r in priority_results if r.overall_passed)
                 priority_rate = priority_passed / len(priority_results)
-                self.logger.info(f"{priority.upper()}: {priority_passed}/{len(priority_results)} ({priority_rate:.1%})")
+                self.logger.info(
+                    f"{priority.upper()}: {priority_passed}/{len(priority_results)} ({priority_rate:.1%})"
+                )
 
         # Save JSON results
-        timestamp = self.start_time.strftime('%Y%m%d-%H%M%S')
+        timestamp = self.start_time.strftime("%Y%m%d-%H%M%S")
         json_file = self.output_dir / f"e2e-test-results-{timestamp}.json"
 
         results_dict = {
@@ -430,12 +465,12 @@ class E2ETestRunner:
                 "failed": failed_scenarios,
                 "pass_rate": pass_rate,
                 "avg_response_time_ms": avg_response_time,
-                "p95_response_time_ms": p95_response_time
+                "p95_response_time_ms": p95_response_time,
             },
-            "results": [asdict(r) for r in self.results]
+            "results": [asdict(r) for r in self.results],
         }
 
-        with open(json_file, 'w') as f:
+        with open(json_file, "w") as f:
             json.dump(results_dict, f, indent=2)
 
         self.logger.info(f"\nJSON results saved to: {json_file}")
@@ -447,9 +482,13 @@ class E2ETestRunner:
         # Check if thresholds met
         overall_threshold = self.thresholds["overall_pass_rate_min"]
         if pass_rate >= overall_threshold:
-            self.logger.info(f"\n✓ OVERALL PASS RATE THRESHOLD MET: {pass_rate:.1%} >= {overall_threshold:.1%}")
+            self.logger.info(
+                f"\n✓ OVERALL PASS RATE THRESHOLD MET: {pass_rate:.1%} >= {overall_threshold:.1%}"
+            )
         else:
-            self.logger.error(f"\n✗ OVERALL PASS RATE THRESHOLD NOT MET: {pass_rate:.1%} < {overall_threshold:.1%}")
+            self.logger.error(
+                f"\n✗ OVERALL PASS RATE THRESHOLD NOT MET: {pass_rate:.1%} < {overall_threshold:.1%}"
+            )
 
     def _generate_html_report(self, results_dict: Dict, timestamp: str) -> Path:
         """Generate HTML report."""
@@ -495,9 +534,9 @@ class E2ETestRunner:
     <h2>Scenario Results</h2>
 """
 
-        for result in results_dict['results']:
-            status_class = "passed" if result['overall_passed'] else "failed"
-            status_text = "✓ PASSED" if result['overall_passed'] else "✗ FAILED"
+        for result in results_dict["results"]:
+            status_class = "passed" if result["overall_passed"] else "failed"
+            status_text = "✓ PASSED" if result["overall_passed"] else "✗ FAILED"
 
             html += f"""
     <div class="scenario {status_class}">
@@ -505,16 +544,16 @@ class E2ETestRunner:
         <p><strong>Category:</strong> {result['category']} | <strong>Priority:</strong> {result['priority']} | <strong>Duration:</strong> {result['total_duration_ms']:.0f}ms</p>
 """
 
-            for turn in result['turns']:
-                turn_class = "pass" if turn['validation_passed'] else "fail"
+            for turn in result["turns"]:
+                turn_class = "pass" if turn["validation_passed"] else "fail"
                 html += f"""
         <div class="turn">
             <p><strong>Turn {turn['turn_number']}:</strong> {turn['user_message']}</p>
             <p><strong>Intent:</strong> {turn['intent_detected']} ({turn['confidence']:.1%}) | <strong>Time:</strong> {turn['response_time_ms']:.0f}ms | <strong>Status:</strong> <span class="{turn_class}">{'PASS' if turn['validation_passed'] else 'FAIL'}</span></p>
             <p><strong>Response:</strong> {turn['ai_response'][:200]}...</p>
 """
-                if turn['validation_failures']:
-                    for error in turn['validation_failures']:
+                if turn["validation_failures"]:
+                    for error in turn["validation_failures"]:
                         html += f'<p class="validation-error">✗ {error}</p>'
 
                 html += """
@@ -530,7 +569,7 @@ class E2ETestRunner:
 </html>
 """
 
-        with open(html_file, 'w', encoding='utf-8') as f:
+        with open(html_file, "w", encoding="utf-8") as f:
             f.write(html)
 
         return html_file
@@ -538,11 +577,21 @@ class E2ETestRunner:
 
 async def main():
     """Main entry point."""
-    parser = argparse.ArgumentParser(description="Run automated E2E tests for AGNTCY platform")
+    parser = argparse.ArgumentParser(
+        description="Run automated E2E tests for AGNTCY platform"
+    )
     parser.add_argument("--scenario", help="Run specific scenario by ID (e.g., S001)")
-    parser.add_argument("--category", help="Run scenarios in category (e.g., 'Loyalty Program')")
-    parser.add_argument("--priority", choices=["critical", "high", "medium", "low"], help="Run scenarios by priority")
-    parser.add_argument("--persona", help="Run scenarios for specific persona (e.g., persona_001)")
+    parser.add_argument(
+        "--category", help="Run scenarios in category (e.g., 'Loyalty Program')"
+    )
+    parser.add_argument(
+        "--priority",
+        choices=["critical", "high", "medium", "low"],
+        help="Run scenarios by priority",
+    )
+    parser.add_argument(
+        "--persona", help="Run scenarios for specific persona (e.g., persona_001)"
+    )
     parser.add_argument("--output", default=".", help="Output directory for results")
 
     args = parser.parse_args()
@@ -562,7 +611,7 @@ async def main():
         scenario_id=args.scenario,
         category=args.category,
         priority=args.priority,
-        persona=args.persona
+        persona=args.persona,
     )
 
     # Exit with appropriate code

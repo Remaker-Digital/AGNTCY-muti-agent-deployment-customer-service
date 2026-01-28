@@ -74,11 +74,7 @@ class MailchimpClient(BaseAPIClient):
     # LIST/AUDIENCE METHODS
     # =========================================================================
 
-    async def get_lists(
-        self,
-        offset: int = 0,
-        count: int = 10
-    ) -> Dict[str, Any]:
+    async def get_lists(self, offset: int = 0, count: int = 10) -> Dict[str, Any]:
         """
         Get all audiences/lists.
 
@@ -185,11 +181,7 @@ class MailchimpClient(BaseAPIClient):
             }
         return {"members": [], "total_items": 0}
 
-    async def get_member(
-        self,
-        list_id: str,
-        email: str
-    ) -> Optional[Dict[str, Any]]:
+    async def get_member(self, list_id: str, email: str) -> Optional[Dict[str, Any]]:
         """
         Get a specific member by email.
 
@@ -203,6 +195,7 @@ class MailchimpClient(BaseAPIClient):
         API: GET /3.0/lists/{list_id}/members/{subscriber_hash}
         """
         import hashlib
+
         subscriber_hash = hashlib.md5(email.lower().encode()).hexdigest()
 
         response = await self.get(f"/lists/{list_id}/members/{subscriber_hash}")
@@ -277,6 +270,7 @@ class MailchimpClient(BaseAPIClient):
         API: PATCH /3.0/lists/{list_id}/members/{subscriber_hash}
         """
         import hashlib
+
         subscriber_hash = hashlib.md5(email.lower().encode()).hexdigest()
 
         member_data: Dict[str, Any] = {}
@@ -288,18 +282,14 @@ class MailchimpClient(BaseAPIClient):
         response = await self._request(
             "PATCH",
             f"/lists/{list_id}/members/{subscriber_hash}",
-            json_data=member_data
+            json_data=member_data,
         )
 
         if response.success and response.data:
             return response.data
         return None
 
-    async def unsubscribe_member(
-        self,
-        list_id: str,
-        email: str
-    ) -> bool:
+    async def unsubscribe_member(self, list_id: str, email: str) -> bool:
         """
         Unsubscribe a member from a list.
 
@@ -398,11 +388,7 @@ class MailchimpClient(BaseAPIClient):
     # AUTOMATION METHODS
     # =========================================================================
 
-    async def get_automations(
-        self,
-        offset: int = 0,
-        count: int = 50
-    ) -> Dict[str, Any]:
+    async def get_automations(self, offset: int = 0, count: int = 50) -> Dict[str, Any]:
         """
         Get automation workflows.
 
@@ -451,12 +437,7 @@ class MailchimpClient(BaseAPIClient):
     # TAG METHODS
     # =========================================================================
 
-    async def add_member_tags(
-        self,
-        list_id: str,
-        email: str,
-        tags: List[str]
-    ) -> bool:
+    async def add_member_tags(self, list_id: str, email: str, tags: List[str]) -> bool:
         """
         Add tags to a member.
 
@@ -471,15 +452,13 @@ class MailchimpClient(BaseAPIClient):
         API: POST /3.0/lists/{list_id}/members/{subscriber_hash}/tags
         """
         import hashlib
+
         subscriber_hash = hashlib.md5(email.lower().encode()).hexdigest()
 
-        tag_data = {
-            "tags": [{"name": tag, "status": "active"} for tag in tags]
-        }
+        tag_data = {"tags": [{"name": tag, "status": "active"} for tag in tags]}
 
         response = await self.post(
-            f"/lists/{list_id}/members/{subscriber_hash}/tags",
-            json_data=tag_data
+            f"/lists/{list_id}/members/{subscriber_hash}/tags", json_data=tag_data
         )
 
         return response.success

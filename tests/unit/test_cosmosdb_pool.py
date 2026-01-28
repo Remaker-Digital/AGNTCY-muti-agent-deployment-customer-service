@@ -22,12 +22,14 @@
 # ============================================================================
 
 import pytest
+import pytest_asyncio
 import os
 from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from dataclasses import asdict
 
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from shared.cosmosdb_pool import (
@@ -42,10 +44,10 @@ from shared.cosmosdb_pool import (
     get_knowledge_container,
 )
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def default_config():
@@ -53,7 +55,7 @@ def default_config():
     return CosmosConfig(
         endpoint="https://test-cosmos.documents.azure.com:443/",
         key="test-key-12345",
-        database_name="test-db"
+        database_name="test-db",
     )
 
 
@@ -68,7 +70,7 @@ def custom_config():
         max_retry_attempts=5,
         max_retry_wait_time=60.0,
         enable_endpoint_discovery=True,
-        connection_mode="Gateway"
+        connection_mode="Gateway",
     )
 
 
@@ -92,10 +94,10 @@ def mock_cosmos_client():
     return client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def client_with_mocks(default_config, mock_cosmos_client):
     """Create a Cosmos client with mocked SDK."""
-    with patch('shared.cosmosdb_pool.CosmosClient', return_value=mock_cosmos_client):
+    with patch("azure.cosmos.aio.CosmosClient", return_value=mock_cosmos_client):
         client = CosmosDBClient(default_config)
         await client.initialize()
         yield client
@@ -105,6 +107,7 @@ async def client_with_mocks(default_config, mock_cosmos_client):
 # =============================================================================
 # Test: Cosmos Configuration
 # =============================================================================
+
 
 class TestCosmosConfig:
     """Tests for CosmosConfig dataclass."""
@@ -133,12 +136,13 @@ class TestCosmosConfig:
         """Verify CosmosConfig can be converted to dict."""
         config_dict = asdict(default_config)
         assert isinstance(config_dict, dict)
-        assert config_dict['endpoint'] == default_config.endpoint
+        assert config_dict["endpoint"] == default_config.endpoint
 
 
 # =============================================================================
 # Test: Client Lifecycle
 # =============================================================================
+
 
 class TestClientLifecycle:
     """Tests for client initialization and shutdown."""
@@ -152,7 +156,9 @@ class TestClientLifecycle:
     @pytest.mark.asyncio
     async def test_client_initialize(self, default_config, mock_cosmos_client):
         """Verify client initializes correctly."""
-        with patch('shared.cosmosdb_pool.CosmosClient', return_value=mock_cosmos_client):
+        with patch(
+            "azure.cosmos.aio.CosmosClient", return_value=mock_cosmos_client
+        ):
             client = CosmosDBClient(default_config)
             await client.initialize()
 
@@ -173,7 +179,9 @@ class TestClientLifecycle:
     @pytest.mark.asyncio
     async def test_client_double_initialize(self, default_config, mock_cosmos_client):
         """Verify initialize is idempotent."""
-        with patch('shared.cosmosdb_pool.CosmosClient', return_value=mock_cosmos_client):
+        with patch(
+            "azure.cosmos.aio.CosmosClient", return_value=mock_cosmos_client
+        ):
             client = CosmosDBClient(default_config)
             await client.initialize()
             await client.initialize()  # Should not raise or re-initialize
@@ -190,7 +198,7 @@ class TestClientLifecycle:
         mock_database.read = AsyncMock(side_effect=Exception("Connection failed"))
         mock_client.get_database_client = Mock(return_value=mock_database)
 
-        with patch('shared.cosmosdb_pool.CosmosClient', return_value=mock_client):
+        with patch("azure.cosmos.aio.CosmosClient", return_value=mock_client):
             client = CosmosDBClient(default_config)
 
             with pytest.raises(Exception, match="Connection failed"):
@@ -202,6 +210,7 @@ class TestClientLifecycle:
 # =============================================================================
 # Test: Container Access
 # =============================================================================
+
 
 class TestContainerAccess:
     """Tests for container access and caching."""
@@ -240,6 +249,7 @@ class TestContainerAccess:
 # Test: Container Helpers
 # =============================================================================
 
+
 class TestContainerHelpers:
     """Tests for container-specific helper functions."""
 
@@ -269,6 +279,7 @@ class TestContainerHelpers:
 # Test: Health Status
 # =============================================================================
 
+
 class TestHealthStatus:
     """Tests for health status reporting."""
 
@@ -277,27 +288,26 @@ class TestHealthStatus:
         """Verify health status when initialized."""
         status = await client_with_mocks.get_health_status()
 
-        assert status['initialized'] is True
-        assert status['connected'] is True
-        assert 'endpoint' in status
-        assert 'database' in status
-        assert 'containers_cached' in status
+        assert status["initialized"] is True
+        assert status["connected"] is True
+        assert "endpoint" in status
+        assert "database" in status
+        assert "containers_cached" in status
 
-    def test_health_status_uninitialized(self, default_config):
+    @pytest.mark.asyncio
+    async def test_health_status_uninitialized(self, default_config):
         """Verify health status when not initialized."""
-        import asyncio
         client = CosmosDBClient(default_config)
-        status = asyncio.get_event_loop().run_until_complete(
-            client.get_health_status()
-        )
+        status = await client.get_health_status()
 
-        assert status['initialized'] is False
-        assert status['connected'] is False
+        assert status["initialized"] is False
+        assert status["connected"] is False
 
 
 # =============================================================================
 # Test: Global Singleton Pattern
 # =============================================================================
+
 
 class TestGlobalSingleton:
     """Tests for global client singleton functions."""
@@ -306,6 +316,7 @@ class TestGlobalSingleton:
     async def test_get_client_before_init_fails(self):
         """Verify get_cosmos_client fails before initialization."""
         import shared.cosmosdb_pool as cosmos_module
+
         cosmos_module._global_cosmos = None
 
         with pytest.raises(RuntimeError, match="not initialized"):
@@ -315,9 +326,12 @@ class TestGlobalSingleton:
     async def test_init_and_get_client(self, default_config, mock_cosmos_client):
         """Verify init and get work together."""
         import shared.cosmosdb_pool as cosmos_module
+
         cosmos_module._global_cosmos = None
 
-        with patch('shared.cosmosdb_pool.CosmosClient', return_value=mock_cosmos_client):
+        with patch(
+            "azure.cosmos.aio.CosmosClient", return_value=mock_cosmos_client
+        ):
             client = await init_cosmos_client(default_config)
             retrieved_client = get_cosmos_client()
 
@@ -328,9 +342,12 @@ class TestGlobalSingleton:
     async def test_close_client_clears_global(self, default_config, mock_cosmos_client):
         """Verify close_cosmos_client clears global state."""
         import shared.cosmosdb_pool as cosmos_module
+
         cosmos_module._global_cosmos = None
 
-        with patch('shared.cosmosdb_pool.CosmosClient', return_value=mock_cosmos_client):
+        with patch(
+            "azure.cosmos.aio.CosmosClient", return_value=mock_cosmos_client
+        ):
             await init_cosmos_client(default_config)
             await close_cosmos_client()
 
@@ -338,12 +355,17 @@ class TestGlobalSingleton:
                 get_cosmos_client()
 
     @pytest.mark.asyncio
-    async def test_double_init_returns_existing(self, default_config, mock_cosmos_client):
+    async def test_double_init_returns_existing(
+        self, default_config, mock_cosmos_client
+    ):
         """Verify double init returns existing client."""
         import shared.cosmosdb_pool as cosmos_module
+
         cosmos_module._global_cosmos = None
 
-        with patch('shared.cosmosdb_pool.CosmosClient', return_value=mock_cosmos_client):
+        with patch(
+            "azure.cosmos.aio.CosmosClient", return_value=mock_cosmos_client
+        ):
             client1 = await init_cosmos_client(default_config)
             client2 = await init_cosmos_client(default_config)
 
@@ -355,6 +377,7 @@ class TestGlobalSingleton:
 # Test: Factory Functions
 # =============================================================================
 
+
 class TestFactoryFunctions:
     """Tests for environment-based client creation."""
 
@@ -362,16 +385,19 @@ class TestFactoryFunctions:
     async def test_create_from_env_success(self, mock_cosmos_client):
         """Verify create_cosmos_client_from_env works with env vars."""
         import shared.cosmosdb_pool as cosmos_module
+
         cosmos_module._global_cosmos = None
 
         env_vars = {
             "COSMOS_ENDPOINT": "https://test.documents.azure.com:443/",
             "COSMOS_KEY": "test-key-from-env",
-            "COSMOS_DATABASE": "test-db-from-env"
+            "COSMOS_DATABASE": "test-db-from-env",
         }
 
         with patch.dict(os.environ, env_vars, clear=False):
-            with patch('shared.cosmosdb_pool.CosmosClient', return_value=mock_cosmos_client):
+            with patch(
+                "azure.cosmos.aio.CosmosClient", return_value=mock_cosmos_client
+            ):
                 client = await create_cosmos_client_from_env()
 
                 assert client.is_initialized is True
@@ -383,6 +409,7 @@ class TestFactoryFunctions:
     async def test_create_from_env_default_database(self, mock_cosmos_client):
         """Verify default database name is used when not specified."""
         import shared.cosmosdb_pool as cosmos_module
+
         cosmos_module._global_cosmos = None
 
         env_vars = {
@@ -395,7 +422,9 @@ class TestFactoryFunctions:
             with patch.dict(os.environ, {"COSMOS_DATABASE": ""}, clear=False):
                 os.environ.pop("COSMOS_DATABASE", None)
 
-            with patch('shared.cosmosdb_pool.CosmosClient', return_value=mock_cosmos_client):
+            with patch(
+                "azure.cosmos.aio.CosmosClient", return_value=mock_cosmos_client
+            ):
                 client = await create_cosmos_client_from_env()
 
                 assert client.config.database_name == "agntcy-cs"
@@ -406,6 +435,7 @@ class TestFactoryFunctions:
     async def test_create_from_env_missing_endpoint_fails(self):
         """Verify missing endpoint raises error."""
         import shared.cosmosdb_pool as cosmos_module
+
         cosmos_module._global_cosmos = None
 
         env_vars = {
@@ -420,6 +450,7 @@ class TestFactoryFunctions:
     async def test_create_from_env_missing_key_fails(self):
         """Verify missing key raises error."""
         import shared.cosmosdb_pool as cosmos_module
+
         cosmos_module._global_cosmos = None
 
         env_vars = {

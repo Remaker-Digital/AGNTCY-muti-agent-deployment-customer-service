@@ -1,0 +1,423 @@
+{
+	"@programName": "ZAP",
+	"@version": "2.17.0",
+	"@generated": "Wed, 28 Jan 2026 05:11:13",
+	"created": "2026-01-28T05:11:13.663998897Z",
+	"insights":[
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"key": "insight.code.3xx",
+			"description": "Percentage of responses with status code 3xx",
+			"statistic": "60"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"key": "insight.code.4xx",
+			"description": "Percentage of responses with status code 4xx",
+			"statistic": "40"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "http://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"key": "insight.response.slow",
+			"description": "Percentage of slow responses",
+			"statistic": "80"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"key": "insight.code.2xx",
+			"description": "Percentage of responses with status code 2xx",
+			"statistic": "28"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"key": "insight.code.4xx",
+			"description": "Percentage of responses with status code 4xx",
+			"statistic": "71"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"key": "insight.endpoint.ctype.application/json",
+			"description": "Percentage of endpoints with content type application/json",
+			"statistic": "100"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"key": "insight.endpoint.method.GET",
+			"description": "Percentage of endpoints with method GET",
+			"statistic": "100"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"key": "insight.endpoint.total",
+			"description": "Count of total endpoints",
+			"statistic": "3"
+		},
+		{
+			"level": "Info",
+			"reason": "Informational",
+			"site": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"key": "insight.response.slow",
+			"description": "Percentage of slow responses",
+			"statistic": "8"
+		}
+	],
+	"site":[ 
+		{
+			"@name": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"@host": "agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+			"@port": "443",
+			"@ssl": "true",
+			"alerts": [ 
+				{
+					"pluginid": "40040",
+					"alertRef": "40040-2",
+					"alert": "CORS Misconfiguration",
+					"name": "CORS Misconfiguration",
+					"riskcode": "2",
+					"confidence": "3",
+					"riskdesc": "Medium (High)",
+					"desc": "<p>This CORS misconfiguration could allow an attacker to perform AJAX queries to the vulnerable website from a malicious page loaded by the victim's user agent.</p><p>In order to perform authenticated AJAX queries, the server must specify the header \"Access-Control-Allow-Credentials: true\" and the \"Access-Control-Allow-Origin\" header must be set to null or the malicious page's domain. Even if this misconfiguration doesn't allow authenticated AJAX requests, unauthenticated sensitive content can still be accessed (e.g intranet websites).</p><p>A malicious page can belong to a malicious website but also a trusted website with flaws (e.g XSS, support of HTTP without TLS allowing code injection through MITM, etc).</p>",
+					"instances":[ 
+						{
+							"id": "41",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"method": "GET",
+							"param": "",
+							"attack": "origin: https://HRyvUHJD.com",
+							"evidence": "access-control-allow-origin: *\r\naccess-control-allow-credentials: true",
+							"otherinfo": ""
+						},
+						{
+							"id": "39",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/",
+							"method": "GET",
+							"param": "",
+							"attack": "origin: https://HRyvUHJD.com",
+							"evidence": "access-control-allow-origin: *\r\naccess-control-allow-credentials: true",
+							"otherinfo": ""
+						},
+						{
+							"id": "40",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/robots.txt",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/robots.txt",
+							"method": "GET",
+							"param": "",
+							"attack": "origin: https://HRyvUHJD.com",
+							"evidence": "access-control-allow-origin: *\r\naccess-control-allow-credentials: true",
+							"otherinfo": ""
+						},
+						{
+							"id": "42",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/sitemap.xml",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/sitemap.xml",
+							"method": "GET",
+							"param": "",
+							"attack": "origin: https://HRyvUHJD.com",
+							"evidence": "access-control-allow-origin: *\r\naccess-control-allow-credentials: true",
+							"otherinfo": ""
+						}
+					],
+					"count": "4",
+					"systemic": true,
+					"solution": "<p>If a web resource contains sensitive information, the origin should be properly specified in the Access-Control-Allow-Origin header. Only trusted websites needing this resource should be specified in this header, with the most secured protocol supported.</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CORS</p><p>https://portswigger.net/web-security/cors</p>",
+					"cweid": "942",
+					"wascid": "14",
+					"sourceid": "265"
+				},
+				{
+					"pluginid": "40025",
+					"alertRef": "40025",
+					"alert": "Proxy Disclosure",
+					"name": "Proxy Disclosure",
+					"riskcode": "2",
+					"confidence": "2",
+					"riskdesc": "Medium (Medium)",
+					"desc": "<p>1 proxy server(s) were detected or fingerprinted. This information helps a potential attacker to determine</p><p>- A list of targets for an attack against the application.</p><p> - Potential vulnerabilities on the proxy servers that service the application.</p><p> - The presence or absence of any proxy-based components that might cause attacks against the application to be detected, prevented, or mitigated.</p>",
+					"instances":[ 
+						{
+							"id": "35",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"method": "GET",
+							"param": "",
+							"attack": "TRACE, OPTIONS methods with 'Max-Forwards' header. TRACK method.",
+							"evidence": "",
+							"otherinfo": "Using the TRACE, OPTIONS, and TRACK methods, the following proxy servers have been identified between ZAP and the application/web server:\n- Microsoft-Azure-Application-Gateway/v2\nThe following web/application server has been identified:\n- Unknown\n"
+						},
+						{
+							"id": "37",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/",
+							"method": "GET",
+							"param": "",
+							"attack": "TRACE, OPTIONS methods with 'Max-Forwards' header. TRACK method.",
+							"evidence": "",
+							"otherinfo": "Using the TRACE, OPTIONS, and TRACK methods, the following proxy servers have been identified between ZAP and the application/web server:\n- Microsoft-Azure-Application-Gateway/v2\nThe following web/application server has been identified:\n- Unknown\n"
+						},
+						{
+							"id": "36",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/robots.txt",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/robots.txt",
+							"method": "GET",
+							"param": "",
+							"attack": "TRACE, OPTIONS methods with 'Max-Forwards' header. TRACK method.",
+							"evidence": "",
+							"otherinfo": "Using the TRACE, OPTIONS, and TRACK methods, the following proxy servers have been identified between ZAP and the application/web server:\n- Microsoft-Azure-Application-Gateway/v2\nThe following web/application server has been identified:\n- Unknown\n"
+						},
+						{
+							"id": "38",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/sitemap.xml",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/sitemap.xml",
+							"method": "GET",
+							"param": "",
+							"attack": "TRACE, OPTIONS methods with 'Max-Forwards' header. TRACK method.",
+							"evidence": "",
+							"otherinfo": "Using the TRACE, OPTIONS, and TRACK methods, the following proxy servers have been identified between ZAP and the application/web server:\n- Microsoft-Azure-Application-Gateway/v2\nThe following web/application server has been identified:\n- Unknown\n"
+						}
+					],
+					"count": "4",
+					"systemic": true,
+					"solution": "<p>Disable the 'TRACE' method on the proxy servers, as well as the origin web/application server.</p><p>Disable the 'OPTIONS' method on the proxy servers, as well as the origin web/application server, if it is not required for other purposes, such as 'CORS' (Cross Origin Resource Sharing).</p><p>Configure the web and application servers with custom error pages, to prevent 'fingerprintable' product-specific error pages being leaked to the user in the event of HTTP errors, such as 'TRACK' requests for non-existent pages.</p><p>Configure all proxies, application servers, and web servers to prevent disclosure of the technology and version information in the 'Server' and 'X-Powered-By' HTTP response headers.</p><p></p>",
+					"otherinfo": "<p>Using the TRACE, OPTIONS, and TRACK methods, the following proxy servers have been identified between ZAP and the application/web server:</p><p>- Microsoft-Azure-Application-Gateway/v2</p><p>The following web/application server has been identified:</p><p>- Unknown</p><p></p>",
+					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc7231#section-5.1.2</p>",
+					"cweid": "204",
+					"wascid": "45",
+					"sourceid": "247"
+				},
+				{
+					"pluginid": "90004",
+					"alertRef": "90004-1",
+					"alert": "Insufficient Site Isolation Against Spectre Vulnerability",
+					"name": "Insufficient Site Isolation Against Spectre Vulnerability",
+					"riskcode": "1",
+					"confidence": "2",
+					"riskdesc": "Low (Medium)",
+					"desc": "<p>Cross-Origin-Resource-Policy header is an opt-in header designed to counter side-channels attacks like Spectre. Resource should be specifically set as shareable amongst different origins.</p>",
+					"instances":[ 
+						{
+							"id": "5",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"method": "GET",
+							"param": "Cross-Origin-Resource-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "2",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/",
+							"method": "GET",
+							"param": "Cross-Origin-Resource-Policy",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "2",
+					"systemic": true,
+					"solution": "<p>Ensure that the application/web server sets the Cross-Origin-Resource-Policy header appropriately, and that it sets the Cross-Origin-Resource-Policy header to 'same-origin' for all web pages.</p><p>'same-site' is considered as less secured and should be avoided.</p><p>If resources must be shared, set the header to 'cross-origin'.</p><p>If possible, ensure that the end user uses a standards-compliant and modern web browser that supports the Cross-Origin-Resource-Policy header (https://caniuse.com/mdn-http_headers_cross-origin-resource-policy).</p>",
+					"otherinfo": "",
+					"reference": "<p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cross-Origin-Embedder-Policy</p>",
+					"cweid": "693",
+					"wascid": "14",
+					"sourceid": "7"
+				},
+				{
+					"pluginid": "10015",
+					"alertRef": "10015",
+					"alert": "Re-examine Cache-control Directives",
+					"name": "Re-examine Cache-control Directives",
+					"riskcode": "0",
+					"confidence": "1",
+					"riskdesc": "Informational (Low)",
+					"desc": "<p>The cache-control header has not been set properly or is missing, allowing the browser and proxies to cache content. For static assets like css, js, or image files this might be intended, however, the resources should be reviewed to ensure that no sensitive content will be cached.</p>",
+					"instances":[ 
+						{
+							"id": "3",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "0",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/",
+							"method": "GET",
+							"param": "cache-control",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "2",
+					"systemic": true,
+					"solution": "<p>For secure content, ensure the cache-control HTTP header is set with \"no-cache, no-store, must-revalidate\". If an asset should be cached consider setting the directives \"public, max-age, immutable\".</p>",
+					"otherinfo": "",
+					"reference": "<p>https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#web-content-caching</p><p>https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control</p><p>https://grayduck.mn/2021/09/13/cache-control-recommendations/</p>",
+					"cweid": "525",
+					"wascid": "13",
+					"sourceid": "7"
+				},
+				{
+					"pluginid": "10049",
+					"alertRef": "10049-3",
+					"alert": "Storable and Cacheable Content",
+					"name": "Storable and Cacheable Content",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>The response contents are storable by caching components such as proxy servers, and may be retrieved directly from the cache, rather than from the origin server by the caching servers, in response to similar requests from other users. If the response data is sensitive, personal or user-specific, this may result in sensitive information being leaked. In some cases, this may even result in a user gaining complete control of the session of another user, depending on the configuration of the caching components in use in their environment. This is primarily an issue where \"shared\" caching servers such as \"proxy\" caches are configured on the local network. This configuration is typically found in corporate or educational environments, for instance.</p>",
+					"instances":[ 
+						{
+							"id": "4",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
+						},
+						{
+							"id": "1",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
+						},
+						{
+							"id": "7",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/robots.txt",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/robots.txt",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
+						},
+						{
+							"id": "8",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/sitemap.xml",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/sitemap.xml",
+							"method": "GET",
+							"param": "",
+							"attack": "",
+							"evidence": "",
+							"otherinfo": "In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234."
+						}
+					],
+					"count": "4",
+					"systemic": true,
+					"solution": "<p>Validate that the response does not contain sensitive, personal or user-specific information. If it does, consider the use of the following HTTP response headers, to limit, or prevent the content being stored and retrieved from the cache by another user:</p><p>Cache-Control: no-cache, no-store, must-revalidate, private</p><p>Pragma: no-cache</p><p>Expires: 0</p><p>This configuration directs both HTTP 1.0 and HTTP 1.1 compliant caching servers to not store the response, and to not retrieve the response (without validation) from the cache, in response to a similar request.</p>",
+					"otherinfo": "<p>In the absence of an explicitly specified caching lifetime directive in the response, a liberal lifetime heuristic of 1 year was assumed. This is permitted by rfc7234.</p>",
+					"reference": "<p>https://datatracker.ietf.org/doc/html/rfc7234</p><p>https://datatracker.ietf.org/doc/html/rfc7231</p><p>https://www.w3.org/Protocols/rfc2616/rfc2616-sec13.html</p>",
+					"cweid": "524",
+					"wascid": "13",
+					"sourceid": "7"
+				},
+				{
+					"pluginid": "10104",
+					"alertRef": "10104",
+					"alert": "User Agent Fuzzer",
+					"name": "User Agent Fuzzer",
+					"riskcode": "0",
+					"confidence": "2",
+					"riskdesc": "Informational (Medium)",
+					"desc": "<p>Check for differences in response based on fuzzed User Agent (eg. mobile sites, access as a Search Engine Crawler). Compares the response statuscode and the hashcode of the response body with the original response.</p>",
+					"instances":[ 
+						{
+							"id": "14",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"method": "GET",
+							"param": "Header User-Agent",
+							"attack": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "12",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+							"method": "GET",
+							"param": "Header User-Agent",
+							"attack": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "15",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/",
+							"method": "GET",
+							"param": "Header User-Agent",
+							"attack": "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "13",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/",
+							"method": "GET",
+							"param": "Header User-Agent",
+							"attack": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.0)",
+							"evidence": "",
+							"otherinfo": ""
+						},
+						{
+							"id": "11",
+							"uri": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com/",
+							"nodeName": "https:\/\/agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com\/",
+							"method": "GET",
+							"param": "Header User-Agent",
+							"attack": "Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)",
+							"evidence": "",
+							"otherinfo": ""
+						}
+					],
+					"count": "5",
+					"systemic": true,
+					"solution": "",
+					"otherinfo": "",
+					"reference": "<p>https://owasp.org/wstg</p>",
+					"cweid": "0",
+					"wascid": "0",
+					"sourceid": "135"
+				}
+			]
+		}
+	],
+	"sequences":[
+	]
+
+}

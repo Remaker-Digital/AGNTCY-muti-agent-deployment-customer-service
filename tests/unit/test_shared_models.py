@@ -7,12 +7,24 @@ import pytest
 from datetime import datetime
 
 from shared.models import (
-    Intent, Sentiment, Priority, Language,
-    AgentCard, CustomerMessage, IntentClassificationResult,
-    KnowledgeQuery, KnowledgeResult, ResponseRequest, GeneratedResponse,
-    EscalationDecision, AnalyticsEvent,
-    create_a2a_message, extract_message_content,
-    generate_message_id, generate_context_id, generate_task_id
+    Intent,
+    Sentiment,
+    Priority,
+    Language,
+    AgentCard,
+    CustomerMessage,
+    IntentClassificationResult,
+    KnowledgeQuery,
+    KnowledgeResult,
+    ResponseRequest,
+    GeneratedResponse,
+    EscalationDecision,
+    AnalyticsEvent,
+    create_a2a_message,
+    extract_message_content,
+    generate_message_id,
+    generate_context_id,
+    generate_task_id,
 )
 
 
@@ -56,7 +68,7 @@ class TestAgentCard:
             topic="intent-classifier",
             protocol="A2A",
             transport="SLIM",
-            description="Routes customer messages"
+            description="Routes customer messages",
         )
         assert card.name == "Intent Classifier"
         assert card.topic == "intent-classifier"
@@ -71,7 +83,7 @@ class TestAgentCard:
             protocol="MCP",
             transport="NATS",
             description="Test description",
-            capabilities=["search", "analyze"]
+            capabilities=["search", "analyze"],
         )
         data = card.to_dict()
         assert isinstance(data, dict)
@@ -96,7 +108,7 @@ class TestCustomerMessage:
             message_id="msg-001",
             customer_id="cust-001",
             content="Test message",
-            channel="email"
+            channel="email",
         )
         assert msg.timestamp is not None
         assert isinstance(msg.timestamp, str)
@@ -119,7 +131,7 @@ class TestIntentClassificationResult:
             context_id="ctx-001",
             intent=Intent.ORDER_STATUS,
             confidence=0.85,
-            extracted_entities={"order_number": "12345"}
+            extracted_entities={"order_number": "12345"},
         )
         assert result.intent == Intent.ORDER_STATUS
         assert result.confidence == 0.85
@@ -131,7 +143,7 @@ class TestIntentClassificationResult:
             message_id="msg-001",
             context_id="ctx-001",
             intent=Intent.GENERAL_INQUIRY,
-            confidence=0.5
+            confidence=0.5,
         )
         assert result.extracted_entities == {}
         assert result.language == Language.EN
@@ -155,7 +167,7 @@ class TestKnowledgeModels:
             results=[{"title": "Product 1"}, {"title": "Product 2"}],
             total_results=2,
             search_time_ms=150.5,
-            confidence=0.75
+            confidence=0.75,
         )
         assert len(result.results) == 2
         assert result.total_results == 2
@@ -172,7 +184,7 @@ class TestResponseModels:
             context_id="ctx-001",
             customer_message="Test message",
             intent=Intent.PRODUCT_INQUIRY,
-            knowledge_context=[{"source": "faq", "content": "Answer"}]
+            knowledge_context=[{"source": "faq", "content": "Answer"}],
         )
         assert request.intent == Intent.PRODUCT_INQUIRY
         assert len(request.knowledge_context) == 1
@@ -184,7 +196,7 @@ class TestResponseModels:
             context_id="ctx-001",
             response_text="Thank you for your inquiry",
             confidence=0.8,
-            requires_escalation=False
+            requires_escalation=False,
         )
         assert response.response_text == "Thank you for your inquiry"
         assert response.confidence == 0.8
@@ -203,7 +215,7 @@ class TestEscalationDecision:
             reason="Very negative sentiment detected",
             priority=Priority.URGENT,
             sentiment=Sentiment.VERY_NEGATIVE,
-            complexity_score=0.9
+            complexity_score=0.9,
         )
         assert decision.should_escalate is True
         assert decision.priority == Priority.URGENT
@@ -219,7 +231,7 @@ class TestEscalationDecision:
             priority=Priority.HIGH,
             sentiment=Sentiment.NEGATIVE,
             complexity_score=0.7,
-            zendesk_ticket_id=12345
+            zendesk_ticket_id=12345,
         )
         assert decision.zendesk_ticket_id == 12345
 
@@ -234,7 +246,7 @@ class TestAnalyticsEvent:
             event_type="intent_classified",
             context_id="ctx-001",
             agent_source="intent-classifier",
-            metrics={"confidence": 0.85, "processing_time_ms": 150}
+            metrics={"confidence": 0.85, "processing_time_ms": 150},
         )
         assert event.event_type == "intent_classified"
         assert event.agent_source == "intent-classifier"
@@ -248,10 +260,7 @@ class TestMessageWrappers:
         """Test creating A2A message."""
         content = {"test": "data"}
         message = create_a2a_message(
-            role="assistant",
-            content=content,
-            context_id="ctx-001",
-            task_id="task-001"
+            role="assistant", content=content, context_id="ctx-001", task_id="task-001"
         )
 
         assert message["role"] == "assistant"
@@ -266,13 +275,11 @@ class TestMessageWrappers:
             message_id="msg-001",
             context_id="ctx-001",
             intent=Intent.ORDER_STATUS,
-            confidence=0.85
+            confidence=0.85,
         )
 
         message = create_a2a_message(
-            role="assistant",
-            content=result,
-            context_id="ctx-001"
+            role="assistant", content=result, context_id="ctx-001"
         )
 
         extracted = extract_message_content(message)

@@ -35,9 +35,8 @@ from shared.models import (
     Intent,
     Language,
     generate_message_id,
-    create_a2a_message
+    create_a2a_message,
 )
-
 
 # =============================================================================
 # Test Data: Intent Types and Sample Messages
@@ -137,9 +136,11 @@ INTENT_TEST_CASES = {
 # Performance Metrics Collection
 # =============================================================================
 
+
 @dataclass
 class PerformanceMetrics:
     """Container for performance measurement results."""
+
     intent_type: Intent
     message: str
     response_times: List[float]  # All measurement samples (milliseconds)
@@ -193,11 +194,7 @@ class PerformanceBenchmark:
         self.metrics: List[PerformanceMetrics] = []
 
     def measure_response_time(
-        self,
-        intent_type: Intent,
-        message: str,
-        func,
-        iterations: int = 100
+        self, intent_type: Intent, message: str, func, iterations: int = 100
     ) -> PerformanceMetrics:
         """
         Measure response time for a given function over multiple iterations.
@@ -231,8 +228,7 @@ class PerformanceBenchmark:
 
         # Calculate average agent times
         avg_agent_times = {
-            agent: statistics.mean(times)
-            for agent, times in agent_times.items()
+            agent: statistics.mean(times) for agent, times in agent_times.items()
         }
 
         metrics = PerformanceMetrics(
@@ -240,7 +236,7 @@ class PerformanceBenchmark:
             message=message,
             response_times=response_times,
             agent_times=avg_agent_times,
-            total_time=statistics.mean(response_times)
+            total_time=statistics.mean(response_times),
         )
 
         self.metrics.append(metrics)
@@ -266,6 +262,7 @@ class PerformanceBenchmark:
 # Test Suite 1: Response Time Analysis (All 17 Intents)
 # =============================================================================
 
+
 @pytest.mark.performance
 class TestResponseTimeAnalysis:
     """
@@ -284,11 +281,11 @@ class TestResponseTimeAnalysis:
         from agents.analytics.agent import AnalyticsAgent
 
         return {
-            'intent': IntentClassificationAgent(),
-            'knowledge': KnowledgeRetrievalAgent(),
-            'response': ResponseGenerationAgent(),
-            'escalation': EscalationAgent(),
-            'analytics': AnalyticsAgent(),
+            "intent": IntentClassificationAgent(),
+            "knowledge": KnowledgeRetrievalAgent(),
+            "response": ResponseGenerationAgent(),
+            "escalation": EscalationAgent(),
+            "analytics": AnalyticsAgent(),
         }
 
     @pytest.mark.asyncio
@@ -304,7 +301,7 @@ class TestResponseTimeAnalysis:
                 context_id=generate_message_id(),
                 content=message,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             async def process_message(msg):
@@ -312,11 +309,14 @@ class TestResponseTimeAnalysis:
                 a2a_msg = create_a2a_message(
                     role="user",
                     content=customer_msg.to_dict(),
-                    context_id=customer_msg.context_id
+                    context_id=customer_msg.context_id,
                 )
-                result = await agents['intent'].handle_message(a2a_msg)
+                result = await agents["intent"].handle_message(a2a_msg)
                 end = time.perf_counter()
-                return {"result": result, "agent_times": {"intent": (end - start) * 1000}}
+                return {
+                    "result": result,
+                    "agent_times": {"intent": (end - start) * 1000},
+                }
 
             # Run once to measure (not 100 iterations - async is different)
             result = await process_message(message)
@@ -341,16 +341,16 @@ class TestResponseTimeAnalysis:
                 context_id=generate_message_id(),
                 content=message,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             start = time.perf_counter()
             a2a_msg = create_a2a_message(
                 role="user",
                 content=customer_msg.to_dict(),
-                context_id=customer_msg.context_id
+                context_id=customer_msg.context_id,
             )
-            result = await agents['intent'].handle_message(a2a_msg)
+            result = await agents["intent"].handle_message(a2a_msg)
             end = time.perf_counter()
 
             processing_time = (end - start) * 1000
@@ -370,16 +370,16 @@ class TestResponseTimeAnalysis:
                 context_id=generate_message_id(),
                 content=message,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             start = time.perf_counter()
             a2a_msg = create_a2a_message(
                 role="user",
                 content=customer_msg.to_dict(),
-                context_id=customer_msg.context_id
+                context_id=customer_msg.context_id,
             )
-            result = await agents['intent'].handle_message(a2a_msg)
+            result = await agents["intent"].handle_message(a2a_msg)
             end = time.perf_counter()
 
             processing_time = (end - start) * 1000
@@ -412,16 +412,16 @@ class TestResponseTimeAnalysis:
                     context_id=generate_message_id(),
                     content=message,
                     channel="chat",
-                    language=Language.EN
+                    language=Language.EN,
                 )
 
                 start = time.perf_counter()
                 a2a_msg = create_a2a_message(
                     role="user",
                     content=customer_msg.to_dict(),
-                    context_id=customer_msg.context_id
+                    context_id=customer_msg.context_id,
                 )
-                result = await agents['intent'].handle_message(a2a_msg)
+                result = await agents["intent"].handle_message(a2a_msg)
                 end = time.perf_counter()
 
                 processing_time = (end - start) * 1000
@@ -439,10 +439,14 @@ class TestResponseTimeAnalysis:
 
         # Print summary table
         print("\n\n=== PERFORMANCE BENCHMARK SUMMARY (All 17 Intents) ===\n")
-        print(f"{'Intent Type':<30} {'P50 (ms)':<12} {'P95 (ms)':<12} {'P99 (ms)':<12} {'Avg (ms)':<12}")
+        print(
+            f"{'Intent Type':<30} {'P50 (ms)':<12} {'P95 (ms)':<12} {'P99 (ms)':<12} {'Avg (ms)':<12}"
+        )
         print("-" * 78)
 
-        for intent_type, stats in sorted(results.items(), key=lambda x: x[1]["p95"], reverse=True):
+        for intent_type, stats in sorted(
+            results.items(), key=lambda x: x[1]["p95"], reverse=True
+        ):
             print(
                 f"{intent_type:<30} "
                 f"{stats['p50']:>10.2f}  "
@@ -470,6 +474,7 @@ class TestResponseTimeAnalysis:
 # Test Suite 2: Agent Processing Time Profiling
 # =============================================================================
 
+
 @pytest.mark.performance
 class TestAgentProcessingTimeProfile:
     """
@@ -488,11 +493,11 @@ class TestAgentProcessingTimeProfile:
         from agents.analytics.agent import AnalyticsAgent
 
         return {
-            'intent': IntentClassificationAgent(),
-            'knowledge': KnowledgeRetrievalAgent(),
-            'response': ResponseGenerationAgent(),
-            'escalation': EscalationAgent(),
-            'analytics': AnalyticsAgent(),
+            "intent": IntentClassificationAgent(),
+            "knowledge": KnowledgeRetrievalAgent(),
+            "response": ResponseGenerationAgent(),
+            "escalation": EscalationAgent(),
+            "analytics": AnalyticsAgent(),
         }
 
     @pytest.mark.asyncio
@@ -517,16 +522,16 @@ class TestAgentProcessingTimeProfile:
                 context_id=generate_message_id(),
                 content=message,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             start = time.perf_counter()
             a2a_msg = create_a2a_message(
                 role="user",
                 content=customer_msg.to_dict(),
-                context_id=customer_msg.context_id
+                context_id=customer_msg.context_id,
             )
-            result = await agents['intent'].handle_message(a2a_msg)
+            result = await agents["intent"].handle_message(a2a_msg)
             end = time.perf_counter()
 
             processing_times.append((end - start) * 1000)
@@ -562,7 +567,7 @@ class TestAgentProcessingTimeProfile:
             context_id=generate_message_id(),
             content="Where is my order #10234?",
             channel="chat",
-            language=Language.EN
+            language=Language.EN,
         )
 
         agent_times = {}
@@ -572,9 +577,9 @@ class TestAgentProcessingTimeProfile:
         intent_msg = create_a2a_message(
             role="user",
             content=customer_msg.to_dict(),
-            context_id=customer_msg.context_id
+            context_id=customer_msg.context_id,
         )
-        intent_result = await agents['intent'].handle_message(intent_msg)
+        intent_result = await agents["intent"].handle_message(intent_msg)
         agent_times["intent"] = (time.perf_counter() - start) * 1000
 
         intent_content = extract_message_content(intent_result)
@@ -585,9 +590,9 @@ class TestAgentProcessingTimeProfile:
             knowledge_msg = create_a2a_message(
                 role="assistant",
                 content=intent_content,
-                context_id=customer_msg.context_id
+                context_id=customer_msg.context_id,
             )
-            knowledge_result = await agents['knowledge'].handle_message(knowledge_msg)
+            knowledge_result = await agents["knowledge"].handle_message(knowledge_msg)
             agent_times["knowledge"] = (time.perf_counter() - start) * 1000
 
         # Step 3: Response Generation
@@ -601,9 +606,9 @@ class TestAgentProcessingTimeProfile:
                 "intent": intent_content.get("intent", "UNKNOWN"),
                 "knowledge_results": [],
             },
-            context_id=customer_msg.context_id
+            context_id=customer_msg.context_id,
         )
-        response_result = await agents['response'].handle_message(response_msg)
+        response_result = await agents["response"].handle_message(response_msg)
         agent_times["response"] = (time.perf_counter() - start) * 1000
 
         # Calculate total and percentages
@@ -613,7 +618,9 @@ class TestAgentProcessingTimeProfile:
         print(f"{'Agent':<20} {'Time (ms)':<15} {'% of Total':<12}")
         print("-" * 47)
 
-        for agent_name, duration in sorted(agent_times.items(), key=lambda x: x[1], reverse=True):
+        for agent_name, duration in sorted(
+            agent_times.items(), key=lambda x: x[1], reverse=True
+        ):
             percentage = (duration / total_time) * 100
             print(f"{agent_name:<20} {duration:>10.2f} ms  {percentage:>8.1f}%")
 
@@ -624,12 +631,15 @@ class TestAgentProcessingTimeProfile:
 
         # Educational: Identify bottleneck agent
         bottleneck = max(agent_times.items(), key=lambda x: x[1])
-        print(f"\nBottleneck: {bottleneck[0]} ({bottleneck[1]:.2f}ms, {(bottleneck[1]/total_time)*100:.1f}% of total)")
+        print(
+            f"\nBottleneck: {bottleneck[0]} ({bottleneck[1]:.2f}ms, {(bottleneck[1]/total_time)*100:.1f}% of total)"
+        )
 
 
 # =============================================================================
 # Test Suite 3: Knowledge Retrieval Latency
 # =============================================================================
+
 
 @pytest.mark.performance
 class TestKnowledgeRetrievalLatency:
@@ -713,6 +723,7 @@ class TestKnowledgeRetrievalLatency:
 # Test Suite 4: Concurrent Request Performance
 # =============================================================================
 
+
 @pytest.mark.performance
 class TestConcurrentRequestPerformance:
     """
@@ -738,14 +749,14 @@ class TestConcurrentRequestPerformance:
                 context_id=generate_message_id(),
                 content=f"Where is my order #1023{message_num}?",
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             start = time.perf_counter()
             a2a_msg = create_a2a_message(
                 role="user",
                 content=customer_msg.to_dict(),
-                context_id=customer_msg.context_id
+                context_id=customer_msg.context_id,
             )
             result = await agent.handle_message(a2a_msg)
             end = time.perf_counter()
@@ -777,6 +788,7 @@ class TestConcurrentRequestPerformance:
 # Test Suite 5: Bottleneck Identification
 # =============================================================================
 
+
 @pytest.mark.performance
 class TestBottleneckIdentification:
     """
@@ -802,9 +814,9 @@ class TestBottleneckIdentification:
         from shared.models import extract_message_content
 
         agents_dict = {
-            'intent': IntentClassificationAgent(),
-            'knowledge': KnowledgeRetrievalAgent(),
-            'response': ResponseGenerationAgent(),
+            "intent": IntentClassificationAgent(),
+            "knowledge": KnowledgeRetrievalAgent(),
+            "response": ResponseGenerationAgent(),
         }
 
         # Test scenarios covering different intent types
@@ -830,7 +842,7 @@ class TestBottleneckIdentification:
                 context_id=generate_message_id(),
                 content=message,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             # Measure Intent Agent
@@ -838,9 +850,9 @@ class TestBottleneckIdentification:
             intent_msg = create_a2a_message(
                 role="user",
                 content=customer_msg.to_dict(),
-                context_id=customer_msg.context_id
+                context_id=customer_msg.context_id,
             )
-            intent_result = await agents_dict['intent'].handle_message(intent_msg)
+            intent_result = await agents_dict["intent"].handle_message(intent_msg)
             intent_time = (time.perf_counter() - start) * 1000
             bottleneck_data["intent_agent"].append(intent_time)
 
@@ -852,9 +864,11 @@ class TestBottleneckIdentification:
                 knowledge_msg = create_a2a_message(
                     role="assistant",
                     content=intent_content,
-                    context_id=customer_msg.context_id
+                    context_id=customer_msg.context_id,
                 )
-                knowledge_result = await agents_dict['knowledge'].handle_message(knowledge_msg)
+                knowledge_result = await agents_dict["knowledge"].handle_message(
+                    knowledge_msg
+                )
                 knowledge_time = (time.perf_counter() - start) * 1000
                 bottleneck_data["knowledge_agent"].append(knowledge_time)
 
@@ -869,9 +883,9 @@ class TestBottleneckIdentification:
                     "intent": intent_content.get("intent", "UNKNOWN"),
                     "knowledge_results": [],
                 },
-                context_id=customer_msg.context_id
+                context_id=customer_msg.context_id,
             )
-            response_result = await agents_dict['response'].handle_message(response_msg)
+            response_result = await agents_dict["response"].handle_message(response_msg)
             response_time = (time.perf_counter() - start) * 1000
             bottleneck_data["response_agent"].append(response_time)
 
@@ -886,40 +900,47 @@ class TestBottleneckIdentification:
 
         # Agent performance comparison
         print("Agent Performance Comparison:")
-        print(f"  Intent Agent - Avg: {statistics.mean(bottleneck_data['intent_agent']):.2f}ms")
-        if bottleneck_data['knowledge_agent']:
-            print(f"  Knowledge Agent - Avg: {statistics.mean(bottleneck_data['knowledge_agent']):.2f}ms")
-        print(f"  Response Agent - Avg: {statistics.mean(bottleneck_data['response_agent']):.2f}ms")
+        print(
+            f"  Intent Agent - Avg: {statistics.mean(bottleneck_data['intent_agent']):.2f}ms"
+        )
+        if bottleneck_data["knowledge_agent"]:
+            print(
+                f"  Knowledge Agent - Avg: {statistics.mean(bottleneck_data['knowledge_agent']):.2f}ms"
+            )
+        print(
+            f"  Response Agent - Avg: {statistics.mean(bottleneck_data['response_agent']):.2f}ms"
+        )
 
         # Intent type performance comparison
         print("\nIntent Type Performance:")
         for intent_name, times in sorted(
             bottleneck_data["intent_types"].items(),
             key=lambda x: statistics.mean(x[1]),
-            reverse=True
+            reverse=True,
         ):
             avg_time = statistics.mean(times)
             print(f"  {intent_name}: {avg_time:.2f}ms avg")
 
         # Identify top bottlenecks
         all_agent_times = [
-            ("Intent Agent", statistics.mean(bottleneck_data['intent_agent'])),
-            ("Response Agent", statistics.mean(bottleneck_data['response_agent'])),
+            ("Intent Agent", statistics.mean(bottleneck_data["intent_agent"])),
+            ("Response Agent", statistics.mean(bottleneck_data["response_agent"])),
         ]
-        if bottleneck_data['knowledge_agent']:
+        if bottleneck_data["knowledge_agent"]:
             all_agent_times.append(
-                ("Knowledge Agent", statistics.mean(bottleneck_data['knowledge_agent']))
+                ("Knowledge Agent", statistics.mean(bottleneck_data["knowledge_agent"]))
             )
 
         slowest_agent = max(all_agent_times, key=lambda x: x[1])
         slowest_intent = max(
-            bottleneck_data["intent_types"].items(),
-            key=lambda x: statistics.mean(x[1])
+            bottleneck_data["intent_types"].items(), key=lambda x: statistics.mean(x[1])
         )
 
         print(f"\n=== TOP BOTTLENECKS ===")
         print(f"1. Slowest Agent: {slowest_agent[0]} ({slowest_agent[1]:.2f}ms avg)")
-        print(f"2. Slowest Intent: {slowest_intent[0]} ({statistics.mean(slowest_intent[1]):.2f}ms avg)")
+        print(
+            f"2. Slowest Intent: {slowest_intent[0]} ({statistics.mean(slowest_intent[1]):.2f}ms avg)"
+        )
 
         # Educational note about Phase 4 expectations
         print(f"\n=== PHASE 4 EXPECTATIONS ===")

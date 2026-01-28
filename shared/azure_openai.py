@@ -23,6 +23,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TokenUsage:
     """Track token usage and costs for monitoring."""
+
     prompt_tokens: int = 0
     completion_tokens: int = 0
     total_tokens: int = 0
@@ -34,6 +35,7 @@ class TokenUsage:
 @dataclass
 class AzureOpenAIConfig:
     """Configuration for Azure OpenAI client."""
+
     endpoint: str
     api_key: Optional[str] = None
     api_version: str = "2024-02-15-preview"
@@ -44,11 +46,13 @@ class AzureOpenAIConfig:
     embedding_deployment: str = "text-embedding-3-large"
 
     # Cost tracking (per 1M tokens in USD)
-    costs_per_million: Dict[str, Dict[str, float]] = field(default_factory=lambda: {
-        "gpt-4o-mini": {"input": 0.15, "output": 0.60},
-        "gpt-4o": {"input": 2.50, "output": 10.00},
-        "text-embedding-3-large": {"input": 0.13, "output": 0.0}
-    })
+    costs_per_million: Dict[str, Dict[str, float]] = field(
+        default_factory=lambda: {
+            "gpt-4o-mini": {"input": 0.15, "output": 0.60},
+            "gpt-4o": {"input": 2.50, "output": 10.00},
+            "text-embedding-3-large": {"input": 0.13, "output": 0.0},
+        }
+    )
 
     @classmethod
     def from_environment(cls) -> "AzureOpenAIConfig":
@@ -61,9 +65,13 @@ class AzureOpenAIConfig:
             endpoint=endpoint,
             api_key=os.getenv("AZURE_OPENAI_API_KEY"),
             api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
-            gpt4o_mini_deployment=os.getenv("AZURE_OPENAI_GPT4O_MINI_DEPLOYMENT", "gpt-4o-mini"),
+            gpt4o_mini_deployment=os.getenv(
+                "AZURE_OPENAI_GPT4O_MINI_DEPLOYMENT", "gpt-4o-mini"
+            ),
             gpt4o_deployment=os.getenv("AZURE_OPENAI_GPT4O_DEPLOYMENT", "gpt-4o"),
-            embedding_deployment=os.getenv("AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-3-large")
+            embedding_deployment=os.getenv(
+                "AZURE_OPENAI_EMBEDDING_DEPLOYMENT", "text-embedding-3-large"
+            ),
         )
 
 
@@ -109,7 +117,7 @@ class AzureOpenAIClient:
                 self._client = AsyncAzureOpenAI(
                     azure_endpoint=self.config.endpoint,
                     api_key=self.config.api_key,
-                    api_version=self.config.api_version
+                    api_version=self.config.api_version,
                 )
             else:
                 # Fall back to managed identity
@@ -117,12 +125,14 @@ class AzureOpenAIClient:
                 from azure.identity.aio import DefaultAzureCredential
 
                 credential = DefaultAzureCredential()
-                token = await credential.get_token("https://cognitiveservices.azure.com/.default")
+                token = await credential.get_token(
+                    "https://cognitiveservices.azure.com/.default"
+                )
 
                 self._client = AsyncAzureOpenAI(
                     azure_endpoint=self.config.endpoint,
                     azure_ad_token=token.token,
-                    api_version=self.config.api_version
+                    api_version=self.config.api_version,
                 )
 
             self._initialized = True
@@ -137,7 +147,9 @@ class AzureOpenAIClient:
             logger.error(f"Failed to initialize Azure OpenAI client: {e}")
             return False
 
-    def _track_usage(self, model: str, prompt_tokens: int, completion_tokens: int) -> TokenUsage:
+    def _track_usage(
+        self, model: str, prompt_tokens: int, completion_tokens: int
+    ) -> TokenUsage:
         """Track token usage and calculate estimated cost."""
         total_tokens = prompt_tokens + completion_tokens
 
@@ -151,7 +163,7 @@ class AzureOpenAIClient:
             completion_tokens=completion_tokens,
             total_tokens=total_tokens,
             estimated_cost=input_cost + output_cost,
-            model=model
+            model=model,
         )
 
         self._token_usage.append(usage)
@@ -165,10 +177,7 @@ class AzureOpenAIClient:
         return usage
 
     async def classify_intent(
-        self,
-        message: str,
-        system_prompt: str,
-        temperature: float = 0.0
+        self, message: str, system_prompt: str, temperature: float = 0.0
     ) -> Dict[str, Any]:
         """
         Classify customer intent using GPT-4o-mini.
@@ -187,14 +196,11 @@ class AzureOpenAIClient:
             user_message=message,
             max_tokens=100,
             temperature=temperature,
-            json_mode=True
+            json_mode=True,
         )
 
     async def validate_content(
-        self,
-        content: str,
-        validation_prompt: str,
-        temperature: float = 0.0
+        self, content: str, validation_prompt: str, temperature: float = 0.0
     ) -> Dict[str, Any]:
         """
         Validate content (input or output) using GPT-4o-mini.
@@ -213,14 +219,11 @@ class AzureOpenAIClient:
             user_message=content,
             max_tokens=150,
             temperature=temperature,
-            json_mode=True
+            json_mode=True,
         )
 
     async def detect_escalation(
-        self,
-        conversation: str,
-        system_prompt: str,
-        temperature: float = 0.0
+        self, conversation: str, system_prompt: str, temperature: float = 0.0
     ) -> Dict[str, Any]:
         """
         Detect if conversation should be escalated using GPT-4o-mini.
@@ -239,7 +242,7 @@ class AzureOpenAIClient:
             user_message=conversation,
             max_tokens=150,
             temperature=temperature,
-            json_mode=True
+            json_mode=True,
         )
 
     async def generate_response(
@@ -247,7 +250,7 @@ class AzureOpenAIClient:
         context: str,
         system_prompt: str,
         temperature: float = 0.7,
-        max_tokens: int = 500
+        max_tokens: int = 500,
     ) -> str:
         """
         Generate customer response using GPT-4o.
@@ -267,14 +270,11 @@ class AzureOpenAIClient:
             user_message=context,
             max_tokens=max_tokens,
             temperature=temperature,
-            json_mode=False
+            json_mode=False,
         )
         return result.get("response", "")
 
-    async def generate_embeddings(
-        self,
-        texts: List[str]
-    ) -> List[List[float]]:
+    async def generate_embeddings(self, texts: List[str]) -> List[List[float]]:
         """
         Generate embeddings for texts using text-embedding-3-large.
 
@@ -292,15 +292,14 @@ class AzureOpenAIClient:
 
         try:
             response = await self._client.embeddings.create(
-                model=self.config.embedding_deployment,
-                input=texts
+                model=self.config.embedding_deployment, input=texts
             )
 
             # Track usage
             self._track_usage(
                 model=self.config.embedding_deployment,
                 prompt_tokens=response.usage.prompt_tokens,
-                completion_tokens=0
+                completion_tokens=0,
             )
 
             return [item.embedding for item in response.data]
@@ -316,7 +315,7 @@ class AzureOpenAIClient:
         user_message: str,
         max_tokens: int = 500,
         temperature: float = 0.0,
-        json_mode: bool = False
+        json_mode: bool = False,
     ) -> Dict[str, Any]:
         """
         Internal method for chat completions.
@@ -344,10 +343,10 @@ class AzureOpenAIClient:
                 "model": deployment,
                 "messages": [
                     {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_message}
+                    {"role": "user", "content": user_message},
                 ],
                 "max_tokens": max_tokens,
-                "temperature": temperature
+                "temperature": temperature,
             }
 
             # Add JSON mode if supported and requested
@@ -360,7 +359,7 @@ class AzureOpenAIClient:
             self._track_usage(
                 model=deployment,
                 prompt_tokens=response.usage.prompt_tokens,
-                completion_tokens=response.usage.completion_tokens
+                completion_tokens=response.usage.completion_tokens,
             )
 
             # Extract response text
@@ -387,7 +386,7 @@ class AzureOpenAIClient:
         import re
 
         # Try to find JSON object in the text
-        json_match = re.search(r'\{[^{}]*\}', text, re.DOTALL)
+        json_match = re.search(r"\{[^{}]*\}", text, re.DOTALL)
         if json_match:
             try:
                 return json.loads(json_match.group())
@@ -405,7 +404,7 @@ class AzureOpenAIClient:
                 "total_requests": 0,
                 "total_tokens": 0,
                 "total_cost": 0.0,
-                "by_model": {}
+                "by_model": {},
             }
 
         total_tokens = sum(u.total_tokens for u in self._token_usage)
@@ -420,7 +419,7 @@ class AzureOpenAIClient:
                     "prompt_tokens": 0,
                     "completion_tokens": 0,
                     "total_tokens": 0,
-                    "estimated_cost": 0.0
+                    "estimated_cost": 0.0,
                 }
             by_model[usage.model]["requests"] += 1
             by_model[usage.model]["prompt_tokens"] += usage.prompt_tokens
@@ -432,7 +431,7 @@ class AzureOpenAIClient:
             "total_requests": len(self._token_usage),
             "total_tokens": total_tokens,
             "total_cost": total_cost,
-            "by_model": by_model
+            "by_model": by_model,
         }
 
     def reset_usage_tracking(self):

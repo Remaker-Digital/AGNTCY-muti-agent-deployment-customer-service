@@ -23,12 +23,14 @@
 # ============================================================================
 
 import pytest
+import pytest_asyncio
 import asyncio
 from unittest.mock import Mock, AsyncMock, patch, MagicMock
 from dataclasses import asdict
 
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from shared.openai_pool import (
@@ -42,10 +44,10 @@ from shared.openai_pool import (
     close_openai_pool,
 )
 
-
 # =============================================================================
 # Test Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def default_config():
@@ -65,7 +67,7 @@ def custom_config():
         health_check_interval=5.0,
         enable_circuit_breaker=True,
         circuit_breaker_threshold=3,
-        circuit_breaker_timeout=1.0
+        circuit_breaker_timeout=1.0,
     )
 
 
@@ -75,23 +77,26 @@ def mock_azure_client():
     client = AsyncMock()
     client.chat = AsyncMock()
     client.chat.completions = AsyncMock()
-    client.chat.completions.create = AsyncMock(return_value=Mock(
-        choices=[Mock(message=Mock(content="Test response"))]
-    ))
+    client.chat.completions.create = AsyncMock(
+        return_value=Mock(choices=[Mock(message=Mock(content="Test response"))])
+    )
     client._client = AsyncMock()
     client._client.aclose = AsyncMock()
     return client
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def pool_with_mocks(custom_config, mock_azure_client):
     """Create a pool with mocked client creation."""
-    with patch('shared.openai_pool.AzureOpenAIPool._create_client',
-               new_callable=AsyncMock, return_value=mock_azure_client):
+    with patch(
+        "shared.openai_pool.AzureOpenAIPool._create_client",
+        new_callable=AsyncMock,
+        return_value=mock_azure_client,
+    ):
         pool = AzureOpenAIPool(
             endpoint="https://test.openai.azure.com/",
             api_key="test-api-key",
-            config=custom_config
+            config=custom_config,
         )
         await pool.initialize()
         yield pool
@@ -101,6 +106,7 @@ async def pool_with_mocks(custom_config, mock_azure_client):
 # =============================================================================
 # Test: Pool Configuration
 # =============================================================================
+
 
 class TestPoolConfig:
     """Tests for PoolConfig dataclass."""
@@ -130,12 +136,13 @@ class TestPoolConfig:
         config = PoolConfig(min_connections=10)
         config_dict = asdict(config)
         assert isinstance(config_dict, dict)
-        assert config_dict['min_connections'] == 10
+        assert config_dict["min_connections"] == 10
 
 
 # =============================================================================
 # Test: Pool Metrics
 # =============================================================================
+
 
 class TestPoolMetrics:
     """Tests for PoolMetrics dataclass."""
@@ -155,30 +162,24 @@ class TestPoolMetrics:
 
     def test_avg_acquire_time_calculation(self):
         """Verify avg_acquire_time calculation."""
-        metrics = PoolMetrics(
-            total_acquires=10,
-            total_acquire_time_ms=500.0
-        )
+        metrics = PoolMetrics(total_acquires=10, total_acquire_time_ms=500.0)
         assert metrics.avg_acquire_time_ms == 50.0
 
     def test_to_dict(self):
         """Verify metrics can be exported to dict."""
-        metrics = PoolMetrics(
-            connections_created=5,
-            total_acquires=100,
-            total_errors=2
-        )
+        metrics = PoolMetrics(connections_created=5, total_acquires=100, total_errors=2)
         metrics_dict = metrics.to_dict()
         assert isinstance(metrics_dict, dict)
-        assert metrics_dict['connections_created'] == 5
-        assert metrics_dict['total_acquires'] == 100
-        assert metrics_dict['total_errors'] == 2
-        assert 'avg_acquire_time_ms' in metrics_dict
+        assert metrics_dict["connections_created"] == 5
+        assert metrics_dict["total_acquires"] == 100
+        assert metrics_dict["total_errors"] == 2
+        assert "avg_acquire_time_ms" in metrics_dict
 
 
 # =============================================================================
 # Test: Circuit Breaker
 # =============================================================================
+
 
 class TestCircuitBreaker:
     """Tests for CircuitBreaker class."""
@@ -244,6 +245,7 @@ class TestCircuitBreaker:
 # Test: Pool Lifecycle
 # =============================================================================
 
+
 class TestPoolLifecycle:
     """Tests for pool initialization and shutdown."""
 
@@ -253,7 +255,7 @@ class TestPoolLifecycle:
         pool = AzureOpenAIPool(
             endpoint="https://test.openai.azure.com/",
             api_key="test-key",
-            config=custom_config
+            config=custom_config,
         )
         assert pool.state == PoolState.UNINITIALIZED
         assert pool.available == 0
@@ -262,12 +264,15 @@ class TestPoolLifecycle:
     @pytest.mark.asyncio
     async def test_pool_initialize(self, custom_config, mock_azure_client):
         """Verify pool initializes with min_connections."""
-        with patch('shared.openai_pool.AzureOpenAIPool._create_client',
-                   new_callable=AsyncMock, return_value=mock_azure_client):
+        with patch(
+            "shared.openai_pool.AzureOpenAIPool._create_client",
+            new_callable=AsyncMock,
+            return_value=mock_azure_client,
+        ):
             pool = AzureOpenAIPool(
                 endpoint="https://test.openai.azure.com/",
                 api_key="test-key",
-                config=custom_config
+                config=custom_config,
             )
             await pool.initialize()
 
@@ -301,12 +306,15 @@ class TestPoolLifecycle:
     @pytest.mark.asyncio
     async def test_pool_idempotent_initialize(self, custom_config, mock_azure_client):
         """Verify initialize is idempotent."""
-        with patch('shared.openai_pool.AzureOpenAIPool._create_client',
-                   new_callable=AsyncMock, return_value=mock_azure_client):
+        with patch(
+            "shared.openai_pool.AzureOpenAIPool._create_client",
+            new_callable=AsyncMock,
+            return_value=mock_azure_client,
+        ):
             pool = AzureOpenAIPool(
                 endpoint="https://test.openai.azure.com/",
                 api_key="test-key",
-                config=custom_config
+                config=custom_config,
             )
             await pool.initialize()
             initial_created = pool.metrics.connections_created
@@ -320,6 +328,7 @@ class TestPoolLifecycle:
 # =============================================================================
 # Test: Connection Acquisition
 # =============================================================================
+
 
 class TestConnectionAcquisition:
     """Tests for acquiring and releasing connections."""
@@ -354,17 +363,14 @@ class TestConnectionAcquisition:
     @pytest.mark.asyncio
     async def test_acquire_tracks_peak_active(self, pool_with_mocks, mock_azure_client):
         """Verify peak_active is tracked correctly."""
+
         # Acquire multiple connections concurrently
         async def acquire_and_hold():
             async with pool_with_mocks.acquire():
                 await asyncio.sleep(0.1)
 
         # Run 3 concurrent acquisitions
-        await asyncio.gather(
-            acquire_and_hold(),
-            acquire_and_hold(),
-            acquire_and_hold()
-        )
+        await asyncio.gather(acquire_and_hold(), acquire_and_hold(), acquire_and_hold())
 
         # Peak should be at least 3 (may be more if connections are created)
         assert pool_with_mocks.metrics.peak_active >= 1
@@ -375,7 +381,7 @@ class TestConnectionAcquisition:
         pool = AzureOpenAIPool(
             endpoint="https://test.openai.azure.com/",
             api_key="test-key",
-            config=custom_config
+            config=custom_config,
         )
 
         with pytest.raises(RuntimeError, match="Pool not ready"):
@@ -399,6 +405,7 @@ class TestConnectionAcquisition:
 # Test: Global Singleton Pattern
 # =============================================================================
 
+
 class TestGlobalSingleton:
     """Tests for global pool singleton functions."""
 
@@ -407,6 +414,7 @@ class TestGlobalSingleton:
         """Verify get_openai_pool fails before initialization."""
         # Reset global state
         import shared.openai_pool as pool_module
+
         pool_module._global_pool = None
 
         with pytest.raises(RuntimeError, match="not initialized"):
@@ -416,14 +424,18 @@ class TestGlobalSingleton:
     async def test_init_and_get_pool(self, mock_azure_client):
         """Verify init and get work together."""
         import shared.openai_pool as pool_module
+
         pool_module._global_pool = None
 
-        with patch('shared.openai_pool.AzureOpenAIPool._create_client',
-                   new_callable=AsyncMock, return_value=mock_azure_client):
+        with patch(
+            "shared.openai_pool.AzureOpenAIPool._create_client",
+            new_callable=AsyncMock,
+            return_value=mock_azure_client,
+        ):
             pool = await init_openai_pool(
                 endpoint="https://test.openai.azure.com/",
                 api_key="test-key",
-                config=PoolConfig(min_connections=1, max_connections=2)
+                config=PoolConfig(min_connections=1, max_connections=2),
             )
 
             retrieved_pool = get_openai_pool()
@@ -435,14 +447,18 @@ class TestGlobalSingleton:
     async def test_close_pool_clears_global(self, mock_azure_client):
         """Verify close_openai_pool clears global state."""
         import shared.openai_pool as pool_module
+
         pool_module._global_pool = None
 
-        with patch('shared.openai_pool.AzureOpenAIPool._create_client',
-                   new_callable=AsyncMock, return_value=mock_azure_client):
+        with patch(
+            "shared.openai_pool.AzureOpenAIPool._create_client",
+            new_callable=AsyncMock,
+            return_value=mock_azure_client,
+        ):
             await init_openai_pool(
                 endpoint="https://test.openai.azure.com/",
                 api_key="test-key",
-                config=PoolConfig(min_connections=1, max_connections=2)
+                config=PoolConfig(min_connections=1, max_connections=2),
             )
 
             await close_openai_pool()
@@ -455,6 +471,7 @@ class TestGlobalSingleton:
 # Test: Health Status
 # =============================================================================
 
+
 class TestHealthStatus:
     """Tests for pool health status reporting."""
 
@@ -463,27 +480,28 @@ class TestHealthStatus:
         """Verify health status includes all fields."""
         status = pool_with_mocks.get_health_status()
 
-        assert 'state' in status
-        assert 'available_connections' in status
-        assert 'active_connections' in status
-        assert 'total_connections' in status
-        assert 'max_connections' in status
-        assert 'circuit_breaker_open' in status
-        assert 'metrics' in status
+        assert "state" in status
+        assert "available_connections" in status
+        assert "active_connections" in status
+        assert "total_connections" in status
+        assert "max_connections" in status
+        assert "circuit_breaker_open" in status
+        assert "metrics" in status
 
     @pytest.mark.asyncio
     async def test_health_status_reflects_state(self, pool_with_mocks):
         """Verify health status reflects pool state."""
         status = pool_with_mocks.get_health_status()
 
-        assert status['state'] == 'ready'
-        assert status['circuit_breaker_open'] is False
-        assert status['available_connections'] == pool_with_mocks.available
+        assert status["state"] == "ready"
+        assert status["circuit_breaker_open"] is False
+        assert status["available_connections"] == pool_with_mocks.available
 
 
 # =============================================================================
 # Test: Error Handling
 # =============================================================================
+
 
 class TestErrorHandling:
     """Tests for error scenarios."""

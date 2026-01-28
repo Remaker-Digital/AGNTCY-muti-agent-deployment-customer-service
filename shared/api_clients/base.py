@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 
 class AuthType(Enum):
     """Authentication types supported by API clients."""
+
     NONE = "none"  # Mock APIs (Phase 1-3)
     API_KEY = "api_key"  # Header-based API key
     BEARER_TOKEN = "bearer_token"  # Authorization: Bearer
@@ -39,6 +40,7 @@ class AuthType(Enum):
 @dataclass
 class APIClientConfig:
     """Configuration for API clients."""
+
     base_url: str
     auth_type: AuthType = AuthType.NONE
     api_key: Optional[str] = None
@@ -62,7 +64,7 @@ class APIClientConfig:
         cls,
         service_name: str,
         default_mock_url: str,
-        auth_type: AuthType = AuthType.NONE
+        auth_type: AuthType = AuthType.NONE,
     ) -> "APIClientConfig":
         """
         Create config from environment variables.
@@ -111,6 +113,7 @@ class APIClientConfig:
 @dataclass
 class APIResponse:
     """Standardized API response wrapper."""
+
     success: bool
     status_code: int
     data: Optional[Any] = None
@@ -205,6 +208,7 @@ class BaseAPIClient(ABC):
         elif self.config.auth_type == AuthType.BASIC_AUTH:
             if self.config.api_key:
                 import base64
+
                 credentials = f"{self.config.api_key}:{self.config.api_secret or ''}"
                 encoded = base64.b64encode(credentials.encode()).decode()
                 headers["Authorization"] = f"Basic {encoded}"
@@ -232,8 +236,16 @@ class BaseAPIClient(ABC):
         if isinstance(data, dict):
             masked = {}
             sensitive_keys = {
-                "email", "phone", "address", "name", "customer_email",
-                "api_key", "token", "password", "secret", "credit_card"
+                "email",
+                "phone",
+                "address",
+                "name",
+                "customer_email",
+                "api_key",
+                "token",
+                "password",
+                "secret",
+                "credit_card",
             }
             for key, value in data.items():
                 if any(s in key.lower() for s in sensitive_keys):
@@ -346,7 +358,9 @@ class BaseAPIClient(ABC):
 
             except httpx.TimeoutException as e:
                 last_error = f"Request timeout: {e}"
-                self.logger.warning(f"{self.service_name} timeout (attempt {retries + 1})")
+                self.logger.warning(
+                    f"{self.service_name} timeout (attempt {retries + 1})"
+                )
 
             except httpx.HTTPError as e:
                 last_error = f"HTTP error: {e}"
@@ -358,7 +372,7 @@ class BaseAPIClient(ABC):
 
             # Exponential backoff
             if retries < self.config.max_retries:
-                delay = self.config.retry_delay * (2 ** retries)
+                delay = self.config.retry_delay * (2**retries)
                 self.logger.debug(f"Retrying in {delay}s...")
                 await asyncio.sleep(delay)
 
@@ -373,37 +387,24 @@ class BaseAPIClient(ABC):
         )
 
     async def get(
-        self,
-        endpoint: str,
-        params: Optional[Dict[str, Any]] = None,
-        **kwargs
+        self, endpoint: str, params: Optional[Dict[str, Any]] = None, **kwargs
     ) -> APIResponse:
         """Make GET request."""
         return await self._request("GET", endpoint, params=params, **kwargs)
 
     async def post(
-        self,
-        endpoint: str,
-        json_data: Optional[Dict[str, Any]] = None,
-        **kwargs
+        self, endpoint: str, json_data: Optional[Dict[str, Any]] = None, **kwargs
     ) -> APIResponse:
         """Make POST request."""
         return await self._request("POST", endpoint, json_data=json_data, **kwargs)
 
     async def put(
-        self,
-        endpoint: str,
-        json_data: Optional[Dict[str, Any]] = None,
-        **kwargs
+        self, endpoint: str, json_data: Optional[Dict[str, Any]] = None, **kwargs
     ) -> APIResponse:
         """Make PUT request."""
         return await self._request("PUT", endpoint, json_data=json_data, **kwargs)
 
-    async def delete(
-        self,
-        endpoint: str,
-        **kwargs
-    ) -> APIResponse:
+    async def delete(self, endpoint: str, **kwargs) -> APIResponse:
         """Make DELETE request."""
         return await self._request("DELETE", endpoint, **kwargs)
 

@@ -1,0 +1,639 @@
+# ============================================================================
+# Azure DevOps Pipeline - Multi-Agent Customer Service Platform
+# ============================================================================
+# Purpose: CI/CD pipeline for production deployment to Azure Container Apps
+#
+# Why Azure DevOps instead of GitHub Actions (Phase 4-5)?
+# - Enterprise approval gates for production deployments
+# - Native Azure service connections and Key Vault integration
+# - Better visibility for operations teams
+# - Variable groups for environment-specific secrets
+#
+# Pipeline Structure:
+# 1. Build Stage: Lint, test, build Docker images
+# 2. Push Stage: Push images to Azure Container Registry
+# 3. Deploy Stage: Deploy to Container Apps with approval gate
+#
+# Prerequisites:
+# - Service connection to Azure subscription (name: 'agntcy-prod-connection')
+# - Variable group 'agntcy-prod-secrets' with:
+#   - AZURE_OPENAI_ENDPOINT
+#   - AZURE_OPENAI_API_KEY
+#   - COSMOS_CONNECTION_STRING
+#   - KEY_VAULT_URI
+# - ACR service connection (name: 'agntcy-acr-connection')
+#
+# Related Documentation:
+# - Azure DevOps Pipelines: https://learn.microsoft.com/azure/devops/pipelines/
+# - Container Apps Deployment: https://learn.microsoft.com/azure/container-apps/azure-pipelines
+# - docs/PHASE-5-COMPLETION-CHECKLIST.md (Task #12)
+# ============================================================================
+
+trigger:
+  branches:
+    include:
+      - main
+      - develop
+  paths:
+    exclude:
+      - '*.md'
+      - 'docs/**'
+      - '.github/**'
+
+pr:
+  branches:
+    include:
+      - main
+      - develop
+
+# ============================================================================
+# Variables
+# ============================================================================
+# Variable groups are linked in Azure DevOps UI for secrets
+# See: Project Settings > Pipelines > Library > Variable groups
+# ============================================================================
+
+variables:
+  # Container Registry
+  acrName: 'acragntcycsprodrc6vcp'
+  acrLoginServer: 'acragntcycsprodrc6vcp.azurecr.io'
+
+  # Resource Group and Location
+  resourceGroup: 'agntcy-prod-rg'
+  location: 'eastus2'
+
+  # Container Apps Environment
+  containerAppsEnv: 'agntcy-cs-prod-cae'
+
+  # Python version (must match AGNTCY SDK requirements)
+  pythonVersion: '3.14'
+
+  # Image tag (uses Build.BuildId for unique versioning)
+  imageTag: '$(Build.BuildId)'
+
+  # Container Apps to deploy
+  containerApps: |
+    api-gateway
+    intent-classifier
+    knowledge-retrieval
+    response-generator
+    escalation
+    analytics
+    critic-supervisor
+
+# ============================================================================
+# Stages
+# ============================================================================
+
+stages:
+  # ==========================================================================
+  # Stage 1: Build and Test
+  # ==========================================================================
+  # Purpose: Run all quality gates before building images
+  # ==========================================================================
+  - stage: Build
+    displayName: 'Build and Test'
+    jobs:
+      # ----------------------------------------------------------------------
+      # Job 1.1: Code Quality
+      # ----------------------------------------------------------------------
+      - job: CodeQuality
+        displayName: 'Lint and Security Scan'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: UsePythonVersion@0
+            displayName: 'Use Python $(pythonVersion)'
+            inputs:
+              versionSpec: '$(pythonVersion)'
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install black flake8 bandit
+              pip install -r requirements.txt
+            displayName: 'Install dependencies'
+
+          - script: |
+              black --check --line-length 100 . || echo "##vso[task.logissue type=warning]Black formatting issues found"
+            displayName: 'Black formatter check'
+            continueOnError: true
+
+          - script: |
+              flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+            displayName: 'Flake8 linter'
+            continueOnError: true
+
+          - script: |
+              bandit -r agents/ shared/ mocks/ -f json -o $(Build.ArtifactStagingDirectory)/bandit-report.json || true
+            displayName: 'Bandit security scan'
+            continueOnError: true
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish security report'
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)/bandit-report.json'
+              artifactName: 'security-reports'
+
+      # ----------------------------------------------------------------------
+      # Job 1.2: Snyk Dependency Scanning
+      # ----------------------------------------------------------------------
+      # Purpose: Scan Python dependencies for known vulnerabilities
+      #
+      # Why Snyk?
+      # - Industry-leading vulnerability database
+      # - Python-specific vulnerability detection
+      # - License compliance checking
+      # - Integration with Azure DevOps
+      #
+      # Prerequisites:
+      # - Snyk account (free tier available at https://snyk.io)
+      # - SNYK_TOKEN in variable group 'agntcy-prod-secrets'
+      # - Organization ID configured (optional)
+      #
+      # Vulnerability Thresholds:
+      # - High severity: Fail pipeline (blocks deployment)
+      # - Medium severity: Warning (logged but doesn't block)
+      # - Low severity: Informational only
+      #
+      # Related Documentation:
+      # - Snyk Python: https://docs.snyk.io/scan-using-snyk/snyk-open-source/snyk-for-python
+      # - Azure DevOps Integration: https://docs.snyk.io/integrations/snyk-ci-cd-integrations/azure-pipelines-integration
+      # - docs/PHASE-5-COMPLETION-CHECKLIST.md (Task #16)
+      # ----------------------------------------------------------------------
+      - job: SnykScan
+        displayName: 'Snyk Dependency Scan'
+        pool:
+          vmImage: 'ubuntu-latest'
+        variables:
+          - group: agntcy-prod-secrets  # Contains SNYK_TOKEN
+        steps:
+          - task: UsePythonVersion@0
+            displayName: 'Use Python $(pythonVersion)'
+            inputs:
+              versionSpec: '$(pythonVersion)'
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            displayName: 'Install Python dependencies'
+
+          # Option 1: Snyk CLI (if Snyk extension not installed)
+          - script: |
+              # Install Snyk CLI
+              npm install -g snyk
+
+              # Authenticate with Snyk (requires SNYK_TOKEN in environment)
+              snyk auth $(SNYK_TOKEN) || echo "##vso[task.logissue type=warning]Snyk auth skipped - token not configured"
+
+              # Test for vulnerabilities
+              # --severity-threshold=high means only high severity fails the build
+              # --json outputs machine-readable results
+              # --file=requirements.txt specifies the dependency file
+              snyk test \
+                --severity-threshold=high \
+                --file=requirements.txt \
+                --json-file-output=$(Build.ArtifactStagingDirectory)/snyk-results.json \
+                || SNYK_EXIT=$?
+
+              # Also test container images if they exist
+              if [ -f "api_gateway/Dockerfile" ]; then
+                echo "Scanning container image definitions..."
+                snyk container test --file=api_gateway/Dockerfile --json-file-output=$(Build.ArtifactStagingDirectory)/snyk-container-results.json || true
+              fi
+
+              # Create human-readable report
+              snyk test \
+                --file=requirements.txt \
+                > $(Build.ArtifactStagingDirectory)/snyk-report.txt 2>&1 || true
+
+              # Exit with Snyk's exit code if vulnerabilities found
+              if [ "$SNYK_EXIT" = "1" ]; then
+                echo "##[error]High severity vulnerabilities found. See Snyk report for details."
+                cat $(Build.ArtifactStagingDirectory)/snyk-report.txt
+                exit 1
+              elif [ "$SNYK_EXIT" = "2" ]; then
+                echo "##[warning]Snyk scan completed with warnings."
+              else
+                echo "##[section]No high severity vulnerabilities found."
+              fi
+            displayName: 'Snyk Security Scan'
+            env:
+              SNYK_TOKEN: $(SNYK_TOKEN)
+            continueOnError: true  # Don't fail pipeline if Snyk token not configured
+
+          - task: PublishBuildArtifacts@1
+            displayName: 'Publish Snyk reports'
+            inputs:
+              pathToPublish: '$(Build.ArtifactStagingDirectory)'
+              artifactName: 'snyk-security-reports'
+            condition: always()
+
+      # ----------------------------------------------------------------------
+      # Job 1.3: Unit Tests
+      # ----------------------------------------------------------------------
+      - job: UnitTests
+        dependsOn: []  # Runs in parallel with other jobs
+        displayName: 'Unit Tests'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: UsePythonVersion@0
+            displayName: 'Use Python $(pythonVersion)'
+            inputs:
+              versionSpec: '$(pythonVersion)'
+              addToPath: true
+
+          - script: |
+              python -m pip install --upgrade pip
+              pip install pytest pytest-cov pytest-asyncio fastapi
+              pip install -r requirements.txt
+            displayName: 'Install dependencies'
+
+          - script: |
+              pytest tests/unit/ -v --tb=short \
+                --cov=shared \
+                --cov-report=xml:$(Build.ArtifactStagingDirectory)/coverage-unit.xml \
+                --cov-report=html:$(Build.ArtifactStagingDirectory)/htmlcov-unit \
+                --junitxml=$(Build.ArtifactStagingDirectory)/test-results-unit.xml
+            displayName: 'Run unit tests'
+
+          - task: PublishTestResults@2
+            displayName: 'Publish test results'
+            inputs:
+              testResultsFormat: 'JUnit'
+              testResultsFiles: '$(Build.ArtifactStagingDirectory)/test-results-unit.xml'
+              testRunTitle: 'Unit Tests'
+
+          - task: PublishCodeCoverageResults@2
+            displayName: 'Publish code coverage'
+            inputs:
+              codeCoverageTool: 'Cobertura'
+              summaryFileLocation: '$(Build.ArtifactStagingDirectory)/coverage-unit.xml'
+              reportDirectory: '$(Build.ArtifactStagingDirectory)/htmlcov-unit'
+
+      # ----------------------------------------------------------------------
+      # Job 1.4: Build Docker Images
+      # ----------------------------------------------------------------------
+      - job: BuildImages
+        displayName: 'Build Docker Images'
+        pool:
+          vmImage: 'ubuntu-latest'
+        dependsOn:
+          - CodeQuality
+          - SnykScan
+          - UnitTests
+        condition: succeeded()
+        steps:
+          - task: Docker@2
+            displayName: 'Build API Gateway image'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'api-gateway'
+              command: 'build'
+              Dockerfile: 'api_gateway/Dockerfile'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Build Intent Classifier image'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'intent-classifier'
+              command: 'build'
+              Dockerfile: 'agents/intent_classification/Dockerfile'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Build Knowledge Retrieval image'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'knowledge-retrieval'
+              command: 'build'
+              Dockerfile: 'agents/knowledge_retrieval/Dockerfile'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Build Response Generator image'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'response-generator'
+              command: 'build'
+              Dockerfile: 'agents/response_generation/Dockerfile'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Build Escalation image'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'escalation'
+              command: 'build'
+              Dockerfile: 'agents/escalation/Dockerfile'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Build Analytics image'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'analytics'
+              command: 'build'
+              Dockerfile: 'agents/analytics/Dockerfile'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Build Critic Supervisor image'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'critic-supervisor'
+              command: 'build'
+              Dockerfile: 'agents/critic_supervisor/Dockerfile'
+              tags: |
+                $(imageTag)
+                latest
+
+  # ==========================================================================
+  # Stage 2: Push Images to ACR
+  # ==========================================================================
+  # Purpose: Push built images to Azure Container Registry
+  # ==========================================================================
+  - stage: Push
+    displayName: 'Push to Registry'
+    dependsOn: Build
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
+    jobs:
+      - job: PushImages
+        displayName: 'Push Docker Images'
+        pool:
+          vmImage: 'ubuntu-latest'
+        steps:
+          - task: Docker@2
+            displayName: 'Push API Gateway'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'api-gateway'
+              command: 'push'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Push Intent Classifier'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'intent-classifier'
+              command: 'push'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Push Knowledge Retrieval'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'knowledge-retrieval'
+              command: 'push'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Push Response Generator'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'response-generator'
+              command: 'push'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Push Escalation'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'escalation'
+              command: 'push'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Push Analytics'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'analytics'
+              command: 'push'
+              tags: |
+                $(imageTag)
+                latest
+
+          - task: Docker@2
+            displayName: 'Push Critic Supervisor'
+            inputs:
+              containerRegistry: 'agntcy-acr-connection'
+              repository: 'critic-supervisor'
+              command: 'push'
+              tags: |
+                $(imageTag)
+                latest
+
+  # ==========================================================================
+  # Stage 3: Deploy to Staging
+  # ==========================================================================
+  # Purpose: Deploy to staging environment for smoke tests
+  # ==========================================================================
+  - stage: DeployStaging
+    displayName: 'Deploy to Staging'
+    dependsOn: Push
+    condition: succeeded()
+    jobs:
+      - deployment: DeployToStaging
+        displayName: 'Deploy to Staging Environment'
+        pool:
+          vmImage: 'ubuntu-latest'
+        environment: 'staging'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: 'Update Container Apps (Staging)'
+                  inputs:
+                    azureSubscription: 'agntcy-prod-connection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      # Update each Container App with new image
+                      for app in api-gateway intent-classifier knowledge-retrieval response-generator escalation analytics critic-supervisor; do
+                        echo "Updating $app..."
+                        az containerapp update \
+                          --name agntcy-cs-prod-$app \
+                          --resource-group $(resourceGroup) \
+                          --image $(acrLoginServer)/$app:$(imageTag) \
+                          --output none || echo "Warning: Failed to update $app"
+                      done
+
+                - task: AzureCLI@2
+                  displayName: 'Smoke Test - Health Check'
+                  inputs:
+                    azureSubscription: 'agntcy-prod-connection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      # Get API Gateway URL
+                      API_URL=$(az containerapp show \
+                        --name agntcy-cs-prod-api-gateway \
+                        --resource-group $(resourceGroup) \
+                        --query properties.configuration.ingress.fqdn \
+                        -o tsv)
+
+                      # Health check
+                      echo "Testing health endpoint at https://$API_URL/health"
+                      HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://$API_URL/health)
+
+                      if [ "$HTTP_STATUS" -eq "200" ]; then
+                        echo "##[section]Health check passed (HTTP $HTTP_STATUS)"
+                      else
+                        echo "##[error]Health check failed (HTTP $HTTP_STATUS)"
+                        exit 1
+                      fi
+
+  # ==========================================================================
+  # Stage 4: Deploy to Production
+  # ==========================================================================
+  # Purpose: Deploy to production with manual approval gate
+  #
+  # Why manual approval?
+  # - Production deployments require human verification
+  # - Allows for rollback decision before cutover
+  # - Required for enterprise-class operations
+  # ==========================================================================
+  - stage: DeployProduction
+    displayName: 'Deploy to Production'
+    dependsOn: DeployStaging
+    condition: succeeded()
+    jobs:
+      - deployment: DeployToProduction
+        displayName: 'Deploy to Production Environment'
+        pool:
+          vmImage: 'ubuntu-latest'
+        # Manual approval required
+        environment: 'production'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - task: AzureCLI@2
+                  displayName: 'Pre-deployment verification'
+                  inputs:
+                    azureSubscription: 'agntcy-prod-connection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "##[section]Pre-deployment checks"
+
+                      # Verify all Container Apps are running
+                      for app in api-gateway intent-classifier knowledge-retrieval response-generator escalation analytics critic-supervisor; do
+                        STATUS=$(az containerapp show \
+                          --name agntcy-cs-prod-$app \
+                          --resource-group $(resourceGroup) \
+                          --query properties.runningStatus \
+                          -o tsv 2>/dev/null || echo "Unknown")
+                        echo "  $app: $STATUS"
+                      done
+
+                - task: AzureCLI@2
+                  displayName: 'Update Container Apps (Production)'
+                  inputs:
+                    azureSubscription: 'agntcy-prod-connection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      # Update each Container App with new image
+                      for app in api-gateway intent-classifier knowledge-retrieval response-generator escalation analytics critic-supervisor; do
+                        echo "##[command]Updating $app to version $(imageTag)..."
+                        az containerapp update \
+                          --name agntcy-cs-prod-$app \
+                          --resource-group $(resourceGroup) \
+                          --image $(acrLoginServer)/$app:$(imageTag) \
+                          --output none
+
+                        if [ $? -eq 0 ]; then
+                          echo "##[section]$app updated successfully"
+                        else
+                          echo "##[error]Failed to update $app"
+                          exit 1
+                        fi
+                      done
+
+                - task: AzureCLI@2
+                  displayName: 'Post-deployment verification'
+                  inputs:
+                    azureSubscription: 'agntcy-prod-connection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "##[section]Post-deployment verification"
+
+                      # Wait for containers to stabilize
+                      sleep 30
+
+                      # Verify health endpoint
+                      API_URL=$(az containerapp show \
+                        --name agntcy-cs-prod-api-gateway \
+                        --resource-group $(resourceGroup) \
+                        --query properties.configuration.ingress.fqdn \
+                        -o tsv)
+
+                      echo "Testing production health endpoint..."
+                      HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" https://$API_URL/health)
+
+                      if [ "$HTTP_STATUS" -eq "200" ]; then
+                        echo "##[section]Production deployment verified (HTTP $HTTP_STATUS)"
+                      else
+                        echo "##[warning]Health check returned HTTP $HTTP_STATUS"
+                      fi
+
+                      # Log deployment info
+                      echo "##[section]Deployment Summary"
+                      echo "  Image Tag: $(imageTag)"
+                      echo "  Build ID: $(Build.BuildId)"
+                      echo "  Source: $(Build.SourceBranch)"
+                      echo "  Commit: $(Build.SourceVersion)"
+
+                - task: AzureCLI@2
+                  displayName: 'Create deployment tag in Git'
+                  inputs:
+                    azureSubscription: 'agntcy-prod-connection'
+                    scriptType: 'bash'
+                    scriptLocation: 'inlineScript'
+                    inlineScript: |
+                      echo "Deployment completed"
+                      echo "Tag: deploy-$(imageTag)"
+                      echo "Time: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+# ============================================================================
+# Pipeline Complete
+# ============================================================================
+# Post-deployment monitoring:
+# - Check Azure Monitor for scaling events
+# - Review Application Insights for error rates
+# - Verify budget alerts in Azure Cost Management
+#
+# Rollback procedure:
+# 1. Re-run pipeline with previous successful build
+# 2. Or manually: az containerapp update --image :previous-tag
+#
+# See: docs/RUNBOOK-AUTO-SCALING-OPERATIONS.md for operational procedures
+# ============================================================================

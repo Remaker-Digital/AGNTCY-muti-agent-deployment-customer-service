@@ -245,11 +245,7 @@ class ZendeskClient(BaseAPIClient):
             self.logger.error(f"Failed to update ticket {ticket_id}: {response.error}")
             return None
 
-    async def close_ticket(
-        self,
-        ticket_id: str,
-        comment: Optional[str] = None
-    ) -> bool:
+    async def close_ticket(self, ticket_id: str, comment: Optional[str] = None) -> bool:
         """
         Close a ticket with optional closing comment.
 
@@ -324,7 +320,7 @@ class ZendeskClient(BaseAPIClient):
         # Zendesk uses ticket update to add comments
         response = await self.put(
             f"/tickets/{ticket_id}.json",
-            json_data={"ticket": {"comment": comment_data["comment"]}}
+            json_data={"ticket": {"comment": comment_data["comment"]}},
         )
 
         if response.success:
@@ -375,9 +371,7 @@ class ZendeskClient(BaseAPIClient):
         return []
 
     async def get_user_tickets(
-        self,
-        user_id: str,
-        status: Optional[str] = None
+        self, user_id: str, status: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get tickets for a specific user.
@@ -396,8 +390,7 @@ class ZendeskClient(BaseAPIClient):
             params["status"] = status
 
         response = await self.get(
-            f"/users/{user_id}/tickets/requested.json",
-            params=params
+            f"/users/{user_id}/tickets/requested.json", params=params
         )
 
         if response.success and response.data:

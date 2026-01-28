@@ -24,7 +24,7 @@ from pydantic import BaseModel
 app = FastAPI(
     title="Mock Google Analytics API",
     description="Mock Google Analytics Data API (GA4) for development and testing",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Data directory for JSON fixtures
@@ -72,6 +72,7 @@ class RunRealtimeReportRequest(BaseModel):
 # API Endpoints
 # ============================================================================
 
+
 @app.get("/")
 async def root():
     """API root - basic info."""
@@ -80,8 +81,8 @@ async def root():
         "version": "1.0.0",
         "endpoints": [
             "/v1beta/properties/{property}/runReport",
-            "/v1beta/properties/{property}/runRealtimeReport"
-        ]
+            "/v1beta/properties/{property}/runRealtimeReport",
+        ],
     }
 
 
@@ -93,9 +94,7 @@ async def health_check():
 
 @app.post("/v1beta/properties/{property}/runReport")
 async def run_report(
-    property: str,
-    request: RunReportRequest,
-    authorization: str = Header(None)
+    property: str, request: RunReportRequest, authorization: str = Header(None)
 ):
     """
     Run a standard GA4 report.
@@ -111,10 +110,15 @@ async def run_report(
     # Determine which report to return based on dimensions
     dimension_names = [d.name for d in request.dimensions]
 
-    if "sessionSource" in dimension_names or "ecommercePurchases" in [m.name for m in request.metrics]:
+    if "sessionSource" in dimension_names or "ecommercePurchases" in [
+        m.name for m in request.metrics
+    ]:
         # E-commerce report
         return reports_data.get("ecommerce_report", {})
-    elif "sessionDefaultChannelGroup" in dimension_names or "landingPage" in dimension_names:
+    elif (
+        "sessionDefaultChannelGroup" in dimension_names
+        or "landingPage" in dimension_names
+    ):
         # Customer journey report
         return reports_data.get("customer_journey_report", {})
     else:
@@ -124,9 +128,7 @@ async def run_report(
 
 @app.post("/v1beta/properties/{property}/runRealtimeReport")
 async def run_realtime_report(
-    property: str,
-    request: RunRealtimeReportRequest,
-    authorization: str = Header(None)
+    property: str, request: RunRealtimeReportRequest, authorization: str = Header(None)
 ):
     """
     Run a real-time GA4 report.
@@ -152,10 +154,7 @@ async def run_realtime_report(
 
 
 @app.get("/v1beta/properties/{property}/metadata")
-async def get_metadata(
-    property: str,
-    authorization: str = Header(None)
-):
+async def get_metadata(property: str, authorization: str = Header(None)):
     """
     Get property metadata.
     Mock response with available dimensions and metrics for the property.
@@ -163,38 +162,116 @@ async def get_metadata(
     return {
         "name": f"properties/{property}/metadata",
         "dimensions": [
-            {"apiName": "date", "uiName": "Date", "description": "The date of the event"},
-            {"apiName": "pagePath", "uiName": "Page path", "description": "The path of the page"},
-            {"apiName": "country", "uiName": "Country", "description": "User's country"},
+            {
+                "apiName": "date",
+                "uiName": "Date",
+                "description": "The date of the event",
+            },
+            {
+                "apiName": "pagePath",
+                "uiName": "Page path",
+                "description": "The path of the page",
+            },
+            {
+                "apiName": "country",
+                "uiName": "Country",
+                "description": "User's country",
+            },
             {"apiName": "city", "uiName": "City", "description": "User's city"},
-            {"apiName": "sessionSource", "uiName": "Session source", "description": "Traffic source"},
-            {"apiName": "sessionDefaultChannelGroup", "uiName": "Channel group", "description": "Default channel"},
-            {"apiName": "landingPage", "uiName": "Landing page", "description": "First page viewed"},
-            {"apiName": "eventName", "uiName": "Event name", "description": "Name of the event"}
+            {
+                "apiName": "sessionSource",
+                "uiName": "Session source",
+                "description": "Traffic source",
+            },
+            {
+                "apiName": "sessionDefaultChannelGroup",
+                "uiName": "Channel group",
+                "description": "Default channel",
+            },
+            {
+                "apiName": "landingPage",
+                "uiName": "Landing page",
+                "description": "First page viewed",
+            },
+            {
+                "apiName": "eventName",
+                "uiName": "Event name",
+                "description": "Name of the event",
+            },
         ],
         "metrics": [
-            {"apiName": "activeUsers", "uiName": "Active users", "description": "Number of active users"},
-            {"apiName": "sessions", "uiName": "Sessions", "description": "Number of sessions"},
-            {"apiName": "totalUsers", "uiName": "Total users", "description": "Total unique users"},
-            {"apiName": "screenPageViews", "uiName": "Views", "description": "Number of page views"},
-            {"apiName": "averageSessionDuration", "uiName": "Avg session", "description": "Average session duration"},
-            {"apiName": "bounceRate", "uiName": "Bounce rate", "description": "Percentage of bounced sessions"},
-            {"apiName": "ecommercePurchases", "uiName": "Purchases", "description": "Number of purchases"},
-            {"apiName": "purchaseRevenue", "uiName": "Revenue", "description": "Total purchase revenue"},
-            {"apiName": "itemsViewed", "uiName": "Items viewed", "description": "Number of items viewed"},
-            {"apiName": "itemsAddedToCart", "uiName": "Cart adds", "description": "Items added to cart"},
-            {"apiName": "conversions", "uiName": "Conversions", "description": "Number of conversions"},
-            {"apiName": "conversionRate", "uiName": "Conversion rate", "description": "Conversion percentage"},
-            {"apiName": "eventCount", "uiName": "Event count", "description": "Number of events"}
-        ]
+            {
+                "apiName": "activeUsers",
+                "uiName": "Active users",
+                "description": "Number of active users",
+            },
+            {
+                "apiName": "sessions",
+                "uiName": "Sessions",
+                "description": "Number of sessions",
+            },
+            {
+                "apiName": "totalUsers",
+                "uiName": "Total users",
+                "description": "Total unique users",
+            },
+            {
+                "apiName": "screenPageViews",
+                "uiName": "Views",
+                "description": "Number of page views",
+            },
+            {
+                "apiName": "averageSessionDuration",
+                "uiName": "Avg session",
+                "description": "Average session duration",
+            },
+            {
+                "apiName": "bounceRate",
+                "uiName": "Bounce rate",
+                "description": "Percentage of bounced sessions",
+            },
+            {
+                "apiName": "ecommercePurchases",
+                "uiName": "Purchases",
+                "description": "Number of purchases",
+            },
+            {
+                "apiName": "purchaseRevenue",
+                "uiName": "Revenue",
+                "description": "Total purchase revenue",
+            },
+            {
+                "apiName": "itemsViewed",
+                "uiName": "Items viewed",
+                "description": "Number of items viewed",
+            },
+            {
+                "apiName": "itemsAddedToCart",
+                "uiName": "Cart adds",
+                "description": "Items added to cart",
+            },
+            {
+                "apiName": "conversions",
+                "uiName": "Conversions",
+                "description": "Number of conversions",
+            },
+            {
+                "apiName": "conversionRate",
+                "uiName": "Conversion rate",
+                "description": "Conversion percentage",
+            },
+            {
+                "apiName": "eventCount",
+                "uiName": "Event count",
+                "description": "Number of events",
+            },
+        ],
     }
 
 
 # Additional helper endpoints for testing
 @app.get("/v1beta/properties")
-async def list_properties(
-    authorization: str = Header(None)
-):
+async def list_properties(authorization: str = Header(None)):
     """
     List GA4 properties (mock).
     Returns a single mock property for testing.
@@ -207,7 +284,7 @@ async def list_properties(
                 "displayName": "Company Store - Production",
                 "industryCategory": "SHOPPING",
                 "timeZone": "America/New_York",
-                "currencyCode": "USD"
+                "currencyCode": "USD",
             }
         ]
     }
@@ -215,4 +292,5 @@ async def list_properties(
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

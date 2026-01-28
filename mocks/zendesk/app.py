@@ -25,7 +25,7 @@ from pydantic import BaseModel
 app = FastAPI(
     title="Mock Zendesk API",
     description="Mock Zendesk Support API for development and testing",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Data directory for JSON fixtures
@@ -69,6 +69,7 @@ class CommentCreate(BaseModel):
 # API Endpoints
 # ============================================================================
 
+
 @app.get("/")
 async def root():
     """API root - basic info."""
@@ -79,8 +80,8 @@ async def root():
             "/api/v2/tickets.json",
             "/api/v2/tickets/{ticket_id}.json",
             "/api/v2/users/{user_id}.json",
-            "/api/v2/tickets/{ticket_id}/comments.json"
-        ]
+            "/api/v2/tickets/{ticket_id}/comments.json",
+        ],
     }
 
 
@@ -96,7 +97,7 @@ async def get_tickets(
     priority: Optional[str] = Query(None),
     page: int = Query(1, ge=1),
     per_page: int = Query(100, ge=1, le=100),
-    authorization: str = Header(None)
+    authorization: str = Header(None),
 ):
     """
     Get tickets list.
@@ -113,17 +114,11 @@ async def get_tickets(
     if priority:
         tickets = [t for t in tickets if t.get("priority") == priority]
 
-    return {
-        "tickets": tickets,
-        "count": len(tickets)
-    }
+    return {"tickets": tickets, "count": len(tickets)}
 
 
 @app.get("/api/v2/tickets/{ticket_id}.json")
-async def get_ticket(
-    ticket_id: int,
-    authorization: str = Header(None)
-):
+async def get_ticket(ticket_id: int, authorization: str = Header(None)):
     """Get single ticket by ID."""
     tickets_data = load_fixture("tickets.json")
     tickets = tickets_data.get("tickets", [])
@@ -136,10 +131,7 @@ async def get_ticket(
 
 
 @app.post("/api/v2/tickets.json")
-async def create_ticket(
-    ticket: TicketCreate,
-    authorization: str = Header(None)
-):
+async def create_ticket(ticket: TicketCreate, authorization: str = Header(None)):
     """
     Create new ticket.
     Mock response for ticket creation.
@@ -156,7 +148,7 @@ async def create_ticket(
         "assignee_id": None,
         "created_at": datetime.utcnow().isoformat() + "Z",
         "updated_at": datetime.utcnow().isoformat() + "Z",
-        "tags": ticket.tags
+        "tags": ticket.tags,
     }
 
     return {"ticket": new_ticket}
@@ -164,9 +156,7 @@ async def create_ticket(
 
 @app.put("/api/v2/tickets/{ticket_id}.json")
 async def update_ticket(
-    ticket_id: int,
-    ticket_update: TicketUpdate,
-    authorization: str = Header(None)
+    ticket_id: int, ticket_update: TicketUpdate, authorization: str = Header(None)
 ):
     """
     Update existing ticket.
@@ -196,10 +186,7 @@ async def update_ticket(
 
 
 @app.get("/api/v2/users/{user_id}.json")
-async def get_user(
-    user_id: int,
-    authorization: str = Header(None)
-):
+async def get_user(user_id: int, authorization: str = Header(None)):
     """
     Get user information by ID.
     Used for customer profile lookup during escalation.
@@ -216,9 +203,7 @@ async def get_user(
 
 @app.post("/api/v2/tickets/{ticket_id}/comments.json")
 async def create_comment(
-    ticket_id: int,
-    comment: CommentCreate,
-    authorization: str = Header(None)
+    ticket_id: int, comment: CommentCreate, authorization: str = Header(None)
 ):
     """
     Add comment to ticket.
@@ -239,17 +224,14 @@ async def create_comment(
         "author_id": comment.author_id,
         "body": comment.body,
         "public": comment.public,
-        "created_at": datetime.utcnow().isoformat() + "Z"
+        "created_at": datetime.utcnow().isoformat() + "Z",
     }
 
     return {"comment": new_comment}
 
 
 @app.get("/api/v2/tickets/{ticket_id}/comments.json")
-async def get_comments(
-    ticket_id: int,
-    authorization: str = Header(None)
-):
+async def get_comments(ticket_id: int, authorization: str = Header(None)):
     """
     Get all comments for a ticket.
     Used for conversation history retrieval.
@@ -260,10 +242,7 @@ async def get_comments(
     # Filter comments for this ticket
     ticket_comments = [c for c in all_comments if c.get("ticket_id") == ticket_id]
 
-    return {
-        "comments": ticket_comments,
-        "count": len(ticket_comments)
-    }
+    return {"comments": ticket_comments, "count": len(ticket_comments)}
 
 
 # Webhook simulation endpoint (for future Phase 2/3 testing)
@@ -275,4 +254,5 @@ async def webhook_ticket_status_changed():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

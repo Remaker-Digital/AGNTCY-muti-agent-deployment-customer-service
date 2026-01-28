@@ -65,7 +65,7 @@ from shared.models import (
     create_a2a_message,
     extract_message_content,
     generate_context_id,
-    generate_message_id
+    generate_message_id,
 )
 
 # Import agents for testing
@@ -109,7 +109,9 @@ class TestProductInfoFlow:
         agent = KnowledgeRetrievalAgent()
         # Override Shopify client to use localhost for tests
         agent.shopify_client.base_url = "http://localhost:8001"
-        agent.logger.info(f"Test override: Using Shopify URL {agent.shopify_client.base_url}")
+        agent.logger.info(
+            f"Test override: Using Shopify URL {agent.shopify_client.base_url}"
+        )
         yield agent
         agent.cleanup()
 
@@ -161,14 +163,14 @@ class TestProductInfoFlow:
             content=customer_query,
             channel="chat",
             context_id=context_id,
-            language=Language.EN
+            language=Language.EN,
         )
 
         intent_request = create_a2a_message(
             role="user",
             content=customer_message,
             context_id=context_id,
-            metadata={"test": "product_search_single"}
+            metadata={"test": "product_search_single"},
         )
 
         # STEP 2: Intent Classification Agent processes query
@@ -182,14 +184,18 @@ class TestProductInfoFlow:
             Intent.PRODUCT_INFO.value,
             Intent.PRODUCT_INQUIRY.value,
             Intent.BREWER_SUPPORT.value,  # Coffee brewer is a product
-            Intent.GIFT_CARD.value
+            Intent.GIFT_CARD.value,
         ]
-        assert intent_result_data["intent"] in valid_product_intents, \
-            f"Intent should be product-related, got: {intent_result_data['intent']}"
-        assert intent_result_data["confidence"] >= 0.80, \
-            "Confidence should be high (>80%) for clear product inquiry"
+        assert (
+            intent_result_data["intent"] in valid_product_intents
+        ), f"Intent should be product-related, got: {intent_result_data['intent']}"
+        assert (
+            intent_result_data["confidence"] >= 0.80
+        ), "Confidence should be high (>80%) for clear product inquiry"
 
-        print(f"[OK] Step 1 Complete: Intent classified as {intent_result_data['intent']}")
+        print(
+            f"[OK] Step 1 Complete: Intent classified as {intent_result_data['intent']}"
+        )
         print(f"  - Confidence: {intent_result_data['confidence']:.2%}")
 
         # STEP 3: Knowledge Retrieval Agent searches product catalog
@@ -203,30 +209,31 @@ class TestProductInfoFlow:
             query_text=customer_query,
             intent=classified_intent,  # Use actual classified intent
             filters={},  # No specific filters needed (search by query text)
-            max_results=5
+            max_results=5,
         )
 
         knowledge_request = create_a2a_message(
-            role="assistant",
-            content=knowledge_query,
-            context_id=context_id
+            role="assistant", content=knowledge_query, context_id=context_id
         )
 
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_result_data = extract_message_content(knowledge_response)
 
         # Validate knowledge retrieval
-        assert knowledge_result_data["total_results"] > 0, \
-            "Knowledge agent should find product matching 'Premium Single-Serve Coffee Brewer'"
+        assert (
+            knowledge_result_data["total_results"] > 0
+        ), "Knowledge agent should find product matching 'Premium Single-Serve Coffee Brewer'"
 
         product_data = knowledge_result_data["results"][0]
         assert product_data["type"] == "product", "Result should be a product"
-        assert "Premium" in product_data["name"], \
-            "Product name should match search query"
+        assert (
+            "Premium" in product_data["name"]
+        ), "Product name should match search query"
         assert product_data["price"] == 398.00, "Product price should be $398.00"
         assert product_data["in_stock"] == True, "Product should be in stock"
-        assert product_data["inventory_count"] == 47, \
-            "Inventory count should be 47 units"
+        assert (
+            product_data["inventory_count"] == 47
+        ), "Inventory count should be 47 units"
 
         print(f"[OK] Step 2 Complete: Product retrieved")
         print(f"  - Product: {product_data['name']}")
@@ -240,44 +247,48 @@ class TestProductInfoFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=classified_intent,  # Use actual classified intent
-            knowledge_context=knowledge_result_data["results"]
+            knowledge_context=knowledge_result_data["results"],
         )
 
         response_gen_request = create_a2a_message(
-            role="assistant",
-            content=response_request,
-            context_id=context_id
+            role="assistant", content=response_request, context_id=context_id
         )
 
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         generated_response_data = extract_message_content(response_gen_response)
 
         # Validate generated response
         response_text = generated_response_data["response_text"]
         assert len(response_text) > 50, "Response should be substantial (>50 chars)"
-        assert "Premium" in response_text, \
-            "Response should mention product name"
-        assert "$398" in response_text or "398.00" in response_text, \
-            "Response should include price"
-        assert "stock" in response_text.lower() or "available" in response_text.lower(), \
-            "Response should mention stock availability"
+        assert "Premium" in response_text, "Response should mention product name"
+        assert (
+            "$398" in response_text or "398.00" in response_text
+        ), "Response should include price"
+        assert (
+            "stock" in response_text.lower() or "available" in response_text.lower()
+        ), "Response should mention stock availability"
 
         # Product info queries should NOT require escalation
-        assert not generated_response_data["requires_escalation"], \
-            "Product information queries should not require escalation"
+        assert not generated_response_data[
+            "requires_escalation"
+        ], "Product information queries should not require escalation"
 
         print(f"[OK] Step 3 Complete: Product information response generated")
         print(f"  - Response length: {len(response_text)} characters")
         print(f"  - Includes price: {'$398' in response_text}")
         print(f"  - Includes stock status: {'stock' in response_text.lower()}")
-        print(f"  - Escalation required: {generated_response_data['requires_escalation']}")
+        print(
+            f"  - Escalation required: {generated_response_data['requires_escalation']}"
+        )
 
         # Final validation: Complete response preview
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("FINAL CUSTOMER RESPONSE (PRODUCT INFO):")
-        print("="*60)
+        print("=" * 60)
         print(response_text)
-        print("="*60)
+        print("=" * 60)
 
     @pytest.mark.asyncio
     async def test_product_search_multiple_results(
@@ -308,10 +319,12 @@ class TestProductInfoFlow:
             customer_id="persona_002",
             content=customer_query,
             channel="chat",
-            context_id=context_id
+            context_id=context_id,
         )
 
-        intent_request = create_a2a_message(role="user", content=customer_message, context_id=context_id)
+        intent_request = create_a2a_message(
+            role="user", content=customer_message, context_id=context_id
+        )
         intent_response = await intent_agent.handle_message(intent_request)
         intent_data = extract_message_content(intent_response)
 
@@ -320,10 +333,11 @@ class TestProductInfoFlow:
             Intent.PRODUCT_INFO.value,
             Intent.PRODUCT_INQUIRY.value,
             Intent.GENERAL_INQUIRY.value,  # Broad queries may be general
-            Intent.PRODUCT_RECOMMENDATION.value
+            Intent.PRODUCT_RECOMMENDATION.value,
         ]
-        assert intent_data["intent"] in valid_product_intents, \
-            f"Intent should be product-related, got: {intent_data['intent']}"
+        assert (
+            intent_data["intent"] in valid_product_intents
+        ), f"Intent should be product-related, got: {intent_data['intent']}"
 
         classified_intent = Intent(intent_data["intent"])
 
@@ -332,15 +346,18 @@ class TestProductInfoFlow:
             query_id=generate_message_id(),
             context_id=context_id,
             query_text=customer_query,
-            intent=classified_intent  # Use actual classified intent
+            intent=classified_intent,  # Use actual classified intent
         )
 
-        knowledge_request = create_a2a_message(role="assistant", content=knowledge_query, context_id=context_id)
+        knowledge_request = create_a2a_message(
+            role="assistant", content=knowledge_query, context_id=context_id
+        )
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_data = extract_message_content(knowledge_response)
 
-        assert knowledge_data["total_results"] >= 2, \
-            "Should find multiple coffee pod products"
+        assert (
+            knowledge_data["total_results"] >= 2
+        ), "Should find multiple coffee pod products"
 
         # Verify multiple products in results
         products = [r for r in knowledge_data["results"] if r["type"] == "product"]
@@ -356,24 +373,31 @@ class TestProductInfoFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=classified_intent,  # Use actual classified intent
-            knowledge_context=knowledge_data["results"]
+            knowledge_context=knowledge_data["results"],
         )
 
-        response_gen_request = create_a2a_message(role="assistant", content=response_request, context_id=context_id)
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_request = create_a2a_message(
+            role="assistant", content=response_request, context_id=context_id
+        )
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         response_data = extract_message_content(response_gen_response)
 
         response_text = response_data["response_text"]
 
         # Should include information about multiple products
-        assert "also like" in response_text.lower() or "might" in response_text.lower(), \
-            "Response should suggest related products when multiple results found"
+        assert (
+            "also like" in response_text.lower() or "might" in response_text.lower()
+        ), "Response should suggest related products when multiple results found"
 
         print(f"[OK] Multiple product response generated")
         print(f"  - Includes suggestions: {'also like' in response_text.lower()}")
 
     @pytest.mark.asyncio
-    async def test_product_not_found(self, intent_agent, knowledge_agent, response_agent):
+    async def test_product_not_found(
+        self, intent_agent, knowledge_agent, response_agent
+    ):
         """
         Test Case: Product search with no results.
 
@@ -398,10 +422,12 @@ class TestProductInfoFlow:
             customer_id="persona_003",
             content=customer_query,
             channel="chat",
-            context_id=context_id
+            context_id=context_id,
         )
 
-        intent_request = create_a2a_message(role="user", content=customer_message, context_id=context_id)
+        intent_request = create_a2a_message(
+            role="user", content=customer_message, context_id=context_id
+        )
         intent_response = await intent_agent.handle_message(intent_request)
         intent_data = extract_message_content(intent_response)
 
@@ -409,10 +435,11 @@ class TestProductInfoFlow:
         valid_product_intents = [
             Intent.PRODUCT_INFO.value,
             Intent.PRODUCT_INQUIRY.value,
-            Intent.GENERAL_INQUIRY.value
+            Intent.GENERAL_INQUIRY.value,
         ]
-        assert intent_data["intent"] in valid_product_intents, \
-            f"Intent should be product-related, got: {intent_data['intent']}"
+        assert (
+            intent_data["intent"] in valid_product_intents
+        ), f"Intent should be product-related, got: {intent_data['intent']}"
 
         classified_intent = Intent(intent_data["intent"])
 
@@ -421,16 +448,20 @@ class TestProductInfoFlow:
             query_id=generate_message_id(),
             context_id=context_id,
             query_text=customer_query,
-            intent=classified_intent  # Use actual classified intent
+            intent=classified_intent,  # Use actual classified intent
         )
 
-        knowledge_request = create_a2a_message(role="assistant", content=knowledge_query, context_id=context_id)
+        knowledge_request = create_a2a_message(
+            role="assistant", content=knowledge_query, context_id=context_id
+        )
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_data = extract_message_content(knowledge_response)
 
         # Should have 0 results for "mango soap" (not in our coffee catalog)
         products = [r for r in knowledge_data["results"] if r["type"] == "product"]
-        assert len(products) == 0, "Should not find any 'mango soap' products in coffee catalog"
+        assert (
+            len(products) == 0
+        ), "Should not find any 'mango soap' products in coffee catalog"
 
         print("[OK] Product not found (as expected for 'mango soap')")
 
@@ -440,25 +471,37 @@ class TestProductInfoFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=classified_intent,  # Use actual classified intent
-            knowledge_context=knowledge_data["results"]
+            knowledge_context=knowledge_data["results"],
         )
 
-        response_gen_request = create_a2a_message(role="assistant", content=response_request, context_id=context_id)
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_request = create_a2a_message(
+            role="assistant", content=response_request, context_id=context_id
+        )
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         response_data = extract_message_content(response_gen_response)
 
         response_text = response_data["response_text"]
 
         # Should provide helpful alternatives (not just "not found")
-        assert len(response_text) > 30, "Response should be helpful even when product not found"
-        assert "what we offer" in response_text.lower() or "products" in response_text.lower(), \
-            "Response should suggest browsing available products"
+        assert (
+            len(response_text) > 30
+        ), "Response should be helpful even when product not found"
+        assert (
+            "what we offer" in response_text.lower()
+            or "products" in response_text.lower()
+        ), "Response should suggest browsing available products"
 
         print("[OK] Graceful 'not found' response generated")
-        print(f"  - Response guides customer: {'what we offer' in response_text.lower()}")
+        print(
+            f"  - Response guides customer: {'what we offer' in response_text.lower()}"
+        )
 
     @pytest.mark.asyncio
-    async def test_product_price_inquiry(self, intent_agent, knowledge_agent, response_agent):
+    async def test_product_price_inquiry(
+        self, intent_agent, knowledge_agent, response_agent
+    ):
         """
         Test Case: Specific price inquiry.
 
@@ -478,10 +521,12 @@ class TestProductInfoFlow:
             customer_id="persona_004",
             content=customer_query,
             channel="chat",
-            context_id=context_id
+            context_id=context_id,
         )
 
-        intent_request = create_a2a_message(role="user", content=customer_message, context_id=context_id)
+        intent_request = create_a2a_message(
+            role="user", content=customer_message, context_id=context_id
+        )
         intent_response = await intent_agent.handle_message(intent_request)
         intent_data = extract_message_content(intent_response)
 
@@ -489,10 +534,11 @@ class TestProductInfoFlow:
         valid_product_intents = [
             Intent.PRODUCT_INFO.value,
             Intent.GIFT_CARD.value,  # Gift card inquiry is valid
-            Intent.PRODUCT_INQUIRY.value
+            Intent.PRODUCT_INQUIRY.value,
         ]
-        assert intent_data["intent"] in valid_product_intents, \
-            f"Intent should be product-related, got: {intent_data['intent']}"
+        assert (
+            intent_data["intent"] in valid_product_intents
+        ), f"Intent should be product-related, got: {intent_data['intent']}"
 
         classified_intent = Intent(intent_data["intent"])
 
@@ -500,10 +546,12 @@ class TestProductInfoFlow:
             query_id=generate_message_id(),
             context_id=context_id,
             query_text=customer_query,
-            intent=classified_intent  # Use actual classified intent
+            intent=classified_intent,  # Use actual classified intent
         )
 
-        knowledge_request = create_a2a_message(role="assistant", content=knowledge_query, context_id=context_id)
+        knowledge_request = create_a2a_message(
+            role="assistant", content=knowledge_query, context_id=context_id
+        )
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_data = extract_message_content(knowledge_response)
 
@@ -523,25 +571,33 @@ class TestProductInfoFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=classified_intent,  # Use actual classified intent
-            knowledge_context=knowledge_data["results"]
+            knowledge_context=knowledge_data["results"],
         )
 
-        response_gen_request = create_a2a_message(role="assistant", content=response_request, context_id=context_id)
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_request = create_a2a_message(
+            role="assistant", content=response_request, context_id=context_id
+        )
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         response_data = extract_message_content(response_gen_response)
 
         response_text = response_data["response_text"]
 
         # Price should be clearly visible in response
         assert "$" in response_text, "Response should include price with $ symbol"
-        assert str(gift_card['price']) in response_text or f"{gift_card['price']:.2f}" in response_text, \
-            "Response should include the actual price"
+        assert (
+            str(gift_card["price"]) in response_text
+            or f"{gift_card['price']:.2f}" in response_text
+        ), "Response should include the actual price"
 
         print("[OK] Price inquiry response generated")
         print(f"  - Price displayed: {'$' in response_text}")
 
     @pytest.mark.asyncio
-    async def test_product_stock_inquiry(self, intent_agent, knowledge_agent, response_agent):
+    async def test_product_stock_inquiry(
+        self, intent_agent, knowledge_agent, response_agent
+    ):
         """
         Test Case: Stock availability inquiry.
 
@@ -561,10 +617,12 @@ class TestProductInfoFlow:
             customer_id="persona_005",
             content=customer_query,
             channel="chat",
-            context_id=context_id
+            context_id=context_id,
         )
 
-        intent_request = create_a2a_message(role="user", content=customer_message, context_id=context_id)
+        intent_request = create_a2a_message(
+            role="user", content=customer_message, context_id=context_id
+        )
         intent_response = await intent_agent.handle_message(intent_request)
         intent_data = extract_message_content(intent_response)
 
@@ -572,10 +630,12 @@ class TestProductInfoFlow:
             query_id=generate_message_id(),
             context_id=context_id,
             query_text=customer_query,
-            intent=Intent.PRODUCT_INFO
+            intent=Intent.PRODUCT_INFO,
         )
 
-        knowledge_request = create_a2a_message(role="assistant", content=knowledge_query, context_id=context_id)
+        knowledge_request = create_a2a_message(
+            role="assistant", content=knowledge_query, context_id=context_id
+        )
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_data = extract_message_content(knowledge_response)
 
@@ -593,18 +653,23 @@ class TestProductInfoFlow:
                 context_id=context_id,
                 customer_message=customer_query,
                 intent=Intent.PRODUCT_INFO,
-                knowledge_context=knowledge_data["results"]
+                knowledge_context=knowledge_data["results"],
             )
 
-            response_gen_request = create_a2a_message(role="assistant", content=response_request, context_id=context_id)
-            response_gen_response = await response_agent.handle_message(response_gen_request)
+            response_gen_request = create_a2a_message(
+                role="assistant", content=response_request, context_id=context_id
+            )
+            response_gen_response = await response_agent.handle_message(
+                response_gen_request
+            )
             response_data = extract_message_content(response_gen_response)
 
             response_text = response_data["response_text"]
 
             # Stock status should be clearly mentioned
-            assert "stock" in response_text.lower() or "available" in response_text.lower(), \
-                "Response should clearly state stock availability"
+            assert (
+                "stock" in response_text.lower() or "available" in response_text.lower()
+            ), "Response should clearly state stock availability"
 
             print("[OK] Stock inquiry response generated")
             print(f"  - Stock status mentioned: {'stock' in response_text.lower()}")
@@ -618,9 +683,9 @@ async def run_manual_test():
     Run with: python -m pytest tests/integration/test_product_info_flow.py -v -s
     Or: python tests/integration/test_product_info_flow.py
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("MANUAL TEST: Product Information Inquiry Flow (Issue #25)")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     test_suite = TestProductInfoFlow()
 

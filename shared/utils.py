@@ -12,9 +12,7 @@ from pathlib import Path
 
 
 def setup_logging(
-    name: str,
-    level: str = "INFO",
-    format_string: Optional[str] = None
+    name: str, level: str = "INFO", format_string: Optional[str] = None
 ) -> logging.Logger:
     """
     Configure structured logging for an agent or service.
@@ -33,18 +31,14 @@ def setup_logging(
     """
     # Default format includes timestamp, level, name, and message
     if format_string is None:
-        format_string = (
-            "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"
-        )
+        format_string = "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s"
 
     # Convert string level to logging constant
     numeric_level = getattr(logging, level.upper(), logging.INFO)
 
     # Configure root logger
     logging.basicConfig(
-        level=numeric_level,
-        format=format_string,
-        datefmt="%Y-%m-%d %H:%M:%S"
+        level=numeric_level, format=format_string, datefmt="%Y-%m-%d %H:%M:%S"
     )
 
     # Create and return named logger
@@ -77,22 +71,23 @@ def load_config() -> Dict[str, Any]:
     return {
         # AGNTCY SDK configuration
         "slim_endpoint": os.getenv("SLIM_ENDPOINT", "http://slim:46357"),
-        "slim_password": os.getenv("SLIM_GATEWAY_PASSWORD", "changeme_local_dev_password"),
+        "slim_password": os.getenv(
+            "SLIM_GATEWAY_PASSWORD", "changeme_local_dev_password"
+        ),
         "nats_endpoint": os.getenv("NATS_ENDPOINT", "nats://nats:4222"),
-
         # Observability configuration
         "otlp_endpoint": os.getenv("OTLP_HTTP_ENDPOINT", "http://otel-collector:4318"),
         "enable_tracing": os.getenv("AGNTCY_ENABLE_TRACING", "true").lower() == "true",
-
         # Agent configuration
         "agent_topic": os.getenv("AGENT_TOPIC", "default-agent"),
         "log_level": os.getenv("LOG_LEVEL", "INFO"),
-
         # External service endpoints (for mock APIs in Phase 1)
         "shopify_url": os.getenv("SHOPIFY_URL", "http://mock-shopify:8000"),
         "zendesk_url": os.getenv("ZENDESK_URL", "http://mock-zendesk:8000"),
         "mailchimp_url": os.getenv("MAILCHIMP_URL", "http://mock-mailchimp:8000"),
-        "google_analytics_url": os.getenv("GOOGLE_ANALYTICS_URL", "http://mock-google-analytics:8000"),
+        "google_analytics_url": os.getenv(
+            "GOOGLE_ANALYTICS_URL", "http://mock-google-analytics:8000"
+        ),
     }
 
 
@@ -143,8 +138,7 @@ def get_env_or_default(key: str, default: str) -> str:
 
 
 def handle_graceful_shutdown(
-    logger: logging.Logger,
-    cleanup_callback: Optional[callable] = None
+    logger: logging.Logger, cleanup_callback: Optional[callable] = None
 ) -> None:
     """
     Set up graceful shutdown handlers for SIGTERM and SIGINT.
@@ -163,6 +157,7 @@ def handle_graceful_shutdown(
 
         handle_graceful_shutdown(logger, cleanup)
     """
+
     def signal_handler(sig, frame):
         signal_name = "SIGTERM" if sig == signal.SIGTERM else "SIGINT"
         logger.info(f"Received {signal_name}, initiating graceful shutdown...")
@@ -206,7 +201,7 @@ def validate_topic_name(topic: str) -> bool:
     import re
 
     # Topic must be lowercase alphanumeric with hyphens only
-    pattern = r'^[a-z0-9]+(-[a-z0-9]+)*$'
+    pattern = r"^[a-z0-9]+(-[a-z0-9]+)*$"
 
     if not re.match(pattern, topic):
         return False
@@ -256,19 +251,23 @@ def format_agent_name(topic: str) -> str:
 # Phase 2+: Can be extended with retry logic, circuit breakers, etc.
 class AgentError(Exception):
     """Base exception for agent-related errors."""
+
     pass
 
 
 class ConfigurationError(AgentError):
     """Raised when configuration is invalid or missing."""
+
     pass
 
 
 class CommunicationError(AgentError):
     """Raised when inter-agent communication fails."""
+
     pass
 
 
 class ExternalServiceError(AgentError):
     """Raised when external API calls fail (Shopify, Zendesk, etc.)."""
+
     pass

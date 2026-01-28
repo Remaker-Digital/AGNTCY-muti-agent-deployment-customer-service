@@ -42,6 +42,7 @@ logger = logging.getLogger(__name__)
 
 class PoolState(Enum):
     """Connection pool lifecycle states."""
+
     UNINITIALIZED = "uninitialized"
     INITIALIZING = "initializing"
     READY = "ready"
@@ -63,6 +64,7 @@ class PoolConfig:
 
     Source of Record: docs/AUTO-SCALING-ARCHITECTURE.md#connection-pooling
     """
+
     min_connections: int = 5
     max_connections: int = 50
     connection_timeout: float = 30.0
@@ -85,6 +87,7 @@ class PoolMetrics:
     - Error tracking (total_errors, circuit_breaker_trips)
     - Performance tuning (avg_acquire_time, avg_release_time)
     """
+
     connections_created: int = 0
     connections_closed: int = 0
     total_acquires: int = 0
@@ -166,8 +169,10 @@ class CircuitBreaker:
 
             if self.state == "OPEN":
                 # Check if timeout has elapsed
-                if self.last_failure_time and \
-                   (time.time() - self.last_failure_time) > self.timeout:
+                if (
+                    self.last_failure_time
+                    and (time.time() - self.last_failure_time) > self.timeout
+                ):
                     self.state = "HALF_OPEN"
                     logger.info("Circuit breaker HALF_OPEN, testing recovery")
                     return True
@@ -225,7 +230,7 @@ class AzureOpenAIPool:
         endpoint: str,
         api_key: str,
         api_version: str = "2024-02-15-preview",
-        config: Optional[PoolConfig] = None
+        config: Optional[PoolConfig] = None,
     ):
         """
         Initialize the connection pool (does not create connections yet).
@@ -252,7 +257,7 @@ class AzureOpenAIPool:
         if self.config.enable_circuit_breaker:
             self._circuit_breaker = CircuitBreaker(
                 threshold=self.config.circuit_breaker_threshold,
-                timeout=self.config.circuit_breaker_timeout
+                timeout=self.config.circuit_breaker_timeout,
             )
 
         logger.info(
@@ -280,7 +285,9 @@ class AzureOpenAIPool:
                 client = await self._create_client()
                 await self._pool.put(client)
                 self._metrics.connections_created += 1
-                logger.debug(f"Created initial connection {i + 1}/{self.config.min_connections}")
+                logger.debug(
+                    f"Created initial connection {i + 1}/{self.config.min_connections}"
+                )
 
             async with self._lock:
                 self._state = PoolState.READY
@@ -311,14 +318,14 @@ class AzureOpenAIPool:
                 limits=httpx.Limits(
                     max_connections=10,  # Per-client limit
                     max_keepalive_connections=5,
-                    keepalive_expiry=30.0
+                    keepalive_expiry=30.0,
                 ),
                 timeout=httpx.Timeout(
                     connect=5.0,
                     read=self.config.connection_timeout,
                     write=10.0,
-                    pool=5.0
-                )
+                    pool=5.0,
+                ),
             )
 
             client = AsyncAzureOpenAI(
@@ -326,7 +333,7 @@ class AzureOpenAIPool:
                 api_key=self.api_key,
                 api_version=self.api_version,
                 http_client=http_client,
-                max_retries=self.config.max_retries
+                max_retries=self.config.max_retries,
             )
 
             return client
@@ -418,16 +425,13 @@ class AzureOpenAIPool:
             if total_connections < self.config.max_connections:
                 client = await self._create_client()
                 self._metrics.connections_created += 1
-                logger.debug(
-                    f"Created new connection, total: {total_connections + 1}"
-                )
+                logger.debug(f"Created new connection, total: {total_connections + 1}")
                 return client
 
         # Wait for available client with timeout
         try:
             return await asyncio.wait_for(
-                self._pool.get(),
-                timeout=self.config.connection_timeout
+                self._pool.get(), timeout=self.config.connection_timeout
             )
         except asyncio.TimeoutError:
             self._metrics.total_timeouts += 1
@@ -446,7 +450,7 @@ class AzureOpenAIPool:
     async def _close_client(self, client) -> None:
         """Close a client and clean up resources."""
         try:
-            if hasattr(client, '_client') and hasattr(client._client, 'aclose'):
+            if hasattr(client, "_client") and hasattr(client._client, "aclose"):
                 await client._client.aclose()
             self._metrics.connections_closed += 1
         except Exception as e:
@@ -477,9 +481,7 @@ class AzureOpenAIPool:
         async with self._lock:
             self._state = PoolState.CLOSED
 
-        logger.info(
-            f"AzureOpenAIPool closed. Metrics: {self._metrics.to_dict()}"
-        )
+        logger.info(f"AzureOpenAIPool closed. Metrics: {self._metrics.to_dict()}")
 
     @property
     def available(self) -> int:
@@ -526,7 +528,7 @@ class AzureOpenAIPool:
             "total_connections": self.total,
             "max_connections": self.config.max_connections,
             "circuit_breaker_open": self.circuit_breaker_open,
-            "metrics": self._metrics.to_dict()
+            "metrics": self._metrics.to_dict(),
         }
 
 
@@ -557,7 +559,7 @@ async def init_openai_pool(
     endpoint: str,
     api_key: str,
     api_version: str = "2024-02-15-preview",
-    config: Optional[PoolConfig] = None
+    config: Optional[PoolConfig] = None,
 ) -> AzureOpenAIPool:
     """
     Initialize the global OpenAI connection pool.
@@ -580,10 +582,7 @@ async def init_openai_pool(
         return _global_pool
 
     _global_pool = AzureOpenAIPool(
-        endpoint=endpoint,
-        api_key=api_key,
-        api_version=api_version,
-        config=config
+        endpoint=endpoint, api_key=api_key, api_version=api_version, config=config
     )
     await _global_pool.initialize()
 

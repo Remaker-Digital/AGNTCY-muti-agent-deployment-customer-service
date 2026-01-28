@@ -63,7 +63,9 @@ class GoogleAnalyticsClient(BaseAPIClient):
         else:
             # Mock API
             return APIClientConfig(
-                base_url=os.getenv("MOCK_GOOGLE_ANALYTICS_URL", "http://localhost:8004"),
+                base_url=os.getenv(
+                    "MOCK_GOOGLE_ANALYTICS_URL", "http://localhost:8004"
+                ),
                 auth_type=AuthType.NONE,
                 rate_limit_per_second=0,
             )
@@ -97,14 +99,14 @@ class GoogleAnalyticsClient(BaseAPIClient):
                 if os.path.isfile(creds_json):
                     credentials = service_account.Credentials.from_service_account_file(
                         creds_json,
-                        scopes=["https://www.googleapis.com/auth/analytics.readonly"]
+                        scopes=["https://www.googleapis.com/auth/analytics.readonly"],
                     )
                 else:
                     # JSON string in environment variable
                     creds_data = json.loads(creds_json)
                     credentials = service_account.Credentials.from_service_account_info(
                         creds_data,
-                        scopes=["https://www.googleapis.com/auth/analytics.readonly"]
+                        scopes=["https://www.googleapis.com/auth/analytics.readonly"],
                     )
 
                 # Refresh token if needed
@@ -173,7 +175,9 @@ class GoogleAnalyticsClient(BaseAPIClient):
         """
         # Set default date range (last 30 days)
         if not date_range_start:
-            date_range_start = (datetime.now() - timedelta(days=30)).strftime("%Y-%m-%d")
+            date_range_start = (datetime.now() - timedelta(days=30)).strftime(
+                "%Y-%m-%d"
+            )
         if not date_range_end:
             date_range_end = datetime.now().strftime("%Y-%m-%d")
 
@@ -195,8 +199,7 @@ class GoogleAnalyticsClient(BaseAPIClient):
             report_request["metricFilter"] = metric_filter
 
         response = await self.post(
-            f"/properties/{property_id}:runReport",
-            json_data=report_request
+            f"/properties/{property_id}:runReport", json_data=report_request
         )
 
         if response.success and response.data:
@@ -248,8 +251,7 @@ class GoogleAnalyticsClient(BaseAPIClient):
         }
 
         response = await self.post(
-            f"/properties/{property_id}:runRealtimeReport",
-            json_data=report_request
+            f"/properties/{property_id}:runRealtimeReport", json_data=report_request
         )
 
         if response.success and response.data:
@@ -259,10 +261,7 @@ class GoogleAnalyticsClient(BaseAPIClient):
             return None
 
     def _format_report_response(
-        self,
-        data: Dict[str, Any],
-        dimensions: List[str],
-        metrics: List[str]
+        self, data: Dict[str, Any], dimensions: List[str], metrics: List[str]
     ) -> Dict[str, Any]:
         """Format GA4 report response into a more usable structure."""
         rows = []
@@ -443,9 +442,7 @@ class GoogleAnalyticsClient(BaseAPIClient):
                 "dimensions": [
                     d.get("apiName") for d in response.data.get("dimensions", [])
                 ],
-                "metrics": [
-                    m.get("apiName") for m in response.data.get("metrics", [])
-                ],
+                "metrics": [m.get("apiName") for m in response.data.get("metrics", [])],
             }
         return None
 

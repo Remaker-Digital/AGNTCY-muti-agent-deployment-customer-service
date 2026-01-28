@@ -8,13 +8,14 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from enum import Enum
 
-
 # =============================================================================
 # Enumerations
 # =============================================================================
 
+
 class Intent(str, Enum):
     """Customer intent categories for classification - Phase 2 coffee/brewing business."""
+
     # Order-related intents
     ORDER_STATUS = "order_status"
     ORDER_MODIFICATION = "order_modification"
@@ -49,6 +50,7 @@ class Intent(str, Enum):
 
 class Sentiment(str, Enum):
     """Customer sentiment analysis results."""
+
     POSITIVE = "positive"
     NEUTRAL = "neutral"
     NEGATIVE = "negative"
@@ -57,6 +59,7 @@ class Sentiment(str, Enum):
 
 class Priority(str, Enum):
     """Issue priority levels for escalation."""
+
     LOW = "low"
     NORMAL = "normal"
     HIGH = "high"
@@ -65,14 +68,16 @@ class Priority(str, Enum):
 
 class Language(str, Enum):
     """Supported languages for multi-language support (Phase 4)."""
-    EN = "en"          # English (Phase 1-5)
-    FR_CA = "fr-ca"    # Canadian French (Phase 4+)
-    ES = "es"          # Spanish (Phase 4+)
+
+    EN = "en"  # English (Phase 1-5)
+    FR_CA = "fr-ca"  # Canadian French (Phase 4+)
+    ES = "es"  # Spanish (Phase 4+)
 
 
 # =============================================================================
 # Agent Cards (AGNTCY SDK Agent Metadata)
 # =============================================================================
+
 
 @dataclass
 class AgentCard:
@@ -82,6 +87,7 @@ class AgentCard:
     Used to describe agent capabilities, topics, and protocols
     for service discovery and routing.
     """
+
     name: str
     topic: str
     protocol: str  # "A2A" or "MCP"
@@ -100,6 +106,7 @@ class AgentCard:
 # Customer Messages
 # =============================================================================
 
+
 @dataclass
 class CustomerMessage:
     """
@@ -108,6 +115,7 @@ class CustomerMessage:
     This is the entry point to the multi-agent system, typically
     received by the Intent Classification Agent.
     """
+
     message_id: str
     customer_id: str
     content: str
@@ -126,6 +134,7 @@ class CustomerMessage:
 # Intent Classification Messages
 # =============================================================================
 
+
 @dataclass
 class IntentClassificationResult:
     """
@@ -133,6 +142,7 @@ class IntentClassificationResult:
 
     Determines what the customer wants and routes to appropriate handlers.
     """
+
     message_id: str
     context_id: str
     intent: Intent
@@ -151,6 +161,7 @@ class IntentClassificationResult:
 # Knowledge Retrieval Messages
 # =============================================================================
 
+
 @dataclass
 class KnowledgeQuery:
     """
@@ -158,6 +169,7 @@ class KnowledgeQuery:
 
     Searches internal documentation, FAQs, product catalogs, etc.
     """
+
     query_id: str
     context_id: str
     query_text: str
@@ -176,6 +188,7 @@ class KnowledgeResult:
     """
     Knowledge base search results returned to requesting agent.
     """
+
     query_id: str
     context_id: str
     results: List[Dict[str, Any]] = field(default_factory=list)
@@ -192,6 +205,7 @@ class KnowledgeResult:
 # Response Generation Messages
 # =============================================================================
 
+
 @dataclass
 class ResponseRequest:
     """
@@ -199,6 +213,7 @@ class ResponseRequest:
 
     Combines intent, knowledge, and context to generate appropriate reply.
     """
+
     request_id: str
     context_id: str
     customer_message: str
@@ -218,6 +233,7 @@ class GeneratedResponse:
     """
     Generated response from Response Generation Agent.
     """
+
     request_id: str
     context_id: str
     response_text: str
@@ -235,6 +251,7 @@ class GeneratedResponse:
 # Escalation Messages
 # =============================================================================
 
+
 @dataclass
 class EscalationDecision:
     """
@@ -242,6 +259,7 @@ class EscalationDecision:
 
     Based on sentiment analysis, complexity scoring, and business rules.
     """
+
     decision_id: str
     context_id: str
     should_escalate: bool
@@ -262,6 +280,7 @@ class EscalationDecision:
 # Analytics Messages
 # =============================================================================
 
+
 @dataclass
 class AnalyticsEvent:
     """
@@ -269,8 +288,11 @@ class AnalyticsEvent:
 
     Analytics Agent listens passively to all agent traffic to collect metrics.
     """
+
     event_id: str
-    event_type: str  # "conversation_started", "intent_classified", "response_generated", etc.
+    event_type: (
+        str  # "conversation_started", "intent_classified", "response_generated", etc.
+    )
     context_id: str
     agent_source: str  # Which agent generated this event
     timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
@@ -286,12 +308,13 @@ class AnalyticsEvent:
 # AGNTCY Message Wrappers
 # =============================================================================
 
+
 def create_a2a_message(
     role: str,
     content: Any,
     context_id: str,
     task_id: Optional[str] = None,
-    metadata: Optional[Dict[str, Any]] = None
+    metadata: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """
     Create an A2A protocol message for agent-to-agent communication.
@@ -326,7 +349,7 @@ def create_a2a_message(
     import uuid
 
     # Convert dataclass to dict if needed
-    if hasattr(content, 'to_dict'):
+    if hasattr(content, "to_dict"):
         content_dict = content.to_dict()
     elif isinstance(content, dict):
         content_dict = content
@@ -339,7 +362,7 @@ def create_a2a_message(
         "parts": [{"type": "text", "content": content_dict}],
         "contextId": context_id,
         "taskId": task_id or str(uuid.uuid4()),
-        "metadata": metadata or {}
+        "metadata": metadata or {},
     }
 
 
@@ -368,19 +391,23 @@ def extract_message_content(message: Dict[str, Any]) -> Dict[str, Any]:
 # Utility Functions
 # =============================================================================
 
+
 def generate_message_id() -> str:
     """Generate unique message ID for tracking."""
     import uuid
+
     return f"msg-{uuid.uuid4().hex[:12]}"
 
 
 def generate_context_id() -> str:
     """Generate unique conversation context ID."""
     import uuid
+
     return f"ctx-{uuid.uuid4().hex[:12]}"
 
 
 def generate_task_id() -> str:
     """Generate unique task ID for request tracking."""
     import uuid
+
     return f"task-{uuid.uuid4().hex[:12]}"

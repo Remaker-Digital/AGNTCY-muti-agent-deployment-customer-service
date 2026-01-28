@@ -20,9 +20,8 @@ from shared.models import (
     create_a2a_message,
     extract_message_content,
     generate_message_id,
-    generate_context_id
+    generate_context_id,
 )
-
 
 # Production intent classification prompt from Phase 3.5 optimization
 # Achieved 98% accuracy in evaluation (target was >85%)
@@ -161,7 +160,7 @@ class IntentClassificationAgent(BaseAgent):
             channel=content.get("channel", "chat"),
             context_id=message.get("contextId", generate_context_id()),
             language=Language(content.get("language", "en")),
-            metadata=content.get("metadata", {})
+            metadata=content.get("metadata", {}),
         )
 
         self.logger.info(
@@ -170,10 +169,14 @@ class IntentClassificationAgent(BaseAgent):
 
         # Classify intent using Azure OpenAI or mock
         if self.openai_client:
-            intent, confidence, entities = await self._classify_intent_openai(customer_msg.content)
+            intent, confidence, entities = await self._classify_intent_openai(
+                customer_msg.content
+            )
             self.openai_classifications += 1
         else:
-            intent, confidence, entities = self._classify_intent_mock(customer_msg.content)
+            intent, confidence, entities = self._classify_intent_mock(
+                customer_msg.content
+            )
             self.mock_classifications += 1
 
         # Create classification result
@@ -184,7 +187,7 @@ class IntentClassificationAgent(BaseAgent):
             confidence=confidence,
             extracted_entities=entities,
             language=customer_msg.language,
-            routing_suggestion=self._determine_routing(intent)
+            routing_suggestion=self._determine_routing(intent),
         )
 
         self.logger.info(
@@ -200,55 +203,63 @@ class IntentClassificationAgent(BaseAgent):
             {
                 "contextId": "demo-ctx-001",
                 "taskId": "demo-task-001",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "message_id": "msg-001",
-                        "customer_id": "cust-123",
-                        "content": "Where is my order #12345?",
-                        "channel": "chat"
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "message_id": "msg-001",
+                            "customer_id": "cust-123",
+                            "content": "Where is my order #12345?",
+                            "channel": "chat",
+                        },
                     }
-                }]
+                ],
             },
             {
                 "contextId": "demo-ctx-002",
                 "taskId": "demo-task-002",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "message_id": "msg-002",
-                        "customer_id": "cust-456",
-                        "content": "I want to return the blue sweater I ordered",
-                        "channel": "email"
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "message_id": "msg-002",
+                            "customer_id": "cust-456",
+                            "content": "I want to return the blue sweater I ordered",
+                            "channel": "email",
+                        },
                     }
-                }]
+                ],
             },
             {
                 "contextId": "demo-ctx-003",
                 "taskId": "demo-task-003",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "message_id": "msg-003",
-                        "customer_id": "cust-789",
-                        "content": "This is the third time I've contacted you about this issue!",
-                        "channel": "chat"
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "message_id": "msg-003",
+                            "customer_id": "cust-789",
+                            "content": "This is the third time I've contacted you about this issue!",
+                            "channel": "chat",
+                        },
                     }
-                }]
+                ],
             },
             {
                 "contextId": "demo-ctx-004",
                 "taskId": "demo-task-004",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "message_id": "msg-004",
-                        "customer_id": "cust-101",
-                        "content": "Do you ship to Canada?",
-                        "channel": "chat"
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "message_id": "msg-004",
+                            "customer_id": "cust-101",
+                            "content": "Do you ship to Canada?",
+                            "channel": "chat",
+                        },
                     }
-                }]
-            }
+                ],
+            },
         ]
 
     def cleanup(self) -> None:
@@ -259,7 +270,9 @@ class IntentClassificationAgent(BaseAgent):
         )
         super().cleanup()
 
-    async def _classify_intent_openai(self, message_text: str) -> Tuple[Intent, float, Dict[str, Any]]:
+    async def _classify_intent_openai(
+        self, message_text: str
+    ) -> Tuple[Intent, float, Dict[str, Any]]:
         """
         Classify intent using Azure OpenAI GPT-4o-mini.
 
@@ -273,7 +286,7 @@ class IntentClassificationAgent(BaseAgent):
             result = await self.openai_client.classify_intent(
                 message=message_text,
                 system_prompt=INTENT_CLASSIFICATION_PROMPT,
-                temperature=0.0
+                temperature=0.0,
             )
 
             # Extract intent from response
@@ -287,7 +300,9 @@ class IntentClassificationAgent(BaseAgent):
             entities = self._extract_entities(message_text)
             entities["raw_intent"] = intent_str  # Store original classification
 
-            self.logger.debug(f"OpenAI classification: {intent_str} -> {intent.value} ({confidence:.2f})")
+            self.logger.debug(
+                f"OpenAI classification: {intent_str} -> {intent.value} ({confidence:.2f})"
+            )
 
             return intent, confidence, entities
 
@@ -301,23 +316,27 @@ class IntentClassificationAgent(BaseAgent):
         entities = {}
 
         # Extract order number - support formats: ORD-10234, #10234, 10234
-        order_match = re.search(r'(?:ORD-|#)?(\d{4,6})', message_text, re.IGNORECASE)
+        order_match = re.search(r"(?:ORD-|#)?(\d{4,6})", message_text, re.IGNORECASE)
         if order_match:
             entities["order_number"] = order_match.group(1)
 
         # Extract email address
-        email_match = re.search(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b', message_text)
+        email_match = re.search(
+            r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b", message_text
+        )
         if email_match:
             entities["email"] = email_match.group()
 
         # Extract phone number (basic US format)
-        phone_match = re.search(r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b', message_text)
+        phone_match = re.search(r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b", message_text)
         if phone_match:
             entities["phone"] = phone_match.group()
 
         return entities
 
-    def _classify_intent_mock(self, message_text: str) -> Tuple[Intent, float, Dict[str, Any]]:
+    def _classify_intent_mock(
+        self, message_text: str
+    ) -> Tuple[Intent, float, Dict[str, Any]]:
         """
         Mock intent classification using simple keyword matching.
 
@@ -333,59 +352,131 @@ class IntentClassificationAgent(BaseAgent):
         entities = {}
 
         # Priority 1: Escalation triggers (health & safety)
-        if any(word in message_lower for word in [
-            "allerg", "rash", "medical", "sick", "poison", "reaction", "emergency"
-        ]):
-            self.logger.warning(f"CRITICAL: Health/safety escalation detected in message")
-            return Intent.ESCALATION_NEEDED, 0.95, {"escalation_reason": "health_safety"}
+        if any(
+            word in message_lower
+            for word in [
+                "allerg",
+                "rash",
+                "medical",
+                "sick",
+                "poison",
+                "reaction",
+                "emergency",
+            ]
+        ):
+            self.logger.warning(
+                f"CRITICAL: Health/safety escalation detected in message"
+            )
+            return (
+                Intent.ESCALATION_NEEDED,
+                0.95,
+                {"escalation_reason": "health_safety"},
+            )
 
         # Priority 2: Frustration detection
-        frustration_words = ["frustrated", "angry", "upset", "annoyed", "ridiculous", "terrible", "awful", "hate"]
+        frustration_words = [
+            "frustrated",
+            "angry",
+            "upset",
+            "annoyed",
+            "ridiculous",
+            "terrible",
+            "awful",
+            "hate",
+        ]
         if any(word in message_lower for word in frustration_words):
             entities["escalation_reason"] = "customer_frustration"
             return Intent.ESCALATION_NEEDED, 0.85, entities
 
         # Return/refund requests
-        if any(word in message_lower for word in ["return", "refund", "send back", "money back", "exchange"]):
-            order_match = re.search(r'(?:ORD-|#)?(\d{4,6})', message_text, re.IGNORECASE)
+        if any(
+            word in message_lower
+            for word in ["return", "refund", "send back", "money back", "exchange"]
+        ):
+            order_match = re.search(
+                r"(?:ORD-|#)?(\d{4,6})", message_text, re.IGNORECASE
+            )
             if order_match:
                 entities["order_number"] = order_match.group(1)
             return Intent.RETURN_REQUEST, 0.85, entities
 
         # Order status queries
-        if any(word in message_lower for word in [
-            "where is my order", "where's my order", "track", "tracking", "shipment", "delivery",
-            "shipped", "arrive", "status of order", "status of my order", "order status",
-            "been delivered", "has my order"
-        ]):
-            order_match = re.search(r'(?:ORD-|#)?(\d{4,6})', message_text, re.IGNORECASE)
+        if any(
+            word in message_lower
+            for word in [
+                "where is my order",
+                "where's my order",
+                "track",
+                "tracking",
+                "shipment",
+                "delivery",
+                "shipped",
+                "arrive",
+                "status of order",
+                "status of my order",
+                "order status",
+                "been delivered",
+                "has my order",
+            ]
+        ):
+            order_match = re.search(
+                r"(?:ORD-|#)?(\d{4,6})", message_text, re.IGNORECASE
+            )
             if order_match:
                 entities["order_number"] = order_match.group(1)
             return Intent.ORDER_STATUS, 0.90, entities
 
         # Subscription management
-        if any(word in message_lower for word in [
-            "subscription", "auto-delivery", "auto delivery", "pause", "skip", "cancel subscription",
-            "change frequency", "add to next order", "change my subscription", "modify subscription"
-        ]):
+        if any(
+            word in message_lower
+            for word in [
+                "subscription",
+                "auto-delivery",
+                "auto delivery",
+                "pause",
+                "skip",
+                "cancel subscription",
+                "change frequency",
+                "add to next order",
+                "change my subscription",
+                "modify subscription",
+            ]
+        ):
             return Intent.AUTO_DELIVERY_MANAGEMENT, 0.85, entities
 
         # Product information
-        if any(word in message_lower for word in [
-            "product", "item", "details", "features", "specification", "ingredients"
-        ]):
+        if any(
+            word in message_lower
+            for word in [
+                "product",
+                "item",
+                "details",
+                "features",
+                "specification",
+                "ingredients",
+            ]
+        ):
             return Intent.PRODUCT_INFO, 0.80, entities
 
         # Shipping questions
-        if any(word in message_lower for word in [
-            "shipping", "ship to", "how fast", "delivery time", "free shipping", "international"
-        ]):
+        if any(
+            word in message_lower
+            for word in [
+                "shipping",
+                "ship to",
+                "how fast",
+                "delivery time",
+                "free shipping",
+                "international",
+            ]
+        ):
             return Intent.SHIPPING_QUESTION, 0.75, entities
 
         # Loyalty program
-        if any(word in message_lower for word in [
-            "loyalty", "points", "rewards", "credit", "glow rewards"
-        ]):
+        if any(
+            word in message_lower
+            for word in ["loyalty", "points", "rewards", "credit", "glow rewards"]
+        ):
             return Intent.LOYALTY_PROGRAM, 0.80, entities
 
         # General inquiry - catch-all
@@ -419,7 +510,7 @@ class IntentClassificationAgent(BaseAgent):
             Intent.GIFT_CARD,
             Intent.LOYALTY_PROGRAM,
             Intent.ORDER_MODIFICATION,
-            Intent.GENERAL_INQUIRY
+            Intent.GENERAL_INQUIRY,
         ]
 
         if intent in knowledge_intents:

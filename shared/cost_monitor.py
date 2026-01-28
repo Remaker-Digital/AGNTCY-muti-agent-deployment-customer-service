@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class AgentUsage:
     """Track usage for a single agent."""
+
     agent_name: str
     model: str
     prompt_tokens: int = 0
@@ -38,6 +39,7 @@ class AgentUsage:
 @dataclass
 class CostReport:
     """Aggregated cost report."""
+
     report_time: datetime
     period_start: datetime
     period_end: datetime
@@ -61,7 +63,7 @@ class CostMonitor:
     COSTS_PER_MILLION = {
         "gpt-4o-mini": {"input": 0.15, "output": 0.60},
         "gpt-4o": {"input": 2.50, "output": 10.00},
-        "text-embedding-3-large": {"input": 0.13, "output": 0.0}
+        "text-embedding-3-large": {"input": 0.13, "output": 0.0},
     }
 
     # Monthly budget limits (Phase 4: $48-62/month for AI)
@@ -75,20 +77,20 @@ class CostMonitor:
         Args:
             budget: Optional monthly budget override
         """
-        self.monthly_budget = budget or float(os.getenv("AZURE_OPENAI_MONTHLY_BUDGET", self.DEFAULT_MONTHLY_BUDGET))
+        self.monthly_budget = budget or float(
+            os.getenv("AZURE_OPENAI_MONTHLY_BUDGET", self.DEFAULT_MONTHLY_BUDGET)
+        )
         self.usage_by_agent: Dict[str, AgentUsage] = {}
         self.usage_by_model: Dict[str, Dict[str, Any]] = {}
         self.total_cost = 0.0
         self.total_tokens = 0
-        self.period_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        self.period_start = datetime.utcnow().replace(
+            day=1, hour=0, minute=0, second=0, microsecond=0
+        )
         self._alerts_sent: List[str] = []
 
     def record_usage(
-        self,
-        agent_name: str,
-        model: str,
-        prompt_tokens: int,
-        completion_tokens: int
+        self, agent_name: str, model: str, prompt_tokens: int, completion_tokens: int
     ) -> float:
         """
         Record token usage and return estimated cost.
@@ -111,8 +113,7 @@ class CostMonitor:
         # Update agent usage
         if agent_name not in self.usage_by_agent:
             self.usage_by_agent[agent_name] = AgentUsage(
-                agent_name=agent_name,
-                model=model
+                agent_name=agent_name, model=model
             )
 
         agent = self.usage_by_agent[agent_name]
@@ -130,7 +131,7 @@ class CostMonitor:
                 "completion_tokens": 0,
                 "total_tokens": 0,
                 "estimated_cost": 0.0,
-                "request_count": 0
+                "request_count": 0,
             }
 
         self.usage_by_model[model]["prompt_tokens"] += prompt_tokens
@@ -150,7 +151,9 @@ class CostMonitor:
 
     def _check_budget_alerts(self):
         """Check and trigger budget alerts."""
-        budget_used_pct = self.total_cost / self.monthly_budget if self.monthly_budget > 0 else 0
+        budget_used_pct = (
+            self.total_cost / self.monthly_budget if self.monthly_budget > 0 else 0
+        )
 
         # Alert at 80% budget
         if budget_used_pct >= self.ALERT_THRESHOLD and "80%" not in self._alerts_sent:
@@ -183,7 +186,7 @@ class CostMonitor:
             by_model=self.usage_by_model,
             budget_limit=self.monthly_budget,
             budget_remaining=budget_remaining,
-            budget_alert=budget_alert
+            budget_alert=budget_alert,
         )
 
     def get_summary(self) -> Dict[str, Any]:
@@ -193,11 +196,15 @@ class CostMonitor:
             "total_cost": round(self.total_cost, 4),
             "budget_limit": self.monthly_budget,
             "budget_remaining": round(max(0, self.monthly_budget - self.total_cost), 2),
-            "budget_used_pct": round(self.total_cost / self.monthly_budget * 100, 1) if self.monthly_budget > 0 else 0,
+            "budget_used_pct": (
+                round(self.total_cost / self.monthly_budget * 100, 1)
+                if self.monthly_budget > 0
+                else 0
+            ),
             "agents_active": len(self.usage_by_agent),
             "models_used": list(self.usage_by_model.keys()),
             "period_start": self.period_start.isoformat(),
-            "report_time": datetime.utcnow().isoformat()
+            "report_time": datetime.utcnow().isoformat(),
         }
 
     def get_agent_summary(self, agent_name: str) -> Optional[Dict[str, Any]]:
@@ -212,8 +219,14 @@ class CostMonitor:
             "total_tokens": agent.total_tokens,
             "estimated_cost": round(agent.estimated_cost, 4),
             "request_count": agent.request_count,
-            "avg_tokens_per_request": round(agent.total_tokens / agent.request_count, 1) if agent.request_count > 0 else 0,
-            "last_request": agent.last_request.isoformat() if agent.last_request else None
+            "avg_tokens_per_request": (
+                round(agent.total_tokens / agent.request_count, 1)
+                if agent.request_count > 0
+                else 0
+            ),
+            "last_request": (
+                agent.last_request.isoformat() if agent.last_request else None
+            ),
         }
 
     def export_report(self, filepath: str = None) -> str:
@@ -241,14 +254,14 @@ class CostMonitor:
                     "completion_tokens": usage.completion_tokens,
                     "total_tokens": usage.total_tokens,
                     "estimated_cost": round(usage.estimated_cost, 4),
-                    "request_count": usage.request_count
+                    "request_count": usage.request_count,
                 }
                 for name, usage in report.by_agent.items()
             },
-            "by_model": report.by_model
+            "by_model": report.by_model,
         }
 
-        with open(filepath, 'w') as f:
+        with open(filepath, "w") as f:
             json.dump(report_dict, f, indent=2)
 
         logger.info(f"Cost report exported to {filepath}")
@@ -260,7 +273,9 @@ class CostMonitor:
         self.usage_by_model = {}
         self.total_cost = 0.0
         self.total_tokens = 0
-        self.period_start = datetime.utcnow().replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+        self.period_start = datetime.utcnow().replace(
+            day=1, hour=0, minute=0, second=0, microsecond=0
+        )
         self._alerts_sent = []
         logger.info("Cost monitor reset for new billing period")
 
@@ -283,10 +298,7 @@ def get_cost_monitor() -> CostMonitor:
 
 
 def record_openai_usage(
-    agent_name: str,
-    model: str,
-    prompt_tokens: int,
-    completion_tokens: int
+    agent_name: str, model: str, prompt_tokens: int, completion_tokens: int
 ) -> float:
     """
     Convenience function to record usage.

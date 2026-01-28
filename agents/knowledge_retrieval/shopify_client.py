@@ -87,7 +87,7 @@ class ShopifyClient:
 
         Reference: httpx AsyncClient - https://www.python-httpx.org/async/
         """
-        self.base_url = base_url.rstrip('/')
+        self.base_url = base_url.rstrip("/")
         self.logger = logger
 
         # Create async HTTP client with connection pooling and timeout
@@ -193,13 +193,17 @@ class ShopifyClient:
 
         except httpx.HTTPError as e:
             # Other HTTP errors (connection refused, DNS resolution failure, etc.)
-            self.logger.error(f"HTTP error fetching order {order_number}: {e}", exc_info=True)
+            self.logger.error(
+                f"HTTP error fetching order {order_number}: {e}", exc_info=True
+            )
             return None
 
         except Exception as e:
             # Catch-all for unexpected errors (JSON parsing, etc.)
             # exc_info=True provides full stack trace for debugging
-            self.logger.error(f"Unexpected error fetching order {order_number}: {e}", exc_info=True)
+            self.logger.error(
+                f"Unexpected error fetching order {order_number}: {e}", exc_info=True
+            )
             return None
 
     async def get_orders_by_customer_email(self, email: str) -> List[Dict[str, Any]]:
@@ -231,7 +235,9 @@ class ShopifyClient:
             self.logger.error(f"Error fetching customer orders: {e}", exc_info=True)
             return []
 
-    async def search_products(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+    async def search_products(
+        self, query: str, limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Search products by keyword/title using Shopify API.
 
@@ -291,7 +297,7 @@ class ShopifyClient:
             url = f"{self.base_url}/admin/api/2024-01/products.json"
             params = {
                 "title": query,  # Issue #25: Server-side search by product name
-                "limit": limit   # Limit results (1-250, default 50 on API)
+                "limit": limit,  # Limit results (1-250, default 50 on API)
             }
 
             self.logger.debug(f"Searching products with query='{query}', limit={limit}")
@@ -334,8 +340,7 @@ class ShopifyClient:
         except httpx.HTTPError as e:
             # Other HTTP errors (connection refused, DNS resolution failure, etc.)
             self.logger.error(
-                f"HTTP error searching products (query='{query}'): {e}",
-                exc_info=True
+                f"HTTP error searching products (query='{query}'): {e}", exc_info=True
             )
             return []
 
@@ -344,7 +349,7 @@ class ShopifyClient:
             # exc_info=True provides full stack trace for debugging
             self.logger.error(
                 f"Unexpected error searching products (query='{query}'): {e}",
-                exc_info=True
+                exc_info=True,
             )
             return []
 

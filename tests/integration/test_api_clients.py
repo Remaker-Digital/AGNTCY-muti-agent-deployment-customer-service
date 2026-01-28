@@ -9,6 +9,7 @@ Run: pytest tests/integration/test_api_clients.py -v
 
 import os
 import pytest
+import pytest_asyncio
 import asyncio
 from typing import AsyncGenerator
 
@@ -30,12 +31,12 @@ from shared.api_clients import (
     get_google_analytics_client,
 )
 
-
 # =============================================================================
 # FIXTURES
 # =============================================================================
 
-@pytest.fixture
+
+@pytest_asyncio.fixture
 async def shopify_client() -> AsyncGenerator[ShopifyClient, None]:
     """Create Shopify client for testing."""
     client = ShopifyClient()
@@ -43,7 +44,7 @@ async def shopify_client() -> AsyncGenerator[ShopifyClient, None]:
     await client.close()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def zendesk_client() -> AsyncGenerator[ZendeskClient, None]:
     """Create Zendesk client for testing."""
     client = ZendeskClient()
@@ -51,7 +52,7 @@ async def zendesk_client() -> AsyncGenerator[ZendeskClient, None]:
     await client.close()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def mailchimp_client() -> AsyncGenerator[MailchimpClient, None]:
     """Create Mailchimp client for testing."""
     client = MailchimpClient()
@@ -59,7 +60,7 @@ async def mailchimp_client() -> AsyncGenerator[MailchimpClient, None]:
     await client.close()
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def ga_client() -> AsyncGenerator[GoogleAnalyticsClient, None]:
     """Create Google Analytics client for testing."""
     client = GoogleAnalyticsClient()
@@ -70,6 +71,7 @@ async def ga_client() -> AsyncGenerator[GoogleAnalyticsClient, None]:
 # =============================================================================
 # SHOPIFY CLIENT TESTS
 # =============================================================================
+
 
 class TestShopifyClient:
     """Test Shopify API client."""
@@ -129,6 +131,7 @@ class TestShopifyClient:
 # ZENDESK CLIENT TESTS
 # =============================================================================
 
+
 class TestZendeskClient:
     """Test Zendesk API client."""
 
@@ -163,6 +166,7 @@ class TestZendeskClient:
 # =============================================================================
 # MAILCHIMP CLIENT TESTS
 # =============================================================================
+
 
 class TestMailchimpClient:
     """Test Mailchimp API client."""
@@ -200,6 +204,7 @@ class TestMailchimpClient:
 # GOOGLE ANALYTICS CLIENT TESTS
 # =============================================================================
 
+
 class TestGoogleAnalyticsClient:
     """Test Google Analytics API client."""
 
@@ -233,6 +238,7 @@ class TestGoogleAnalyticsClient:
 # SINGLETON TESTS
 # =============================================================================
 
+
 class TestSingletons:
     """Test singleton pattern for clients."""
 
@@ -256,6 +262,7 @@ class TestSingletons:
 # =============================================================================
 # CONFIGURATION TESTS
 # =============================================================================
+
 
 class TestConfiguration:
     """Test configuration loading."""
@@ -285,6 +292,7 @@ class TestConfiguration:
 # =============================================================================
 # ERROR HANDLING TESTS
 # =============================================================================
+
 
 class TestErrorHandling:
     """Test error handling and graceful degradation."""

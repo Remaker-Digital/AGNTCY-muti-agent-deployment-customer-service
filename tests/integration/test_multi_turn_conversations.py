@@ -64,7 +64,7 @@ from shared.models import (
     create_a2a_message,
     extract_message_content,
     generate_context_id,
-    generate_message_id
+    generate_message_id,
 )
 
 from agents.intent_classification.agent import IntentClassificationAgent
@@ -102,10 +102,10 @@ class TestContextPreservation:
         escalation_agent = EscalationAgent()
 
         yield {
-            'intent': intent_agent,
-            'knowledge': knowledge_agent,
-            'response': response_agent,
-            'escalation': escalation_agent
+            "intent": intent_agent,
+            "knowledge": knowledge_agent,
+            "response": response_agent,
+            "escalation": escalation_agent,
         }
 
         # Cleanup
@@ -142,12 +142,12 @@ class TestContextPreservation:
                 context_id=context_id,
                 content=turn1_message,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             ).to_dict(),
-            context_id=context_id
+            context_id=context_id,
         )
 
-        turn1_result = await agents['intent'].handle_message(turn1_a2a)
+        turn1_result = await agents["intent"].handle_message(turn1_a2a)
         turn1_content = extract_message_content(turn1_result)
 
         # Validate Turn 1
@@ -165,16 +165,19 @@ class TestContextPreservation:
                 context_id=context_id,  # Same context
                 content=turn2_message,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             ).to_dict(),
-            context_id=context_id
+            context_id=context_id,
         )
 
-        turn2_result = await agents['intent'].handle_message(turn2_a2a)
+        turn2_result = await agents["intent"].handle_message(turn2_a2a)
         turn2_content = extract_message_content(turn2_result)
 
         # Validate Turn 2: Should inherit order context
-        assert turn2_content["intent"] in [Intent.ORDER_STATUS.value, Intent.SHIPPING_QUESTION.value]
+        assert turn2_content["intent"] in [
+            Intent.ORDER_STATUS.value,
+            Intent.SHIPPING_QUESTION.value,
+        ]
         # NOTE: In Phase 2 template mode, context inheritance may be limited
         # Phase 4 AI will handle this better with conversation memory
 
@@ -188,16 +191,19 @@ class TestContextPreservation:
                 context_id=context_id,  # Same context
                 content=turn3_message,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             ).to_dict(),
-            context_id=context_id
+            context_id=context_id,
         )
 
-        turn3_result = await agents['intent'].handle_message(turn3_a2a)
+        turn3_result = await agents["intent"].handle_message(turn3_a2a)
         turn3_content = extract_message_content(turn3_result)
 
         # Validate Turn 3
-        assert turn3_content["intent"] in [Intent.ORDER_MODIFICATION.value, Intent.SHIPPING_QUESTION.value]
+        assert turn3_content["intent"] in [
+            Intent.ORDER_MODIFICATION.value,
+            Intent.SHIPPING_QUESTION.value,
+        ]
         assert turn3_content["context_id"] == context_id
 
     @pytest.mark.asyncio
@@ -228,12 +234,12 @@ class TestContextPreservation:
                 context_id=context_a,
                 content=message_a,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             ).to_dict(),
-            context_id=context_a
+            context_id=context_a,
         )
 
-        result_a = await agents['intent'].handle_message(a2a_a)
+        result_a = await agents["intent"].handle_message(a2a_a)
         content_a = extract_message_content(result_a)
 
         # Customer B conversation (concurrent)
@@ -249,12 +255,12 @@ class TestContextPreservation:
                 context_id=context_b,
                 content=message_b,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             ).to_dict(),
-            context_id=context_b
+            context_id=context_b,
         )
 
-        result_b = await agents['intent'].handle_message(a2a_b)
+        result_b = await agents["intent"].handle_message(a2a_b)
         content_b = extract_message_content(result_b)
 
         # Validate isolation
@@ -280,9 +286,9 @@ class TestIntentChaining:
         response_agent = ResponseGenerationAgent()
 
         yield {
-            'intent': intent_agent,
-            'knowledge': knowledge_agent,
-            'response': response_agent
+            "intent": intent_agent,
+            "knowledge": knowledge_agent,
+            "response": response_agent,
         }
 
         intent_agent.cleanup()
@@ -317,9 +323,7 @@ class TestIntentChaining:
 
         # Turn 2: Shipping Info (chained from order status)
         turn2 = "How long will shipping take?"
-        result2 = await self._send_message(
-            agents, customer_id, context_id, turn2
-        )
+        result2 = await self._send_message(agents, customer_id, context_id, turn2)
         content2 = extract_message_content(result2)
 
         assert content2["intent"] == Intent.SHIPPING_QUESTION.value
@@ -327,9 +331,7 @@ class TestIntentChaining:
 
         # Turn 3: Return Request (customer received order, wants to return)
         turn3 = "Actually, I'd like to return this item"
-        result3 = await self._send_message(
-            agents, customer_id, context_id, turn3
-        )
+        result3 = await self._send_message(agents, customer_id, context_id, turn3)
         content3 = extract_message_content(result3)
 
         assert content3["intent"] == Intent.RETURN_REQUEST.value
@@ -360,16 +362,14 @@ class TestIntentChaining:
 
         # Turn 2: Purchase Intent
         turn2 = "Great! How do I buy it?"
-        result2 = await self._send_message(
-            agents, customer_id, context_id, turn2
-        )
+        result2 = await self._send_message(agents, customer_id, context_id, turn2)
         content2 = extract_message_content(result2)
 
         # Should recognize purchase-related intent
         assert content2["intent"] in [
             Intent.PRODUCT_INFO.value,
             Intent.ORDER_STATUS.value,  # May interpret as order-related
-            Intent.GENERAL_INQUIRY.value
+            Intent.GENERAL_INQUIRY.value,
         ]
 
     async def _send_message(self, agents, customer_id, context_id, message_text):
@@ -382,12 +382,12 @@ class TestIntentChaining:
                 context_id=context_id,
                 content=message_text,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             ).to_dict(),
-            context_id=context_id
+            context_id=context_id,
         )
 
-        return await agents['intent'].handle_message(a2a_message)
+        return await agents["intent"].handle_message(a2a_message)
 
 
 class TestClarificationLoops:
@@ -404,10 +404,7 @@ class TestClarificationLoops:
         intent_agent = IntentClassificationAgent()
         response_agent = ResponseGenerationAgent()
 
-        yield {
-            'intent': intent_agent,
-            'response': response_agent
-        }
+        yield {"intent": intent_agent, "response": response_agent}
 
         intent_agent.cleanup()
         response_agent.cleanup()
@@ -447,9 +444,7 @@ class TestClarificationLoops:
 
         # Turn 2: Customer provides clarification
         turn2 = "Order #10234"
-        result2 = await self._send_message(
-            agents, customer_id, context_id, turn2
-        )
+        result2 = await self._send_message(agents, customer_id, context_id, turn2)
         content2 = extract_message_content(result2)
 
         # Should now have order number
@@ -484,21 +479,19 @@ class TestClarificationLoops:
         # May be classified as COMPLAINT or GENERAL_INQUIRY
         assert content1["intent"] in [
             Intent.COMPLAINT.value,
-            Intent.GENERAL_INQUIRY.value
+            Intent.GENERAL_INQUIRY.value,
         ]
 
         # Turn 2: Specific complaint
         turn2 = "My order arrived damaged"
-        result2 = await self._send_message(
-            agents, customer_id, context_id, turn2
-        )
+        result2 = await self._send_message(agents, customer_id, context_id, turn2)
         content2 = extract_message_content(result2)
 
         # Should now be classified as return request or refund status
         assert content2["intent"] in [
             Intent.RETURN_REQUEST.value,
             Intent.REFUND_STATUS.value,
-            Intent.COMPLAINT.value
+            Intent.COMPLAINT.value,
         ]
 
     async def _send_message(self, agents, customer_id, context_id, message_text):
@@ -511,12 +504,12 @@ class TestClarificationLoops:
                 context_id=context_id,
                 content=message_text,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             ).to_dict(),
-            context_id=context_id
+            context_id=context_id,
         )
 
-        return await agents['intent'].handle_message(a2a_message)
+        return await agents["intent"].handle_message(a2a_message)
 
 
 class TestEscalationHandoffs:
@@ -533,10 +526,7 @@ class TestEscalationHandoffs:
         intent_agent = IntentClassificationAgent()
         escalation_agent = EscalationAgent()
 
-        yield {
-            'intent': intent_agent,
-            'escalation': escalation_agent
-        }
+        yield {"intent": intent_agent, "escalation": escalation_agent}
 
         intent_agent.cleanup()
         escalation_agent.cleanup()
@@ -584,7 +574,10 @@ class TestEscalationHandoffs:
         # Validate escalation triggered
         # Note: In Phase 2, escalation may be based on keywords + sentiment
         # Phase 4 will have more sophisticated AI-based sentiment analysis
-        escalated = content3.get("escalated", False) or content3.get("sentiment") == Sentiment.VERY_NEGATIVE.value
+        escalated = (
+            content3.get("escalated", False)
+            or content3.get("sentiment") == Sentiment.VERY_NEGATIVE.value
+        )
 
         # Even if not automatically escalated, verify conversation history is maintained
         assert len(conversation_history) == 3
@@ -613,7 +606,10 @@ class TestEscalationHandoffs:
         result1 = await self._send_message(agents, customer_id, context_id, turn1)
         content1 = extract_message_content(result1)
 
-        assert content1["intent"] in [Intent.GENERAL_INQUIRY.value, Intent.RETURN_REQUEST.value]
+        assert content1["intent"] in [
+            Intent.GENERAL_INQUIRY.value,
+            Intent.RETURN_REQUEST.value,
+        ]
 
         # Turn 2: Complex multi-part question
         turn2 = "I ordered 3 items, one arrived damaged, one is the wrong size, and one hasn't arrived yet. What should I do?"
@@ -630,7 +626,7 @@ class TestEscalationHandoffs:
         assert content2["intent"] in [
             Intent.RETURN_REQUEST.value,
             Intent.GENERAL_INQUIRY.value,
-            Intent.COMPLAINT.value
+            Intent.COMPLAINT.value,
         ]
 
     async def _send_message(self, agents, customer_id, context_id, message_text):
@@ -643,25 +639,28 @@ class TestEscalationHandoffs:
                 context_id=context_id,
                 content=message_text,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             ).to_dict(),
-            context_id=context_id
+            context_id=context_id,
         )
 
         # Get intent classification
-        intent_result = await agents['intent'].handle_message(a2a_message)
+        intent_result = await agents["intent"].handle_message(a2a_message)
         intent_content = extract_message_content(intent_result)
 
         # Check if escalation agent would flag this
         # (Simplified for Phase 2 - Phase 4 will have full integration)
-        if agents['escalation']:
-            sentiment, complexity = agents['escalation']._analyze_mock(message_text)
-            intent_content['sentiment'] = sentiment.value
-            intent_content['complexity_score'] = complexity
+        if agents["escalation"]:
+            sentiment, complexity = agents["escalation"]._analyze_mock(message_text)
+            intent_content["sentiment"] = sentiment.value
+            intent_content["complexity_score"] = complexity
 
             # Escalation logic (simplified)
-            if sentiment in [Sentiment.VERY_NEGATIVE, Sentiment.NEGATIVE] or complexity > 0.8:
-                intent_content['escalated'] = True
+            if (
+                sentiment in [Sentiment.VERY_NEGATIVE, Sentiment.NEGATIVE]
+                or complexity > 0.8
+            ):
+                intent_content["escalated"] = True
 
         return intent_content
 
@@ -679,7 +678,7 @@ class TestSessionManagement:
         """Create all agent instances for testing."""
         intent_agent = IntentClassificationAgent()
 
-        yield {'intent': intent_agent}
+        yield {"intent": intent_agent}
 
         intent_agent.cleanup()
 
@@ -793,7 +792,7 @@ class TestSessionManagement:
             ("What's your return policy?", Intent.GENERAL_INQUIRY),
             ("If I don't like it, can I return it?", Intent.RETURN_REQUEST),
             ("How do I get a refund?", Intent.REFUND_STATUS),
-            ("Thanks for your help!", Intent.GENERAL_INQUIRY)  # Positive sentiment
+            ("Thanks for your help!", Intent.GENERAL_INQUIRY),  # Positive sentiment
         ]
 
         results = []
@@ -806,13 +805,15 @@ class TestSessionManagement:
 
             # Intent may vary in Phase 2 template mode
             # Phase 4 AI will have better intent recognition
-            results.append({
-                "turn": i,
-                "message": message,
-                "expected_intent": expected_intent,
-                "actual_intent": content["intent"],
-                "context_id": content["context_id"]
-            })
+            results.append(
+                {
+                    "turn": i,
+                    "message": message,
+                    "expected_intent": expected_intent,
+                    "actual_intent": content["intent"],
+                    "context_id": content["context_id"],
+                }
+            )
 
         # Validate all turns use same context
         context_ids = [r["context_id"] for r in results]
@@ -832,12 +833,12 @@ class TestSessionManagement:
                 context_id=context_id,
                 content=message_text,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             ).to_dict(),
-            context_id=context_id
+            context_id=context_id,
         )
 
-        return await agents['intent'].handle_message(a2a_message)
+        return await agents["intent"].handle_message(a2a_message)
 
 
 # Test execution configuration

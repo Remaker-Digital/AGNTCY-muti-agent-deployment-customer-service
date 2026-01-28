@@ -221,6 +221,7 @@ resource "azurerm_application_gateway" "main" {
   }
 
   # Main HTTPS routing rule - routes to API Gateway
+  # Includes security headers rewrite rule set for OWASP compliance
   request_routing_rule {
     name                       = "https-to-api-gateway"
     priority                   = 200
@@ -228,6 +229,7 @@ resource "azurerm_application_gateway" "main" {
     http_listener_name         = "https-listener"
     backend_address_pool_name  = "api-gateway-backend-pool"
     backend_http_settings_name = "api-gateway-http-settings"
+    rewrite_rule_set_name      = "security-headers-ruleset"
   }
 
   # ============================================================================
@@ -240,6 +242,82 @@ resource "azurerm_application_gateway" "main" {
     target_listener_name = "https-listener"
     include_path         = true
     include_query_string = true
+  }
+
+  # ============================================================================
+  # REWRITE RULE SET - SECURITY HEADERS
+  # ============================================================================
+  # Purpose: Add security headers to responses for OWASP compliance
+  #
+  # Why HSTS (HTTP Strict Transport Security)?
+  # - Forces browsers to only use HTTPS connections
+  # - Prevents protocol downgrade attacks
+  # - Protects against cookie hijacking via unencrypted connections
+  # - OWASP ZAP finding: "Missing HSTS header" (Low severity)
+  #
+  # Header: Strict-Transport-Security: max-age=31536000; includeSubDomains
+  # - max-age=31536000: 1 year (recommended minimum for HSTS preload)
+  # - includeSubDomains: Apply to all subdomains
+  #
+  # Other headers considered but deferred:
+  # - Content-Security-Policy: Requires frontend coordination
+  # - Permissions-Policy: Requires frontend coordination
+  # - X-Content-Type-Options: Set by backend services
+  #
+  # See: https://learn.microsoft.com/azure/application-gateway/rewrite-http-headers
+  # See: https://owasp.org/www-project-secure-headers/
+  # OWASP ZAP Report: security-scans/ZAP-SCAN-SUMMARY-2026-01-27.md
+  # ============================================================================
+
+  rewrite_rule_set {
+    name = "security-headers-ruleset"
+
+    rewrite_rule {
+      name          = "add-hsts-header"
+      rule_sequence = 100
+
+      # Action: Add HSTS header unconditionally
+      # Note: App Gateway v2 sets this header to all responses; backend should not set it
+      # The header will be overwritten if backend also sets it (idempotent)
+      response_header_configuration {
+        header_name  = "Strict-Transport-Security"
+        header_value = "max-age=31536000; includeSubDomains"
+      }
+    }
+
+    rewrite_rule {
+      name          = "add-x-content-type-options"
+      rule_sequence = 200
+
+      # Prevent MIME type sniffing (XSS attack vector)
+      response_header_configuration {
+        header_name  = "X-Content-Type-Options"
+        header_value = "nosniff"
+      }
+    }
+
+    rewrite_rule {
+      name          = "add-x-frame-options"
+      rule_sequence = 300
+
+      # Prevent clickjacking attacks
+      response_header_configuration {
+        header_name  = "X-Frame-Options"
+        header_value = "DENY"
+      }
+    }
+
+    rewrite_rule {
+      name          = "remove-server-header"
+      rule_sequence = 400
+
+      # Remove server version info to reduce attack surface
+      # OWASP ZAP finding: "Server Leaks Version Information"
+      response_header_configuration {
+        header_name  = "Server"
+        header_value = ""  # Empty value removes the header
+      }
+    }
   }
 
   # ============================================================================

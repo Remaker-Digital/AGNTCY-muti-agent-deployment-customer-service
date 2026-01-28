@@ -63,7 +63,7 @@ from shared.models import (
     create_a2a_message,
     extract_message_content,
     generate_context_id,
-    generate_message_id
+    generate_message_id,
 )
 
 # Import agents for testing
@@ -110,7 +110,9 @@ class TestOrderStatusFlow:
         agent = KnowledgeRetrievalAgent()
         # Override Shopify client to use localhost for tests
         agent.shopify_client.base_url = "http://localhost:8001"
-        agent.logger.info(f"Test override: Using Shopify URL {agent.shopify_client.base_url}")
+        agent.logger.info(
+            f"Test override: Using Shopify URL {agent.shopify_client.base_url}"
+        )
         yield agent
         agent.cleanup()
 
@@ -163,7 +165,7 @@ class TestOrderStatusFlow:
             content=customer_query,
             channel="chat",
             context_id=context_id,
-            language=Language.EN
+            language=Language.EN,
         )
 
         # Create A2A message format for agent communication
@@ -172,7 +174,7 @@ class TestOrderStatusFlow:
             role="user",
             content=customer_message,
             context_id=context_id,
-            metadata={"test": "order_status_flow"}
+            metadata={"test": "order_status_flow"},
         )
 
         # STEP 2: Intent Classification Agent processes query
@@ -181,20 +183,29 @@ class TestOrderStatusFlow:
         intent_result_data = extract_message_content(intent_response)
 
         # Validate intent classification
-        assert intent_result_data["intent"] == Intent.ORDER_STATUS.value, \
-            "Intent should be classified as ORDER_STATUS"
-        assert intent_result_data["confidence"] >= 0.85, \
-            "Confidence should be high (>85%) for clear order status query"
-        assert "order_number" in intent_result_data["extracted_entities"], \
-            "Order number should be extracted from query"
-        assert intent_result_data["extracted_entities"]["order_number"] == "10234", \
-            "Extracted order number should match '10234'"
-        assert intent_result_data["routing_suggestion"] == "knowledge-retrieval", \
-            "Intent agent should route to knowledge-retrieval for order status"
+        assert (
+            intent_result_data["intent"] == Intent.ORDER_STATUS.value
+        ), "Intent should be classified as ORDER_STATUS"
+        assert (
+            intent_result_data["confidence"] >= 0.85
+        ), "Confidence should be high (>85%) for clear order status query"
+        assert (
+            "order_number" in intent_result_data["extracted_entities"]
+        ), "Order number should be extracted from query"
+        assert (
+            intent_result_data["extracted_entities"]["order_number"] == "10234"
+        ), "Extracted order number should match '10234'"
+        assert (
+            intent_result_data["routing_suggestion"] == "knowledge-retrieval"
+        ), "Intent agent should route to knowledge-retrieval for order status"
 
-        print(f"[OK] Step 1 Complete: Intent classified as {intent_result_data['intent']}")
+        print(
+            f"[OK] Step 1 Complete: Intent classified as {intent_result_data['intent']}"
+        )
         print(f"  - Confidence: {intent_result_data['confidence']:.2%}")
-        print(f"  - Order number extracted: {intent_result_data['extracted_entities']['order_number']}")
+        print(
+            f"  - Order number extracted: {intent_result_data['extracted_entities']['order_number']}"
+        )
 
         # STEP 3: Knowledge Retrieval Agent fetches order from Shopify
         # Expected: Returns order #10234 with tracking info
@@ -203,24 +214,26 @@ class TestOrderStatusFlow:
             context_id=context_id,
             query_text=customer_query,
             intent=Intent.ORDER_STATUS,
-            filters={"order_number": intent_result_data["extracted_entities"]["order_number"]},
-            max_results=5
+            filters={
+                "order_number": intent_result_data["extracted_entities"]["order_number"]
+            },
+            max_results=5,
         )
 
         knowledge_request = create_a2a_message(
-            role="assistant",
-            content=knowledge_query,
-            context_id=context_id
+            role="assistant", content=knowledge_query, context_id=context_id
         )
 
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_result_data = extract_message_content(knowledge_response)
 
         # Validate knowledge retrieval
-        assert knowledge_result_data["total_results"] > 0, \
-            "Knowledge agent should find order #10234"
-        assert knowledge_result_data["search_time_ms"] < 500, \
-            "Search should complete in <500ms (P95 target)"
+        assert (
+            knowledge_result_data["total_results"] > 0
+        ), "Knowledge agent should find order #10234"
+        assert (
+            knowledge_result_data["search_time_ms"] < 500
+        ), "Search should complete in <500ms (P95 target)"
 
         order_data = knowledge_result_data["results"][0]
         assert order_data["type"] == "order", "Result should be an order"
@@ -228,12 +241,17 @@ class TestOrderStatusFlow:
         assert order_data["status"] == "shipped", "Test order #10234 should be shipped"
         assert "tracking" in order_data, "Order should include tracking information"
         assert order_data["tracking"]["carrier"] == "USPS", "Carrier should be USPS"
-        assert order_data["tracking"]["tracking_number"] == "9400123456789", \
-            "Tracking number should match test data"
+        assert (
+            order_data["tracking"]["tracking_number"] == "9400123456789"
+        ), "Tracking number should match test data"
 
-        print(f"[OK] Step 2 Complete: Order retrieved in {knowledge_result_data['search_time_ms']:.2f}ms")
+        print(
+            f"[OK] Step 2 Complete: Order retrieved in {knowledge_result_data['search_time_ms']:.2f}ms"
+        )
         print(f"  - Order status: {order_data['status']}")
-        print(f"  - Tracking: {order_data['tracking']['carrier']} {order_data['tracking']['tracking_number']}")
+        print(
+            f"  - Tracking: {order_data['tracking']['carrier']} {order_data['tracking']['tracking_number']}"
+        )
 
         # STEP 4: Response Generation Agent creates customer-facing response
         # Expected: Personalized response with tracking details
@@ -242,30 +260,34 @@ class TestOrderStatusFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=Intent.ORDER_STATUS,
-            knowledge_context=knowledge_result_data["results"]
+            knowledge_context=knowledge_result_data["results"],
         )
 
         response_gen_request = create_a2a_message(
-            role="assistant",
-            content=response_request,
-            context_id=context_id
+            role="assistant", content=response_request, context_id=context_id
         )
 
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         generated_response_data = extract_message_content(response_gen_response)
 
         # Validate generated response
         response_text = generated_response_data["response_text"]
         assert len(response_text) > 50, "Response should be substantial (>50 chars)"
-        assert "Sarah" in response_text, \
-            "Response should address customer by name (personalization)"
+        assert (
+            "Sarah" in response_text
+        ), "Response should address customer by name (personalization)"
         assert "10234" in response_text, "Response should mention order number"
-        assert "9400123456789" in response_text or "tracking" in response_text.lower(), \
-            "Response should include tracking information"
-        assert "USPS" in response_text or "usps" in response_text.lower(), \
-            "Response should mention carrier"
-        assert not generated_response_data["requires_escalation"], \
-            "Standard shipped order should not require escalation"
+        assert (
+            "9400123456789" in response_text or "tracking" in response_text.lower()
+        ), "Response should include tracking information"
+        assert (
+            "USPS" in response_text or "usps" in response_text.lower()
+        ), "Response should mention carrier"
+        assert not generated_response_data[
+            "requires_escalation"
+        ], "Standard shipped order should not require escalation"
 
         print(f"[OK] Step 3 Complete: Response generated")
         print(f"  - Response length: {len(response_text)} characters")
@@ -273,14 +295,16 @@ class TestOrderStatusFlow:
         print(f"  - Includes tracking: {('9400123456789' in response_text)}")
 
         # Final validation: Complete response preview
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("FINAL CUSTOMER RESPONSE:")
-        print("="*60)
+        print("=" * 60)
         print(response_text)
-        print("="*60)
+        print("=" * 60)
 
     @pytest.mark.asyncio
-    async def test_order_status_order_not_found(self, intent_agent, knowledge_agent, response_agent):
+    async def test_order_status_order_not_found(
+        self, intent_agent, knowledge_agent, response_agent
+    ):
         """
         Test Case: Order status query for non-existent order.
 
@@ -306,10 +330,12 @@ class TestOrderStatusFlow:
             customer_id="unknown_customer",
             content=customer_query,
             channel="chat",
-            context_id=context_id
+            context_id=context_id,
         )
 
-        intent_request = create_a2a_message(role="user", content=customer_message, context_id=context_id)
+        intent_request = create_a2a_message(
+            role="user", content=customer_message, context_id=context_id
+        )
         intent_response = await intent_agent.handle_message(intent_request)
         intent_data = extract_message_content(intent_response)
 
@@ -322,24 +348,30 @@ class TestOrderStatusFlow:
             context_id=context_id,
             query_text=customer_query,
             intent=Intent.ORDER_STATUS,
-            filters={"order_number": "99999"}
+            filters={"order_number": "99999"},
         )
 
-        knowledge_request = create_a2a_message(role="assistant", content=knowledge_query, context_id=context_id)
+        knowledge_request = create_a2a_message(
+            role="assistant", content=knowledge_query, context_id=context_id
+        )
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_data = extract_message_content(knowledge_response)
 
         # Should have error result or empty
         if knowledge_data["total_results"] > 0:
             result = knowledge_data["results"][0]
-            assert result.get("type") == "error" or result.get("error_code") == "ORDER_NOT_FOUND", \
-                "Non-existent order should return error result"
+            assert (
+                result.get("type") == "error"
+                or result.get("error_code") == "ORDER_NOT_FOUND"
+            ), "Non-existent order should return error result"
 
         print("[OK] Order not found scenario handled gracefully")
         print(f"  - Results: {knowledge_data['total_results']}")
 
     @pytest.mark.asyncio
-    async def test_order_status_delivered_order(self, intent_agent, knowledge_agent, response_agent):
+    async def test_order_status_delivered_order(
+        self, intent_agent, knowledge_agent, response_agent
+    ):
         """
         Test Case: Order status for delivered order.
 
@@ -363,11 +395,13 @@ class TestOrderStatusFlow:
             customer_id="persona_001",
             content=customer_query,
             channel="email",
-            context_id=context_id
+            context_id=context_id,
         )
 
         # Intent Classification
-        intent_request = create_a2a_message(role="user", content=customer_message, context_id=context_id)
+        intent_request = create_a2a_message(
+            role="user", content=customer_message, context_id=context_id
+        )
         intent_response = await intent_agent.handle_message(intent_request)
         intent_data = extract_message_content(intent_response)
 
@@ -380,10 +414,12 @@ class TestOrderStatusFlow:
             context_id=context_id,
             query_text=customer_query,
             intent=Intent.ORDER_STATUS,
-            filters={"order_number": "10156"}
+            filters={"order_number": "10156"},
         )
 
-        knowledge_request = create_a2a_message(role="assistant", content=knowledge_query, context_id=context_id)
+        knowledge_request = create_a2a_message(
+            role="assistant", content=knowledge_query, context_id=context_id
+        )
         knowledge_response = await knowledge_agent.handle_message(knowledge_request)
         knowledge_data = extract_message_content(knowledge_response)
 
@@ -397,11 +433,15 @@ class TestOrderStatusFlow:
             context_id=context_id,
             customer_message=customer_query,
             intent=Intent.ORDER_STATUS,
-            knowledge_context=knowledge_data["results"]
+            knowledge_context=knowledge_data["results"],
         )
 
-        response_gen_request = create_a2a_message(role="assistant", content=response_request, context_id=context_id)
-        response_gen_response = await response_agent.handle_message(response_gen_request)
+        response_gen_request = create_a2a_message(
+            role="assistant", content=response_request, context_id=context_id
+        )
+        response_gen_response = await response_agent.handle_message(
+            response_gen_request
+        )
         response_data = extract_message_content(response_gen_response)
 
         response_text = response_data["response_text"]
@@ -409,7 +449,9 @@ class TestOrderStatusFlow:
         assert "10156" in response_text
 
         print("[OK] Delivered order scenario completed")
-        print(f"  - Delivery confirmed in response: {'delivered' in response_text.lower()}")
+        print(
+            f"  - Delivery confirmed in response: {'delivered' in response_text.lower()}"
+        )
 
 
 # Test execution function for manual testing
@@ -420,9 +462,9 @@ async def run_manual_test():
     Run with: python -m pytest tests/integration/test_order_status_flow.py -v -s
     Or: python tests/integration/test_order_status_flow.py
     """
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("MANUAL TEST: Order Status Inquiry Flow (Issue #24)")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     test_suite = TestOrderStatusFlow()
 

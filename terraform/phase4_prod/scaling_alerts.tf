@@ -45,27 +45,36 @@ resource "azurerm_monitor_action_group" "scaling_ops" {
 # ============================================================================
 # Capacity Alerts
 # ============================================================================
+# NOTE: The "Replicas" metric is not available at the managedEnvironments level.
+# Container App replica monitoring should use Log Analytics queries or Application
+# Insights custom metrics instead. These alerts are disabled for now.
+#
+# Available metrics on managedEnvironments:
+# - EnvCoresQuotaLimit, EnvCoresQuotaUtilization (deprecated)
+# - NodeCount (preview)
+# - IngressUsageNanoCores, IngressUsageBytes, IngressCpuPercentage, IngressMemoryPercentage
+# ============================================================================
 
-# Alert: Near maximum replicas
-# Trigger: When any Container App is at >80% of max replicas
-resource "azurerm_monitor_metric_alert" "near_max_replicas" {
+# Alert: High environment CPU usage
+# Trigger: When ingress CPU exceeds 80%
+resource "azurerm_monitor_metric_alert" "high_env_cpu" {
   count = var.enable_container_apps ? 1 : 0
 
-  name                = "${local.name_prefix}-near-max-replicas"
+  name                = "${local.name_prefix}-high-env-cpu"
   resource_group_name = data.azurerm_resource_group.main.name
   scopes              = [azurerm_container_app_environment.main[0].id]
-  description         = "Container App approaching maximum replica count. Review scaling limits."
+  description         = "Container Apps Environment ingress CPU usage high. Review scaling."
 
   severity    = 2  # Warning
   frequency   = "PT5M"
   window_size = "PT15M"
 
   criteria {
-    metric_namespace = "Microsoft.App/containerApps"
-    metric_name      = "Replicas"
-    aggregation      = "Maximum"
+    metric_namespace = "Microsoft.App/managedEnvironments"
+    metric_name      = "IngressCpuPercentage"
+    aggregation      = "Average"
     operator         = "GreaterThan"
-    threshold        = 15  # Alert when approaching max of 20
+    threshold        = 80
   }
 
   action {
@@ -78,33 +87,44 @@ resource "azurerm_monitor_metric_alert" "near_max_replicas" {
 }
 
 # ============================================================================
-# Performance Alerts
+# Performance Alerts (Log Analytics based)
+# ============================================================================
+# Container App-level metrics (Requests, RequestDuration) require the apps to
+# exist first. Using Log Analytics scheduled query alerts instead for
+# reliability during deployment.
 # ============================================================================
 
-# Alert: High Response Time
-# Trigger: P95 response time exceeds 30 seconds
-resource "azurerm_monitor_metric_alert" "high_latency" {
+# Alert: High Response Time (Log Analytics based)
+# Trigger: Average response time exceeds 20 seconds
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "high_latency" {
   count = var.enable_container_apps ? 1 : 0
 
   name                = "${local.name_prefix}-high-latency"
   resource_group_name = data.azurerm_resource_group.main.name
-  scopes              = [azurerm_container_app.api_gateway[0].id]
-  description         = "API Gateway response time exceeds threshold. Check Azure OpenAI latency and scaling."
+  location            = local.location
+  description         = "API Gateway response time exceeds threshold. Check Azure OpenAI latency."
 
-  severity    = 2  # Warning
-  frequency   = "PT5M"
-  window_size = "PT15M"
+  scopes               = [azurerm_application_insights.main.id]
+  severity             = 2  # Warning
+  evaluation_frequency = "PT5M"
+  window_duration      = "PT15M"
 
   criteria {
-    metric_namespace = "Microsoft.App/containerApps"
-    metric_name      = "RequestDuration"
-    aggregation      = "P95"
-    operator         = "GreaterThan"
-    threshold        = 30000  # 30 seconds (adjusted for AI latency)
+    query = <<-QUERY
+      requests
+      | where timestamp > ago(15m)
+      | where cloud_RoleName has "api-gateway"
+      | summarize AvgDuration = avg(duration) by bin(timestamp, 5m)
+      | where AvgDuration > 20000
+    QUERY
+
+    time_aggregation_method = "Count"
+    threshold               = 0
+    operator                = "GreaterThan"
   }
 
   action {
-    action_group_id = azurerm_monitor_action_group.scaling_ops[0].id
+    action_groups = [azurerm_monitor_action_group.scaling_ops[0].id]
   }
 
   tags = merge(local.common_tags, {
@@ -112,36 +132,40 @@ resource "azurerm_monitor_metric_alert" "high_latency" {
   })
 }
 
-# Alert: High Error Rate
-# Trigger: Error rate exceeds 5%
-resource "azurerm_monitor_metric_alert" "high_error_rate" {
+# Alert: High Error Rate (Log Analytics based)
+# Trigger: More than 5% of requests are 5xx errors
+resource "azurerm_monitor_scheduled_query_rules_alert_v2" "high_error_rate" {
   count = var.enable_container_apps ? 1 : 0
 
   name                = "${local.name_prefix}-high-error-rate"
   resource_group_name = data.azurerm_resource_group.main.name
-  scopes              = [azurerm_container_app.api_gateway[0].id]
+  location            = local.location
   description         = "API Gateway error rate exceeds 5%. Investigate failed requests."
 
-  severity    = 1  # Critical
-  frequency   = "PT1M"
-  window_size = "PT5M"
+  scopes               = [azurerm_application_insights.main.id]
+  severity             = 1  # Critical
+  evaluation_frequency = "PT5M"  # 5-minute frequency required for this query type
+  window_duration      = "PT5M"
 
   criteria {
-    metric_namespace = "Microsoft.App/containerApps"
-    metric_name      = "Requests"
-    aggregation      = "Total"
-    operator         = "GreaterThan"
-    threshold        = 0
+    query = <<-QUERY
+      requests
+      | where timestamp > ago(5m)
+      | where cloud_RoleName has "api-gateway"
+      | summarize
+          TotalRequests = count(),
+          ErrorCount = countif(resultCode startswith "5")
+      | extend ErrorRate = 100.0 * ErrorCount / TotalRequests
+      | where ErrorRate > 5
+    QUERY
 
-    dimension {
-      name     = "StatusCodeClass"
-      operator = "Include"
-      values   = ["5xx"]
-    }
+    time_aggregation_method = "Count"
+    threshold               = 0
+    operator                = "GreaterThan"
   }
 
   action {
-    action_group_id = azurerm_monitor_action_group.scaling_ops[0].id
+    action_groups = [azurerm_monitor_action_group.scaling_ops[0].id]
   }
 
   tags = merge(local.common_tags, {
@@ -150,71 +174,60 @@ resource "azurerm_monitor_metric_alert" "high_error_rate" {
 }
 
 # ============================================================================
-# Cost Alerts (Updated for Auto-Scaling)
+# Cost Alerts (Using Consumption Budget)
+# ============================================================================
+# Note: Azure Monitor metric alerts don't support Microsoft.CostManagement
+# directly. Using azurerm_consumption_budget for proper budget monitoring.
+#
+# Why Consumption Budget?
+# - Native Azure Cost Management integration
+# - Proper forecasting support
+# - Action group notifications
+# - See: https://learn.microsoft.com/azure/cost-management-billing/costs/tutorial-acm-create-budgets
 # ============================================================================
 
-# Alert: Budget threshold - Warning
-# Trigger: 70% of revised $600 budget ($420)
-resource "azurerm_monitor_metric_alert" "budget_warning" {
+resource "azurerm_consumption_budget_resource_group" "scaling_budget" {
   count = var.enable_container_apps ? 1 : 0
 
-  name                = "${local.name_prefix}-budget-warning"
-  resource_group_name = data.azurerm_resource_group.main.name
-  scopes              = [data.azurerm_subscription.current.id]
-  description         = "Monthly spend approaching 70% of auto-scaling budget ($420)."
+  name              = "${local.name_prefix}-scaling-budget"
+  resource_group_id = data.azurerm_resource_group.main.id
 
-  severity    = 2  # Warning
-  frequency   = "PT1H"
-  window_size = "PT1H"
+  amount     = 600  # Monthly budget in USD
+  time_grain = "Monthly"
 
-  # Note: This is a placeholder - actual budget alerts should use
-  # azurerm_consumption_budget resource instead
-  criteria {
-    metric_namespace = "Microsoft.CostManagement"
-    metric_name      = "ActualCost"
-    aggregation      = "Total"
-    operator         = "GreaterThan"
-    threshold        = 420
+  time_period {
+    start_date = "2026-02-01T00:00:00Z"  # Start of next budget period
   }
 
-  action {
-    action_group_id = azurerm_monitor_action_group.scaling_ops[0].id
+  # Warning notification at 70% ($420)
+  notification {
+    enabled        = true
+    threshold      = 70
+    operator       = "GreaterThanOrEqualTo"
+    threshold_type = "Actual"
+
+    contact_emails = [var.owner_email]
   }
 
-  tags = merge(local.common_tags, {
-    alert_type = "cost"
-  })
-}
+  # Critical notification at 85% ($510)
+  notification {
+    enabled        = true
+    threshold      = 85
+    operator       = "GreaterThanOrEqualTo"
+    threshold_type = "Actual"
 
-# Alert: Budget threshold - Critical
-# Trigger: 85% of revised $600 budget ($510)
-resource "azurerm_monitor_metric_alert" "budget_critical" {
-  count = var.enable_container_apps ? 1 : 0
-
-  name                = "${local.name_prefix}-budget-critical"
-  resource_group_name = data.azurerm_resource_group.main.name
-  scopes              = [data.azurerm_subscription.current.id]
-  description         = "Monthly spend at 85% of auto-scaling budget ($510). Review resource usage."
-
-  severity    = 1  # Critical
-  frequency   = "PT1H"
-  window_size = "PT1H"
-
-  criteria {
-    metric_namespace = "Microsoft.CostManagement"
-    metric_name      = "ActualCost"
-    aggregation      = "Total"
-    operator         = "GreaterThan"
-    threshold        = 510
+    contact_emails = [var.owner_email]
   }
 
-  action {
-    action_group_id = azurerm_monitor_action_group.scaling_ops[0].id
-  }
+  # Forecast notification at 100%
+  notification {
+    enabled        = true
+    threshold      = 100
+    operator       = "GreaterThanOrEqualTo"
+    threshold_type = "Forecasted"
 
-  tags = merge(local.common_tags, {
-    alert_type = "cost"
-  })
+    contact_emails = [var.owner_email]
+  }
 }
 
 # ============================================================================
@@ -231,10 +244,10 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "openai_throttling" {
   location            = local.location
   description         = "Azure OpenAI rate limiting detected. Consider increasing TPM quota."
 
-  scopes          = [azurerm_application_insights.main.id]
-  severity        = 2  # Warning
+  scopes               = [azurerm_application_insights.main.id]
+  severity             = 2  # Warning
   evaluation_frequency = "PT5M"
-  window_duration = "PT5M"
+  window_duration      = "PT5M"
 
   criteria {
     query = <<-QUERY
@@ -242,12 +255,13 @@ resource "azurerm_monitor_scheduled_query_rules_alert_v2" "openai_throttling" {
       | where timestamp > ago(5m)
       | where name contains "openai"
       | where resultCode == "429"
-      | summarize count() by bin(timestamp, 1m)
+      | summarize ThrottleCount = count() by bin(timestamp, 5m)
     QUERY
 
     time_aggregation_method = "Total"
     threshold               = 10
     operator                = "GreaterThan"
+    metric_measure_column   = "ThrottleCount"
   }
 
   action {

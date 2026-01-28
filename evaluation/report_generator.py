@@ -216,7 +216,9 @@ class ReportGenerator:
 {notes}
 """
 
-        return self._write_report(f"response_quality_report_iter{iteration}.md", content)
+        return self._write_report(
+            f"response_quality_report_iter{iteration}.md", content
+        )
 
     def generate_escalation_report(
         self,
@@ -232,8 +234,12 @@ class ReportGenerator:
         recall = metrics.get("recall", 0)
         fp_rate = metrics.get("false_positive_rate", 1)
 
-        precision_status = self._format_threshold_status(precision, thresholds.escalation_precision)
-        recall_status = self._format_threshold_status(recall, thresholds.escalation_recall)
+        precision_status = self._format_threshold_status(
+            precision, thresholds.escalation_precision
+        )
+        recall_status = self._format_threshold_status(
+            recall, thresholds.escalation_recall
+        )
 
         content = f"""# Escalation Detection Report
 
@@ -279,7 +285,9 @@ class ReportGenerator:
 {notes}
 """
 
-        return self._write_report(f"escalation_threshold_report_iter{iteration}.md", content)
+        return self._write_report(
+            f"escalation_threshold_report_iter{iteration}.md", content
+        )
 
     def generate_critic_report(
         self,
@@ -294,8 +302,12 @@ class ReportGenerator:
         fp_rate = metrics.get("false_positive_rate", 1)
         tp_rate = metrics.get("true_positive_rate", 0)
 
-        fp_status = self._format_threshold_status(fp_rate, thresholds.critic_false_positive, higher_is_better=False)
-        tp_status = self._format_threshold_status(tp_rate, thresholds.critic_true_positive)
+        fp_status = self._format_threshold_status(
+            fp_rate, thresholds.critic_false_positive, higher_is_better=False
+        )
+        tp_status = self._format_threshold_status(
+            tp_rate, thresholds.critic_true_positive
+        )
 
         content = f"""# Critic/Supervisor Validation Report
 
@@ -348,7 +360,9 @@ class ReportGenerator:
 {notes}
 """
 
-        return self._write_report(f"critic_validation_report_iter{iteration}.md", content)
+        return self._write_report(
+            f"critic_validation_report_iter{iteration}.md", content
+        )
 
     def generate_model_comparison_report(
         self,
@@ -482,7 +496,7 @@ Based on projected usage of ~1000 conversations/month:
 ## Next Steps
 
 """
-        all_met = all_metrics.get('all_criteria_met', False)
+        all_met = all_metrics.get("all_criteria_met", False)
         if all_met:
             content += """All exit criteria met. Ready to proceed to Phase 4.
 
@@ -515,8 +529,18 @@ if __name__ == "__main__":
         "total_samples": 50,
         "total_cost": 0.0234,
         "per_intent": {
-            "ORDER_STATUS": {"precision": 0.9, "recall": 0.85, "f1": 0.87, "support": 10},
-            "RETURN_REQUEST": {"precision": 0.8, "recall": 0.75, "f1": 0.77, "support": 8},
+            "ORDER_STATUS": {
+                "precision": 0.9,
+                "recall": 0.85,
+                "f1": 0.87,
+                "support": 10,
+            },
+            "RETURN_REQUEST": {
+                "precision": 0.8,
+                "recall": 0.75,
+                "f1": 0.77,
+                "support": 8,
+            },
         },
         "latency": {"p50_ms": 45, "p95_ms": 120, "p99_ms": 180, "mean_ms": 55},
     }

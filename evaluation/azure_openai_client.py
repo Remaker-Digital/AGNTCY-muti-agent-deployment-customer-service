@@ -38,6 +38,7 @@ from evaluation.config import Config, ModelConfig
 @dataclass
 class ChatResponse:
     """Response from a chat completion request."""
+
     content: str
     model: str
     input_tokens: int
@@ -52,6 +53,7 @@ class ChatResponse:
 @dataclass
 class EmbeddingResponse:
     """Response from an embedding request."""
+
     embeddings: list[list[float]]
     model: str
     total_tokens: int
@@ -63,6 +65,7 @@ class EmbeddingResponse:
 @dataclass
 class UsageTracker:
     """Tracks cumulative token usage and costs across all requests."""
+
     total_input_tokens: int = 0
     total_output_tokens: int = 0
     total_embedding_tokens: int = 0
@@ -70,7 +73,9 @@ class UsageTracker:
     request_count: int = 0
     start_time: datetime = field(default_factory=datetime.now)
 
-    def add_chat_usage(self, input_tokens: int, output_tokens: int, cost: float) -> None:
+    def add_chat_usage(
+        self, input_tokens: int, output_tokens: int, cost: float
+    ) -> None:
         """Record usage from a chat completion."""
         self.total_input_tokens += input_tokens
         self.total_output_tokens += output_tokens
@@ -91,7 +96,9 @@ class UsageTracker:
             "total_embedding_tokens": self.total_embedding_tokens,
             "total_cost": round(self.total_cost, 4),
             "request_count": self.request_count,
-            "session_duration_seconds": (datetime.now() - self.start_time).total_seconds(),
+            "session_duration_seconds": (
+                datetime.now() - self.start_time
+            ).total_seconds(),
         }
 
 
@@ -131,7 +138,9 @@ class AzureOpenAIClient:
         self._client: Optional[AzureOpenAI] = None
 
         if AzureOpenAI is None:
-            raise ImportError("openai package required. Install with: pip install openai")
+            raise ImportError(
+                "openai package required. Install with: pip install openai"
+            )
 
     @classmethod
     def from_env(cls) -> "AzureOpenAIClient":
@@ -167,10 +176,7 @@ class AzureOpenAIClient:
             return self.config.gpt4o_mini
 
     def _calculate_cost(
-        self,
-        model_config: ModelConfig,
-        input_tokens: int,
-        output_tokens: int = 0
+        self, model_config: ModelConfig, input_tokens: int, output_tokens: int = 0
     ) -> float:
         """Calculate cost for a request."""
         input_cost = (input_tokens / 1000) * model_config.cost_per_1k_input
@@ -252,7 +258,9 @@ class AzureOpenAIClient:
                 total_tokens=total_tokens,
                 cost=cost,
                 latency_ms=latency_ms,
-                raw_response=response.model_dump() if hasattr(response, "model_dump") else None,
+                raw_response=(
+                    response.model_dump() if hasattr(response, "model_dump") else None
+                ),
             )
 
         except Exception as e:
@@ -342,9 +350,15 @@ class AzureOpenAIClient:
         if current_cost >= limit:
             return False, f"BUDGET EXCEEDED: ${current_cost:.2f} >= ${limit:.2f}"
         elif current_cost >= limit * threshold:
-            return True, f"BUDGET WARNING: ${current_cost:.2f} ({current_cost/limit*100:.1f}% of ${limit:.2f})"
+            return (
+                True,
+                f"BUDGET WARNING: ${current_cost:.2f} ({current_cost/limit*100:.1f}% of ${limit:.2f})",
+            )
         else:
-            return True, f"Budget OK: ${current_cost:.2f} ({current_cost/limit*100:.1f}% of ${limit:.2f})"
+            return (
+                True,
+                f"Budget OK: ${current_cost:.2f} ({current_cost/limit*100:.1f}% of ${limit:.2f})",
+            )
 
     def test_connection(self) -> tuple[bool, str]:
         """
@@ -364,7 +378,10 @@ class AzureOpenAIClient:
                 return False, f"API Error: {response.error}"
 
             if "OK" in response.content.upper():
-                return True, f"Connection successful! Latency: {response.latency_ms:.0f}ms"
+                return (
+                    True,
+                    f"Connection successful! Latency: {response.latency_ms:.0f}ms",
+                )
             else:
                 return True, f"Connection working. Response: {response.content[:50]}"
 

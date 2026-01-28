@@ -42,17 +42,18 @@ from shared.models import (
     Language,
     generate_message_id,
     generate_context_id,
-    create_a2a_message
+    create_a2a_message,
 )
-
 
 # =============================================================================
 # Stress Test Result Data Classes
 # =============================================================================
 
+
 @dataclass
 class StressTestResult:
     """Container for stress test results."""
+
     test_name: str
     concurrent_users: int
     total_requests: int
@@ -115,7 +116,9 @@ class StressTestResult:
     @property
     def cpu_avg(self) -> float:
         """Average CPU usage."""
-        return statistics.mean(self.cpu_usage_samples) if self.cpu_usage_samples else 0.0
+        return (
+            statistics.mean(self.cpu_usage_samples) if self.cpu_usage_samples else 0.0
+        )
 
     @property
     def cpu_max(self) -> float:
@@ -125,7 +128,11 @@ class StressTestResult:
     @property
     def memory_avg(self) -> float:
         """Average memory usage."""
-        return statistics.mean(self.memory_usage_samples) if self.memory_usage_samples else 0.0
+        return (
+            statistics.mean(self.memory_usage_samples)
+            if self.memory_usage_samples
+            else 0.0
+        )
 
     @property
     def memory_max(self) -> float:
@@ -136,6 +143,7 @@ class StressTestResult:
 # =============================================================================
 # Stress Test Runner
 # =============================================================================
+
 
 class StressTestRunner:
     """Manages stress testing with extreme load and failure scenarios."""
@@ -154,9 +162,9 @@ class StressTestRunner:
             from agents.response_generation.agent import ResponseGenerationAgent
 
             self.agents = {
-                'intent': IntentClassificationAgent(),
-                'knowledge': KnowledgeRetrievalAgent(),
-                'response': ResponseGenerationAgent(),
+                "intent": IntentClassificationAgent(),
+                "knowledge": KnowledgeRetrievalAgent(),
+                "response": ResponseGenerationAgent(),
             }
             print("Agents initialized successfully")
         except Exception as e:
@@ -164,9 +172,7 @@ class StressTestRunner:
             self.agents = None
 
     async def simulate_user_request(
-        self,
-        user_id: int,
-        inject_error: bool = False
+        self, user_id: int, inject_error: bool = False
     ) -> Dict:
         """
         Simulate a single user request.
@@ -191,35 +197,27 @@ class StressTestRunner:
                 context_id=generate_context_id(),
                 content=f"Where is my order #{10000 + (user_id % 1000)}?",
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             a2a_msg = create_a2a_message(
                 role="user",
                 content=customer_msg.to_dict(),
-                context_id=customer_msg.context_id
+                context_id=customer_msg.context_id,
             )
 
-            result = await self.agents['intent'].handle_message(a2a_msg)
+            result = await self.agents["intent"].handle_message(a2a_msg)
 
             end_time = time.perf_counter()
             response_time = (end_time - start_time) * 1000
 
-            return {
-                "success": True,
-                "response_time": response_time,
-                "error": None
-            }
+            return {"success": True, "response_time": response_time, "error": None}
 
         except Exception as e:
             end_time = time.perf_counter()
             response_time = (end_time - start_time) * 1000
 
-            return {
-                "success": False,
-                "response_time": response_time,
-                "error": str(e)
-            }
+            return {"success": False, "response_time": response_time, "error": str(e)}
 
     async def monitor_resources(self, results_container: Dict, interval: float = 0.5):
         """
@@ -265,9 +263,7 @@ class StressTestRunner:
             tasks.append(task)
 
         # Start monitoring
-        monitor_task = asyncio.create_task(
-            self.monitor_resources(resources)
-        )
+        monitor_task = asyncio.create_task(self.monitor_resources(resources))
 
         # Execute
         start_time = time.perf_counter()
@@ -312,7 +308,7 @@ class StressTestRunner:
             response_times=response_times,
             cpu_usage_samples=resources["cpu_samples"],
             memory_usage_samples=resources["memory_samples"],
-            errors=errors[:10]  # Keep first 10 errors
+            errors=errors[:10],  # Keep first 10 errors
         )
 
     async def test_rapid_spike_load(self) -> StressTestResult:
@@ -334,9 +330,7 @@ class StressTestRunner:
         errors = []
         all_response_times = []
 
-        monitor_task = asyncio.create_task(
-            self.monitor_resources(resources)
-        )
+        monitor_task = asyncio.create_task(self.monitor_resources(resources))
 
         start_time = time.perf_counter()
 
@@ -397,7 +391,7 @@ class StressTestRunner:
             response_times=all_response_times,
             cpu_usage_samples=resources["cpu_samples"],
             memory_usage_samples=resources["memory_samples"],
-            errors=errors[:10]
+            errors=errors[:10],
         )
 
     async def test_sustained_overload(self, duration: int = 10) -> StressTestResult:
@@ -421,9 +415,7 @@ class StressTestRunner:
         all_response_times = []
         total_requests = 0
 
-        monitor_task = asyncio.create_task(
-            self.monitor_resources(resources)
-        )
+        monitor_task = asyncio.create_task(self.monitor_resources(resources))
 
         start_time = time.perf_counter()
         successful = 0
@@ -473,7 +465,7 @@ class StressTestRunner:
             response_times=all_response_times,
             cpu_usage_samples=resources["cpu_samples"],
             memory_usage_samples=resources["memory_samples"],
-            errors=errors[:10]
+            errors=errors[:10],
         )
 
     async def test_error_injection(self, error_rate: float = 0.1) -> StressTestResult:
@@ -505,9 +497,7 @@ class StressTestRunner:
             task = self.simulate_user_request(user_id, inject_error=inject_error)
             tasks.append(task)
 
-        monitor_task = asyncio.create_task(
-            self.monitor_resources(resources)
-        )
+        monitor_task = asyncio.create_task(self.monitor_resources(resources))
 
         start_time = time.perf_counter()
 
@@ -550,7 +540,7 @@ class StressTestRunner:
             response_times=all_response_times,
             cpu_usage_samples=resources["cpu_samples"],
             memory_usage_samples=resources["memory_samples"],
-            errors=errors[:10]
+            errors=errors[:10],
         )
 
     async def test_resource_limits(self) -> StressTestResult:
@@ -630,7 +620,7 @@ class StressTestRunner:
             response_times=all_response_times,
             cpu_usage_samples=resources["cpu_samples"],
             memory_usage_samples=resources["memory_samples"],
-            errors=errors[:10]
+            errors=errors[:10],
         )
 
 
@@ -638,12 +628,13 @@ class StressTestRunner:
 # Main Test Execution
 # =============================================================================
 
+
 async def run_stress_tests():
     """Execute all stress tests."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("MULTI-AGENT CUSTOMER SERVICE - STRESS TEST SUITE")
     print("Phase 3, Week 2, Day 10")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     runner = StressTestRunner()
 
@@ -692,8 +683,12 @@ def print_result(result: StressTestResult):
     """Print individual test result."""
     print(f"\nRESULTS:")
     print(f"  Total Requests:      {result.total_requests}")
-    print(f"  Successful:          {result.successful_requests} ({result.success_rate:.2f}%)")
-    print(f"  Failed:              {result.failed_requests} ({result.failure_rate:.2f}%)")
+    print(
+        f"  Successful:          {result.successful_requests} ({result.success_rate:.2f}%)"
+    )
+    print(
+        f"  Failed:              {result.failed_requests} ({result.failure_rate:.2f}%)"
+    )
     print(f"  Duration:            {result.total_duration:.2f}s")
     print(f"  Throughput:          {result.throughput:.2f} req/s")
     print(f"  Avg Response Time:   {result.avg:.2f}ms")
@@ -715,7 +710,9 @@ def print_summary(results: List[StressTestResult]):
     print(f"\n\n{'='*70}")
     print("STRESS TEST SUMMARY - ALL TESTS")
     print(f"{'='*70}\n")
-    print(f"{'Test':<25} {'Users':<8} {'Reqs':<8} {'Success%':<10} {'P95(ms)':<10} {'RPS':<10} {'Peak CPU%':<12} {'Peak Mem(MB)':<12}")
+    print(
+        f"{'Test':<25} {'Users':<8} {'Reqs':<8} {'Success%':<10} {'P95(ms)':<10} {'RPS':<10} {'Peak CPU%':<12} {'Peak Mem(MB)':<12}"
+    )
     print("-" * 105)
 
     for result in results:
@@ -730,9 +727,9 @@ def print_summary(results: List[StressTestResult]):
             f"{result.memory_max:<12.2f}"
         )
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Stress testing complete!")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
 
 if __name__ == "__main__":

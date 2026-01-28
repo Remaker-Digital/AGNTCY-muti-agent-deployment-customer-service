@@ -59,7 +59,7 @@ class Phase2TestRunner:
             "failed": 0,
             "skipped": 0,
             "coverage": 0.0,
-            "test_suites": []
+            "test_suites": [],
         }
 
         # Test suites to execute
@@ -68,39 +68,51 @@ class Phase2TestRunner:
                 "name": "Issue #24 - Order Status Flow",
                 "file": "tests/integration/test_order_status_flow.py",
                 "description": "Customer order status inquiries with multi-agent collaboration",
-                "agents": ["Intent Classification", "Knowledge Retrieval", "Response Generation"],
+                "agents": [
+                    "Intent Classification",
+                    "Knowledge Retrieval",
+                    "Response Generation",
+                ],
                 "mock_apis": ["Shopify Orders API"],
                 "acceptance_criteria": [
                     "Intent classification accuracy >90%",
                     "Order lookup <500ms P95",
-                    "Full conversation context maintained"
-                ]
+                    "Full conversation context maintained",
+                ],
             },
             {
                 "name": "Issue #29 - Return/Refund Flow",
                 "file": "tests/integration/test_return_refund_flow.py",
                 "description": "Customer return/refund requests with $50 auto-approval threshold",
-                "agents": ["Intent Classification", "Knowledge Retrieval", "Response Generation"],
+                "agents": [
+                    "Intent Classification",
+                    "Knowledge Retrieval",
+                    "Response Generation",
+                ],
                 "mock_apis": ["Shopify Orders API", "Knowledge Base"],
                 "acceptance_criteria": [
                     "Auto-approval threshold accuracy: 100%",
                     "Order lookup <500ms P95",
                     "RMA number generation for approved returns",
-                    "Escalation for high-value returns (>$50)"
-                ]
+                    "Escalation for high-value returns (>$50)",
+                ],
             },
             {
                 "name": "Issue #25 - Product Information Flow",
                 "file": "tests/integration/test_product_info_flow.py",
                 "description": "Customer product information inquiries with search and stock availability",
-                "agents": ["Intent Classification", "Knowledge Retrieval", "Response Generation"],
+                "agents": [
+                    "Intent Classification",
+                    "Knowledge Retrieval",
+                    "Response Generation",
+                ],
                 "mock_apis": ["Shopify Products API"],
                 "acceptance_criteria": [
                     "Product search <200ms P95",
                     "Stock availability included",
-                    "Price and feature information accurate"
-                ]
-            }
+                    "Price and feature information accurate",
+                ],
+            },
         ]
 
     def run_all_tests(self) -> Dict[str, Any]:
@@ -141,7 +153,8 @@ class Phase2TestRunner:
         self.results["execution_time"] = time.time() - start_time
         self.results["pass_rate"] = (
             (self.results["passed"] / self.results["total_tests"] * 100)
-            if self.results["total_tests"] > 0 else 0.0
+            if self.results["total_tests"] > 0
+            else 0.0
         )
 
         # Get final coverage
@@ -183,20 +196,23 @@ class Phase2TestRunner:
             "mock_api_calls": [],
             "performance_metrics": {},
             "stdout": "",
-            "stderr": ""
+            "stderr": "",
         }
 
         # Run pytest with verbose output and coverage
         test_file = self.project_root / suite["file"]
 
         cmd = [
-            sys.executable, "-m", "pytest",
+            sys.executable,
+            "-m",
+            "pytest",
             str(test_file),
             "-v",  # Verbose
             "-s",  # Show print statements
             "--tb=short",  # Short traceback
             "--capture=no",  # Don't capture output (we want logs)
-            "-p", "no:warnings",  # Suppress warnings for cleaner output
+            "-p",
+            "no:warnings",  # Suppress warnings for cleaner output
         ]
 
         try:
@@ -205,7 +221,7 @@ class Phase2TestRunner:
                 cwd=str(self.project_root),
                 capture_output=True,
                 text=True,
-                timeout=300  # 5 minute timeout per suite
+                timeout=300,  # 5 minute timeout per suite
             )
 
             suite_result["stdout"] = result.stdout
@@ -241,7 +257,7 @@ class Phase2TestRunner:
         # Extract individual test results
         # Pattern: tests/integration/test_file.py::TestClass::test_method PASSED
         test_pattern = re.compile(
-            r'(tests/integration/\S+)::([\w:]+)\s+(PASSED|FAILED|SKIPPED)'
+            r"(tests/integration/\S+)::([\w:]+)\s+(PASSED|FAILED|SKIPPED)"
         )
 
         for match in test_pattern.finditer(output):
@@ -252,14 +268,13 @@ class Phase2TestRunner:
                 "status": status.lower(),
                 "file": file_path,
                 "duration": 0.0,  # Will be extracted if available
-                "error": None
+                "error": None,
             }
 
             # Extract error message if failed
             if status == "FAILED":
                 error_pattern = re.compile(
-                    rf'{re.escape(test_name)}.*?AssertionError: ([^\n]+)',
-                    re.DOTALL
+                    rf"{re.escape(test_name)}.*?AssertionError: ([^\n]+)", re.DOTALL
                 )
                 error_match = error_pattern.search(output)
                 if error_match:
@@ -283,9 +298,7 @@ class Phase2TestRunner:
         """
 
         # Pattern: INFO agent:file.py:line Message text
-        log_pattern = re.compile(
-            r'INFO\s+(\S+):(\S+):(\d+)\s+(.+)'
-        )
+        log_pattern = re.compile(r"INFO\s+(\S+):(\S+):(\d+)\s+(.+)")
 
         traces = []
         current_trace = None
@@ -301,7 +314,7 @@ class Phase2TestRunner:
                 current_trace = {
                     "start_time": None,
                     "steps": [],
-                    "total_duration_ms": 0.0
+                    "total_duration_ms": 0.0,
                 }
 
             if current_trace is not None:
@@ -309,11 +322,11 @@ class Phase2TestRunner:
                     "agent": agent,
                     "file": file,
                     "line": int(line),
-                    "message": message
+                    "message": message,
                 }
 
                 # Extract timing information
-                timing_match = re.search(r'(\d+\.\d+)ms', message)
+                timing_match = re.search(r"(\d+\.\d+)ms", message)
                 if timing_match:
                     step["duration_ms"] = float(timing_match.group(1))
 
@@ -332,17 +345,19 @@ class Phase2TestRunner:
 
         # Pattern for Shopify API calls
         shopify_pattern = re.compile(
-            r'Fetching (order|products) from Shopify: (http://\S+)'
+            r"Fetching (order|products) from Shopify: (http://\S+)"
         )
 
         for match in shopify_pattern.finditer(output):
             resource_type, url = match.groups()
-            api_calls.append({
-                "api": "Shopify",
-                "resource": resource_type,
-                "url": url,
-                "method": "GET"
-            })
+            api_calls.append(
+                {
+                    "api": "Shopify",
+                    "resource": resource_type,
+                    "url": url,
+                    "method": "GET",
+                }
+            )
 
         # Pattern for search operations
         search_pattern = re.compile(
@@ -351,13 +366,15 @@ class Phase2TestRunner:
 
         for match in search_pattern.finditer(output):
             action, count, resource, query = match.groups()
-            api_calls.append({
-                "api": "Shopify",
-                "resource": resource,
-                "action": action.lower(),
-                "query": query,
-                "result_count": int(count)
-            })
+            api_calls.append(
+                {
+                    "api": "Shopify",
+                    "resource": resource,
+                    "action": action.lower(),
+                    "query": query,
+                    "result_count": int(count),
+                }
+            )
 
         suite_result["mock_api_calls"] = api_calls
 
@@ -367,13 +384,11 @@ class Phase2TestRunner:
         metrics = {
             "agent_latencies": [],
             "api_latencies": [],
-            "total_flow_duration": []
+            "total_flow_duration": [],
         }
 
         # Extract latency measurements
-        latency_pattern = re.compile(
-            r'(\d+\.\d+)ms'
-        )
+        latency_pattern = re.compile(r"(\d+\.\d+)ms")
 
         for match in latency_pattern.finditer(output):
             latency_ms = float(match.group(1))
@@ -381,7 +396,9 @@ class Phase2TestRunner:
 
         # Calculate statistics
         if metrics["agent_latencies"]:
-            metrics["avg_latency_ms"] = sum(metrics["agent_latencies"]) / len(metrics["agent_latencies"])
+            metrics["avg_latency_ms"] = sum(metrics["agent_latencies"]) / len(
+                metrics["agent_latencies"]
+            )
             metrics["max_latency_ms"] = max(metrics["agent_latencies"])
             metrics["min_latency_ms"] = min(metrics["agent_latencies"])
 
@@ -392,11 +409,13 @@ class Phase2TestRunner:
 
         # Run pytest with coverage to get final metrics
         cmd = [
-            sys.executable, "-m", "pytest",
+            sys.executable,
+            "-m",
+            "pytest",
             "tests/integration/",
             "--cov=.",
             "--cov-report=term",
-            "-q"
+            "-q",
         ]
 
         try:
@@ -405,12 +424,12 @@ class Phase2TestRunner:
                 cwd=str(self.project_root),
                 capture_output=True,
                 text=True,
-                timeout=60
+                timeout=60,
             )
 
             # Extract coverage percentage
             # Pattern: TOTAL    1234   567    45%
-            coverage_pattern = re.compile(r'TOTAL\s+\d+\s+\d+\s+(\d+)%')
+            coverage_pattern = re.compile(r"TOTAL\s+\d+\s+\d+\s+(\d+)%")
             match = coverage_pattern.search(result.stdout)
 
             if match:
@@ -430,7 +449,9 @@ class Phase2TestRunner:
         print(f"  Mock API Calls: {len(suite_result['mock_api_calls'])}")
 
         if suite_result["performance_metrics"].get("avg_latency_ms"):
-            print(f"  Avg Latency: {suite_result['performance_metrics']['avg_latency_ms']:.2f}ms")
+            print(
+                f"  Avg Latency: {suite_result['performance_metrics']['avg_latency_ms']:.2f}ms"
+            )
 
         if suite_result["failed"] > 0:
             print(f"  [!] Failed Tests:")
@@ -456,7 +477,9 @@ class Phase2TestRunner:
 
         # Print agent collaboration summary
         total_traces = sum(len(s["agent_traces"]) for s in self.results["test_suites"])
-        total_api_calls = sum(len(s["mock_api_calls"]) for s in self.results["test_suites"])
+        total_api_calls = sum(
+            len(s["mock_api_calls"]) for s in self.results["test_suites"]
+        )
 
         print(f"\nAgent Collaboration:")
         print(f"  Total Traces: {total_traces}")
@@ -465,7 +488,11 @@ class Phase2TestRunner:
         # Print per-suite breakdown
         print(f"\nTest Suite Breakdown:")
         for suite in self.results["test_suites"]:
-            status = "[PASS]" if suite["failed"] == 0 else f"[FAIL] ({suite['failed']} failed)"
+            status = (
+                "[PASS]"
+                if suite["failed"] == 0
+                else f"[FAIL] ({suite['failed']} failed)"
+            )
             print(f"  {suite['name']}: {status}")
             print(f"    Tests: {suite['passed']}/{suite['total_tests']} passed")
             print(f"    Duration: {suite['duration']:.2f}s")
@@ -490,10 +517,10 @@ class Phase2TestRunner:
                     {
                         "name": s["name"],
                         "agent_traces": s["agent_traces"],
-                        "mock_api_calls": s["mock_api_calls"]
+                        "mock_api_calls": s["mock_api_calls"],
                     }
                     for s in self.results["test_suites"]
-                ]
+                ],
             }
             json.dump(traces_data, f, indent=2)
         print(f"  [OK] Traces: {traces_file}")
@@ -729,10 +756,16 @@ class Phase2TestRunner:
             <div class="section-title">Agent Collaboration Traces ({len(suite["agent_traces"])})</div>
             <div class="traces">
 """
-                for idx, trace in enumerate(suite["agent_traces"][:5], 1):  # Show first 5 traces
+                for idx, trace in enumerate(
+                    suite["agent_traces"][:5], 1
+                ):  # Show first 5 traces
                     html += f'<div class="trace"><strong>Trace #{idx}</strong><br>'
                     for step in trace["steps"][:10]:  # Show first 10 steps per trace
-                        duration = f'<span class="duration">{step["duration_ms"]:.2f}ms</span>' if "duration_ms" in step else ""
+                        duration = (
+                            f'<span class="duration">{step["duration_ms"]:.2f}ms</span>'
+                            if "duration_ms" in step
+                            else ""
+                        )
                         html += f'<div class="step"><span class="agent">{step["agent"]}</span>: {step["message"][:100]} {duration}</div>'
                     html += "</div>"
 

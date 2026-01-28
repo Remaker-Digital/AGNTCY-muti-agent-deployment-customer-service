@@ -1,0 +1,268 @@
+{
+  "timestamp": "2026-01-27T21:03:58.168092",
+  "api_url": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+  "total_scenarios": 10,
+  "metrics": {
+    "passed": 7,
+    "failed": 3,
+    "errors": 0,
+    "pass_rate": 0.7,
+    "escalation_precision": 0.88,
+    "escalation_recall": 0.88,
+    "true_positives": 7,
+    "false_negatives": 1,
+    "true_negatives": 1,
+    "false_positives": 1,
+    "avg_empathy_score": 0.69
+  },
+  "pass_criteria": {
+    "precision": false,
+    "recall": false,
+    "empathy": false,
+    "overall": false
+  },
+  "results": [
+    {
+      "id": "esc-001",
+      "name": "Frustrated Customer - Repeat Issue",
+      "persona": "Alex (Frustrated Customer)",
+      "messages": [
+        "I've called three times and STILL haven't gotten my refund!"
+      ],
+      "expect_escalation": true,
+      "actual_escalation": true,
+      "escalation_correct": true,
+      "intent": "ESCALATION_REQUEST",
+      "empathy": {
+        "matched": [
+          "understand",
+          "frustrat",
+          "help"
+        ],
+        "score": 0.6,
+        "required": 5
+      },
+      "status": "PASS",
+      "latency_ms": 4370.751857757568,
+      "response": "Hi there!\n\nI completely understand your frustration about not receiving your refund after multiple calls. That sounds very frustrating, and I’m here to help you get this resolved.\n\nTo assist you better, could you please provide me with your order number or the details of the order you’re referring to? Once I have that information, I can look into the status of your refund and expedite the process for you.\n\nThank you for your patience, and I look forward to helping you resolve this!",
+      "error": null
+    },
+    {
+      "id": "esc-002",
+      "name": "Frustrated Customer - Unacceptable Service",
+      "persona": "Alex (Frustrated Customer)",
+      "messages": [
+        "This is absolutely unacceptable service!"
+      ],
+      "expect_escalation": true,
+      "actual_escalation": true,
+      "escalation_correct": true,
+      "intent": "COMPLAINT",
+      "empathy": {
+        "matched": [
+          "understand",
+          "concern",
+          "apolog"
+        ],
+        "score": 0.6,
+        "required": 5
+      },
+      "status": "PASS",
+      "latency_ms": 3249.462842941284,
+      "response": "Hi there,\n\nI genuinely apologize for the unacceptable service you've experienced. I understand how frustrating this must be for you, and I want to assure you that I am here to help.\n\nPlease allow me to escalate this matter to a supervisor immediately, as they will be able to address your concerns more effectively. I will make sure your case is prioritized so we can resolve this as quickly as possible.\n\nThank you for your patience, and I appreciate your understanding while we work to rectify this",
+      "error": null
+    },
+    {
+      "id": "esc-003",
+      "name": "Frustrated Customer - Manager Request",
+      "persona": "Alex (Frustrated Customer)",
+      "messages": [
+        "I want to speak to a manager NOW!"
+      ],
+      "expect_escalation": true,
+      "actual_escalation": true,
+      "escalation_correct": true,
+      "intent": "ESCALATION_REQUEST",
+      "empathy": {
+        "matched": [
+          "understand",
+          "connect",
+          "manager",
+          "right away"
+        ],
+        "score": 0.8,
+        "required": 5
+      },
+      "status": "PASS",
+      "latency_ms": 3752.9282569885254,
+      "response": "Hi there,\n\nI completely understand your urgency and frustration, and I’m here to assist you. I will escalate your request to a manager right away. They will be able to address your concerns directly.\n\nPlease hold on for just a moment while I connect you with them. Thank you for your patience, and I appreciate your understanding during this process.",
+      "error": null
+    },
+    {
+      "id": "esc-004",
+      "name": "High-Value Order - Large Amount",
+      "persona": "Taylor (High-Value Customer)",
+      "messages": [
+        "I placed a $5000 order for my company last week and half the items were missing!"
+      ],
+      "expect_escalation": true,
+      "actual_escalation": true,
+      "escalation_correct": true,
+      "intent": "COMPLAINT",
+      "empathy": {
+        "matched": [
+          "sorry",
+          "understand",
+          "resolve"
+        ],
+        "score": 0.6,
+        "required": 5
+      },
+      "status": "PASS",
+      "latency_ms": 3100.8312702178955,
+      "response": "Hi there,\n\nI’m really sorry to hear that half of your order is missing. That must be incredibly frustrating, especially for a significant order like yours. I want to help you resolve this issue as quickly as possible.\n\nCould you please provide me with your order number? Once I have that, I can investigate what happened and check on the missing items for you.\n\nThank you for your understanding, and I’m here to assist you!",
+      "error": null
+    },
+    {
+      "id": "esc-005",
+      "name": "High-Value Order - Time Sensitive",
+      "persona": "Taylor (High-Value Customer)",
+      "messages": [
+        "This order is for a corporate event tomorrow and it hasn't arrived yet. We spent over $3000!"
+      ],
+      "expect_escalation": true,
+      "actual_escalation": true,
+      "escalation_correct": true,
+      "intent": "ORDER_STATUS",
+      "empathy": {
+        "matched": [
+          "expedite"
+        ],
+        "score": 0.2,
+        "required": 5
+      },
+      "status": "FAIL",
+      "latency_ms": 3503.457546234131,
+      "response": "Hi there,\n\nI understand how critical it is for your order to arrive on time, especially with a corporate event tomorrow. I sincerely apologize for the inconvenience this has caused.\n\nLet me check the status of your order right now. Please provide me with your order number so I can investigate the situation and see what can be done to expedite the delivery.\n\nThank you for your patience, and I’m here to help you resolve this as quickly as possible!",
+      "error": null
+    },
+    {
+      "id": "esc-006",
+      "name": "Sensitive Topic - Bereavement",
+      "persona": "Anonymous Customer",
+      "messages": [
+        "I recently lost my husband and I'm trying to cancel his subscription."
+      ],
+      "expect_escalation": true,
+      "actual_escalation": true,
+      "escalation_correct": true,
+      "intent": "SUBSCRIPTION_MANAGEMENT",
+      "empathy": {
+        "matched": [
+          "sorry",
+          "loss",
+          "difficult",
+          "help"
+        ],
+        "score": 0.6666666666666666,
+        "required": 6
+      },
+      "status": "PASS",
+      "latency_ms": 3296.302318572998,
+      "response": "Hi there,\n\nI am truly sorry to hear about your loss. That must be incredibly difficult for you, and I appreciate you reaching out during this time. I can assist you in canceling the subscription.\n\nCould you please provide me with the email associated with the subscription or any order details? This will help me process the cancellation for you.\n\nThank you, and I'm here to support you in any way I can.",
+      "error": null
+    },
+    {
+      "id": "esc-007",
+      "name": "Sensitive Topic - Medical Situation",
+      "persona": "Anonymous Customer",
+      "messages": [
+        "I was in the hospital for emergency surgery and missed my delivery. Can you help?"
+      ],
+      "expect_escalation": true,
+      "actual_escalation": true,
+      "escalation_correct": true,
+      "intent": "ORDER_STATUS",
+      "empathy": {
+        "matched": [
+          "sorry",
+          "help"
+        ],
+        "score": 0.4,
+        "required": 5
+      },
+      "status": "PASS",
+      "latency_ms": 3355.9470176696777,
+      "response": "Hi there,\n\nI’m really sorry to hear that you were in the hospital and missed your delivery. That sounds like a tough situation, and I’m here to help you.\n\nCould you please provide me with your order number? Once I have that, I can check the status of your delivery and see what options are available for rescheduling or redelivery.\n\nThank you for reaching out, and I look forward to assisting you!",
+      "error": null
+    },
+    {
+      "id": "esc-008",
+      "name": "Escalation Keyword - Supervisor",
+      "persona": "Alex (Frustrated Customer)",
+      "messages": [
+        "Get me your supervisor. This conversation is going nowhere."
+      ],
+      "expect_escalation": true,
+      "actual_escalation": false,
+      "escalation_correct": false,
+      "intent": "ESCALATION_REQUEST",
+      "empathy": {
+        "matched": [
+          "understand",
+          "connect",
+          "supervisor",
+          "help"
+        ],
+        "score": 1.0,
+        "required": 4
+      },
+      "status": "FAIL",
+      "latency_ms": 2626.8649101257324,
+      "response": "Hi there,\n\nI apologize for any frustration you’re experiencing, and I appreciate your patience. I’m here to help, and I can certainly escalate this matter to a supervisor for you.\n\nPlease hold on for a moment while I connect you to someone who can assist you further. Thank you for your understanding.",
+      "error": null
+    },
+    {
+      "id": "esc-009",
+      "name": "Normal Inquiry - No Escalation Expected",
+      "persona": "Mike (Convenience Seeker)",
+      "messages": [
+        "Hi, I'd like to check on my order status please. Order number 12345."
+      ],
+      "expect_escalation": false,
+      "actual_escalation": true,
+      "escalation_correct": false,
+      "intent": "ORDER_STATUS",
+      "empathy": {
+        "matched": [],
+        "score": 1.0,
+        "required": 0
+      },
+      "status": "FAIL",
+      "latency_ms": 2957.857847213745,
+      "response": "Hi there,\n\nThank you for reaching out about your order status. However, I need to clarify that I couldn't find an order with the number you provided. Could you please double-check the order number for me?\n\nIf you have any additional details like the order date or items ordered, that would be helpful too. I'm here to assist you!",
+      "error": null
+    },
+    {
+      "id": "esc-010",
+      "name": "Product Question - No Escalation Expected",
+      "persona": "Jennifer (Gift Buyer)",
+      "messages": [
+        "What coffee would you recommend for someone who likes medium roast?"
+      ],
+      "expect_escalation": false,
+      "actual_escalation": false,
+      "escalation_correct": true,
+      "intent": "PRODUCT_INQUIRY",
+      "empathy": {
+        "matched": [],
+        "score": 1.0,
+        "required": 0
+      },
+      "status": "PASS",
+      "latency_ms": 3117.281675338745,
+      "response": "Hey! If you enjoy medium roast coffee, I’d recommend trying a Colombian or a Costa Rican blend. They typically have a nice balance of flavor and acidity, with notes of caramel and nuts. Also, a breakfast blend can be a great option as it often features a smooth and approachable flavor profile.\n\nIf you’re looking for something specific, let me know, and I can help you find the perfect one! ☕",
+      "error": null
+    }
+  ]
+}

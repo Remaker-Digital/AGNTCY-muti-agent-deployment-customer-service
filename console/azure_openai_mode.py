@@ -33,6 +33,7 @@ sys.path.insert(0, str(project_root))
 try:
     from evaluation.azure_openai_client import AzureOpenAIClient, ChatResponse
     from evaluation.config import Config
+
     AZURE_OPENAI_AVAILABLE = True
 except ImportError as e:
     AZURE_OPENAI_AVAILABLE = False
@@ -42,6 +43,7 @@ except ImportError as e:
 @dataclass
 class PipelineStep:
     """Represents a single step in the agent pipeline."""
+
     agent_name: str
     action: str
     input_summary: str
@@ -55,6 +57,7 @@ class PipelineStep:
 @dataclass
 class PipelineResult:
     """Result of running the full agent pipeline."""
+
     success: bool
     response: str
     intent: str
@@ -91,15 +94,25 @@ class AzureOpenAIMode:
             "carrier": "UPS",
             "estimated_delivery": "2026-01-27",
             "items": [
-                {"name": "Wireless Bluetooth Headphones", "sku": "WBH-100", "qty": 1, "price": 79.99},
-                {"name": "USB-C Charging Cable", "sku": "USB-C-3FT", "qty": 2, "price": 12.99}
+                {
+                    "name": "Wireless Bluetooth Headphones",
+                    "sku": "WBH-100",
+                    "qty": 1,
+                    "price": 79.99,
+                },
+                {
+                    "name": "USB-C Charging Cable",
+                    "sku": "USB-C-3FT",
+                    "qty": 2,
+                    "price": 12.99,
+                },
             ],
             "subtotal": 105.97,
             "shipping": 5.99,
             "tax": 8.48,
             "total": 120.44,
             "payment_method": "Visa ending in 4242",
-            "shipping_address": "123 Main St, Apt 4B, New York, NY 10001"
+            "shipping_address": "123 Main St, Apt 4B, New York, NY 10001",
         },
         "return": {
             "customer_name": "Maria Garcia",
@@ -109,18 +122,39 @@ class AzureOpenAIMode:
             "order_status": "delivered",
             "delivery_date": "2026-01-18",
             "items": [
-                {"name": "Winter Jacket - Blue, Size M", "sku": "WJ-BLU-M", "qty": 1, "price": 149.99}
+                {
+                    "name": "Winter Jacket - Blue, Size M",
+                    "sku": "WJ-BLU-M",
+                    "qty": 1,
+                    "price": 149.99,
+                }
             ],
             "return_policy": "30-day return window. Item must be unworn with tags attached. Free return shipping label provided.",
             "return_window_ends": "2026-02-17",
-            "refund_method": "Original payment method (3-5 business days after receipt)"
+            "refund_method": "Original payment method (3-5 business days after receipt)",
         },
         "product": {
             "customer_name": "Customer",
             "product_catalog": [
-                {"name": "Wireless Bluetooth Headphones", "sku": "WBH-100", "price": 79.99, "in_stock": True},
-                {"name": "Premium Noise-Canceling Headphones", "sku": "PNC-200", "price": 199.99, "in_stock": True},
-                {"name": "Smart Watch Pro", "sku": "SWP-300", "price": 299.99, "in_stock": False, "restock_date": "2026-02-01"},
+                {
+                    "name": "Wireless Bluetooth Headphones",
+                    "sku": "WBH-100",
+                    "price": 79.99,
+                    "in_stock": True,
+                },
+                {
+                    "name": "Premium Noise-Canceling Headphones",
+                    "sku": "PNC-200",
+                    "price": 199.99,
+                    "in_stock": True,
+                },
+                {
+                    "name": "Smart Watch Pro",
+                    "sku": "SWP-300",
+                    "price": 299.99,
+                    "in_stock": False,
+                    "restock_date": "2026-02-01",
+                },
             ],
             "shipping_info": "Free shipping on orders over $50. Standard: 5-7 business days. Express: 2-3 days (+$15.99).",
         },
@@ -133,8 +167,8 @@ class AzureOpenAIMode:
         },
         "empty": {
             "customer_name": "Customer",
-            "note": "No specific order or account context available."
-        }
+            "note": "No specific order or account context available.",
+        },
     }
 
     def __init__(self):
@@ -155,7 +189,9 @@ class AzureOpenAIMode:
             (success, message)
         """
         if not AZURE_OPENAI_AVAILABLE:
-            self.initialization_error = "Azure OpenAI client not available. Check evaluation module imports."
+            self.initialization_error = (
+                "Azure OpenAI client not available. Check evaluation module imports."
+            )
             return False, self.initialization_error
 
         try:
@@ -195,7 +231,11 @@ class AzureOpenAIMode:
                 self.prompts[name] = filepath.read_text(encoding="utf-8")
             else:
                 # Fallback to v2 or v1 if final not available
-                for fallback in [filename.replace("_final", "_v2"), filename.replace("_final", "_v1"), filename.replace("_final", "")]:
+                for fallback in [
+                    filename.replace("_final", "_v2"),
+                    filename.replace("_final", "_v1"),
+                    filename.replace("_final", ""),
+                ]:
                     fallback_path = prompts_dir / fallback
                     if fallback_path.exists():
                         self.prompts[name] = fallback_path.read_text(encoding="utf-8")
@@ -225,7 +265,9 @@ class AzureOpenAIMode:
             return self.client.check_budget()
         return True, "Client not initialized"
 
-    async def process_message(self, message: str, session_id: str) -> PipelineResult:
+    async def process_message(
+        self, message: str, session_id: str, language: str = "en"
+    ) -> PipelineResult:
         """
         Process a customer message through the full AI agent pipeline.
 
@@ -238,6 +280,7 @@ class AzureOpenAIMode:
         Args:
             message: Customer message
             session_id: Session identifier
+            language: Language code (en, fr-CA, es) for response generation
 
         Returns:
             PipelineResult with full details
@@ -265,11 +308,13 @@ class AzureOpenAIMode:
             pipeline_steps=[],
             trace_id=trace_id,
             session_id=session_id,
-            message_id=message_id
+            message_id=message_id,
         )
 
         if not self.is_initialized:
-            result.response = "Azure OpenAI not initialized. Please check configuration."
+            result.response = (
+                "Azure OpenAI not initialized. Please check configuration."
+            )
             return result
 
         try:
@@ -301,11 +346,12 @@ class AzureOpenAIMode:
             total_cost += escalation_result["step"].cost_usd
             total_latency += escalation_result["step"].latency_ms
 
-            # Step 4: Response Generation
+            # Step 4: Response Generation (with language support)
             response_result = self._run_response_generation(
                 message,
                 intent_result["intent"],
-                escalation_result["should_escalate"]
+                escalation_result["should_escalate"],
+                language=language,
             )
             pipeline_steps.append(response_result["step"])
             total_cost += response_result["step"].cost_usd
@@ -313,7 +359,9 @@ class AzureOpenAIMode:
 
             # Update conversation history
             self.conversation_history.append({"role": "user", "content": message})
-            self.conversation_history.append({"role": "assistant", "content": response_result["response"]})
+            self.conversation_history.append(
+                {"role": "assistant", "content": response_result["response"]}
+            )
 
             # Build final result
             result.success = True
@@ -321,7 +369,11 @@ class AzureOpenAIMode:
             result.intent = intent_result["intent"]
             result.intent_confidence = intent_result["confidence"]
             result.escalation_needed = escalation_result["should_escalate"]
-            result.escalation_reason = escalation_result["reason"] if escalation_result["should_escalate"] else None
+            result.escalation_reason = (
+                escalation_result["reason"]
+                if escalation_result["should_escalate"]
+                else None
+            )
             result.pipeline_steps = pipeline_steps
             result.total_cost_usd = total_cost
             result.total_latency_ms = total_latency
@@ -373,7 +425,7 @@ class AzureOpenAIMode:
             latency_ms=latency_ms,
             cost_usd=response.cost,
             success=response.error is None,
-            details={"allowed": allowed, "reason": reason}
+            details={"allowed": allowed, "reason": reason},
         )
 
         return {"allowed": allowed, "reason": reason, "step": step}
@@ -411,7 +463,7 @@ class AzureOpenAIMode:
             latency_ms=latency_ms,
             cost_usd=response.cost,
             success=response.error is None,
-            details={"intent": intent, "confidence": confidence}
+            details={"intent": intent, "confidence": confidence},
         )
 
         return {"intent": intent, "confidence": confidence, "step": step}
@@ -423,11 +475,15 @@ class AzureOpenAIMode:
         # Build conversation context
         conversation_context = "Customer message:\n" + message
         if self.conversation_history:
-            history_str = "\n".join([
-                f"{'Customer' if m['role'] == 'user' else 'Agent'}: {m['content'][:100]}..."
-                for m in self.conversation_history[-4:]  # Last 2 exchanges
-            ])
-            conversation_context = f"Previous conversation:\n{history_str}\n\nCurrent message:\n{message}"
+            history_str = "\n".join(
+                [
+                    f"{'Customer' if m['role'] == 'user' else 'Agent'}: {m['content'][:100]}..."
+                    for m in self.conversation_history[-4:]  # Last 2 exchanges
+                ]
+            )
+            conversation_context = (
+                f"Previous conversation:\n{history_str}\n\nCurrent message:\n{message}"
+            )
 
         response = self.client.chat_completion(
             model="gpt-4o-mini",
@@ -458,22 +514,51 @@ class AzureOpenAIMode:
             latency_ms=latency_ms,
             cost_usd=response.cost,
             success=response.error is None,
-            details={"should_escalate": should_escalate, "reason": reason}
+            details={"should_escalate": should_escalate, "reason": reason},
         )
 
         return {"should_escalate": should_escalate, "reason": reason, "step": step}
 
-    def _run_response_generation(self, message: str, intent: str, escalation_needed: bool) -> Dict[str, Any]:
-        """Run the Response Generation agent."""
+    def _run_response_generation(
+        self, message: str, intent: str, escalation_needed: bool, language: str = "en"
+    ) -> Dict[str, Any]:
+        """
+        Run the Response Generation agent with multi-language support.
+
+        Args:
+            message: Customer message
+            intent: Detected intent
+            escalation_needed: Whether escalation is required
+            language: Target response language (en, fr-CA, es)
+
+        Returns:
+            Response generation result dict
+        """
         start_time = time.perf_counter()
 
-        # Build context for response generation
+        # Map language code to full language name
+        language_names = {
+            "en": "English",
+            "fr-CA": "Canadian French (Français canadien)",
+            "fr-ca": "Canadian French (Français canadien)",
+            "fr": "French",
+            "es": "Spanish (Español)",
+        }
+        target_language = language_names.get(language, "English")
+
+        # Build context for response generation with language instruction
         context_str = f"""
 CUSTOMER CONTEXT:
 {json.dumps(self.context, indent=2)}
 
 DETECTED INTENT: {intent}
 ESCALATION NEEDED: {escalation_needed}
+
+TARGET LANGUAGE: {target_language}
+IMPORTANT: You MUST respond in {target_language}. The customer wrote in {target_language}.
+- If the target language is French Canadian, use informal "tu" when appropriate and include Québécois expressions.
+- If the target language is Spanish, use Latin American Spanish conventions.
+- Maintain the same helpful, professional tone in the target language.
 
 CONVERSATION HISTORY:
 {self._format_history()}
@@ -496,17 +581,22 @@ CONVERSATION HISTORY:
 
         latency_ms = (time.perf_counter() - start_time) * 1000
 
-        response_text = response.content or "I apologize, but I'm having trouble generating a response."
+        response_text = (
+            response.content
+            or "I apologize, but I'm having trouble generating a response."
+        )
 
         step = PipelineStep(
             agent_name="Response Generation",
             action="generate_response",
             input_summary=f"Intent: {intent}",
-            output_summary=response_text[:50] + "..." if len(response_text) > 50 else response_text,
+            output_summary=(
+                response_text[:50] + "..." if len(response_text) > 50 else response_text
+            ),
             latency_ms=latency_ms,
             cost_usd=response.cost,
             success=response.error is None,
-            details={"response_length": len(response_text)}
+            details={"response_length": len(response_text)},
         )
 
         return {"response": response_text, "step": step}
@@ -519,7 +609,11 @@ CONVERSATION HISTORY:
         lines = []
         for msg in self.conversation_history[-6:]:
             role = "Customer" if msg["role"] == "user" else "Agent"
-            content = msg["content"][:100] + "..." if len(msg["content"]) > 100 else msg["content"]
+            content = (
+                msg["content"][:100] + "..."
+                if len(msg["content"]) > 100
+                else msg["content"]
+            )
             lines.append(f"{role}: {content}")
         return "\n".join(lines)
 

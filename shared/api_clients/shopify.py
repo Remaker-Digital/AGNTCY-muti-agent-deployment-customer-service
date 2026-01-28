@@ -114,14 +114,13 @@ class ShopifyClient(BaseAPIClient):
             self.logger.debug(f"Order {order_number} not found")
             return None
         else:
-            self.logger.warning(f"Error fetching order {order_number}: {response.error}")
+            self.logger.warning(
+                f"Error fetching order {order_number}: {response.error}"
+            )
             return None
 
     async def get_orders_by_email(
-        self,
-        email: str,
-        limit: int = 10,
-        status: Optional[str] = None
+        self, email: str, limit: int = 10, status: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get orders for a customer by email.
@@ -144,8 +143,7 @@ class ShopifyClient(BaseAPIClient):
             params["status"] = status
 
         response = await self.get(
-            f"/admin/api/{self.API_VERSION}/orders.json",
-            params=params
+            f"/admin/api/{self.API_VERSION}/orders.json", params=params
         )
 
         if response.success and response.data:
@@ -177,10 +175,7 @@ class ShopifyClient(BaseAPIClient):
     # =========================================================================
 
     async def search_products(
-        self,
-        query: str,
-        limit: int = 10,
-        collection_id: Optional[str] = None
+        self, query: str, limit: int = 10, collection_id: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Search products by title/keyword.
@@ -203,8 +198,7 @@ class ShopifyClient(BaseAPIClient):
             params["collection_id"] = collection_id
 
         response = await self.get(
-            f"/admin/api/{self.API_VERSION}/products.json",
-            params=params
+            f"/admin/api/{self.API_VERSION}/products.json", params=params
         )
 
         if response.success and response.data:
@@ -234,7 +228,9 @@ class ShopifyClient(BaseAPIClient):
         elif response.is_not_found:
             return None
         else:
-            self.logger.warning(f"Error fetching product {product_id}: {response.error}")
+            self.logger.warning(
+                f"Error fetching product {product_id}: {response.error}"
+            )
             return None
 
     async def get_products(
@@ -267,8 +263,7 @@ class ShopifyClient(BaseAPIClient):
             params["vendor"] = vendor
 
         response = await self.get(
-            f"/admin/api/{self.API_VERSION}/products.json",
-            params=params
+            f"/admin/api/{self.API_VERSION}/products.json", params=params
         )
 
         if response.success and response.data:
@@ -282,7 +277,7 @@ class ShopifyClient(BaseAPIClient):
     async def get_inventory_levels(
         self,
         inventory_item_ids: Optional[List[str]] = None,
-        location_ids: Optional[List[str]] = None
+        location_ids: Optional[List[str]] = None,
     ) -> List[Dict[str, Any]]:
         """
         Get inventory levels for items/locations.
@@ -303,8 +298,7 @@ class ShopifyClient(BaseAPIClient):
             params["location_ids"] = ",".join(location_ids)
 
         response = await self.get(
-            f"/admin/api/{self.API_VERSION}/inventory_levels.json",
-            params=params
+            f"/admin/api/{self.API_VERSION}/inventory_levels.json", params=params
         )
 
         if response.success and response.data:
@@ -335,7 +329,9 @@ class ShopifyClient(BaseAPIClient):
             return response.data.get("customer")
         return None
 
-    async def search_customers(self, query: str, limit: int = 10) -> List[Dict[str, Any]]:
+    async def search_customers(
+        self, query: str, limit: int = 10
+    ) -> List[Dict[str, Any]]:
         """
         Search customers by email, name, etc.
 
@@ -350,7 +346,7 @@ class ShopifyClient(BaseAPIClient):
         """
         response = await self.get(
             f"/admin/api/{self.API_VERSION}/customers/search.json",
-            params={"query": query, "limit": limit}
+            params={"query": query, "limit": limit},
         )
 
         if response.success and response.data:
@@ -362,9 +358,7 @@ class ShopifyClient(BaseAPIClient):
     # =========================================================================
 
     async def get_abandoned_checkouts(
-        self,
-        limit: int = 50,
-        since_id: Optional[str] = None
+        self, limit: int = 50, since_id: Optional[str] = None
     ) -> List[Dict[str, Any]]:
         """
         Get abandoned checkouts.
@@ -383,8 +377,7 @@ class ShopifyClient(BaseAPIClient):
             params["since_id"] = since_id
 
         response = await self.get(
-            f"/admin/api/{self.API_VERSION}/checkouts.json",
-            params=params
+            f"/admin/api/{self.API_VERSION}/checkouts.json", params=params
         )
 
         if response.success and response.data:

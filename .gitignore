@@ -99,3 +99,187 @@ PPTX-template-and-skill/output/
 PPTX-template-and-skill/template-extracted/
 PPTX-template-and-skill/template.zip
 PPTX-template-and-skill/test-content.json
+
+# =============================================================================
+# Markdown Files - Only push functionally necessary documentation
+# =============================================================================
+# Strategy: Exclude planning, troubleshooting, session, and test result docs
+# Keep: README, guides, architecture, runbooks, wiki content, decision records
+
+# --- Root-level planning and session documents ---
+# Session summaries and handoffs (internal planning)
+SESSION-*.md
+*-SESSION-*.md
+
+# Completion and status summaries (internal tracking)
+COMPLETION-SUMMARY.md
+*-COMPLETION-SUMMARY.md
+*-STATUS.md
+PHASE1-STATUS.md
+PROJECT-SUMMARY.md
+PROJECT-SETUP-COMPLETE.md
+
+# Implementation plans and context (internal planning)
+*-IMPLEMENTATION-PLAN.md
+*-CONTEXT.md
+PHASE-2-READINESS.md
+PHASE-2-IMPLEMENTATION-PLAN.md
+
+# Troubleshooting and fix logs (internal debugging)
+*-TROUBLESHOOTING*.md
+*-FIX*.md
+CI-FIX-SUMMARY.md
+CI-TROUBLESHOOTING.md
+DOCKER-FIX.md
+DOCKER-OPTIMIZATION-SUMMARY.md
+SLIM-CONFIGURATION-ISSUE.md
+
+# Demo and publication readiness (internal checklists)
+*-DEMO.md
+AZURE-PHASE1-DEMO.md
+GITHUB-PUBLICATION-READY.md
+GITHUB-TEMPLATES-SUMMARY.md
+
+# Validation reports and test results (internal QA)
+*-VALIDATION-REPORT.md
+*-REPORT.md
+KNOWLEDGE-BASE-VALIDATION-REPORT.md
+
+# Knowledge continuity (AI session management)
+KNOWLEDGE-CONTINUITY-INDEX.md
+
+# Files created logs (internal tracking)
+FILES-CREATED-*.md
+
+# Console implementation (internal summary)
+CONSOLE-IMPLEMENTATION-SUMMARY.md
+
+# Start here and project guides (superseded by README)
+START-HERE.md
+PROJECT-GUIDE.md
+
+# User interface design (internal design doc)
+USER-INTERFACE-DESIGN-THEME.md
+
+# Project management (internal process)
+PROJECT-MANAGEMENT-BEST-PRACTICES-FOR-GITHUB.md
+
+# User stories (tracked in GitHub Issues)
+user-stories-phased.md
+
+# --- docs/ directory planning and internal documents ---
+# Session and optimization logs
+docs/SESSION-*.md
+docs/*-SESSION-*.md
+docs/CLAUDE-HISTORY.md
+
+# Implementation summaries and plans (internal)
+docs/*-IMPLEMENTATION-SUMMARY.md
+docs/*-IMPLEMENTATION-PLAN.md
+docs/ISSUE-*-*.md
+docs/IMPLEMENTATION-SUMMARY-*.md
+
+# Test results and evaluations (internal QA)
+docs/*-RESULTS*.md
+docs/*-EVALUATION*.md
+docs/*-TESTING-SUMMARY*.md
+docs/E2E-BASELINE-RESULTS-*.md
+docs/AUTO-SCALING-TESTING-EVALUATION.md
+docs/AUTO-SCALING-WORK-ITEM-EVALUATION.md
+docs/CONSOLE-TESTING-SUMMARY-*.md
+
+# Phase kickoff and transition docs (internal planning)
+docs/PHASE-*-KICKOFF.md
+docs/PHASE-*-TRANSITION.md
+docs/PHASE-*-COMPLETION-ASSESSMENT.md
+docs/PHASE-*-COMPLETION-SUMMARY.md
+docs/PHASE-2-TO-PHASE-3-TRANSITION.md
+
+# Completion checklists (internal tracking)
+docs/PHASE-*-COMPLETION-CHECKLIST.md
+
+# Cost and budget reviews (internal financial)
+docs/COST-OPTIMIZATION-REVIEW-*.md
+docs/BUDGET-SUMMARY.md
+
+# DR drill results (keep runbook, exclude drill logs)
+docs/DR-DRILL-*.md
+docs/dr-test-results/
+
+# Documentation audits (internal QA)
+docs/DOCUMENTATION-AUDIT-SUMMARY-*.md
+
+# Security advisories with dates (transient)
+docs/SECURITY-ADVISORY-*.md
+
+# Azure integration summaries (internal)
+docs/AZURE-OPENAI-INTEGRATION-SUMMARY.md
+
+# Blog post planning (internal content planning)
+docs/BLOG-POST-SERIES.md
+
+# Phase 6-7 planning (future planning)
+docs/PHASE-6-7-PLANNING-DECISIONS.md
+
+# Comparison documents (internal analysis)
+docs/COMPARISON-*.md
+
+# Wiki publishing instructions (internal process)
+docs/WIKI-PUBLISHING-INSTRUCTIONS.md
+
+# Archive directory (historical documents)
+docs/archive/
+
+# =============================================================================
+# Markdown Files TO KEEP (explicit allowlist via negation)
+# =============================================================================
+# These patterns ensure critical docs are NOT ignored even if they match above
+
+# Root-level essential docs
+!README.md
+!CONTRIBUTING.md
+!SETUP-GUIDE.md
+!CLAUDE.md
+!AGNTCY-REVIEW.md
+
+# docs/ essential documentation
+!docs/README.md
+!docs/DEPLOYMENT-GUIDE.md
+!docs/TESTING-GUIDE.md
+!docs/TROUBLESHOOTING-GUIDE.md
+!docs/CONSOLE-DOCUMENTATION.md
+
+# Architecture and requirements (developer reference)
+!docs/architecture-requirements-phase2-5.md
+!docs/critic-supervisor-agent-requirements.md
+!docs/data-staleness-requirements.md
+!docs/event-driven-requirements.md
+!docs/execution-tracing-observability-requirements.md
+!docs/AUTO-SCALING-ARCHITECTURE.md
+
+# Configuration and decision records
+!docs/CONFIGURATION-DECISION-RECORD.md
+!docs/CONFIGURATION-MANAGEMENT-STRATEGY.md
+!docs/PHASE-5-CONFIGURATION-INTERFACE.md
+!docs/PHASE-5-TEST-USER-STRATEGY.md
+
+# Operational runbooks (sysadmin reference)
+!docs/RUNBOOK-AUTO-SCALING-OPERATIONS.md
+!docs/AZURE-DEVOPS-SETUP-GUIDE.md
+!docs/SNYK-SETUP-GUIDE.md
+!docs/PHASE-4-DEPLOYMENT-KNOWLEDGE-BASE.md
+!docs/OPTIMIZATION-WORKFLOW.md
+
+# Wiki content (published documentation)
+!docs/WIKI-*.md
+
+# Phase 3.5 AI optimization (methodology reference)
+!docs/PHASE-3.5-AI-MODEL-OPTIMIZATION.md
+
+# UCP/MCP integration guides (developer reference)
+!docs/EVALUATION-Universal-Commerce-Protocol-UCP.md
+!docs/UCP-IMPLEMENTATION-COMPLEXITY-ANALYSIS.md
+!docs/MCP-TESTING-VALIDATION-APPROACH.md
+
+# Knowledge base content (functional)
+!docs/knowledge-base/

@@ -33,7 +33,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from shared.factory import get_factory, shutdown_factory
 from shared.utils import setup_logging, load_config, handle_graceful_shutdown
-from shared.models import create_a2a_message, extract_message_content, generate_context_id
+from shared.models import (
+    create_a2a_message,
+    extract_message_content,
+    generate_context_id,
+)
 
 
 class BaseAgent(ABC):
@@ -61,8 +65,7 @@ class BaseAgent(ABC):
 
         # Setup logging
         self.logger = setup_logging(
-            name=self.agent_topic,
-            level=self.config.get("log_level", "INFO")
+            name=self.agent_topic, level=self.config.get("log_level", "INFO")
         )
 
         self.logger.info(f"Initializing {self.agent_name} on topic: {self.agent_topic}")
@@ -110,12 +113,13 @@ class BaseAgent(ABC):
                 # Create A2A client for custom agent logic
                 self.logger.info("Creating A2A client...")
                 self.client = self.factory.create_a2a_client(
-                    agent_topic=self.agent_topic,
-                    transport=self.transport
+                    agent_topic=self.agent_topic, transport=self.transport
                 )
 
                 if self.client:
-                    self.logger.info(f"A2A client created for topic: {self.agent_topic}")
+                    self.logger.info(
+                        f"A2A client created for topic: {self.agent_topic}"
+                    )
 
             # Initialize Azure OpenAI client (Phase 4+)
             if self._use_openai:
@@ -124,7 +128,9 @@ class BaseAgent(ABC):
             self.logger.info("Agent initialization complete")
 
         except Exception as e:
-            self.logger.error(f"Failed to initialize AGNTCY components: {e}", exc_info=True)
+            self.logger.error(
+                f"Failed to initialize AGNTCY components: {e}", exc_info=True
+            )
             raise
 
     async def _initialize_openai(self) -> None:
@@ -146,10 +152,14 @@ class BaseAgent(ABC):
                 self.openai_client = None
 
         except ImportError:
-            self.logger.warning("Azure OpenAI package not installed. Using fallback mode.")
+            self.logger.warning(
+                "Azure OpenAI package not installed. Using fallback mode."
+            )
             self.openai_client = None
         except Exception as e:
-            self.logger.warning(f"Failed to initialize Azure OpenAI: {e}. Using fallback mode.")
+            self.logger.warning(
+                f"Failed to initialize Azure OpenAI: {e}. Using fallback mode."
+            )
             self.openai_client = None
 
     async def handle_message(self, message: dict) -> dict:
@@ -190,16 +200,14 @@ class BaseAgent(ABC):
                 metadata={
                     "agent": self.agent_topic,
                     "processed_count": self.messages_processed,
-                    "method": "openai" if self.openai_client else "fallback"
-                }
+                    "method": "openai" if self.openai_client else "fallback",
+                },
             )
 
         except Exception as e:
             self.logger.error(f"Error handling message: {e}", exc_info=True)
             return create_a2a_message(
-                role="assistant",
-                content={"error": str(e)},
-                context_id=context_id
+                role="assistant", content={"error": str(e)}, context_id=context_id
             )
 
     @abstractmethod
@@ -273,7 +281,9 @@ class BaseAgent(ABC):
         Processes sample messages from get_demo_messages().
         """
         self.logger.info("Running in DEMO MODE (no SDK connection)")
-        self.logger.info(f"Processing method: {'Azure OpenAI' if self.openai_client else 'Fallback'}")
+        self.logger.info(
+            f"Processing method: {'Azure OpenAI' if self.openai_client else 'Fallback'}"
+        )
 
         # Get demo messages from subclass
         sample_messages = self.get_demo_messages()
@@ -290,7 +300,9 @@ class BaseAgent(ABC):
         try:
             while True:
                 await asyncio.sleep(30)
-                self.logger.debug(f"Heartbeat - {self.messages_processed} messages processed")
+                self.logger.debug(
+                    f"Heartbeat - {self.messages_processed} messages processed"
+                )
         except asyncio.CancelledError:
             self.logger.info("Demo mode cancelled")
 

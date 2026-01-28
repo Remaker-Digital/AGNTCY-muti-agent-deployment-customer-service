@@ -40,8 +40,7 @@ from enum import Enum
 import logging
 
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -50,8 +49,10 @@ logger = logging.getLogger(__name__)
 # Test Configuration
 # =============================================================================
 
+
 class TestScenario(Enum):
     """Available test scenarios."""
+
     BASELINE = "baseline"
     SCALE_UP = "scale-up"
     SCALE_DOWN = "scale-down"
@@ -64,6 +65,7 @@ class TestScenario(Enum):
 @dataclass
 class ScenarioConfig:
     """Configuration for a test scenario."""
+
     name: str
     description: str
     duration_seconds: int
@@ -82,7 +84,7 @@ SCENARIO_CONFIGS = {
         duration_seconds=60,
         concurrent_users=5,
         requests_per_second=0.5,
-        warmup_seconds=5
+        warmup_seconds=5,
     ),
     TestScenario.SCALE_UP: ScenarioConfig(
         name="Scale-Up Trigger",
@@ -90,7 +92,7 @@ SCENARIO_CONFIGS = {
         duration_seconds=120,
         concurrent_users=30,
         requests_per_second=3.5,
-        warmup_seconds=10
+        warmup_seconds=10,
     ),
     TestScenario.SCALE_DOWN: ScenarioConfig(
         name="Scale-Down Validation",
@@ -98,7 +100,7 @@ SCENARIO_CONFIGS = {
         duration_seconds=180,  # Need time for scale-down
         concurrent_users=1,
         requests_per_second=0.1,
-        warmup_seconds=0
+        warmup_seconds=0,
     ),
     TestScenario.POOL_STRESS: ScenarioConfig(
         name="Connection Pool Stress",
@@ -106,7 +108,7 @@ SCENARIO_CONFIGS = {
         duration_seconds=60,
         concurrent_users=50,
         requests_per_second=5.0,
-        warmup_seconds=5
+        warmup_seconds=5,
     ),
     TestScenario.CIRCUIT_BREAKER: ScenarioConfig(
         name="Circuit Breaker Test",
@@ -115,7 +117,7 @@ SCENARIO_CONFIGS = {
         concurrent_users=100,
         requests_per_second=10.0,
         warmup_seconds=0,
-        timeout_seconds=10.0  # Short timeout to trigger failures
+        timeout_seconds=10.0,  # Short timeout to trigger failures
     ),
     TestScenario.COLD_START: ScenarioConfig(
         name="Cold Start Measurement",
@@ -123,7 +125,7 @@ SCENARIO_CONFIGS = {
         duration_seconds=10,
         concurrent_users=1,
         requests_per_second=0.1,
-        warmup_seconds=0
+        warmup_seconds=0,
     ),
     TestScenario.SUSTAINED: ScenarioConfig(
         name="Sustained Load",
@@ -131,8 +133,8 @@ SCENARIO_CONFIGS = {
         duration_seconds=300,  # 5 minutes
         concurrent_users=20,
         requests_per_second=2.0,
-        warmup_seconds=30
-    )
+        warmup_seconds=30,
+    ),
 }
 
 
@@ -142,8 +144,14 @@ SCENARIO_CONFIGS = {
 
 TEST_MESSAGES = [
     {"message": "Where is my order #ORD-2026-78432?", "type": "order_status"},
-    {"message": "What coffee would you recommend for dark roast lovers?", "type": "product_inquiry"},
-    {"message": "I want to return my order, the coffee was stale", "type": "return_request"},
+    {
+        "message": "What coffee would you recommend for dark roast lovers?",
+        "type": "product_inquiry",
+    },
+    {
+        "message": "I want to return my order, the coffee was stale",
+        "type": "return_request",
+    },
     {"message": "This is TERRIBLE service! I've called 3 times!", "type": "escalation"},
     {"message": "What are your shipping options?", "type": "general_inquiry"},
     {"message": "Do you have any decaf options?", "type": "product_inquiry"},
@@ -156,9 +164,11 @@ TEST_MESSAGES = [
 # Result Models
 # =============================================================================
 
+
 @dataclass
 class RequestResult:
     """Result of a single request."""
+
     success: bool
     status_code: int
     latency_ms: float
@@ -170,6 +180,7 @@ class RequestResult:
 @dataclass
 class ScenarioResult:
     """Result of a complete test scenario."""
+
     scenario: str
     start_time: str
     end_time: str
@@ -197,11 +208,12 @@ class ScenarioResult:
 # Load Test Engine
 # =============================================================================
 
+
 class AutoScalingLoadTest:
     """Load test engine for auto-scaling validation."""
 
     def __init__(self, endpoint: str, scenario: TestScenario):
-        self.endpoint = endpoint.rstrip('/')
+        self.endpoint = endpoint.rstrip("/")
         self.scenario = scenario
         self.config = SCENARIO_CONFIGS[scenario]
         self.results: List[RequestResult] = []
@@ -242,7 +254,7 @@ class AutoScalingLoadTest:
             end_time=end_time.isoformat(),
             duration=duration,
             pool_stats_start=pool_stats_start,
-            pool_stats_end=pool_stats_end
+            pool_stats_end=pool_stats_end,
         )
 
         # Log summary
@@ -258,9 +270,7 @@ class AutoScalingLoadTest:
 
         # Create worker tasks
         for i in range(self.config.concurrent_users):
-            task = asyncio.create_task(
-                self._worker(session, i, interval, end_time)
-            )
+            task = asyncio.create_task(self._worker(session, i, interval, end_time))
             tasks.append(task)
 
         # Wait for all workers to complete
@@ -271,7 +281,7 @@ class AutoScalingLoadTest:
         session: aiohttp.ClientSession,
         worker_id: int,
         interval: float,
-        end_time: float
+        end_time: float,
     ):
         """Worker that sends requests at specified interval."""
         while time.time() < end_time and not self._stop_flag:
@@ -283,9 +293,7 @@ class AutoScalingLoadTest:
             await asyncio.sleep(interval)
 
     async def _send_request(
-        self,
-        session: aiohttp.ClientSession,
-        message: Dict
+        self, session: aiohttp.ClientSession, message: Dict
     ) -> RequestResult:
         """Send a single request and measure latency."""
         url = f"{self.endpoint}/api/v1/chat"
@@ -295,7 +303,7 @@ class AutoScalingLoadTest:
             async with session.post(
                 url,
                 json={"message": message["message"]},
-                timeout=aiohttp.ClientTimeout(total=self.config.timeout_seconds)
+                timeout=aiohttp.ClientTimeout(total=self.config.timeout_seconds),
             ) as response:
                 latency_ms = (time.time() - start_time) * 1000
                 await response.text()  # Consume response
@@ -304,7 +312,7 @@ class AutoScalingLoadTest:
                     success=response.status == 200,
                     status_code=response.status,
                     latency_ms=latency_ms,
-                    message_type=message["type"]
+                    message_type=message["type"],
                 )
 
         except asyncio.TimeoutError:
@@ -313,7 +321,7 @@ class AutoScalingLoadTest:
                 status_code=0,
                 latency_ms=(time.time() - start_time) * 1000,
                 error="timeout",
-                message_type=message["type"]
+                message_type=message["type"],
             )
         except Exception as e:
             return RequestResult(
@@ -321,7 +329,7 @@ class AutoScalingLoadTest:
                 status_code=0,
                 latency_ms=(time.time() - start_time) * 1000,
                 error=str(e),
-                message_type=message["type"]
+                message_type=message["type"],
             )
 
     async def _get_pool_stats(self) -> Optional[Dict]:
@@ -330,7 +338,7 @@ class AutoScalingLoadTest:
             async with aiohttp.ClientSession() as session:
                 async with session.get(
                     f"{self.endpoint}/api/v1/pool/stats",
-                    timeout=aiohttp.ClientTimeout(total=5)
+                    timeout=aiohttp.ClientTimeout(total=5),
                 ) as response:
                     if response.status == 200:
                         return await response.json()
@@ -344,7 +352,7 @@ class AutoScalingLoadTest:
         end_time: str,
         duration: float,
         pool_stats_start: Optional[Dict],
-        pool_stats_end: Optional[Dict]
+        pool_stats_end: Optional[Dict],
     ) -> ScenarioResult:
         """Calculate test results from collected data."""
         successful = [r for r in self.results if r.success]
@@ -376,7 +384,7 @@ class AutoScalingLoadTest:
             latency_max_ms=max(latencies),
             errors=errors,
             pool_stats_start=pool_stats_start,
-            pool_stats_end=pool_stats_end
+            pool_stats_end=pool_stats_end,
         )
 
     def _percentile(self, data: List[float], percentile: int) -> float:
@@ -416,7 +424,7 @@ class AutoScalingLoadTest:
             logger.info("-" * 60)
             logger.info("Pool Stats (End):")
             for key, value in result.pool_stats_end.items():
-                if key != 'timestamp':
+                if key != "timestamp":
                     logger.info(f"  {key}: {value}")
 
 
@@ -424,25 +432,19 @@ class AutoScalingLoadTest:
 # Main Entry Point
 # =============================================================================
 
+
 async def main():
     parser = argparse.ArgumentParser(
         description="Auto-scaling load test for AGNTCY multi-agent system"
     )
-    parser.add_argument(
-        "--endpoint",
-        required=True,
-        help="API Gateway endpoint URL"
-    )
+    parser.add_argument("--endpoint", required=True, help="API Gateway endpoint URL")
     parser.add_argument(
         "--scenario",
         choices=[s.value for s in TestScenario],
         default="baseline",
-        help="Test scenario to run"
+        help="Test scenario to run",
     )
-    parser.add_argument(
-        "--output",
-        help="Output file for JSON results"
-    )
+    parser.add_argument("--output", help="Output file for JSON results")
 
     args = parser.parse_args()
 
@@ -452,7 +454,7 @@ async def main():
 
     # Save results if output specified
     if args.output:
-        with open(args.output, 'w') as f:
+        with open(args.output, "w") as f:
             json.dump(result.to_dict(), f, indent=2)
         logger.info(f"Results saved to {args.output}")
 

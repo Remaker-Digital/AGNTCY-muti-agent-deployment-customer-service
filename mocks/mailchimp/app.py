@@ -25,7 +25,7 @@ from pydantic import BaseModel, EmailStr
 app = FastAPI(
     title="Mock Mailchimp API",
     description="Mock Mailchimp Marketing API for development and testing",
-    version="1.0.0"
+    version="1.0.0",
 )
 
 # Data directory for JSON fixtures
@@ -54,6 +54,7 @@ class ListMember(BaseModel):
 # API Endpoints
 # ============================================================================
 
+
 @app.get("/")
 async def root():
     """API root - basic info."""
@@ -66,8 +67,8 @@ async def root():
             "/3.0/lists",
             "/3.0/lists/{list_id}",
             "/3.0/lists/{list_id}/members",
-            "/3.0/automations"
-        ]
+            "/3.0/automations",
+        ],
     }
 
 
@@ -82,7 +83,7 @@ async def get_campaigns(
     status: Optional[str] = Query(None),
     count: int = Query(10, ge=1, le=1000),
     offset: int = Query(0, ge=0),
-    authorization: str = Header(None)
+    authorization: str = Header(None),
 ):
     """
     Get campaigns list.
@@ -96,19 +97,13 @@ async def get_campaigns(
         campaigns = [c for c in campaigns if c.get("status") == status]
 
     # Apply pagination
-    paginated = campaigns[offset:offset + count]
+    paginated = campaigns[offset : offset + count]
 
-    return {
-        "campaigns": paginated,
-        "total_items": len(campaigns)
-    }
+    return {"campaigns": paginated, "total_items": len(campaigns)}
 
 
 @app.get("/3.0/campaigns/{campaign_id}")
-async def get_campaign(
-    campaign_id: str,
-    authorization: str = Header(None)
-):
+async def get_campaign(campaign_id: str, authorization: str = Header(None)):
     """
     Get single campaign by ID.
     Used for tracking specific campaign performance.
@@ -127,7 +122,7 @@ async def get_campaign(
 async def get_lists(
     count: int = Query(10, ge=1, le=1000),
     offset: int = Query(0, ge=0),
-    authorization: str = Header(None)
+    authorization: str = Header(None),
 ):
     """
     Get audience lists.
@@ -137,19 +132,13 @@ async def get_lists(
     lists = lists_data.get("lists", [])
 
     # Apply pagination
-    paginated = lists[offset:offset + count]
+    paginated = lists[offset : offset + count]
 
-    return {
-        "lists": paginated,
-        "total_items": len(lists)
-    }
+    return {"lists": paginated, "total_items": len(lists)}
 
 
 @app.get("/3.0/lists/{list_id}")
-async def get_list(
-    list_id: str,
-    authorization: str = Header(None)
-):
+async def get_list(list_id: str, authorization: str = Header(None)):
     """
     Get single list/audience by ID.
     Used for audience analytics and segmentation.
@@ -166,9 +155,7 @@ async def get_list(
 
 @app.post("/3.0/lists/{list_id}/members")
 async def add_list_member(
-    list_id: str,
-    member: ListMember,
-    authorization: str = Header(None)
+    list_id: str, member: ListMember, authorization: str = Header(None)
 ):
     """
     Add member to list.
@@ -191,10 +178,7 @@ async def add_list_member(
         "email_type": "html",
         "status": member.status,
         "merge_fields": member.merge_fields,
-        "stats": {
-            "avg_open_rate": 0.35,
-            "avg_click_rate": 0.08
-        },
+        "stats": {"avg_open_rate": 0.35, "avg_click_rate": 0.08},
         "ip_signup": "",
         "timestamp_signup": datetime.utcnow().isoformat() + "Z",
         "ip_opt": "",
@@ -210,10 +194,10 @@ async def add_list_member(
             "gmtoff": 0,
             "dstoff": 0,
             "country_code": "",
-            "timezone": ""
+            "timezone": "",
         },
         "list_id": list_id,
-        "tags": member.tags
+        "tags": member.tags,
     }
 
     return new_member
@@ -223,7 +207,7 @@ async def add_list_member(
 async def get_automations(
     count: int = Query(10, ge=1, le=1000),
     offset: int = Query(0, ge=0),
-    authorization: str = Header(None)
+    authorization: str = Header(None),
 ):
     """
     Get automation workflows.
@@ -234,19 +218,13 @@ async def get_automations(
     automations = automations_data.get("automations", [])
 
     # Apply pagination
-    paginated = automations[offset:offset + count]
+    paginated = automations[offset : offset + count]
 
-    return {
-        "automations": paginated,
-        "total_items": len(automations)
-    }
+    return {"automations": paginated, "total_items": len(automations)}
 
 
 @app.get("/3.0/automations/{workflow_id}")
-async def get_automation(
-    workflow_id: str,
-    authorization: str = Header(None)
-):
+async def get_automation(workflow_id: str, authorization: str = Header(None)):
     """
     Get single automation workflow by ID.
     Used for tracking specific automation performance.
@@ -270,4 +248,5 @@ async def webhook_subscriber_added():
 
 if __name__ == "__main__":
     import uvicorn
+
     uvicorn.run(app, host="0.0.0.0", port=8000)

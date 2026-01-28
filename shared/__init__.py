@@ -19,14 +19,14 @@ from shared.models import (
     KnowledgeResult,
     ResponseRequest,
     EscalationDecision,
-    AnalyticsEvent
+    AnalyticsEvent,
 )
 from shared.utils import (
     setup_logging,
     load_config,
     get_env_or_raise,
     get_env_or_default,
-    handle_graceful_shutdown
+    handle_graceful_shutdown,
 )
 
 # Azure OpenAI client (Phase 4+)
@@ -37,8 +37,9 @@ try:
         AzureOpenAIConfig,
         get_openai_client,
         shutdown_openai_client,
-        TokenUsage
+        TokenUsage,
     )
+
     _OPENAI_AVAILABLE = True
 except ImportError:
     _OPENAI_AVAILABLE = False
@@ -53,7 +54,7 @@ from shared.cost_monitor import (
     CostMonitor,
     get_cost_monitor,
     record_openai_usage,
-    get_cost_summary
+    get_cost_summary,
 )
 
 # PII Tokenization (Phase 4+)
@@ -72,11 +73,9 @@ __all__ = [
     # Factory
     "get_factory",
     "shutdown_factory",
-
     # Base Agent
     "BaseAgent",
     "run_agent",
-
     # Models
     "AgentCard",
     "CustomerMessage",
@@ -86,27 +85,23 @@ __all__ = [
     "ResponseRequest",
     "EscalationDecision",
     "AnalyticsEvent",
-
     # Utils
     "setup_logging",
     "load_config",
     "get_env_or_raise",
     "get_env_or_default",
     "handle_graceful_shutdown",
-
     # Azure OpenAI (Phase 4+)
     "AzureOpenAIClient",
     "AzureOpenAIConfig",
     "get_openai_client",
     "shutdown_openai_client",
     "TokenUsage",
-
     # Cost Monitoring (Phase 4+)
     "CostMonitor",
     "get_cost_monitor",
     "record_openai_usage",
     "get_cost_summary",
-
     # PII Tokenization (Phase 4+)
     "PIITokenizer",
     "PIIDetokenizer",

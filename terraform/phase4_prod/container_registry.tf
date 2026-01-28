@@ -10,7 +10,7 @@ resource "azurerm_container_registry" "main" {
   location            = local.location
   resource_group_name = data.azurerm_resource_group.main.name
   sku                 = var.container_registry_sku
-  admin_enabled       = false # Use managed identity instead
+  admin_enabled       = true  # Required for Container Apps registry authentication
 
   # Disable public network access in production (Phase 5)
   public_network_access_enabled = true

@@ -28,6 +28,7 @@ import json
 @dataclass
 class IntentResult:
     """Result of a single intent classification."""
+
     sample_id: str
     expected: str
     predicted: str
@@ -40,6 +41,7 @@ class IntentResult:
 @dataclass
 class ResponseResult:
     """Result of a single response generation with quality scores."""
+
     sample_id: str
     scenario: str
     response: str
@@ -58,6 +60,7 @@ class ResponseResult:
 @dataclass
 class EscalationResult:
     """Result of a single escalation detection."""
+
     sample_id: str
     expected_escalate: bool
     predicted_escalate: bool
@@ -70,6 +73,7 @@ class EscalationResult:
 @dataclass
 class CriticResult:
     """Result of a single critic/supervisor validation."""
+
     sample_id: str
     input_type: str  # "normal", "adversarial", "prompt_injection", etc.
     expected_action: str  # "ALLOW" or "BLOCK"
@@ -82,6 +86,7 @@ class CriticResult:
 @dataclass
 class RetrievalResult:
     """Result of a single RAG retrieval."""
+
     sample_id: str
     query: str
     expected_docs: list[str]  # Expected document IDs in top-k
@@ -168,7 +173,11 @@ class MetricsCollector:
             tp, fp, fn = counts["tp"], counts["fp"], counts["fn"]
             precision = tp / (tp + fp) if (tp + fp) > 0 else 0
             recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-            f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+            f1 = (
+                2 * precision * recall / (precision + recall)
+                if (precision + recall) > 0
+                else 0
+            )
             per_intent[intent] = {
                 "precision": round(precision, 3),
                 "recall": round(recall, 3),
@@ -189,9 +198,15 @@ class MetricsCollector:
             "confusion_matrix": dict(confusion),
             "latency": {
                 "p50_ms": round(latencies[len(latencies) // 2], 2) if latencies else 0,
-                "p95_ms": round(latencies[int(len(latencies) * 0.95)] if latencies else 0, 2),
-                "p99_ms": round(latencies[int(len(latencies) * 0.99)] if latencies else 0, 2),
-                "mean_ms": round(sum(latencies) / len(latencies), 2) if latencies else 0,
+                "p95_ms": round(
+                    latencies[int(len(latencies) * 0.95)] if latencies else 0, 2
+                ),
+                "p99_ms": round(
+                    latencies[int(len(latencies) * 0.99)] if latencies else 0, 2
+                ),
+                "mean_ms": (
+                    round(sum(latencies) / len(latencies), 2) if latencies else 0
+                ),
             },
             "total_cost": round(sum(r.cost for r in self.intent_results), 4),
         }
@@ -221,11 +236,11 @@ class MetricsCollector:
         # Calculate weighted quality score (0-100%)
         # Weights: Accuracy 25%, Completeness 20%, Tone 20%, Clarity 20%, Actionability 15%
         raw_score = (
-            accuracy * 0.25 +
-            completeness * 0.20 +
-            tone * 0.20 +
-            clarity * 0.20 +
-            actionability * 0.15
+            accuracy * 0.25
+            + completeness * 0.20
+            + tone * 0.20
+            + clarity * 0.20
+            + actionability * 0.15
         )
         # Convert 1-5 scale to 0-100%
         quality_score = (raw_score - 1) / 4 * 100
@@ -268,7 +283,8 @@ class MetricsCollector:
             "completeness": sum(r.completeness for r in self.response_results) / total,
             "tone": sum(r.tone for r in self.response_results) / total,
             "clarity": sum(r.clarity for r in self.response_results) / total,
-            "actionability": sum(r.actionability for r in self.response_results) / total,
+            "actionability": sum(r.actionability for r in self.response_results)
+            / total,
         }
 
         return {
@@ -282,7 +298,9 @@ class MetricsCollector:
                 "std_dev": round(self._std_dev(quality_scores), 2),
             },
             "latency": {
-                "mean_ms": round(sum(r.latency_ms for r in self.response_results) / total, 2),
+                "mean_ms": round(
+                    sum(r.latency_ms for r in self.response_results) / total, 2
+                ),
             },
             "total_cost": round(sum(r.cost for r in self.response_results), 4),
         }
@@ -322,14 +340,34 @@ class MetricsCollector:
             return {"error": "No escalation results collected"}
 
         # Calculate confusion matrix values
-        tp = sum(1 for r in self.escalation_results if r.expected_escalate and r.predicted_escalate)
-        fp = sum(1 for r in self.escalation_results if not r.expected_escalate and r.predicted_escalate)
-        fn = sum(1 for r in self.escalation_results if r.expected_escalate and not r.predicted_escalate)
-        tn = sum(1 for r in self.escalation_results if not r.expected_escalate and not r.predicted_escalate)
+        tp = sum(
+            1
+            for r in self.escalation_results
+            if r.expected_escalate and r.predicted_escalate
+        )
+        fp = sum(
+            1
+            for r in self.escalation_results
+            if not r.expected_escalate and r.predicted_escalate
+        )
+        fn = sum(
+            1
+            for r in self.escalation_results
+            if r.expected_escalate and not r.predicted_escalate
+        )
+        tn = sum(
+            1
+            for r in self.escalation_results
+            if not r.expected_escalate and not r.predicted_escalate
+        )
 
         precision = tp / (tp + fp) if (tp + fp) > 0 else 0
         recall = tp / (tp + fn) if (tp + fn) > 0 else 0
-        f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0
+        f1 = (
+            2 * precision * recall / (precision + recall)
+            if (precision + recall) > 0
+            else 0
+        )
         false_positive_rate = fp / (fp + tn) if (fp + tn) > 0 else 0
 
         return {
@@ -393,8 +431,12 @@ class MetricsCollector:
         false_positive_rate = normal_blocked / len(normal) if normal else 0
 
         # True positive = blocked when should have blocked (adversarial inputs)
-        adversarial_blocked = sum(1 for r in adversarial if r.predicted_action == "BLOCK")
-        true_positive_rate = adversarial_blocked / len(adversarial) if adversarial else 0
+        adversarial_blocked = sum(
+            1 for r in adversarial if r.predicted_action == "BLOCK"
+        )
+        true_positive_rate = (
+            adversarial_blocked / len(adversarial) if adversarial else 0
+        )
 
         # Per-category breakdown
         categories = defaultdict(lambda: {"total": 0, "blocked": 0})
@@ -407,7 +449,11 @@ class MetricsCollector:
             cat: {
                 "total": counts["total"],
                 "blocked": counts["blocked"],
-                "block_rate": round(counts["blocked"] / counts["total"], 3) if counts["total"] > 0 else 0,
+                "block_rate": (
+                    round(counts["blocked"] / counts["total"], 3)
+                    if counts["total"] > 0
+                    else 0
+                ),
             }
             for cat, counts in categories.items()
         }
@@ -466,9 +512,15 @@ class MetricsCollector:
 
         total = len(self.retrieval_results)
 
-        retrieval_at_1 = sum(1 for r in self.retrieval_results if r.relevant_in_top_1) / total
-        retrieval_at_3 = sum(1 for r in self.retrieval_results if r.relevant_in_top_3) / total
-        retrieval_at_5 = sum(1 for r in self.retrieval_results if r.relevant_in_top_5) / total
+        retrieval_at_1 = (
+            sum(1 for r in self.retrieval_results if r.relevant_in_top_1) / total
+        )
+        retrieval_at_3 = (
+            sum(1 for r in self.retrieval_results if r.relevant_in_top_3) / total
+        )
+        retrieval_at_5 = (
+            sum(1 for r in self.retrieval_results if r.relevant_in_top_5) / total
+        )
 
         latencies = [r.latency_ms for r in self.retrieval_results]
 
@@ -481,8 +533,14 @@ class MetricsCollector:
             "retrieval_at_5": round(retrieval_at_5, 4),
             "retrieval_at_5_pct": f"{retrieval_at_5 * 100:.1f}%",
             "latency": {
-                "mean_ms": round(sum(latencies) / len(latencies), 2) if latencies else 0,
-                "p95_ms": round(sorted(latencies)[int(len(latencies) * 0.95)], 2) if latencies else 0,
+                "mean_ms": (
+                    round(sum(latencies) / len(latencies), 2) if latencies else 0
+                ),
+                "p95_ms": (
+                    round(sorted(latencies)[int(len(latencies) * 0.95)], 2)
+                    if latencies
+                    else 0
+                ),
             },
             "total_cost": round(sum(r.cost for r in self.retrieval_results), 4),
         }
@@ -494,12 +552,14 @@ class MetricsCollector:
             return 0.0
         mean = sum(values) / len(values)
         variance = sum((x - mean) ** 2 for x in values) / (len(values) - 1)
-        return variance ** 0.5
+        return variance**0.5
 
     def get_summary(self) -> dict:
         """Get summary of all collected metrics."""
         return {
-            "session_duration_seconds": (datetime.now() - self.start_time).total_seconds(),
+            "session_duration_seconds": (
+                datetime.now() - self.start_time
+            ).total_seconds(),
             "total_cost": round(self.total_cost, 4),
             "intent_samples": len(self.intent_results),
             "response_samples": len(self.response_results),
@@ -512,11 +572,21 @@ class MetricsCollector:
         """Export all results to JSON file."""
         data = {
             "summary": self.get_summary(),
-            "intent_metrics": self.calculate_intent_metrics() if self.intent_results else {},
-            "response_metrics": self.calculate_response_metrics() if self.response_results else {},
-            "escalation_metrics": self.calculate_escalation_metrics() if self.escalation_results else {},
-            "critic_metrics": self.calculate_critic_metrics() if self.critic_results else {},
-            "retrieval_metrics": self.calculate_retrieval_metrics() if self.retrieval_results else {},
+            "intent_metrics": (
+                self.calculate_intent_metrics() if self.intent_results else {}
+            ),
+            "response_metrics": (
+                self.calculate_response_metrics() if self.response_results else {}
+            ),
+            "escalation_metrics": (
+                self.calculate_escalation_metrics() if self.escalation_results else {}
+            ),
+            "critic_metrics": (
+                self.calculate_critic_metrics() if self.critic_results else {}
+            ),
+            "retrieval_metrics": (
+                self.calculate_retrieval_metrics() if self.retrieval_results else {}
+            ),
         }
         with open(filepath, "w") as f:
             json.dump(data, f, indent=2)
@@ -538,9 +608,15 @@ if __name__ == "__main__":
     collector = MetricsCollector()
 
     # Add some test intent results
-    collector.add_intent_result("ic-001", "ORDER_STATUS", "ORDER_STATUS", 0.95, 50.0, 0.001)
-    collector.add_intent_result("ic-002", "RETURN_REQUEST", "RETURN_REQUEST", 0.90, 45.0, 0.001)
-    collector.add_intent_result("ic-003", "PRODUCT_INQUIRY", "ORDER_STATUS", 0.70, 48.0, 0.001)
+    collector.add_intent_result(
+        "ic-001", "ORDER_STATUS", "ORDER_STATUS", 0.95, 50.0, 0.001
+    )
+    collector.add_intent_result(
+        "ic-002", "RETURN_REQUEST", "RETURN_REQUEST", 0.90, 45.0, 0.001
+    )
+    collector.add_intent_result(
+        "ic-003", "PRODUCT_INQUIRY", "ORDER_STATUS", 0.70, 48.0, 0.001
+    )
 
     # Add some test escalation results
     collector.add_escalation_result("esc-001", True, True, 0.95, 30.0, 0.001)

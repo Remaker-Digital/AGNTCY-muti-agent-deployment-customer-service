@@ -20,7 +20,7 @@ from shared.utils import (
     AgentError,
     ConfigurationError,
     CommunicationError,
-    ExternalServiceError
+    ExternalServiceError,
 )
 
 
@@ -41,10 +41,7 @@ class TestLogging:
 
     def test_setup_logging_custom_format(self):
         """Test custom format string."""
-        logger = setup_logging(
-            "test-custom",
-            format_string="%(name)s - %(message)s"
-        )
+        logger = setup_logging("test-custom", format_string="%(name)s - %(message)s")
         assert logger is not None
 
 
@@ -70,7 +67,7 @@ class TestConfiguration:
             "shopify_url",
             "zendesk_url",
             "mailchimp_url",
-            "google_analytics_url"
+            "google_analytics_url",
         ]
         for key in required_keys:
             assert key in config, f"Missing config key: {key}"
@@ -128,7 +125,7 @@ class TestTopicValidation:
             "knowledge-retrieval",
             "response-generator-en",
             "agent123",
-            "my-agent-v2"
+            "my-agent-v2",
         ]
         for topic in valid_topics:
             assert validate_topic_name(topic), f"Should be valid: {topic}"

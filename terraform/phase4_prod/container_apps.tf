@@ -47,7 +47,7 @@
 variable "enable_container_apps" {
   description = "Enable Container Apps deployment (replaces Container Instances)"
   type        = bool
-  default     = false
+  default     = true  # ENABLED 2026-01-27: Deploy Container Apps for 10K users scaling
 }
 
 # ============================================================================
@@ -70,7 +70,9 @@ resource "azurerm_container_app_environment" "main" {
   log_analytics_workspace_id = azurerm_log_analytics_workspace.main.id
 
   # VNet integration for private networking
-  infrastructure_subnet_id = azurerm_subnet.containers.id
+  # Container Apps requires dedicated subnet with Microsoft.App/environments delegation
+  # See: networking.tf for subnet configuration
+  infrastructure_subnet_id = azurerm_subnet.container_apps[0].id
 
   # Zone redundancy disabled for cost optimization
   # Enable in production for HA (adds ~30% cost)
@@ -144,11 +146,12 @@ resource "azurerm_container_app" "api_gateway" {
       }
 
       # Liveness probe
+      # Note: initial_delay not supported in azurerm provider v3.x
+      # Container Apps use default initial delay based on transport type
       liveness_probe {
         path             = "/health"
         port             = 8080
         transport        = "HTTP"
-        initial_delay    = 10
         interval_seconds = 30
         timeout          = 3
         failure_count_threshold = 3
@@ -159,7 +162,6 @@ resource "azurerm_container_app" "api_gateway" {
         path             = "/health"
         port             = 8080
         transport        = "HTTP"
-        initial_delay    = 5
         interval_seconds = 10
         timeout          = 3
         success_count_threshold = 1
@@ -687,7 +689,7 @@ resource "azurerm_container_app" "analytics" {
 variable "enable_scheduled_scaling" {
   description = "Enable time-based scaling profiles"
   type        = bool
-  default     = false
+  default     = true  # ENABLED 2026-01-27: Deploy scheduled scaling for cost optimization
 }
 
 variable "scheduled_scaling_timezone" {
@@ -970,7 +972,7 @@ resource "azurerm_automation_schedule" "weekend_start" {
   frequency               = "Week"
   interval                = 1
   timezone                = var.scheduled_scaling_timezone
-  start_time              = "2026-01-25T00:00:00-05:00"  # Saturday 12am EST
+  start_time              = "2026-02-01T00:00:00-05:00"  # Saturday 12am EST (future date required)
 
   week_days = ["Saturday"]
 }

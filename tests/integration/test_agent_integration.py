@@ -34,7 +34,9 @@ class TestIntentClassificationAgent:
         agent = IntentClassificationAgent()
 
         # Modify message for order status
-        sample_a2a_message["parts"][0]["content"]["content"] = "Where is my order #12345?"
+        sample_a2a_message["parts"][0]["content"][
+            "content"
+        ] = "Where is my order #12345?"
 
         result = await agent.handle_message(sample_a2a_message)
 
@@ -52,7 +54,9 @@ class TestIntentClassificationAgent:
         agent = IntentClassificationAgent()
 
         # Modify message for return request
-        sample_a2a_message["parts"][0]["content"]["content"] = "I want to return my product"
+        sample_a2a_message["parts"][0]["content"][
+            "content"
+        ] = "I want to return my product"
 
         result = await agent.handle_message(sample_a2a_message)
 
@@ -122,7 +126,7 @@ class TestResponseGenerationAgent:
             request_id="req-001",
             context_id="ctx-001",
             customer_message="Test",
-            intent=Intent.ORDER_STATUS
+            intent=Intent.ORDER_STATUS,
         )
 
         response_text = agent._generate_canned_response(request)
@@ -151,7 +155,9 @@ class TestEscalationAgent:
 
         agent = EscalationAgent()
 
-        sentiment, complexity = agent._analyze_mock("This is terrible and unacceptable!")
+        sentiment, complexity = agent._analyze_mock(
+            "This is terrible and unacceptable!"
+        )
         assert sentiment == Sentiment.VERY_NEGATIVE
         assert complexity > 0.8
 

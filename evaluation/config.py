@@ -26,6 +26,7 @@ import json
 @dataclass
 class ModelConfig:
     """Configuration for a specific model deployment."""
+
     deployment_name: str
     cost_per_1k_input: float  # Cost per 1K input tokens
     cost_per_1k_output: float  # Cost per 1K output tokens
@@ -36,6 +37,7 @@ class ModelConfig:
 @dataclass
 class EvaluationThresholds:
     """Quality thresholds for Phase 3.5 exit criteria."""
+
     intent_accuracy: float = 0.85  # >85%
     response_quality: float = 0.80  # >80%
     escalation_precision: float = 0.90  # >90%
@@ -58,34 +60,41 @@ class Config:
         config = Config.from_env()
         print(f"Using endpoint: {config.azure_endpoint}")
     """
+
     # Azure OpenAI Settings
     azure_endpoint: str = ""
     azure_api_key: str = ""
     azure_api_version: str = "2024-02-15-preview"
 
     # Model Deployments
-    gpt4o_mini: ModelConfig = field(default_factory=lambda: ModelConfig(
-        deployment_name="gpt-4o-mini",
-        cost_per_1k_input=0.00015,  # $0.15 per 1M = $0.00015 per 1K
-        cost_per_1k_output=0.0006,  # $0.60 per 1M = $0.0006 per 1K
-        max_tokens=4096,
-        temperature=0.0
-    ))
+    gpt4o_mini: ModelConfig = field(
+        default_factory=lambda: ModelConfig(
+            deployment_name="gpt-4o-mini",
+            cost_per_1k_input=0.00015,  # $0.15 per 1M = $0.00015 per 1K
+            cost_per_1k_output=0.0006,  # $0.60 per 1M = $0.0006 per 1K
+            max_tokens=4096,
+            temperature=0.0,
+        )
+    )
 
-    gpt4o: ModelConfig = field(default_factory=lambda: ModelConfig(
-        deployment_name="gpt-4o",
-        cost_per_1k_input=0.0025,  # $2.50 per 1M = $0.0025 per 1K
-        cost_per_1k_output=0.01,   # $10.00 per 1M = $0.01 per 1K
-        max_tokens=4096,
-        temperature=0.0
-    ))
+    gpt4o: ModelConfig = field(
+        default_factory=lambda: ModelConfig(
+            deployment_name="gpt-4o",
+            cost_per_1k_input=0.0025,  # $2.50 per 1M = $0.0025 per 1K
+            cost_per_1k_output=0.01,  # $10.00 per 1M = $0.01 per 1K
+            max_tokens=4096,
+            temperature=0.0,
+        )
+    )
 
-    embedding: ModelConfig = field(default_factory=lambda: ModelConfig(
-        deployment_name="text-embedding-3-large",
-        cost_per_1k_input=0.00013,  # $0.13 per 1M = $0.00013 per 1K
-        cost_per_1k_output=0.0,     # No output tokens for embeddings
-        max_tokens=8191
-    ))
+    embedding: ModelConfig = field(
+        default_factory=lambda: ModelConfig(
+            deployment_name="text-embedding-3-large",
+            cost_per_1k_input=0.00013,  # $0.13 per 1M = $0.00013 per 1K
+            cost_per_1k_output=0.0,  # No output tokens for embeddings
+            max_tokens=8191,
+        )
+    )
 
     # Budget Settings
     budget_limit: float = 50.00
@@ -96,7 +105,9 @@ class Config:
 
     # Paths
     base_dir: Path = field(default_factory=lambda: Path(__file__).parent)
-    datasets_dir: Path = field(default_factory=lambda: Path(__file__).parent / "datasets")
+    datasets_dir: Path = field(
+        default_factory=lambda: Path(__file__).parent / "datasets"
+    )
     prompts_dir: Path = field(default_factory=lambda: Path(__file__).parent / "prompts")
     results_dir: Path = field(default_factory=lambda: Path(__file__).parent / "results")
     rag_dir: Path = field(default_factory=lambda: Path(__file__).parent / "rag")
@@ -133,14 +144,18 @@ class Config:
 
         if not azure_endpoint or not azure_api_key:
             print("WARNING: Azure OpenAI credentials not found.")
-            print("Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY environment variables.")
+            print(
+                "Set AZURE_OPENAI_ENDPOINT and AZURE_OPENAI_API_KEY environment variables."
+            )
             print("Or create a .env.phase3.5 file with these values.")
 
         # Create config with environment values
         config = cls(
             azure_endpoint=azure_endpoint,
             azure_api_key=azure_api_key,
-            azure_api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
+            azure_api_version=os.getenv(
+                "AZURE_OPENAI_API_VERSION", "2024-02-15-preview"
+            ),
             budget_limit=float(os.getenv("PHASE35_BUDGET_LIMIT", "50.00")),
             alert_threshold=float(os.getenv("PHASE35_ALERT_THRESHOLD", "0.80")),
         )
@@ -199,7 +214,9 @@ class Config:
     def to_dict(self) -> dict:
         """Convert config to dictionary (excluding sensitive values)."""
         return {
-            "azure_endpoint": self.azure_endpoint[:30] + "..." if self.azure_endpoint else None,
+            "azure_endpoint": (
+                self.azure_endpoint[:30] + "..." if self.azure_endpoint else None
+            ),
             "azure_api_version": self.azure_api_version,
             "gpt4o_mini_deployment": self.gpt4o_mini.deployment_name,
             "gpt4o_deployment": self.gpt4o.deployment_name,

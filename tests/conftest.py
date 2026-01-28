@@ -16,6 +16,7 @@ sys.path.insert(0, str(project_root))
 # Windows Compatibility Fix
 # =============================================================================
 
+
 @pytest.fixture(scope="session", autouse=True)
 def configure_windows_event_loop():
     """
@@ -29,6 +30,7 @@ def configure_windows_event_loop():
     """
     if sys.platform == "win32":
         import asyncio
+
         # Set Windows-specific event loop policy for better async compatibility
         asyncio.set_event_loop_policy(asyncio.WindowsProactorEventLoopPolicy())
 
@@ -37,10 +39,12 @@ def configure_windows_event_loop():
 # Shared Fixtures
 # =============================================================================
 
+
 @pytest.fixture
 def sample_logger():
     """Sample logger for testing."""
     import logging
+
     logger = logging.getLogger("test-logger")
     logger.setLevel(logging.DEBUG)
     return logger
@@ -55,7 +59,7 @@ def sample_customer_message():
         "content": "Where is my order #12345?",
         "channel": "chat",
         "language": "en",
-        "metadata": {}
+        "metadata": {},
     }
 
 
@@ -65,18 +69,20 @@ def sample_a2a_message():
     return {
         "messageId": "uuid-test-001",
         "role": "user",
-        "parts": [{
-            "type": "text",
-            "content": {
-                "message_id": "msg-001",
-                "customer_id": "cust-123",
-                "content": "I want to return my order",
-                "channel": "email"
+        "parts": [
+            {
+                "type": "text",
+                "content": {
+                    "message_id": "msg-001",
+                    "customer_id": "cust-123",
+                    "content": "I want to return my order",
+                    "channel": "email",
+                },
             }
-        }],
+        ],
         "contextId": "ctx-test-001",
         "taskId": "task-test-001",
-        "metadata": {}
+        "metadata": {},
     }
 
 
@@ -90,7 +96,7 @@ def sample_intent_result():
         "confidence": 0.85,
         "extracted_entities": {"order_number": "12345"},
         "language": "en",
-        "routing_suggestion": "knowledge-retrieval"
+        "routing_suggestion": "knowledge-retrieval",
     }
 
 
@@ -104,7 +110,7 @@ def sample_knowledge_query():
         "intent": "product_inquiry",
         "filters": {},
         "max_results": 5,
-        "language": "en"
+        "language": "en",
     }
 
 
@@ -123,9 +129,9 @@ def mock_shopify_product():
                 "product_id": 1001,
                 "title": "Black",
                 "price": "299.99",
-                "sku": "WH-BLK-001"
+                "sku": "WH-BLK-001",
             }
-        ]
+        ],
     }
 
 
@@ -141,13 +147,14 @@ def mock_zendesk_ticket():
         "type": "problem",
         "requester_id": 5001,
         "created_at": "2024-01-15T10:30:00Z",
-        "tags": ["shipping", "order_issue"]
+        "tags": ["shipping", "order_issue"],
     }
 
 
 # =============================================================================
 # Mock Configuration
 # =============================================================================
+
 
 @pytest.fixture
 def mock_config():
@@ -163,7 +170,7 @@ def mock_config():
         "shopify_url": "http://localhost:8001",
         "zendesk_url": "http://localhost:8002",
         "mailchimp_url": "http://localhost:8003",
-        "google_analytics_url": "http://localhost:8004"
+        "google_analytics_url": "http://localhost:8004",
     }
 
 
@@ -171,23 +178,16 @@ def mock_config():
 # Test Markers
 # =============================================================================
 
+
 def pytest_configure(config):
     """Configure custom pytest markers."""
-    config.addinivalue_line(
-        "markers", "unit: Unit tests for individual components"
-    )
+    config.addinivalue_line("markers", "unit: Unit tests for individual components")
     config.addinivalue_line(
         "markers", "integration: Integration tests requiring services"
     )
-    config.addinivalue_line(
-        "markers", "slow: Tests that take significant time"
-    )
-    config.addinivalue_line(
-        "markers", "asyncio: Async tests using pytest-asyncio"
-    )
-    config.addinivalue_line(
-        "markers", "pool: Tests for connection pooling components"
-    )
+    config.addinivalue_line("markers", "slow: Tests that take significant time")
+    config.addinivalue_line("markers", "asyncio: Async tests using pytest-asyncio")
+    config.addinivalue_line("markers", "pool: Tests for connection pooling components")
     config.addinivalue_line(
         "markers", "autoscaling: Tests for auto-scaling functionality"
     )
@@ -196,6 +196,7 @@ def pytest_configure(config):
 # =============================================================================
 # Connection Pool Fixtures (Auto-Scaling Support)
 # =============================================================================
+
 
 @pytest.fixture
 def mock_pool_config():
@@ -207,7 +208,7 @@ def mock_pool_config():
         "max_retries": 3,
         "enable_circuit_breaker": True,
         "circuit_breaker_threshold": 5,
-        "circuit_breaker_timeout": 30.0
+        "circuit_breaker_timeout": 30.0,
     }
 
 
@@ -223,7 +224,7 @@ def mock_pool_metrics():
         "total_timeouts": 0,
         "circuit_breaker_trips": 0,
         "peak_active": 4,
-        "avg_acquire_time_ms": 15.5
+        "avg_acquire_time_ms": 15.5,
     }
 
 
@@ -236,5 +237,5 @@ def mock_cosmos_config():
         "database_name": "test-db",
         "preferred_regions": ["East US 2"],
         "max_retry_attempts": 9,
-        "enable_endpoint_discovery": True
+        "enable_endpoint_discovery": True,
     }

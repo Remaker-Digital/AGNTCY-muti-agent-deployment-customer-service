@@ -1,0 +1,675 @@
+{
+  "timestamp": "2026-01-27T20:54:46.738159",
+  "api_url": "https://agntcy-cs-prod-rc6vcp.eastus2.cloudapp.azure.com",
+  "languages_tested": [
+    "en",
+    "fr-CA",
+    "es"
+  ],
+  "total_tests": 10,
+  "metrics": {
+    "passed": 7,
+    "failed": 3,
+    "errors": 0,
+    "pass_rate": 0.7,
+    "intent_match_rate": 1.0,
+    "language_match_rate": 0.5,
+    "avg_latency_ms": 3512.0
+  },
+  "pass_criteria": {
+    "pass_rate": false,
+    "intent_match": true,
+    "language_match": false,
+    "overall": false
+  },
+  "language_stats": {
+    "en": {
+      "passed": 2,
+      "failed": 0,
+      "errors": 0,
+      "intent_matches": 2,
+      "language_matches": 2,
+      "total_latency_ms": 6719.401836395264,
+      "cases": [
+        {
+          "id": "en-001",
+          "name": "Order Status (EN) - Baseline",
+          "language": "en",
+          "input": "Where is my order #12345? I placed it last week.",
+          "expected_intent": "ORDER_STATUS",
+          "actual_intent": "ORDER_STATUS",
+          "intent_match": true,
+          "expected_response_lang": "en",
+          "detected_response_lang": "en",
+          "language_score": 0.68,
+          "status": "PASS",
+          "latency_ms": 3312.784194946289,
+          "response": "Hi there!\n\nI can help you with that! However, it looks like the order number you provided doesn't match our records. The order you're referring to may not be in our system, or it could be a different number.\n\nIf you could please provide the correct order number or any additional details about your o",
+          "error": null,
+          "validation": {
+            "passed": true,
+            "overall_score": 0.68,
+            "detected_language": "en",
+            "expected_language": "en",
+            "language_match": true,
+            "positive_matches": [
+              "order"
+            ],
+            "positive_score": 0.2,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        },
+        {
+          "id": "en-002",
+          "name": "Product Question (EN) - Baseline",
+          "language": "en",
+          "input": "What's your best coffee for making espresso at home?",
+          "expected_intent": "PRODUCT_INFO",
+          "actual_intent": "PRODUCT_INQUIRY",
+          "intent_match": true,
+          "expected_response_lang": "en",
+          "detected_response_lang": "en",
+          "language_score": 1.0,
+          "status": "PASS",
+          "latency_ms": 3406.6176414489746,
+          "response": "Hi there!\n\nFor making espresso at home, I'd recommend looking for coffee beans that are specifically labeled as espresso blends. These typically have a rich, bold flavor and a nice balance of acidity. Some popular choices include:\n\n1. **Lavazza Super Crema** - This blend offers a creamy texture and ",
+          "error": null,
+          "validation": {
+            "passed": true,
+            "overall_score": 1.0,
+            "detected_language": "en",
+            "expected_language": "en",
+            "language_match": true,
+            "positive_matches": [
+              "espresso",
+              "coffee",
+              "recommend"
+            ],
+            "positive_score": 1.0,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        }
+      ]
+    },
+    "fr-CA": {
+      "passed": 3,
+      "failed": 1,
+      "errors": 0,
+      "intent_matches": 4,
+      "language_matches": 2,
+      "total_latency_ms": 14125.245332717896,
+      "cases": [
+        {
+          "id": "fr-001",
+          "name": "Order Status Inquiry (FR-CA)",
+          "language": "fr-CA",
+          "input": "Bonjour, ou est ma commande numero 12345? Je l'ai commandee la semaine derniere.",
+          "expected_intent": "ORDER_STATUS",
+          "actual_intent": "ORDER_STATUS",
+          "intent_match": true,
+          "expected_response_lang": "fr",
+          "detected_response_lang": "fr",
+          "language_score": 0.77,
+          "status": "PASS",
+          "latency_ms": 3412.5778675079346,
+          "response": "Bonjour!\n\nJe suis là pour vous aider. Cependant, il semble que le numéro de commande que vous avez fourni ne correspond pas à nos enregistrements. Il se pourrait que ce soit un autre numéro ou qu'il y ait une erreur.\n\nPourriez-vous s'il vous plaît vérifier le numéro de commande ou me fournir plus de",
+          "error": null,
+          "validation": {
+            "passed": true,
+            "overall_score": 0.77,
+            "detected_language": "fr",
+            "expected_language": "fr",
+            "language_match": true,
+            "positive_matches": [
+              "commande",
+              "merci",
+              "bonjour"
+            ],
+            "positive_score": 0.43,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        },
+        {
+          "id": "fr-002",
+          "name": "Return Request (FR-CA)",
+          "language": "fr-CA",
+          "input": "Je voudrais retourner mon achat. Le produit ne fonctionne pas correctement.",
+          "expected_intent": "RETURN_REQUEST",
+          "actual_intent": "RETURN_REQUEST",
+          "intent_match": true,
+          "expected_response_lang": "fr",
+          "detected_response_lang": "fr",
+          "language_score": 0.87,
+          "status": "PASS",
+          "latency_ms": 4053.5826683044434,
+          "response": "Bonjour,\n\nMerci de nous avoir contactés concernant le retour de votre achat. Je suis désolé d’apprendre que le produit ne fonctionne pas correctement. Je serais heureux de vous aider avec le processus de retour.\n\nPour initier le retour, voici les étapes à suivre :\n1. Veuillez emballer le produit dan",
+          "error": null,
+          "validation": {
+            "passed": true,
+            "overall_score": 0.87,
+            "detected_language": "fr",
+            "expected_language": "fr",
+            "language_match": true,
+            "positive_matches": [
+              "retour",
+              "produit",
+              "remboursement",
+              "aide"
+            ],
+            "positive_score": 0.67,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        },
+        {
+          "id": "fr-003",
+          "name": "Product Question (FR-CA)",
+          "language": "fr-CA",
+          "input": "Quels sont vos meilleurs cafes pour l'espresso?",
+          "expected_intent": "PRODUCT_INFO",
+          "actual_intent": "PRODUCT_INQUIRY",
+          "intent_match": true,
+          "expected_response_lang": "fr",
+          "detected_response_lang": "en",
+          "language_score": 0.64,
+          "status": "PASS",
+          "latency_ms": 3835.420608520508,
+          "response": "Bonjour,\n\nPour faire un excellent espresso, voici quelques-uns des meilleurs cafés que je vous recommande :\n\n1. **Lavazza Super Crema** - Ce mélange offre une texture crémeuse et des saveurs douces, idéal pour les amateurs d'espresso.\n2. **Illy Classico** - Un choix bien équilibré avec une finition ",
+          "error": null,
+          "validation": {
+            "passed": true,
+            "overall_score": 0.64,
+            "detected_language": "en",
+            "expected_language": "fr",
+            "language_match": false,
+            "positive_matches": [
+              "espresso",
+              "recommand",
+              "excellent"
+            ],
+            "positive_score": 0.6,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        },
+        {
+          "id": "fr-004",
+          "name": "Greeting and General (FR-CA)",
+          "language": "fr-CA",
+          "input": "Allo, j'ai besoin d'aide avec mon compte s'il vous plait.",
+          "expected_intent": "GENERAL_INQUIRY",
+          "actual_intent": "ACCOUNT_HELP",
+          "intent_match": true,
+          "expected_response_lang": "fr",
+          "detected_response_lang": "en",
+          "language_score": 0.56,
+          "status": "FAIL",
+          "latency_ms": 2823.6641883850098,
+          "response": "Hey! \n\nBien sûr, je suis là pour t'aider avec ton compte. Peux-tu me dire exactement ce dont tu as besoin d'aide? Que ce soit pour réinitialiser ton mot de passe, vérifier tes informations ou autre chose, je suis là pour ça!\n\nFais-moi savoir ce dont tu as besoin! 😊  \n[Your Name]  \nService Clientèle",
+          "error": null,
+          "validation": {
+            "passed": false,
+            "overall_score": 0.56,
+            "detected_language": "en",
+            "expected_language": "fr",
+            "language_match": false,
+            "positive_matches": [
+              "aide",
+              "compte"
+            ],
+            "positive_score": 0.4,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        }
+      ]
+    },
+    "es": {
+      "passed": 2,
+      "failed": 2,
+      "errors": 0,
+      "intent_matches": 4,
+      "language_matches": 1,
+      "total_latency_ms": 14271.139144897461,
+      "cases": [
+        {
+          "id": "es-001",
+          "name": "Product Recommendation (ES)",
+          "language": "es",
+          "input": "Hola, busco un cafe suave para mi esposa. Que me recomienda?",
+          "expected_intent": "PRODUCT_RECOMMENDATION",
+          "actual_intent": "PRODUCT_INQUIRY",
+          "intent_match": true,
+          "expected_response_lang": "es",
+          "detected_response_lang": "en",
+          "language_score": 0.53,
+          "status": "FAIL",
+          "latency_ms": 3894.6995735168457,
+          "response": "¡Hola!\n\nPara un café suave que le encantaría a tu esposa, te recomiendo las siguientes opciones:\n\n1. **Café de Colombia** - Con su perfil de sabor suave y notas de nuez, es una excelente elección para quienes prefieren un café ligero.\n2. **Café de Etiopía** - Este café es conocido por su sabor afrut",
+          "error": null,
+          "validation": {
+            "passed": false,
+            "overall_score": 0.53,
+            "detected_language": "en",
+            "expected_language": "es",
+            "language_match": false,
+            "positive_matches": [
+              "suave",
+              "excelente"
+            ],
+            "positive_score": 0.33,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        },
+        {
+          "id": "es-002",
+          "name": "Order Status (ES)",
+          "language": "es",
+          "input": "Donde esta mi pedido? Lo ordene hace una semana y no ha llegado.",
+          "expected_intent": "ORDER_STATUS",
+          "actual_intent": "ORDER_STATUS",
+          "intent_match": true,
+          "expected_response_lang": "es",
+          "detected_response_lang": "en",
+          "language_score": 0.53,
+          "status": "FAIL",
+          "latency_ms": 3323.6823081970215,
+          "response": "¡Hola! \n\nEntiendo que estés preocupado por tu pedido. Déjame ayudarte a averiguar dónde está. Tu pedido, con el número **ORD-2026-78432**, fue enviado el **22 de enero de 2026** y está actualmente en camino. \n\nAquí tienes los detalles de seguimiento:\n- **Número de seguimiento:** 1Z999AA10123456784\n-",
+          "error": null,
+          "validation": {
+            "passed": false,
+            "overall_score": 0.53,
+            "detected_language": "en",
+            "expected_language": "es",
+            "language_match": false,
+            "positive_matches": [
+              "pedido",
+              "entrega"
+            ],
+            "positive_score": 0.33,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        },
+        {
+          "id": "es-003",
+          "name": "Escalation Scenario (ES)",
+          "language": "es",
+          "input": "Estoy muy frustrado! Este es el tercer problema con mi pedido. Quiero hablar con un supervisor ahora mismo.",
+          "expected_intent": "ESCALATION_REQUEST",
+          "actual_intent": "ESCALATION_REQUEST",
+          "intent_match": true,
+          "expected_response_lang": "es",
+          "detected_response_lang": "en",
+          "language_score": 0.63,
+          "status": "PASS",
+          "latency_ms": 3322.4096298217773,
+          "response": "¡Hola! \n\nLamento mucho que estés pasando por esta frustración y entiendo completamente cómo te sientes. Estoy aquí para ayudarte a resolver esto. \n\nVoy a escalar tu solicitud a un supervisor de inmediato. Ellos podrán brindarte la asistencia que necesitas. Por favor, permíteme un momento para que me",
+          "error": null,
+          "validation": {
+            "passed": true,
+            "overall_score": 0.63,
+            "detected_language": "en",
+            "expected_language": "es",
+            "language_match": false,
+            "positive_matches": [
+              "supervisor",
+              "ayudar",
+              "lamento",
+              "entiendo"
+            ],
+            "positive_score": 0.57,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        },
+        {
+          "id": "es-004",
+          "name": "Return Request (ES)",
+          "language": "es",
+          "input": "Necesito devolver el producto que compre. No era lo que esperaba.",
+          "expected_intent": "RETURN_REQUEST",
+          "actual_intent": "RETURN_REQUEST",
+          "intent_match": true,
+          "expected_response_lang": "es",
+          "detected_response_lang": "es",
+          "language_score": 0.87,
+          "status": "PASS",
+          "latency_ms": 3730.3476333618164,
+          "response": "¡Hola!\n\nEntiendo que no estés satisfecho con tu compra y estoy aquí para ayudarte con el proceso de devolución. Para iniciar la devolución de tu pedido, por favor sigue estos pasos:\n\n1. **Empaca el producto** en su embalaje original, incluyendo todos los accesorios y documentos que vinieron con él.\n",
+          "error": null,
+          "validation": {
+            "passed": true,
+            "overall_score": 0.87,
+            "detected_language": "es",
+            "expected_language": "es",
+            "language_match": true,
+            "positive_matches": [
+              "devol",
+              "producto",
+              "reembolso",
+              "ayud"
+            ],
+            "positive_score": 0.67,
+            "negative_matches": [],
+            "negative_score": 1.0
+          }
+        }
+      ]
+    }
+  },
+  "results": [
+    {
+      "id": "en-001",
+      "name": "Order Status (EN) - Baseline",
+      "language": "en",
+      "input": "Where is my order #12345? I placed it last week.",
+      "expected_intent": "ORDER_STATUS",
+      "actual_intent": "ORDER_STATUS",
+      "intent_match": true,
+      "expected_response_lang": "en",
+      "detected_response_lang": "en",
+      "language_score": 0.68,
+      "status": "PASS",
+      "latency_ms": 3312.784194946289,
+      "response": "Hi there!\n\nI can help you with that! However, it looks like the order number you provided doesn't match our records. The order you're referring to may not be in our system, or it could be a different number.\n\nIf you could please provide the correct order number or any additional details about your o",
+      "error": null,
+      "validation": {
+        "passed": true,
+        "overall_score": 0.68,
+        "detected_language": "en",
+        "expected_language": "en",
+        "language_match": true,
+        "positive_matches": [
+          "order"
+        ],
+        "positive_score": 0.2,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    },
+    {
+      "id": "en-002",
+      "name": "Product Question (EN) - Baseline",
+      "language": "en",
+      "input": "What's your best coffee for making espresso at home?",
+      "expected_intent": "PRODUCT_INFO",
+      "actual_intent": "PRODUCT_INQUIRY",
+      "intent_match": true,
+      "expected_response_lang": "en",
+      "detected_response_lang": "en",
+      "language_score": 1.0,
+      "status": "PASS",
+      "latency_ms": 3406.6176414489746,
+      "response": "Hi there!\n\nFor making espresso at home, I'd recommend looking for coffee beans that are specifically labeled as espresso blends. These typically have a rich, bold flavor and a nice balance of acidity. Some popular choices include:\n\n1. **Lavazza Super Crema** - This blend offers a creamy texture and ",
+      "error": null,
+      "validation": {
+        "passed": true,
+        "overall_score": 1.0,
+        "detected_language": "en",
+        "expected_language": "en",
+        "language_match": true,
+        "positive_matches": [
+          "espresso",
+          "coffee",
+          "recommend"
+        ],
+        "positive_score": 1.0,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    },
+    {
+      "id": "fr-001",
+      "name": "Order Status Inquiry (FR-CA)",
+      "language": "fr-CA",
+      "input": "Bonjour, ou est ma commande numero 12345? Je l'ai commandee la semaine derniere.",
+      "expected_intent": "ORDER_STATUS",
+      "actual_intent": "ORDER_STATUS",
+      "intent_match": true,
+      "expected_response_lang": "fr",
+      "detected_response_lang": "fr",
+      "language_score": 0.77,
+      "status": "PASS",
+      "latency_ms": 3412.5778675079346,
+      "response": "Bonjour!\n\nJe suis là pour vous aider. Cependant, il semble que le numéro de commande que vous avez fourni ne correspond pas à nos enregistrements. Il se pourrait que ce soit un autre numéro ou qu'il y ait une erreur.\n\nPourriez-vous s'il vous plaît vérifier le numéro de commande ou me fournir plus de",
+      "error": null,
+      "validation": {
+        "passed": true,
+        "overall_score": 0.77,
+        "detected_language": "fr",
+        "expected_language": "fr",
+        "language_match": true,
+        "positive_matches": [
+          "commande",
+          "merci",
+          "bonjour"
+        ],
+        "positive_score": 0.43,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    },
+    {
+      "id": "fr-002",
+      "name": "Return Request (FR-CA)",
+      "language": "fr-CA",
+      "input": "Je voudrais retourner mon achat. Le produit ne fonctionne pas correctement.",
+      "expected_intent": "RETURN_REQUEST",
+      "actual_intent": "RETURN_REQUEST",
+      "intent_match": true,
+      "expected_response_lang": "fr",
+      "detected_response_lang": "fr",
+      "language_score": 0.87,
+      "status": "PASS",
+      "latency_ms": 4053.5826683044434,
+      "response": "Bonjour,\n\nMerci de nous avoir contactés concernant le retour de votre achat. Je suis désolé d’apprendre que le produit ne fonctionne pas correctement. Je serais heureux de vous aider avec le processus de retour.\n\nPour initier le retour, voici les étapes à suivre :\n1. Veuillez emballer le produit dan",
+      "error": null,
+      "validation": {
+        "passed": true,
+        "overall_score": 0.87,
+        "detected_language": "fr",
+        "expected_language": "fr",
+        "language_match": true,
+        "positive_matches": [
+          "retour",
+          "produit",
+          "remboursement",
+          "aide"
+        ],
+        "positive_score": 0.67,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    },
+    {
+      "id": "fr-003",
+      "name": "Product Question (FR-CA)",
+      "language": "fr-CA",
+      "input": "Quels sont vos meilleurs cafes pour l'espresso?",
+      "expected_intent": "PRODUCT_INFO",
+      "actual_intent": "PRODUCT_INQUIRY",
+      "intent_match": true,
+      "expected_response_lang": "fr",
+      "detected_response_lang": "en",
+      "language_score": 0.64,
+      "status": "PASS",
+      "latency_ms": 3835.420608520508,
+      "response": "Bonjour,\n\nPour faire un excellent espresso, voici quelques-uns des meilleurs cafés que je vous recommande :\n\n1. **Lavazza Super Crema** - Ce mélange offre une texture crémeuse et des saveurs douces, idéal pour les amateurs d'espresso.\n2. **Illy Classico** - Un choix bien équilibré avec une finition ",
+      "error": null,
+      "validation": {
+        "passed": true,
+        "overall_score": 0.64,
+        "detected_language": "en",
+        "expected_language": "fr",
+        "language_match": false,
+        "positive_matches": [
+          "espresso",
+          "recommand",
+          "excellent"
+        ],
+        "positive_score": 0.6,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    },
+    {
+      "id": "fr-004",
+      "name": "Greeting and General (FR-CA)",
+      "language": "fr-CA",
+      "input": "Allo, j'ai besoin d'aide avec mon compte s'il vous plait.",
+      "expected_intent": "GENERAL_INQUIRY",
+      "actual_intent": "ACCOUNT_HELP",
+      "intent_match": true,
+      "expected_response_lang": "fr",
+      "detected_response_lang": "en",
+      "language_score": 0.56,
+      "status": "FAIL",
+      "latency_ms": 2823.6641883850098,
+      "response": "Hey! \n\nBien sûr, je suis là pour t'aider avec ton compte. Peux-tu me dire exactement ce dont tu as besoin d'aide? Que ce soit pour réinitialiser ton mot de passe, vérifier tes informations ou autre chose, je suis là pour ça!\n\nFais-moi savoir ce dont tu as besoin! 😊  \n[Your Name]  \nService Clientèle",
+      "error": null,
+      "validation": {
+        "passed": false,
+        "overall_score": 0.56,
+        "detected_language": "en",
+        "expected_language": "fr",
+        "language_match": false,
+        "positive_matches": [
+          "aide",
+          "compte"
+        ],
+        "positive_score": 0.4,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    },
+    {
+      "id": "es-001",
+      "name": "Product Recommendation (ES)",
+      "language": "es",
+      "input": "Hola, busco un cafe suave para mi esposa. Que me recomienda?",
+      "expected_intent": "PRODUCT_RECOMMENDATION",
+      "actual_intent": "PRODUCT_INQUIRY",
+      "intent_match": true,
+      "expected_response_lang": "es",
+      "detected_response_lang": "en",
+      "language_score": 0.53,
+      "status": "FAIL",
+      "latency_ms": 3894.6995735168457,
+      "response": "¡Hola!\n\nPara un café suave que le encantaría a tu esposa, te recomiendo las siguientes opciones:\n\n1. **Café de Colombia** - Con su perfil de sabor suave y notas de nuez, es una excelente elección para quienes prefieren un café ligero.\n2. **Café de Etiopía** - Este café es conocido por su sabor afrut",
+      "error": null,
+      "validation": {
+        "passed": false,
+        "overall_score": 0.53,
+        "detected_language": "en",
+        "expected_language": "es",
+        "language_match": false,
+        "positive_matches": [
+          "suave",
+          "excelente"
+        ],
+        "positive_score": 0.33,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    },
+    {
+      "id": "es-002",
+      "name": "Order Status (ES)",
+      "language": "es",
+      "input": "Donde esta mi pedido? Lo ordene hace una semana y no ha llegado.",
+      "expected_intent": "ORDER_STATUS",
+      "actual_intent": "ORDER_STATUS",
+      "intent_match": true,
+      "expected_response_lang": "es",
+      "detected_response_lang": "en",
+      "language_score": 0.53,
+      "status": "FAIL",
+      "latency_ms": 3323.6823081970215,
+      "response": "¡Hola! \n\nEntiendo que estés preocupado por tu pedido. Déjame ayudarte a averiguar dónde está. Tu pedido, con el número **ORD-2026-78432**, fue enviado el **22 de enero de 2026** y está actualmente en camino. \n\nAquí tienes los detalles de seguimiento:\n- **Número de seguimiento:** 1Z999AA10123456784\n-",
+      "error": null,
+      "validation": {
+        "passed": false,
+        "overall_score": 0.53,
+        "detected_language": "en",
+        "expected_language": "es",
+        "language_match": false,
+        "positive_matches": [
+          "pedido",
+          "entrega"
+        ],
+        "positive_score": 0.33,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    },
+    {
+      "id": "es-003",
+      "name": "Escalation Scenario (ES)",
+      "language": "es",
+      "input": "Estoy muy frustrado! Este es el tercer problema con mi pedido. Quiero hablar con un supervisor ahora mismo.",
+      "expected_intent": "ESCALATION_REQUEST",
+      "actual_intent": "ESCALATION_REQUEST",
+      "intent_match": true,
+      "expected_response_lang": "es",
+      "detected_response_lang": "en",
+      "language_score": 0.63,
+      "status": "PASS",
+      "latency_ms": 3322.4096298217773,
+      "response": "¡Hola! \n\nLamento mucho que estés pasando por esta frustración y entiendo completamente cómo te sientes. Estoy aquí para ayudarte a resolver esto. \n\nVoy a escalar tu solicitud a un supervisor de inmediato. Ellos podrán brindarte la asistencia que necesitas. Por favor, permíteme un momento para que me",
+      "error": null,
+      "validation": {
+        "passed": true,
+        "overall_score": 0.63,
+        "detected_language": "en",
+        "expected_language": "es",
+        "language_match": false,
+        "positive_matches": [
+          "supervisor",
+          "ayudar",
+          "lamento",
+          "entiendo"
+        ],
+        "positive_score": 0.57,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    },
+    {
+      "id": "es-004",
+      "name": "Return Request (ES)",
+      "language": "es",
+      "input": "Necesito devolver el producto que compre. No era lo que esperaba.",
+      "expected_intent": "RETURN_REQUEST",
+      "actual_intent": "RETURN_REQUEST",
+      "intent_match": true,
+      "expected_response_lang": "es",
+      "detected_response_lang": "es",
+      "language_score": 0.87,
+      "status": "PASS",
+      "latency_ms": 3730.3476333618164,
+      "response": "¡Hola!\n\nEntiendo que no estés satisfecho con tu compra y estoy aquí para ayudarte con el proceso de devolución. Para iniciar la devolución de tu pedido, por favor sigue estos pasos:\n\n1. **Empaca el producto** en su embalaje original, incluyendo todos los accesorios y documentos que vinieron con él.\n",
+      "error": null,
+      "validation": {
+        "passed": true,
+        "overall_score": 0.87,
+        "detected_language": "es",
+        "expected_language": "es",
+        "language_match": true,
+        "positive_matches": [
+          "devol",
+          "producto",
+          "reembolso",
+          "ayud"
+        ],
+        "positive_score": 0.67,
+        "negative_matches": [],
+        "negative_score": 1.0
+      }
+    }
+  ]
+}

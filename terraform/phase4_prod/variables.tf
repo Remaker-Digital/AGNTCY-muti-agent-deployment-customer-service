@@ -163,6 +163,12 @@ variable "subnet_appgateway" {
   default     = "10.0.3.0/24"
 }
 
+variable "subnet_container_apps" {
+  description = "Subnet CIDR for Container Apps (requires /23 minimum for internal ingress)"
+  type        = string
+  default     = "10.0.4.0/23"  # /23 required for Container Apps internal infrastructure
+}
+
 # ============================================================================
 # CONTAINER CONFIGURATION
 # ============================================================================
@@ -298,3 +304,22 @@ variable "ssl_certificate_password" {
   sensitive   = true
   default     = ""
 }
+
+# ============================================================================
+# APP CONFIGURATION
+# ============================================================================
+
+variable "enable_app_configuration" {
+  description = "Enable Azure App Configuration for operational tuning (confidence thresholds, throttling, feature flags)"
+  type        = bool
+  default     = true  # ENABLED 2026-01-27: Deploy App Configuration for Phase 5
+
+  # Rationale:
+  # - Enables runtime configuration changes without code deployments
+  # - Supports A/B testing and gradual feature rollouts
+  # - Cost: ~$36/month (Standard tier) or $0 (Free tier, 1000 req/day limit)
+  # See: docs/PHASE-5-CONFIGURATION-INTERFACE.md
+}
+
+# NOTE: enable_container_apps and enable_scheduled_scaling are defined in container_apps.tf
+# to keep scaling configuration together. See that file for these variables.

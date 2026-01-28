@@ -68,32 +68,33 @@ TEST_SCENARIOS = [
         "name": "order_status",
         "message": "Where is my order #ORD-2026-78432?",
         "weight": 50,  # 50% of traffic
-        "expected_intent": "ORDER_STATUS"
+        "expected_intent": "ORDER_STATUS",
     },
     {
         "name": "product_inquiry",
         "message": "What coffee would you recommend for someone who likes dark roasts?",
         "weight": 25,  # 25% of traffic
-        "expected_intent": "PRODUCT_INQUIRY"
+        "expected_intent": "PRODUCT_INQUIRY",
     },
     {
         "name": "return_request",
         "message": "I want to return my order, the coffee was stale",
         "weight": 15,  # 15% of traffic
-        "expected_intent": "RETURN_REQUEST"
+        "expected_intent": "RETURN_REQUEST",
     },
     {
         "name": "escalation",
         "message": "This is TERRIBLE service! I've called 3 times and nobody helps!",
         "weight": 10,  # 10% of traffic
-        "expected_intent": "ESCALATION_REQUEST"
-    }
+        "expected_intent": "ESCALATION_REQUEST",
+    },
 ]
 
 
 @dataclass
 class RequestResult:
     """Result of a single API request."""
+
     scenario: str
     success: bool
     status_code: int
@@ -107,6 +108,7 @@ class RequestResult:
 @dataclass
 class LoadTestResults:
     """Aggregated load test results."""
+
     total_requests: int
     successful_requests: int
     failed_requests: int
@@ -137,13 +139,14 @@ class LoadTestResults:
             "throughput_rps": round(self.throughput_rps, 2),
             "duration_seconds": round(self.duration_seconds, 2),
             "concurrent_users": self.concurrent_users,
-            "scenario_breakdown": self.scenario_breakdown
+            "scenario_breakdown": self.scenario_breakdown,
         }
 
 
 # =============================================================================
 # Load Test Implementation
 # =============================================================================
+
 
 def make_request(scenario: dict, session: requests.Session) -> RequestResult:
     """
@@ -161,13 +164,10 @@ def make_request(scenario: dict, session: requests.Session) -> RequestResult:
     try:
         response = session.post(
             f"{PROD_ENDPOINT}/api/v1/chat",
-            json={
-                "message": scenario["message"],
-                "language": "en"
-            },
+            json={"message": scenario["message"], "language": "en"},
             headers={"Content-Type": "application/json"},
             timeout=60,  # 60 second timeout for AI calls
-            verify=False  # Self-signed cert
+            verify=False,  # Self-signed cert
         )
 
         response_time_ms = (time.time() - start_time) * 1000
@@ -180,7 +180,7 @@ def make_request(scenario: dict, session: requests.Session) -> RequestResult:
                 status_code=response.status_code,
                 response_time_ms=response_time_ms,
                 intent=data.get("intent"),
-                escalated=data.get("escalated", False)
+                escalated=data.get("escalated", False),
             )
         else:
             return RequestResult(
@@ -188,7 +188,7 @@ def make_request(scenario: dict, session: requests.Session) -> RequestResult:
                 success=False,
                 status_code=response.status_code,
                 response_time_ms=response_time_ms,
-                error=f"HTTP {response.status_code}: {response.text[:200]}"
+                error=f"HTTP {response.status_code}: {response.text[:200]}",
             )
 
     except requests.exceptions.Timeout:
@@ -198,7 +198,7 @@ def make_request(scenario: dict, session: requests.Session) -> RequestResult:
             success=False,
             status_code=0,
             response_time_ms=response_time_ms,
-            error="Request timeout (60s)"
+            error="Request timeout (60s)",
         )
     except Exception as e:
         response_time_ms = (time.time() - start_time) * 1000
@@ -207,7 +207,7 @@ def make_request(scenario: dict, session: requests.Session) -> RequestResult:
             success=False,
             status_code=0,
             response_time_ms=response_time_ms,
-            error=str(e)
+            error=str(e),
         )
 
 
@@ -219,6 +219,7 @@ def select_scenario() -> dict:
         Selected scenario dict
     """
     import random
+
     total_weight = sum(s["weight"] for s in TEST_SCENARIOS)
     r = random.uniform(0, total_weight)
 
@@ -232,9 +233,7 @@ def select_scenario() -> dict:
 
 
 def run_load_test(
-    concurrent_users: int = 10,
-    duration_seconds: int = 60,
-    ramp_up_seconds: int = 10
+    concurrent_users: int = 10, duration_seconds: int = 60, ramp_up_seconds: int = 10
 ) -> LoadTestResults:
     """
     Run a load test against the production API Gateway.
@@ -278,24 +277,23 @@ def run_load_test(
                 elapsed = time.time() - start_time
                 rps = len(results) / elapsed if elapsed > 0 else 0
                 success_rate = sum(1 for r in results if r.success) / len(results) * 100
-                print(f"  [{elapsed:.0f}s] Requests: {len(results)}, RPS: {rps:.1f}, Success: {success_rate:.1f}%")
+                print(
+                    f"  [{elapsed:.0f}s] Requests: {len(results)}, RPS: {rps:.1f}, Success: {success_rate:.1f}%"
+                )
 
     # Create session with connection pooling
     session = requests.Session()
     adapter = requests.adapters.HTTPAdapter(
         pool_connections=concurrent_users,
         pool_maxsize=concurrent_users,
-        max_retries=0  # No retries - we want to see raw failure rate
+        max_retries=0,  # No retries - we want to see raw failure rate
     )
     session.mount("https://", adapter)
 
     # Run workers
     print("Starting workers...")
     with ThreadPoolExecutor(max_workers=concurrent_users) as executor:
-        futures = [
-            executor.submit(worker, i, session)
-            for i in range(concurrent_users)
-        ]
+        futures = [executor.submit(worker, i, session) for i in range(concurrent_users)]
 
         # Wait for duration
         time.sleep(duration_seconds)
@@ -330,9 +328,14 @@ def run_load_test(
             scenario_times = [r.response_time_ms for r in scenario_results]
             scenario_stats[name] = {
                 "count": len(scenario_results),
-                "success_rate": sum(1 for r in scenario_results if r.success) / len(scenario_results),
+                "success_rate": sum(1 for r in scenario_results if r.success)
+                / len(scenario_results),
                 "avg_time_ms": statistics.mean(scenario_times),
-                "p95_time_ms": sorted(scenario_times)[int(len(scenario_times) * 0.95)] if len(scenario_times) > 20 else max(scenario_times)
+                "p95_time_ms": (
+                    sorted(scenario_times)[int(len(scenario_times) * 0.95)]
+                    if len(scenario_times) > 20
+                    else max(scenario_times)
+                ),
             }
 
     # Calculate percentiles
@@ -347,14 +350,18 @@ def run_load_test(
         error_rate=len(failed) / len(results),
         avg_response_time_ms=statistics.mean(response_times),
         median_response_time_ms=statistics.median(response_times),
-        p95_response_time_ms=sorted_times[p95_idx] if p95_idx < len(sorted_times) else sorted_times[-1],
-        p99_response_time_ms=sorted_times[p99_idx] if p99_idx < len(sorted_times) else sorted_times[-1],
+        p95_response_time_ms=(
+            sorted_times[p95_idx] if p95_idx < len(sorted_times) else sorted_times[-1]
+        ),
+        p99_response_time_ms=(
+            sorted_times[p99_idx] if p99_idx < len(sorted_times) else sorted_times[-1]
+        ),
         min_response_time_ms=min(response_times),
         max_response_time_ms=max(response_times),
         throughput_rps=len(results) / total_duration,
         duration_seconds=total_duration,
         concurrent_users=concurrent_users,
-        scenario_breakdown=scenario_stats
+        scenario_breakdown=scenario_stats,
     )
 
 
@@ -397,15 +404,21 @@ def print_results(results: LoadTestResults):
     # Pass/Fail evaluation
     print("VALIDATION:")
     error_ok = results.error_rate < 0.01
-    print(f"  Error Rate < 1%:    {'[PASS]' if error_ok else '[FAIL]'} ({results.error_rate:.2%})")
+    print(
+        f"  Error Rate < 1%:    {'[PASS]' if error_ok else '[FAIL]'} ({results.error_rate:.2%})"
+    )
 
     # Note: P95 < 2000ms is not achievable with Azure OpenAI latency
     # Adjusted threshold to 30s (full pipeline with 4 AI calls)
     p95_ok = results.p95_response_time_ms < 30000  # 30s adjusted for AI latency
-    print(f"  P95 < 30000ms:      {'[PASS]' if p95_ok else '[FAIL]'} ({results.p95_response_time_ms:.2f}ms)")
+    print(
+        f"  P95 < 30000ms:      {'[PASS]' if p95_ok else '[FAIL]'} ({results.p95_response_time_ms:.2f}ms)"
+    )
 
     throughput_ok = results.throughput_rps > 0.1  # Adjusted for AI latency
-    print(f"  Throughput > 0.1 RPS: {'[PASS]' if throughput_ok else '[FAIL]'} ({results.throughput_rps:.2f})")
+    print(
+        f"  Throughput > 0.1 RPS: {'[PASS]' if throughput_ok else '[FAIL]'} ({results.throughput_rps:.2f})"
+    )
 
     print(f"\n{'='*70}")
 
@@ -419,16 +432,14 @@ def print_results(results: LoadTestResults):
 def check_health():
     """Check if the API Gateway is healthy before running load test."""
     try:
-        response = requests.get(
-            f"{PROD_ENDPOINT}/health",
-            timeout=10,
-            verify=False
-        )
+        response = requests.get(f"{PROD_ENDPOINT}/health", timeout=10, verify=False)
         if response.status_code == 200:
             data = response.json()
             print(f"Health Check: {data.get('status', 'unknown')}")
-            print(f"Azure OpenAI: {'Available' if data.get('azure_openai_available') else 'Not Available'}")
-            return data.get('azure_openai_available', False)
+            print(
+                f"Azure OpenAI: {'Available' if data.get('azure_openai_available') else 'Not Available'}"
+            )
+            return data.get("azure_openai_available", False)
         else:
             print(f"Health Check Failed: HTTP {response.status_code}")
             return False
@@ -443,17 +454,26 @@ def check_health():
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Production Load Test for Phase 5")
-    parser.add_argument("--users", type=int, default=10, help="Concurrent users (default: 10)")
-    parser.add_argument("--duration", type=int, default=60, help="Test duration in seconds (default: 60)")
-    parser.add_argument("--ramp-up", type=int, default=10, help="Ramp-up time in seconds (default: 10)")
+    parser.add_argument(
+        "--users", type=int, default=10, help="Concurrent users (default: 10)"
+    )
+    parser.add_argument(
+        "--duration",
+        type=int,
+        default=60,
+        help="Test duration in seconds (default: 60)",
+    )
+    parser.add_argument(
+        "--ramp-up", type=int, default=10, help="Ramp-up time in seconds (default: 10)"
+    )
     parser.add_argument("--output", type=str, help="Output JSON file for results")
 
     args = parser.parse_args()
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("PHASE 5 PRODUCTION LOAD TEST")
     print("Multi-Agent Customer Service Platform")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     # Check health first
     print("Checking API Gateway health...")
@@ -465,7 +485,7 @@ if __name__ == "__main__":
     results = run_load_test(
         concurrent_users=args.users,
         duration_seconds=args.duration,
-        ramp_up_seconds=args.ramp_up
+        ramp_up_seconds=args.ramp_up,
     )
 
     if results:

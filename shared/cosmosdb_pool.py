@@ -50,6 +50,7 @@ class CosmosConfig:
 
     Source of Record: terraform/phase4_prod/variables.tf
     """
+
     endpoint: str
     key: str
     database_name: str
@@ -132,9 +133,7 @@ class CosmosDBClient:
             )
 
             # Get database reference
-            self._database = self._client.get_database_client(
-                self.config.database_name
-            )
+            self._database = self._client.get_database_client(self.config.database_name)
 
             # Verify connectivity by reading database properties
             await self._database.read()
@@ -204,7 +203,7 @@ class CosmosDBClient:
             "initialized": self._initialized,
             "endpoint": self.config.endpoint,
             "database": self.config.database_name,
-            "containers_cached": list(self._containers.keys())
+            "containers_cached": list(self._containers.keys()),
         }
 
         if self._initialized:
@@ -227,6 +226,7 @@ class CosmosDBClient:
 # These helpers provide typed access to specific containers used by agents.
 # Each container has specific partition key and query patterns.
 # ============================================================================
+
 
 async def get_conversation_container(cosmos: CosmosDBClient):
     """
@@ -330,6 +330,7 @@ async def close_cosmos_client() -> None:
 # Factory Function for Easy Initialization
 # ============================================================================
 
+
 async def create_cosmos_client_from_env() -> CosmosDBClient:
     """
     Create Cosmos client from environment variables.
@@ -357,7 +358,7 @@ async def create_cosmos_client_from_env() -> CosmosDBClient:
         database_name=database,
         preferred_regions=["East US 2"],  # Match deployment region
         max_retry_attempts=9,
-        enable_endpoint_discovery=True
+        enable_endpoint_discovery=True,
     )
 
     return await init_cosmos_client(config)

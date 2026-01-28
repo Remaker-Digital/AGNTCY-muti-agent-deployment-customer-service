@@ -13,18 +13,30 @@ from typing import List
 
 from shared.base_agent import BaseAgent, run_agent
 from shared.models import (
-    ResponseRequest, GeneratedResponse, Intent, Sentiment,
-    extract_message_content, generate_message_id
+    ResponseRequest,
+    GeneratedResponse,
+    Intent,
+    Sentiment,
+    extract_message_content,
+    generate_message_id,
 )
 
 # Import modular formatters
 from agents.response_generation.formatters import (
-    format_order_status, format_refund_status, format_return_request,
-    format_product_info, format_product_recommendation, format_product_comparison, format_brewer_support,
-    format_shipping_question, format_subscription, format_gift_card, format_loyalty,
-    format_escalation, format_general
+    format_order_status,
+    format_refund_status,
+    format_return_request,
+    format_product_info,
+    format_product_recommendation,
+    format_product_comparison,
+    format_brewer_support,
+    format_shipping_question,
+    format_subscription,
+    format_gift_card,
+    format_loyalty,
+    format_escalation,
+    format_general,
 )
-
 
 # Production response generation prompt from Phase 3.5 optimization
 # Achieved 88.4% quality score in evaluation (target was >80%)
@@ -106,7 +118,11 @@ class ResponseGenerationAgent(BaseAgent):
             customer_message=content.get("customer_message", ""),
             intent=Intent(content.get("intent", "general_inquiry")),
             knowledge_context=content.get("knowledge_context", []),
-            sentiment=Sentiment(content.get("sentiment", "neutral")) if content.get("sentiment") else None
+            sentiment=(
+                Sentiment(content.get("sentiment", "neutral"))
+                if content.get("sentiment")
+                else None
+            ),
         )
 
         self.logger.info(f"Generating response for intent: {request.intent.value}")
@@ -129,14 +145,16 @@ class ResponseGenerationAgent(BaseAgent):
                 response_text = response_data
 
         # Determine escalation need
-        requires_escalation = requires_escalation or self._check_escalation_needed(request, response_text)
+        requires_escalation = requires_escalation or self._check_escalation_needed(
+            request, response_text
+        )
 
         result = GeneratedResponse(
             request_id=request.request_id,
             context_id=request.context_id,
             response_text=response_text,
             confidence=confidence,
-            requires_escalation=requires_escalation
+            requires_escalation=requires_escalation,
         )
 
         return result
@@ -146,67 +164,91 @@ class ResponseGenerationAgent(BaseAgent):
         return [
             {
                 "contextId": "demo-001",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "customer_message": "Where is my order 10234?",
-                        "intent": "order_status",
-                        "knowledge_context": [{
-                            "type": "order",
-                            "order_number": "10234",
-                            "status": "shipped",
-                            "fulfillment_status": "in_transit",
-                            "tracking": {
-                                "carrier": "USPS",
-                                "tracking_number": "9400123456789",
-                                "shipped_date": "2026-01-20T14:30:00Z",
-                                "expected_delivery": "2026-01-25T20:00:00Z",
-                                "last_location": "Portland Distribution Center"
-                            },
-                            "items": [
-                                {"quantity": 2, "name": "Lamill Signature Blend Coffee Pods (24 ct)"}
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "customer_message": "Where is my order 10234?",
+                            "intent": "order_status",
+                            "knowledge_context": [
+                                {
+                                    "type": "order",
+                                    "order_number": "10234",
+                                    "status": "shipped",
+                                    "fulfillment_status": "in_transit",
+                                    "tracking": {
+                                        "carrier": "USPS",
+                                        "tracking_number": "9400123456789",
+                                        "shipped_date": "2026-01-20T14:30:00Z",
+                                        "expected_delivery": "2026-01-25T20:00:00Z",
+                                        "last_location": "Portland Distribution Center",
+                                    },
+                                    "items": [
+                                        {
+                                            "quantity": 2,
+                                            "name": "Lamill Signature Blend Coffee Pods (24 ct)",
+                                        }
+                                    ],
+                                    "shipping_address": {"name": "Sarah Martinez"},
+                                }
                             ],
-                            "shipping_address": {"name": "Sarah Martinez"}
-                        }]
+                        },
                     }
-                }]
+                ],
             },
             {
                 "contextId": "demo-002",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "customer_message": "Tell me about espresso pods",
-                        "intent": "product_info",
-                        "knowledge_context": [{
-                            "type": "product",
-                            "name": "Joyride Double Shot Espresso Pods",
-                            "price": 29.99,
-                            "description": "Premium Italian-style espresso. Bold, rich flavor with crema.",
-                            "category": "espresso",
-                            "features": ["15g coffee per pod", "Biodegradable", "Authentic Italian espresso"],
-                            "in_stock": True
-                        }]
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "customer_message": "Tell me about espresso pods",
+                            "intent": "product_info",
+                            "knowledge_context": [
+                                {
+                                    "type": "product",
+                                    "name": "Joyride Double Shot Espresso Pods",
+                                    "price": 29.99,
+                                    "description": "Premium Italian-style espresso. Bold, rich flavor with crema.",
+                                    "category": "espresso",
+                                    "features": [
+                                        "15g coffee per pod",
+                                        "Biodegradable",
+                                        "Authentic Italian espresso",
+                                    ],
+                                    "in_stock": True,
+                                }
+                            ],
+                        },
                     }
-                }]
+                ],
             },
             {
                 "contextId": "demo-003",
-                "parts": [{
-                    "type": "text",
-                    "content": {
-                        "customer_message": "I want to return my order",
-                        "intent": "return_request",
-                        "knowledge_context": [{
-                            "type": "order",
-                            "order_number": "10125",
-                            "total": 35.99,
-                            "customer_name": "John Doe",
-                            "items": [{"quantity": 1, "name": "Medium Roast Variety Pack"}]
-                        }]
+                "parts": [
+                    {
+                        "type": "text",
+                        "content": {
+                            "customer_message": "I want to return my order",
+                            "intent": "return_request",
+                            "knowledge_context": [
+                                {
+                                    "type": "order",
+                                    "order_number": "10125",
+                                    "total": 35.99,
+                                    "customer_name": "John Doe",
+                                    "items": [
+                                        {
+                                            "quantity": 1,
+                                            "name": "Medium Roast Variety Pack",
+                                        }
+                                    ],
+                                }
+                            ],
+                        },
                     }
-                }]
-            }
+                ],
+            },
         ]
 
     def cleanup(self) -> None:
@@ -227,7 +269,7 @@ class ResponseGenerationAgent(BaseAgent):
                 context=context,
                 system_prompt=RESPONSE_GENERATION_PROMPT,
                 temperature=0.7,
-                max_tokens=500
+                max_tokens=500,
             )
 
             self.logger.debug(f"OpenAI response generated ({len(response)} chars)")
@@ -258,32 +300,52 @@ class ResponseGenerationAgent(BaseAgent):
                 item_type = item.get("type", "info")
                 if item_type == "order":
                     context_parts.append(f"\nOrder Details:")
-                    context_parts.append(f"  - Order Number: {item.get('order_number', 'N/A')}")
+                    context_parts.append(
+                        f"  - Order Number: {item.get('order_number', 'N/A')}"
+                    )
                     context_parts.append(f"  - Status: {item.get('status', 'N/A')}")
                     if item.get("tracking"):
                         tracking = item["tracking"]
-                        context_parts.append(f"  - Carrier: {tracking.get('carrier', 'N/A')}")
-                        context_parts.append(f"  - Tracking: {tracking.get('tracking_number', 'N/A')}")
-                        context_parts.append(f"  - Expected Delivery: {tracking.get('expected_delivery', 'N/A')}")
+                        context_parts.append(
+                            f"  - Carrier: {tracking.get('carrier', 'N/A')}"
+                        )
+                        context_parts.append(
+                            f"  - Tracking: {tracking.get('tracking_number', 'N/A')}"
+                        )
+                        context_parts.append(
+                            f"  - Expected Delivery: {tracking.get('expected_delivery', 'N/A')}"
+                        )
                     if item.get("items"):
-                        items_text = ", ".join([f"{i['quantity']}x {i['name']}" for i in item["items"]])
+                        items_text = ", ".join(
+                            [f"{i['quantity']}x {i['name']}" for i in item["items"]]
+                        )
                         context_parts.append(f"  - Items: {items_text}")
                     if item.get("shipping_address", {}).get("name"):
-                        context_parts.append(f"  - Customer Name: {item['shipping_address']['name']}")
+                        context_parts.append(
+                            f"  - Customer Name: {item['shipping_address']['name']}"
+                        )
 
                 elif item_type == "product":
                     context_parts.append(f"\nProduct Information:")
                     context_parts.append(f"  - Name: {item.get('name', 'N/A')}")
                     context_parts.append(f"  - Price: ${item.get('price', 0):.2f}")
-                    context_parts.append(f"  - Description: {item.get('description', 'N/A')}")
+                    context_parts.append(
+                        f"  - Description: {item.get('description', 'N/A')}"
+                    )
                     if item.get("features"):
-                        context_parts.append(f"  - Features: {', '.join(item['features'][:3])}")
-                    context_parts.append(f"  - In Stock: {'Yes' if item.get('in_stock', True) else 'No'}")
+                        context_parts.append(
+                            f"  - Features: {', '.join(item['features'][:3])}"
+                        )
+                    context_parts.append(
+                        f"  - In Stock: {'Yes' if item.get('in_stock', True) else 'No'}"
+                    )
 
                 elif item_type == "policy":
                     context_parts.append(f"\nPolicy Information:")
                     context_parts.append(f"  - Topic: {item.get('title', 'N/A')}")
-                    context_parts.append(f"  - Details: {item.get('content', item.get('quick_answer', 'N/A'))[:300]}")
+                    context_parts.append(
+                        f"  - Details: {item.get('content', item.get('quick_answer', 'N/A'))[:300]}"
+                    )
 
                 else:
                     context_parts.append(f"\nAdditional Context ({item_type}):")
@@ -299,16 +361,32 @@ class ResponseGenerationAgent(BaseAgent):
         intent_formatters = {
             Intent.ORDER_STATUS: lambda: format_order_status(request.knowledge_context),
             Intent.PRODUCT_INFO: lambda: format_product_info(request.knowledge_context),
-            Intent.PRODUCT_RECOMMENDATION: lambda: format_product_recommendation(request.knowledge_context),
-            Intent.PRODUCT_COMPARISON: lambda: format_product_comparison(request.knowledge_context),
-            Intent.BREWER_SUPPORT: lambda: format_brewer_support(request.knowledge_context),
-            Intent.RETURN_REQUEST: lambda: format_return_request(request.knowledge_context),
-            Intent.REFUND_STATUS: lambda: format_refund_status(request.knowledge_context),
-            Intent.SHIPPING_QUESTION: lambda: format_shipping_question(request.knowledge_context),
-            Intent.AUTO_DELIVERY_MANAGEMENT: lambda: format_subscription(request.knowledge_context),
+            Intent.PRODUCT_RECOMMENDATION: lambda: format_product_recommendation(
+                request.knowledge_context
+            ),
+            Intent.PRODUCT_COMPARISON: lambda: format_product_comparison(
+                request.knowledge_context
+            ),
+            Intent.BREWER_SUPPORT: lambda: format_brewer_support(
+                request.knowledge_context
+            ),
+            Intent.RETURN_REQUEST: lambda: format_return_request(
+                request.knowledge_context
+            ),
+            Intent.REFUND_STATUS: lambda: format_refund_status(
+                request.knowledge_context
+            ),
+            Intent.SHIPPING_QUESTION: lambda: format_shipping_question(
+                request.knowledge_context
+            ),
+            Intent.AUTO_DELIVERY_MANAGEMENT: lambda: format_subscription(
+                request.knowledge_context
+            ),
             Intent.GIFT_CARD: lambda: format_gift_card(request.knowledge_context),
             Intent.LOYALTY_PROGRAM: lambda: format_loyalty(request.knowledge_context),
-            Intent.ESCALATION_NEEDED: lambda: format_escalation(request.knowledge_context),
+            Intent.ESCALATION_NEEDED: lambda: format_escalation(
+                request.knowledge_context
+            ),
         }
 
         formatter = intent_formatters.get(request.intent)
@@ -317,7 +395,9 @@ class ResponseGenerationAgent(BaseAgent):
         else:
             return format_general(request.knowledge_context)
 
-    def _check_escalation_needed(self, request: ResponseRequest, response_text: str) -> bool:
+    def _check_escalation_needed(
+        self, request: ResponseRequest, response_text: str
+    ) -> bool:
         """Determine if escalation is needed based on various factors."""
         if request.intent == Intent.ESCALATION_NEEDED:
             return True

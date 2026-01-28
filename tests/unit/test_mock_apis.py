@@ -15,8 +15,10 @@ class TestMockAPIs:
         try:
             import sys
             from pathlib import Path
+
             sys.path.insert(0, str(Path.cwd() / "mocks" / "shopify"))
             import app as shopify_app
+
             assert shopify_app.app is not None
         except ImportError:
             pytest.skip("Shopify mock not importable in test context")
@@ -26,8 +28,10 @@ class TestMockAPIs:
         try:
             import sys
             from pathlib import Path
+
             sys.path.insert(0, str(Path.cwd() / "mocks" / "zendesk"))
             import app as zendesk_app
+
             assert zendesk_app.app is not None
         except ImportError:
             pytest.skip("Zendesk mock not importable in test context")
@@ -37,8 +41,10 @@ class TestMockAPIs:
         try:
             import sys
             from pathlib import Path
+
             sys.path.insert(0, str(Path.cwd() / "mocks" / "mailchimp"))
             import app as mailchimp_app
+
             assert mailchimp_app.app is not None
         except ImportError:
             pytest.skip("Mailchimp mock not importable in test context")
@@ -48,8 +54,10 @@ class TestMockAPIs:
         try:
             import sys
             from pathlib import Path
+
             sys.path.insert(0, str(Path.cwd() / "mocks" / "google-analytics"))
             import app as ga_app
+
             assert ga_app.app is not None
         except ImportError:
             pytest.skip("Google Analytics mock not importable in test context")

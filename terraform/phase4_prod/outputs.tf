@@ -131,22 +131,44 @@ output "appgateway_id" {
 }
 
 # ============================================================================
+# APP CONFIGURATION
+# ============================================================================
+
+output "app_configuration_endpoint" {
+  description = "Azure App Configuration endpoint URL"
+  value       = var.enable_app_configuration ? azurerm_app_configuration.main[0].endpoint : null
+}
+
+output "app_configuration_id" {
+  description = "Azure App Configuration resource ID"
+  value       = var.enable_app_configuration ? azurerm_app_configuration.main[0].id : null
+}
+
+output "app_configuration_name" {
+  description = "Azure App Configuration name"
+  value       = var.enable_app_configuration ? azurerm_app_configuration.main[0].name : null
+}
+
+# ============================================================================
 # DEPLOYMENT SUMMARY
 # ============================================================================
 
 output "deployment_summary" {
   description = "Summary of deployed resources"
   value = {
-    phase               = "Phase 4/5"
-    region              = local.location
-    azure_openai_region = "westus"
-    agent_count         = 6
-    budget_monthly      = var.budget_amount
-    log_retention_days  = var.log_retention_days
-    multi_language      = var.enable_multi_language
-    private_endpoints   = var.enable_private_endpoints
-    nats_enabled        = var.enable_nats_jetstream
-    containers_deployed = var.deploy_containers
-    appgateway_enabled  = var.enable_application_gateway
+    phase                = "Phase 4/5"
+    region               = local.location
+    azure_openai_region  = "westus"
+    agent_count          = 6
+    budget_monthly       = var.budget_amount
+    log_retention_days   = var.log_retention_days
+    multi_language       = var.enable_multi_language
+    private_endpoints    = var.enable_private_endpoints
+    nats_enabled         = var.enable_nats_jetstream
+    containers_deployed  = var.deploy_containers
+    appgateway_enabled   = var.enable_application_gateway
+    app_config_enabled   = var.enable_app_configuration
+    container_apps       = var.enable_container_apps
+    scheduled_scaling    = var.enable_scheduled_scaling
   }
 }

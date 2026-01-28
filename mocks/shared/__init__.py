@@ -16,10 +16,7 @@ from fastapi import FastAPI
 
 
 def create_mock_app(
-    title: str,
-    description: str,
-    version: str = "1.0.0",
-    service_name: str = "mock-api"
+    title: str, description: str, version: str = "1.0.0", service_name: str = "mock-api"
 ) -> FastAPI:
     """
     Create a FastAPI app with standard mock API configuration.
@@ -33,11 +30,7 @@ def create_mock_app(
     Returns:
         Configured FastAPI app with health endpoint
     """
-    app = FastAPI(
-        title=title,
-        description=description,
-        version=version
-    )
+    app = FastAPI(title=title, description=description, version=version)
 
     @app.get("/health")
     async def health_check():

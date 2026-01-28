@@ -42,13 +42,13 @@ from shared.models import (
     Language,
     generate_message_id,
     generate_context_id,
-    create_a2a_message
+    create_a2a_message,
 )
-
 
 # =============================================================================
 # Custom Locust User: Multi-Agent Customer Service User
 # =============================================================================
+
 
 class CustomerServiceUser(HttpUser):
     """
@@ -78,9 +78,9 @@ class CustomerServiceUser(HttpUser):
             from agents.response_generation.agent import ResponseGenerationAgent
 
             self.agents = {
-                'intent': IntentClassificationAgent(),
-                'knowledge': KnowledgeRetrievalAgent(),
-                'response': ResponseGenerationAgent(),
+                "intent": IntentClassificationAgent(),
+                "knowledge": KnowledgeRetrievalAgent(),
+                "response": ResponseGenerationAgent(),
             }
         except Exception as e:
             print(f"Warning: Could not initialize agents: {e}")
@@ -113,7 +113,7 @@ class CustomerServiceUser(HttpUser):
                 context_id=generate_context_id(),  # New context per request
                 content=f"Where is my order #{10000 + (self.user_id % 1000)}?",
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             # Process through intent agent
@@ -121,13 +121,11 @@ class CustomerServiceUser(HttpUser):
                 a2a_msg = create_a2a_message(
                     role="user",
                     content=customer_msg.to_dict(),
-                    context_id=customer_msg.context_id
+                    context_id=customer_msg.context_id,
                 )
 
                 # Use gevent-compatible async execution
-                result = self._run_async(
-                    self.agents['intent'].handle_message(a2a_msg)
-                )
+                result = self._run_async(self.agents["intent"].handle_message(a2a_msg))
 
                 # Record success
                 total_time = int((time.time() - start_time) * 1000)
@@ -137,7 +135,7 @@ class CustomerServiceUser(HttpUser):
                     response_time=total_time,
                     response_length=len(str(result)),
                     exception=None,
-                    context={}
+                    context={},
                 )
             else:
                 raise Exception("Agents not initialized")
@@ -150,7 +148,7 @@ class CustomerServiceUser(HttpUser):
                 response_time=total_time,
                 response_length=0,
                 exception=e,
-                context={}
+                context={},
             )
 
     @task(25)  # 25% of traffic
@@ -170,7 +168,7 @@ class CustomerServiceUser(HttpUser):
                 "Espresso Blend",
                 "French Roast",
                 "Light Breakfast Blend",
-                "Decaf House Blend"
+                "Decaf House Blend",
             ]
 
             product = products[self.user_id % len(products)]
@@ -181,19 +179,17 @@ class CustomerServiceUser(HttpUser):
                 context_id=generate_context_id(),
                 content=f"Tell me about the {product}",
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             if self.agents:
                 a2a_msg = create_a2a_message(
                     role="user",
                     content=customer_msg.to_dict(),
-                    context_id=customer_msg.context_id
+                    context_id=customer_msg.context_id,
                 )
 
-                result = self._run_async(
-                    self.agents['intent'].handle_message(a2a_msg)
-                )
+                result = self._run_async(self.agents["intent"].handle_message(a2a_msg))
 
                 total_time = int((time.time() - start_time) * 1000)
                 events.request.fire(
@@ -202,7 +198,7 @@ class CustomerServiceUser(HttpUser):
                     response_time=total_time,
                     response_length=len(str(result)),
                     exception=None,
-                    context={}
+                    context={},
                 )
             else:
                 raise Exception("Agents not initialized")
@@ -215,7 +211,7 @@ class CustomerServiceUser(HttpUser):
                 response_time=total_time,
                 response_length=0,
                 exception=e,
-                context={}
+                context={},
             )
 
     @task(15)  # 15% of traffic
@@ -236,19 +232,17 @@ class CustomerServiceUser(HttpUser):
                 context_id=generate_context_id(),
                 content="I want to return the product I ordered",
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             if self.agents:
                 a2a_msg = create_a2a_message(
                     role="user",
                     content=customer_msg.to_dict(),
-                    context_id=customer_msg.context_id
+                    context_id=customer_msg.context_id,
                 )
 
-                result = self._run_async(
-                    self.agents['intent'].handle_message(a2a_msg)
-                )
+                result = self._run_async(self.agents["intent"].handle_message(a2a_msg))
 
                 total_time = int((time.time() - start_time) * 1000)
                 events.request.fire(
@@ -257,7 +251,7 @@ class CustomerServiceUser(HttpUser):
                     response_time=total_time,
                     response_length=len(str(result)),
                     exception=None,
-                    context={}
+                    context={},
                 )
             else:
                 raise Exception("Agents not initialized")
@@ -270,7 +264,7 @@ class CustomerServiceUser(HttpUser):
                 response_time=total_time,
                 response_length=0,
                 exception=e,
-                context={}
+                context={},
             )
 
     @task(10)  # 10% of traffic
@@ -300,19 +294,17 @@ class CustomerServiceUser(HttpUser):
                 context_id=generate_context_id(),
                 content=query,
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
 
             if self.agents:
                 a2a_msg = create_a2a_message(
                     role="user",
                     content=customer_msg.to_dict(),
-                    context_id=customer_msg.context_id
+                    context_id=customer_msg.context_id,
                 )
 
-                result = self._run_async(
-                    self.agents['intent'].handle_message(a2a_msg)
-                )
+                result = self._run_async(self.agents["intent"].handle_message(a2a_msg))
 
                 total_time = int((time.time() - start_time) * 1000)
                 events.request.fire(
@@ -321,7 +313,7 @@ class CustomerServiceUser(HttpUser):
                     response_time=total_time,
                     response_length=len(str(result)),
                     exception=None,
-                    context={}
+                    context={},
                 )
             else:
                 raise Exception("Agents not initialized")
@@ -334,7 +326,7 @@ class CustomerServiceUser(HttpUser):
                 response_time=total_time,
                 response_length=0,
                 exception=e,
-                context={}
+                context={},
             )
 
     def _run_async(self, coroutine):
@@ -357,33 +349,44 @@ class CustomerServiceUser(HttpUser):
 # Custom Events for Resource Monitoring
 # =============================================================================
 
+
 @events.test_start.add_listener
 def on_test_start(environment, **kwargs):
     """Called when load test starts."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("LOAD TEST STARTING")
-    print("="*70)
-    print(f"Target users: {environment.parsed_options.num_users if hasattr(environment, 'parsed_options') else 'N/A'}")
-    print(f"Spawn rate: {environment.parsed_options.spawn_rate if hasattr(environment, 'parsed_options') else 'N/A'}")
-    print(f"Duration: {environment.parsed_options.run_time if hasattr(environment, 'parsed_options') else 'N/A'}")
-    print("="*70 + "\n")
+    print("=" * 70)
+    print(
+        f"Target users: {environment.parsed_options.num_users if hasattr(environment, 'parsed_options') else 'N/A'}"
+    )
+    print(
+        f"Spawn rate: {environment.parsed_options.spawn_rate if hasattr(environment, 'parsed_options') else 'N/A'}"
+    )
+    print(
+        f"Duration: {environment.parsed_options.run_time if hasattr(environment, 'parsed_options') else 'N/A'}"
+    )
+    print("=" * 70 + "\n")
 
 
 @events.test_stop.add_listener
 def on_test_stop(environment, **kwargs):
     """Called when load test stops."""
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("LOAD TEST COMPLETE")
-    print("="*70)
+    print("=" * 70)
     print(f"Total requests: {environment.stats.total.num_requests}")
     print(f"Total failures: {environment.stats.total.num_failures}")
     print(f"Failure rate: {environment.stats.total.fail_ratio * 100:.2f}%")
     print(f"Average response time: {environment.stats.total.avg_response_time:.2f}ms")
     print(f"Median response time: {environment.stats.total.median_response_time:.2f}ms")
-    print(f"95th percentile: {environment.stats.total.get_response_time_percentile(0.95):.2f}ms")
-    print(f"99th percentile: {environment.stats.total.get_response_time_percentile(0.99):.2f}ms")
+    print(
+        f"95th percentile: {environment.stats.total.get_response_time_percentile(0.95):.2f}ms"
+    )
+    print(
+        f"99th percentile: {environment.stats.total.get_response_time_percentile(0.99):.2f}ms"
+    )
     print(f"Requests per second: {environment.stats.total.total_rps:.2f}")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
 
 @events.request.add_listener
@@ -396,6 +399,7 @@ def on_request(request_type, name, response_time, response_length, exception, **
 # =============================================================================
 # Standalone Test Runner (for programmatic execution)
 # =============================================================================
+
 
 def run_load_test(users=10, spawn_rate=1, duration=60):
     """
@@ -412,7 +416,9 @@ def run_load_test(users=10, spawn_rate=1, duration=60):
     from locust import runners
     from locust.stats import StatsEntry
 
-    print(f"\nStarting load test: {users} users, {spawn_rate} spawn/s, {duration}s duration")
+    print(
+        f"\nStarting load test: {users} users, {spawn_rate} spawn/s, {duration}s duration"
+    )
 
     # Create environment
     env = Environment(user_classes=[CustomerServiceUser])
@@ -464,16 +470,16 @@ if __name__ == "__main__":
         locust -f locustfile.py --headless --users 10 --spawn-rate 1 --run-time 60s
     """
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("MULTI-AGENT CUSTOMER SERVICE - LOAD TEST SUITE")
     print("Phase 3, Week 2, Days 8-9")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
     # Test configurations
     test_configs = [
-        {"users": 10, "spawn_rate": 2, "duration": 30},   # Light load
-        {"users": 50, "spawn_rate": 5, "duration": 30},   # Medium load
-        {"users": 100, "spawn_rate": 10, "duration": 30}, # Heavy load
+        {"users": 10, "spawn_rate": 2, "duration": 30},  # Light load
+        {"users": 50, "spawn_rate": 5, "duration": 30},  # Medium load
+        {"users": 100, "spawn_rate": 10, "duration": 30},  # Heavy load
     ]
 
     all_results = []
@@ -488,7 +494,9 @@ if __name__ == "__main__":
 
         print(f"\nRESULTS:")
         print(f"  Total Requests: {results['total_requests']}")
-        print(f"  Failures: {results['total_failures']} ({results['failure_rate']*100:.2f}%)")
+        print(
+            f"  Failures: {results['total_failures']} ({results['failure_rate']*100:.2f}%)"
+        )
         print(f"  Avg Response Time: {results['avg_response_time']:.2f}ms")
         print(f"  P95 Response Time: {results['p95_response_time']:.2f}ms")
         print(f"  Throughput: {results['requests_per_second']:.2f} req/s")
@@ -499,7 +507,9 @@ if __name__ == "__main__":
     print(f"\n\n{'='*70}")
     print("LOAD TEST SUMMARY - ALL CONFIGURATIONS")
     print(f"{'='*70}\n")
-    print(f"{'Users':<10} {'Requests':<12} {'Failures':<12} {'Avg (ms)':<12} {'P95 (ms)':<12} {'RPS':<10}")
+    print(
+        f"{'Users':<10} {'Requests':<12} {'Failures':<12} {'Avg (ms)':<12} {'P95 (ms)':<12} {'RPS':<10}"
+    )
     print("-" * 70)
 
     for results in all_results:
@@ -512,6 +522,6 @@ if __name__ == "__main__":
             f"{results['requests_per_second']:<10.2f}"
         )
 
-    print("\n" + "="*70)
+    print("\n" + "=" * 70)
     print("Load testing complete!")
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")

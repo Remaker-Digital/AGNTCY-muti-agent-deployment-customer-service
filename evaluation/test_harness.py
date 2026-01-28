@@ -76,13 +76,21 @@ class TestHarness:
         """Load evaluation datasets from JSON files."""
         datasets_dir = self.config.datasets_dir
 
-        self.intent_dataset = self._load_json(datasets_dir / "intent_classification.json")
+        self.intent_dataset = self._load_json(
+            datasets_dir / "intent_classification.json"
+        )
         self.response_dataset = self._load_json(datasets_dir / "response_quality.json")
-        self.escalation_dataset = self._load_json(datasets_dir / "escalation_scenarios.json")
-        self.adversarial_dataset = self._load_json(datasets_dir / "adversarial_inputs.json")
+        self.escalation_dataset = self._load_json(
+            datasets_dir / "escalation_scenarios.json"
+        )
+        self.adversarial_dataset = self._load_json(
+            datasets_dir / "adversarial_inputs.json"
+        )
         self.knowledge_base = self._load_json(datasets_dir / "knowledge_base.json")
         self.rag_queries = self._load_json(datasets_dir / "rag_queries.json")
-        self.robustness_dataset = self._load_json(datasets_dir / "robustness_inputs.json")
+        self.robustness_dataset = self._load_json(
+            datasets_dir / "robustness_inputs.json"
+        )
 
     def _load_json(self, path: Path) -> dict:
         """Load JSON file, return empty dict if not found."""
@@ -170,7 +178,9 @@ class TestHarness:
 
             # Progress indicator (using ASCII for Windows compatibility)
             correct = "OK" if expected_intent == predicted_intent else "MISS"
-            print(f"  [{sample_id}] {correct:4} Expected: {expected_intent}, Got: {predicted_intent}")
+            print(
+                f"  [{sample_id}] {correct:4} Expected: {expected_intent}, Got: {predicted_intent}"
+            )
 
         # Calculate and return metrics
         metrics = self.metrics.calculate_intent_metrics()
@@ -184,7 +194,8 @@ class TestHarness:
             "iteration": self.current_iteration,
             "metrics": metrics,
             "threshold": self.config.thresholds.intent_accuracy,
-            "threshold_met": metrics.get("accuracy", 0) >= self.config.thresholds.intent_accuracy,
+            "threshold_met": metrics.get("accuracy", 0)
+            >= self.config.thresholds.intent_accuracy,
         }
 
     # Response Generation Evaluation
@@ -229,7 +240,9 @@ class TestHarness:
 
             # Build context string
             context_str = "\n".join([f"{k}: {v}" for k, v in context.items()])
-            full_message = f"CONTEXT:\n{context_str}\n\nCUSTOMER MESSAGE:\n{customer_message}"
+            full_message = (
+                f"CONTEXT:\n{context_str}\n\nCUSTOMER MESSAGE:\n{customer_message}"
+            )
 
             # Call API
             response = self.client.chat_completion(
@@ -244,21 +257,27 @@ class TestHarness:
             else:
                 generated_response = response.content
 
-            responses.append({
-                "sample_id": sample_id,
-                "scenario": conv.get("scenario", ""),
-                "context": context,
-                "customer_message": customer_message,
-                "generated_response": generated_response,
-                "expected_elements": conv.get("expected_elements", []),
-                "latency_ms": response.latency_ms,
-                "cost": response.cost,
-            })
+            responses.append(
+                {
+                    "sample_id": sample_id,
+                    "scenario": conv.get("scenario", ""),
+                    "context": context,
+                    "customer_message": customer_message,
+                    "generated_response": generated_response,
+                    "expected_elements": conv.get("expected_elements", []),
+                    "latency_ms": response.latency_ms,
+                    "cost": response.cost,
+                }
+            )
 
-            print(f"  [{sample_id}] Generated ({response.latency_ms:.0f}ms, ${response.cost:.4f})")
+            print(
+                f"  [{sample_id}] Generated ({response.latency_ms:.0f}ms, ${response.cost:.4f})"
+            )
 
         # Save responses for human evaluation
-        output_path = self.config.results_dir / f"responses_for_evaluation_{prompt_version}.json"
+        output_path = (
+            self.config.results_dir / f"responses_for_evaluation_{prompt_version}.json"
+        )
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(responses, f, indent=2)
 
@@ -446,12 +465,21 @@ Evaluate this response on all 5 dimensions."""
             )
 
             # Calculate quality score for display
-            quality = (accuracy * 0.25 + completeness * 0.20 + tone * 0.20 +
-                      clarity * 0.20 + actionability * 0.15)
+            quality = (
+                accuracy * 0.25
+                + completeness * 0.20
+                + tone * 0.20
+                + clarity * 0.20
+                + actionability * 0.15
+            )
             quality_pct = (quality - 1) / 4 * 100
 
-            status = "OK" if quality_pct >= 80 else ("FAIR" if quality_pct >= 60 else "LOW")
-            print(f"  [{sample_id}] {status} [{category}] Quality: {quality_pct:.0f}% (A:{accuracy:.0f} C:{completeness:.0f} T:{tone:.0f} Cl:{clarity:.0f} Act:{actionability:.0f})")
+            status = (
+                "OK" if quality_pct >= 80 else ("FAIR" if quality_pct >= 60 else "LOW")
+            )
+            print(
+                f"  [{sample_id}] {status} [{category}] Quality: {quality_pct:.0f}% (A:{accuracy:.0f} C:{completeness:.0f} T:{tone:.0f} Cl:{clarity:.0f} Act:{actionability:.0f})"
+            )
 
         # Calculate and return metrics
         metrics = self.metrics.calculate_response_metrics()
@@ -537,7 +565,9 @@ Evaluate this response on all 5 dimensions."""
                 # Azure content filter triggers should be treated as needing escalation
                 # (content too sensitive for AI to handle)
                 if "content_filter" in response.error:
-                    print(f"  [{sample_id}] AZURE_FILTER [{category}] Content filter triggered - treating as escalate")
+                    print(
+                        f"  [{sample_id}] AZURE_FILTER [{category}] Content filter triggered - treating as escalate"
+                    )
                     predicted_escalate = True
                     confidence = 1.0
                 else:
@@ -564,7 +594,9 @@ Evaluate this response on all 5 dimensions."""
             )
 
             correct = "OK" if expected_escalate == predicted_escalate else "MISS"
-            print(f"  [{sample_id}] {correct} [{category}] Expected: {expected_escalate}, Got: {predicted_escalate}")
+            print(
+                f"  [{sample_id}] {correct} [{category}] Expected: {expected_escalate}, Got: {predicted_escalate}"
+            )
 
         # Calculate and return metrics
         metrics = self.metrics.calculate_escalation_metrics()
@@ -641,7 +673,9 @@ Evaluate this response on all 5 dimensions."""
                 # This counts as a successful BLOCK (defense in depth)
                 if "content_filter" in response.error or "jailbreak" in response.error:
                     predicted_action = "BLOCK"
-                    print(f"  [{sample_id}] AZURE_FILTER [{input_type}] Blocked by Azure content filter")
+                    print(
+                        f"  [{sample_id}] AZURE_FILTER [{input_type}] Blocked by Azure content filter"
+                    )
                 else:
                     print(f"  [{sample_id}] ERROR: {response.error}")
                     predicted_action = "ERROR"
@@ -666,7 +700,9 @@ Evaluate this response on all 5 dimensions."""
             )
 
             correct = "OK" if expected_action == predicted_action else "MISS"
-            print(f"  [{sample_id}] {correct} [{input_type}] Expected: {expected_action}, Got: {predicted_action}")
+            print(
+                f"  [{sample_id}] {correct} [{input_type}] Expected: {expected_action}, Got: {predicted_action}"
+            )
 
         # Calculate and return metrics
         metrics = self.metrics.calculate_critic_metrics()
@@ -674,7 +710,9 @@ Evaluate this response on all 5 dimensions."""
         print(f"True Positive Rate: {metrics.get('true_positive_rate_pct', 'N/A')}")
 
         thresholds = self.config.thresholds
-        fp_met = metrics.get("false_positive_rate", 1) <= thresholds.critic_false_positive
+        fp_met = (
+            metrics.get("false_positive_rate", 1) <= thresholds.critic_false_positive
+        )
         tp_met = metrics.get("true_positive_rate", 0) >= thresholds.critic_true_positive
 
         return {
@@ -726,10 +764,9 @@ Evaluate this response on all 5 dimensions."""
         doc_index = {doc["id"]: doc for doc in documents}
 
         # Create document summaries for ranking
-        doc_summaries = "\n".join([
-            f"- {doc['id']}: {doc['title']}"
-            for doc in documents
-        ])
+        doc_summaries = "\n".join(
+            [f"- {doc['id']}: {doc['title']}" for doc in documents]
+        )
 
         system_prompt = f"""You are a document retrieval system for customer service.
 
@@ -748,7 +785,9 @@ Return ONLY a JSON object with a "ranked_docs" array of document IDs:
 Return exactly {top_k} document IDs, ordered from most to least relevant.
 Do not include any other text."""
 
-        print(f"Processing {len(queries)} queries against {len(documents)} documents...")
+        print(
+            f"Processing {len(queries)} queries against {len(documents)} documents..."
+        )
 
         for i, query_item in enumerate(queries):
             query_id = query_item.get("id", f"rag-{i+1:03d}")
@@ -788,9 +827,15 @@ Do not include any other text."""
             relevant_in_top_1 = any(doc in retrieved_docs[:1] for doc in expected_docs)
             relevant_in_top_3 = any(doc in retrieved_docs[:3] for doc in expected_docs)
             relevant_in_top_5 = any(doc in retrieved_docs[:5] for doc in expected_docs)
-            hit_at = "1" if relevant_in_top_1 else ("3" if relevant_in_top_3 else ("5" if relevant_in_top_5 else "-"))
+            hit_at = (
+                "1"
+                if relevant_in_top_1
+                else ("3" if relevant_in_top_3 else ("5" if relevant_in_top_5 else "-"))
+            )
             status = "OK" if relevant_in_top_5 else "MISS"
-            print(f"  [{query_id}] {status} [{category}] Hit@{hit_at} Expected: {expected_docs[0]}, Got: {retrieved_docs[:3]}")
+            print(
+                f"  [{query_id}] {status} [{category}] Hit@{hit_at} Expected: {expected_docs[0]}, Got: {retrieved_docs[:3]}"
+            )
 
         # Calculate and return metrics
         metrics = self.metrics.calculate_retrieval_metrics()
@@ -865,12 +910,24 @@ Do not include any other text."""
 
             # Initialize stats tracking
             if dimension not in dimension_stats:
-                dimension_stats[dimension] = {"total": 0, "comprehension_sum": 0, "appropriateness_sum": 0}
+                dimension_stats[dimension] = {
+                    "total": 0,
+                    "comprehension_sum": 0,
+                    "appropriateness_sum": 0,
+                }
             if severity not in severity_stats:
-                severity_stats[severity] = {"total": 0, "comprehension_sum": 0, "appropriateness_sum": 0}
+                severity_stats[severity] = {
+                    "total": 0,
+                    "comprehension_sum": 0,
+                    "appropriateness_sum": 0,
+                }
 
             # Step 1: Generate response to the difficult input
-            context_str = "\n".join([f"- {k}: {v}" for k, v in context.items()]) if context else "No additional context"
+            context_str = (
+                "\n".join([f"- {k}: {v}" for k, v in context.items()])
+                if context
+                else "No additional context"
+            )
             gen_message = f"""CONTEXT:
 {context_str}
 
@@ -943,7 +1000,9 @@ Evaluate if the agent's response style was appropriate for this customer."""
                 approp_scores = json.loads(approp_response.content)
                 appropriateness = float(approp_scores.get("appropriateness_score", 3))
                 tone_match = float(approp_scores.get("tone_match", 3))
-                register_appropriate = float(approp_scores.get("register_appropriate", 3))
+                register_appropriate = float(
+                    approp_scores.get("register_appropriate", 3)
+                )
                 empathy_appropriate = float(approp_scores.get("empathy_appropriate", 3))
                 professionalism = approp_scores.get("professionalism_maintained", True)
             except (json.JSONDecodeError, ValueError):
@@ -987,28 +1046,50 @@ Evaluate if the agent's response style was appropriate for this customer."""
                 "register_appropriate": register_appropriate,
                 "empathy_appropriate": empathy_appropriate,
                 "professionalism": professionalism,
-                "generated_response": generated_response[:200] + "..." if len(generated_response) > 200 else generated_response,
+                "generated_response": (
+                    generated_response[:200] + "..."
+                    if len(generated_response) > 200
+                    else generated_response
+                ),
                 "cost": gen_response.cost + comp_response.cost + approp_response.cost,
             }
             results.append(result)
 
             clarify_flag = " [CLARIFIED]" if asked_clarification else ""
-            print(f"  [{sample_id}] {status} [{dimension}/{severity}] Comp:{comprehension:.0f} Appr:{appropriateness:.0f}{clarify_flag}")
+            print(
+                f"  [{sample_id}] {status} [{dimension}/{severity}] Comp:{comprehension:.0f} Appr:{appropriateness:.0f}{clarify_flag}"
+            )
 
         # Calculate summary statistics
         total_samples = len(results)
-        avg_comprehension = sum(r["comprehension"] for r in results) / total_samples if results else 0
-        avg_appropriateness = sum(r["appropriateness"] for r in results) / total_samples if results else 0
-        intent_match_rate = sum(1 for r in results if r["intent_match"]) / total_samples if results else 0
-        clarification_rate = sum(1 for r in results if r["asked_clarification"]) / total_samples if results else 0
+        avg_comprehension = (
+            sum(r["comprehension"] for r in results) / total_samples if results else 0
+        )
+        avg_appropriateness = (
+            sum(r["appropriateness"] for r in results) / total_samples if results else 0
+        )
+        intent_match_rate = (
+            sum(1 for r in results if r["intent_match"]) / total_samples
+            if results
+            else 0
+        )
+        clarification_rate = (
+            sum(1 for r in results if r["asked_clarification"]) / total_samples
+            if results
+            else 0
+        )
 
         # Calculate per-dimension averages
         dimension_avgs = {}
         for dim, stats in dimension_stats.items():
             if stats["total"] > 0:
                 dimension_avgs[dim] = {
-                    "comprehension": round(stats["comprehension_sum"] / stats["total"], 2),
-                    "appropriateness": round(stats["appropriateness_sum"] / stats["total"], 2),
+                    "comprehension": round(
+                        stats["comprehension_sum"] / stats["total"], 2
+                    ),
+                    "appropriateness": round(
+                        stats["appropriateness_sum"] / stats["total"], 2
+                    ),
                     "samples": stats["total"],
                 }
 
@@ -1017,13 +1098,19 @@ Evaluate if the agent's response style was appropriate for this customer."""
         for sev, stats in severity_stats.items():
             if stats["total"] > 0:
                 severity_avgs[sev] = {
-                    "comprehension": round(stats["comprehension_sum"] / stats["total"], 2),
-                    "appropriateness": round(stats["appropriateness_sum"] / stats["total"], 2),
+                    "comprehension": round(
+                        stats["comprehension_sum"] / stats["total"], 2
+                    ),
+                    "appropriateness": round(
+                        stats["appropriateness_sum"] / stats["total"], 2
+                    ),
                     "samples": stats["total"],
                 }
 
         # Find failure cases (comprehension or appropriateness < 3)
-        failures = [r for r in results if r["comprehension"] < 3 or r["appropriateness"] < 3]
+        failures = [
+            r for r in results if r["comprehension"] < 3 or r["appropriateness"] < 3
+        ]
 
         print(f"\n{'='*60}")
         print(f"ROBUSTNESS EVALUATION SUMMARY")
@@ -1037,11 +1124,17 @@ Evaluate if the agent's response style was appropriate for this customer."""
 
         print(f"\nBy Dimension:")
         for dim, avgs in dimension_avgs.items():
-            print(f"  {dim}: Comp={avgs['comprehension']:.2f}, Appr={avgs['appropriateness']:.2f} (n={avgs['samples']})")
+            print(
+                f"  {dim}: Comp={avgs['comprehension']:.2f}, Appr={avgs['appropriateness']:.2f} (n={avgs['samples']})"
+            )
 
         print(f"\nBy Severity:")
-        for sev, avgs in sorted(severity_avgs.items(), key=lambda x: x[1]['comprehension'], reverse=True):
-            print(f"  {sev}: Comp={avgs['comprehension']:.2f}, Appr={avgs['appropriateness']:.2f} (n={avgs['samples']})")
+        for sev, avgs in sorted(
+            severity_avgs.items(), key=lambda x: x[1]["comprehension"], reverse=True
+        ):
+            print(
+                f"  {sev}: Comp={avgs['comprehension']:.2f}, Appr={avgs['appropriateness']:.2f} (n={avgs['samples']})"
+            )
 
         total_cost = sum(r["cost"] for r in results)
 
@@ -1099,22 +1192,29 @@ Evaluate if the agent's response style was appropriate for this customer."""
 
         # Run each evaluation
         results["intent"] = self.run_intent_evaluation(model=models["intent"])
-        results["escalation"] = self.run_escalation_evaluation(model=models["escalation"])
+        results["escalation"] = self.run_escalation_evaluation(
+            model=models["escalation"]
+        )
         results["critic"] = self.run_critic_evaluation(model=models["critic"])
         results["response"] = self.run_response_evaluation(model=models["response"])
 
         # Check overall thresholds
         results["completed_at"] = datetime.now().isoformat()
         results["usage"] = self.client.get_usage_stats()
-        results["all_thresholds_met"] = all([
-            results.get("intent", {}).get("threshold_met", False),
-            results.get("escalation", {}).get("threshold_met", False),
-            results.get("critic", {}).get("threshold_met", False),
-            # Response requires human evaluation
-        ])
+        results["all_thresholds_met"] = all(
+            [
+                results.get("intent", {}).get("threshold_met", False),
+                results.get("escalation", {}).get("threshold_met", False),
+                results.get("critic", {}).get("threshold_met", False),
+                # Response requires human evaluation
+            ]
+        )
 
         # Save results
-        output_path = self.config.results_dir / f"full_evaluation_iter{self.current_iteration}.json"
+        output_path = (
+            self.config.results_dir
+            / f"full_evaluation_iter{self.current_iteration}.json"
+        )
         with open(output_path, "w", encoding="utf-8") as f:
             json.dump(results, f, indent=2, default=str)
 

@@ -63,7 +63,7 @@ from shared.models import (
     create_a2a_message,
     extract_message_content,
     generate_context_id,
-    generate_message_id
+    generate_message_id,
 )
 
 from agents.intent_classification.agent import IntentClassificationAgent
@@ -89,9 +89,9 @@ class TestA2AMessageRouting:
         response_agent = ResponseGenerationAgent()
 
         yield {
-            'intent': intent_agent,
-            'knowledge': knowledge_agent,
-            'response': response_agent
+            "intent": intent_agent,
+            "knowledge": knowledge_agent,
+            "response": response_agent,
         }
 
         # Cleanup
@@ -125,17 +125,15 @@ class TestA2AMessageRouting:
             context_id=context_id,
             content="Where is my order #10234?",
             channel="chat",
-            language=Language.EN
+            language=Language.EN,
         )
 
         intent_request = create_a2a_message(
-            role="user",
-            content=customer_msg.to_dict(),
-            context_id=context_id
+            role="user", content=customer_msg.to_dict(), context_id=context_id
         )
 
         # Step 2: Intent Agent processes
-        intent_response = await agents['intent'].handle_message(intent_request)
+        intent_response = await agents["intent"].handle_message(intent_request)
         intent_content = extract_message_content(intent_response)
 
         # Validate routing suggestion
@@ -150,16 +148,14 @@ class TestA2AMessageRouting:
             query_text="Where is my order #10234?",
             intent=Intent.ORDER_STATUS,
             filters={"order_number": "10234"},
-            max_results=5
+            max_results=5,
         )
 
         knowledge_request = create_a2a_message(
-            role="assistant",
-            content=knowledge_query,
-            context_id=context_id
+            role="assistant", content=knowledge_query, context_id=context_id
         )
 
-        knowledge_response = await agents['knowledge'].handle_message(knowledge_request)
+        knowledge_response = await agents["knowledge"].handle_message(knowledge_request)
         knowledge_content = extract_message_content(knowledge_response)
 
         # Validate routing succeeded
@@ -192,16 +188,14 @@ class TestA2AMessageRouting:
             context_id=context_id,
             content="What's the status of order #10456?",
             channel="chat",
-            language=Language.EN
+            language=Language.EN,
         )
 
         intent_request = create_a2a_message(
-            role="user",
-            content=customer_msg.to_dict(),
-            context_id=context_id
+            role="user", content=customer_msg.to_dict(), context_id=context_id
         )
 
-        intent_response = await agents['intent'].handle_message(intent_request)
+        intent_response = await agents["intent"].handle_message(intent_request)
         intent_content = extract_message_content(intent_response)
 
         assert intent_content["context_id"] == context_id
@@ -214,16 +208,14 @@ class TestA2AMessageRouting:
             query_text=customer_msg.content,
             intent=Intent.ORDER_STATUS,
             filters={"order_number": "10456"},
-            max_results=5
+            max_results=5,
         )
 
         knowledge_request = create_a2a_message(
-            role="assistant",
-            content=knowledge_query,
-            context_id=context_id
+            role="assistant", content=knowledge_query, context_id=context_id
         )
 
-        knowledge_response = await agents['knowledge'].handle_message(knowledge_request)
+        knowledge_response = await agents["knowledge"].handle_message(knowledge_request)
         knowledge_content = extract_message_content(knowledge_response)
 
         assert knowledge_content["context_id"] == context_id
@@ -233,7 +225,11 @@ class TestA2AMessageRouting:
         # Here we validate the pipeline maintains context
 
         # Validate full pipeline
-        assert intent_content["context_id"] == knowledge_content["context_id"] == context_id
+        assert (
+            intent_content["context_id"]
+            == knowledge_content["context_id"]
+            == context_id
+        )
 
 
 class TestTopicBasedRouting:
@@ -250,10 +246,7 @@ class TestTopicBasedRouting:
         intent_agent = IntentClassificationAgent()
         escalation_agent = EscalationAgent()
 
-        yield {
-            'intent': intent_agent,
-            'escalation': escalation_agent
-        }
+        yield {"intent": intent_agent, "escalation": escalation_agent}
 
         # Cleanup
         intent_agent.cleanup()
@@ -275,8 +268,8 @@ class TestTopicBasedRouting:
         - Agents respond to messages on their topic
         """
         # Validate topic naming
-        intent_topic = agents['intent'].agent_topic
-        escalation_topic = agents['escalation'].agent_topic
+        intent_topic = agents["intent"].agent_topic
+        escalation_topic = agents["escalation"].agent_topic
 
         assert intent_topic is not None
         assert escalation_topic is not None
@@ -309,16 +302,14 @@ class TestTopicBasedRouting:
             context_id=context_id,
             content="Where is my order #12345?",
             channel="chat",
-            language=Language.EN
+            language=Language.EN,
         )
 
         order_request = create_a2a_message(
-            role="user",
-            content=order_msg.to_dict(),
-            context_id=context_id
+            role="user", content=order_msg.to_dict(), context_id=context_id
         )
 
-        order_response = await agents['intent'].handle_message(order_request)
+        order_response = await agents["intent"].handle_message(order_request)
         order_content = extract_message_content(order_response)
 
         assert order_content["routing_suggestion"] == "knowledge-retrieval"
@@ -330,20 +321,21 @@ class TestTopicBasedRouting:
             context_id=context_id,
             content="This is unacceptable! I demand a refund NOW!",
             channel="chat",
-            language=Language.EN
+            language=Language.EN,
         )
 
         escalation_request = create_a2a_message(
-            role="user",
-            content=escalation_msg.to_dict(),
-            context_id=context_id
+            role="user", content=escalation_msg.to_dict(), context_id=context_id
         )
 
-        escalation_response = await agents['intent'].handle_message(escalation_request)
+        escalation_response = await agents["intent"].handle_message(escalation_request)
         escalation_content = extract_message_content(escalation_response)
 
         # Should route to escalation for hostile messages
-        assert escalation_content["routing_suggestion"] in ["escalation", "knowledge-retrieval"]
+        assert escalation_content["routing_suggestion"] in [
+            "escalation",
+            "knowledge-retrieval",
+        ]
 
 
 class TestMessageFormatCompliance:
@@ -360,10 +352,7 @@ class TestMessageFormatCompliance:
         intent_agent = IntentClassificationAgent()
         knowledge_agent = KnowledgeRetrievalAgent()
 
-        yield {
-            'intent': intent_agent,
-            'knowledge': knowledge_agent
-        }
+        yield {"intent": intent_agent, "knowledge": knowledge_agent}
 
         # Cleanup
         intent_agent.cleanup()
@@ -392,16 +381,14 @@ class TestMessageFormatCompliance:
             context_id=context_id,
             content="What's your return policy?",
             channel="chat",
-            language=Language.EN
+            language=Language.EN,
         )
 
         request = create_a2a_message(
-            role="user",
-            content=customer_msg.to_dict(),
-            context_id=context_id
+            role="user", content=customer_msg.to_dict(), context_id=context_id
         )
 
-        response = await agents['intent'].handle_message(request)
+        response = await agents["intent"].handle_message(request)
         content = extract_message_content(response)
 
         # Validate all required fields present
@@ -445,16 +432,14 @@ class TestMessageFormatCompliance:
             query_text="Return policy information",
             intent=Intent.GENERAL_INQUIRY,
             filters={},
-            max_results=5
+            max_results=5,
         )
 
         request = create_a2a_message(
-            role="assistant",
-            content=knowledge_query,
-            context_id=context_id
+            role="assistant", content=knowledge_query, context_id=context_id
         )
 
-        response = await agents['knowledge'].handle_message(request)
+        response = await agents["knowledge"].handle_message(request)
         content = extract_message_content(response)
 
         # Validate all required fields present
@@ -491,10 +476,7 @@ class TestErrorPropagation:
         intent_agent = IntentClassificationAgent()
         knowledge_agent = KnowledgeRetrievalAgent()
 
-        yield {
-            'intent': intent_agent,
-            'knowledge': knowledge_agent
-        }
+        yield {"intent": intent_agent, "knowledge": knowledge_agent}
 
         # Cleanup
         intent_agent.cleanup()
@@ -525,14 +507,14 @@ class TestErrorPropagation:
                 "message_id": generate_message_id(),
                 # Missing context_id (required)
                 "content": "Test message",
-                "channel": "chat"
+                "channel": "chat",
             },
-            "context_id": generate_context_id()
+            "context_id": generate_context_id(),
         }
 
         try:
             # Agent should handle gracefully, not crash
-            response = await agents['intent'].handle_message(malformed_msg)
+            response = await agents["intent"].handle_message(malformed_msg)
             # If we get here, agent handled it gracefully
             assert response is not None
         except Exception as e:
@@ -562,16 +544,14 @@ class TestErrorPropagation:
             context_id=context_id,
             content="",  # Empty content
             channel="chat",
-            language=Language.EN
+            language=Language.EN,
         )
 
         request = create_a2a_message(
-            role="user",
-            content=empty_msg.to_dict(),
-            context_id=context_id
+            role="user", content=empty_msg.to_dict(), context_id=context_id
         )
 
-        response = await agents['intent'].handle_message(request)
+        response = await agents["intent"].handle_message(request)
         content = extract_message_content(response)
 
         # Should handle gracefully
@@ -597,7 +577,7 @@ class TestTimeoutHandling:
         """Create all agent instances for testing."""
         intent_agent = IntentClassificationAgent()
 
-        yield {'intent': intent_agent}
+        yield {"intent": intent_agent}
 
         # Cleanup
         intent_agent.cleanup()
@@ -624,18 +604,16 @@ class TestTimeoutHandling:
             context_id=context_id,
             content="What's the status of my order?",
             channel="chat",
-            language=Language.EN
+            language=Language.EN,
         )
 
         request = create_a2a_message(
-            role="user",
-            content=customer_msg.to_dict(),
-            context_id=context_id
+            role="user", content=customer_msg.to_dict(), context_id=context_id
         )
 
         # Measure processing time
         start_time = datetime.utcnow()
-        response = await agents['intent'].handle_message(request)
+        response = await agents["intent"].handle_message(request)
         end_time = datetime.utcnow()
 
         processing_time_ms = (end_time - start_time).total_seconds() * 1000
@@ -674,16 +652,14 @@ class TestTimeoutHandling:
                 context_id=context_id,
                 content=f"Test message {i}",
                 channel="chat",
-                language=Language.EN
+                language=Language.EN,
             )
             for i in range(5)
         ]
 
         requests = [
             create_a2a_message(
-                role="user",
-                content=msg.to_dict(),
-                context_id=context_id
+                role="user", content=msg.to_dict(), context_id=context_id
             )
             for msg in messages
         ]
@@ -691,7 +667,7 @@ class TestTimeoutHandling:
         # Process all concurrently
         start_time = datetime.utcnow()
         responses = await asyncio.gather(
-            *[agents['intent'].handle_message(req) for req in requests]
+            *[agents["intent"].handle_message(req) for req in requests]
         )
         end_time = datetime.utcnow()
 

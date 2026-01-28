@@ -41,7 +41,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from evaluation.azure_openai_client import AzureOpenAIClient, ChatResponse
 from evaluation.config import Config
 
-
 # ============================================================================
 # Mock Context Data for Testing
 # ============================================================================
@@ -57,15 +56,25 @@ MOCK_CONTEXTS = {
         "carrier": "UPS",
         "estimated_delivery": "2026-01-27",
         "items": [
-            {"name": "Wireless Bluetooth Headphones", "sku": "WBH-100", "qty": 1, "price": 79.99},
-            {"name": "USB-C Charging Cable", "sku": "USB-C-3FT", "qty": 2, "price": 12.99}
+            {
+                "name": "Wireless Bluetooth Headphones",
+                "sku": "WBH-100",
+                "qty": 1,
+                "price": 79.99,
+            },
+            {
+                "name": "USB-C Charging Cable",
+                "sku": "USB-C-3FT",
+                "qty": 2,
+                "price": 12.99,
+            },
         ],
         "subtotal": 105.97,
         "shipping": 5.99,
         "tax": 8.48,
         "total": 120.44,
         "payment_method": "Visa ending in 4242",
-        "shipping_address": "123 Main St, Apt 4B, New York, NY 10001"
+        "shipping_address": "123 Main St, Apt 4B, New York, NY 10001",
     },
     "return": {
         "customer_name": "Maria Garcia",
@@ -75,21 +84,44 @@ MOCK_CONTEXTS = {
         "order_status": "delivered",
         "delivery_date": "2026-01-18",
         "items": [
-            {"name": "Winter Jacket - Blue, Size M", "sku": "WJ-BLU-M", "qty": 1, "price": 149.99}
+            {
+                "name": "Winter Jacket - Blue, Size M",
+                "sku": "WJ-BLU-M",
+                "qty": 1,
+                "price": 149.99,
+            }
         ],
         "return_policy": "30-day return window. Item must be unworn with tags attached. Free return shipping label provided.",
         "return_window_ends": "2026-02-17",
-        "refund_method": "Original payment method (3-5 business days after receipt)"
+        "refund_method": "Original payment method (3-5 business days after receipt)",
     },
     "product": {
         "customer_name": "Customer",
         "product_catalog": [
-            {"name": "Wireless Bluetooth Headphones", "sku": "WBH-100", "price": 79.99, "in_stock": True, "colors": ["Black", "White", "Blue"]},
-            {"name": "Premium Noise-Canceling Headphones", "sku": "PNC-200", "price": 199.99, "in_stock": True, "colors": ["Black", "Silver"]},
-            {"name": "Smart Watch Pro", "sku": "SWP-300", "price": 299.99, "in_stock": False, "restock_date": "2026-02-01"},
+            {
+                "name": "Wireless Bluetooth Headphones",
+                "sku": "WBH-100",
+                "price": 79.99,
+                "in_stock": True,
+                "colors": ["Black", "White", "Blue"],
+            },
+            {
+                "name": "Premium Noise-Canceling Headphones",
+                "sku": "PNC-200",
+                "price": 199.99,
+                "in_stock": True,
+                "colors": ["Black", "Silver"],
+            },
+            {
+                "name": "Smart Watch Pro",
+                "sku": "SWP-300",
+                "price": 299.99,
+                "in_stock": False,
+                "restock_date": "2026-02-01",
+            },
         ],
         "shipping_info": "Free shipping on orders over $50. Standard shipping: 5-7 business days. Express shipping: 2-3 business days (+$15.99).",
-        "international_shipping": "We ship to Canada, UK, and EU. International orders typically arrive in 10-14 business days."
+        "international_shipping": "We ship to Canada, UK, and EU. International orders typically arrive in 10-14 business days.",
     },
     "billing": {
         "customer_name": "David Chen",
@@ -99,21 +131,30 @@ MOCK_CONTEXTS = {
         "next_billing_date": "2026-02-01",
         "payment_method": "Mastercard ending in 5555",
         "recent_charges": [
-            {"date": "2026-01-01", "description": "Premium Plan - Monthly", "amount": 19.99},
-            {"date": "2025-12-01", "description": "Premium Plan - Monthly", "amount": 19.99},
+            {
+                "date": "2026-01-01",
+                "description": "Premium Plan - Monthly",
+                "amount": 19.99,
+            },
+            {
+                "date": "2025-12-01",
+                "description": "Premium Plan - Monthly",
+                "amount": 19.99,
+            },
         ],
-        "billing_address": "456 Oak Avenue, Chicago, IL 60601"
+        "billing_address": "456 Oak Avenue, Chicago, IL 60601",
     },
     "empty": {
         "customer_name": "Customer",
-        "note": "No specific order or account context available. General assistance only."
-    }
+        "note": "No specific order or account context available. General assistance only.",
+    },
 }
 
 
 # ============================================================================
 # Prompt Loaders
 # ============================================================================
+
 
 def load_prompt(prompt_name: str) -> str:
     """Load a prompt file from the prompts directory."""
@@ -129,6 +170,7 @@ def load_prompt(prompt_name: str) -> str:
 # ============================================================================
 # Agent Pipeline
 # ============================================================================
+
 
 class AgentPipeline:
     """
@@ -190,7 +232,9 @@ class AgentPipeline:
             temperature=0.0,
         )
 
-        self._debug_print("CRITIC/SUPERVISOR", f"Input: {user_input}\nResponse: {response.content}")
+        self._debug_print(
+            "CRITIC/SUPERVISOR", f"Input: {user_input}\nResponse: {response.content}"
+        )
 
         if response.error:
             # Treat errors as blocked (fail safe)
@@ -207,7 +251,9 @@ class AgentPipeline:
             # If JSON parsing fails, be cautious and block
             return False, "Unable to validate input", response
 
-    def _run_intent_classification(self, user_input: str) -> tuple[str, float, ChatResponse]:
+    def _run_intent_classification(
+        self, user_input: str
+    ) -> tuple[str, float, ChatResponse]:
         """
         Run the Intent Classification agent.
 
@@ -222,7 +268,10 @@ class AgentPipeline:
             temperature=0.0,
         )
 
-        self._debug_print("INTENT CLASSIFICATION", f"Input: {user_input}\nResponse: {response.content}")
+        self._debug_print(
+            "INTENT CLASSIFICATION",
+            f"Input: {user_input}\nResponse: {response.content}",
+        )
 
         if response.error:
             return "GENERAL_INQUIRY", 0.5, response
@@ -236,10 +285,7 @@ class AgentPipeline:
             return "GENERAL_INQUIRY", 0.5, response
 
     def _run_response_generation(
-        self,
-        user_input: str,
-        intent: str,
-        conversation_history: list[dict]
+        self, user_input: str, intent: str, conversation_history: list[dict]
     ) -> tuple[str, ChatResponse]:
         """
         Run the Response Generation agent.
@@ -276,10 +322,15 @@ CONVERSATION HISTORY:
             temperature=0.7,  # Slightly more creative for natural responses
         )
 
-        self._debug_print("RESPONSE GENERATION", f"Intent: {intent}\nResponse: {response.content}")
+        self._debug_print(
+            "RESPONSE GENERATION", f"Intent: {intent}\nResponse: {response.content}"
+        )
 
         if response.error:
-            return f"I apologize, but I'm having trouble processing your request. Error: {response.error}", response
+            return (
+                f"I apologize, but I'm having trouble processing your request. Error: {response.error}",
+                response,
+            )
 
         return response.content, response
 
@@ -311,38 +362,46 @@ CONVERSATION HISTORY:
             "response": None,
             "total_cost": 0.0,
             "total_latency_ms": 0.0,
-            "pipeline_steps": []
+            "pipeline_steps": [],
         }
 
         # Step 1: Critic/Supervisor validation
         allowed, reason, critic_response = self._run_critic(user_input)
-        result["pipeline_steps"].append({
-            "agent": "Critic/Supervisor",
-            "result": "ALLOW" if allowed else "BLOCK",
-            "reason": reason,
-            "cost": critic_response.cost,
-            "latency_ms": critic_response.latency_ms
-        })
+        result["pipeline_steps"].append(
+            {
+                "agent": "Critic/Supervisor",
+                "result": "ALLOW" if allowed else "BLOCK",
+                "reason": reason,
+                "cost": critic_response.cost,
+                "latency_ms": critic_response.latency_ms,
+            }
+        )
         result["total_cost"] += critic_response.cost
         result["total_latency_ms"] += critic_response.latency_ms
 
         if not allowed:
             result["blocked"] = True
             result["block_reason"] = reason
-            result["response"] = f"I'm sorry, but I can't process that request. {reason}"
+            result["response"] = (
+                f"I'm sorry, but I can't process that request. {reason}"
+            )
             return result
 
         # Step 2: Intent Classification
-        intent, confidence, intent_response = self._run_intent_classification(user_input)
+        intent, confidence, intent_response = self._run_intent_classification(
+            user_input
+        )
         result["intent"] = intent
         result["intent_confidence"] = confidence
-        result["pipeline_steps"].append({
-            "agent": "Intent Classification",
-            "intent": intent,
-            "confidence": confidence,
-            "cost": intent_response.cost,
-            "latency_ms": intent_response.latency_ms
-        })
+        result["pipeline_steps"].append(
+            {
+                "agent": "Intent Classification",
+                "intent": intent,
+                "confidence": confidence,
+                "cost": intent_response.cost,
+                "latency_ms": intent_response.latency_ms,
+            }
+        )
         result["total_cost"] += intent_response.cost
         result["total_latency_ms"] += intent_response.latency_ms
 
@@ -351,17 +410,21 @@ CONVERSATION HISTORY:
             user_input, intent, self.conversation_history
         )
         result["response"] = response_text
-        result["pipeline_steps"].append({
-            "agent": "Response Generation",
-            "cost": gen_response.cost,
-            "latency_ms": gen_response.latency_ms
-        })
+        result["pipeline_steps"].append(
+            {
+                "agent": "Response Generation",
+                "cost": gen_response.cost,
+                "latency_ms": gen_response.latency_ms,
+            }
+        )
         result["total_cost"] += gen_response.cost
         result["total_latency_ms"] += gen_response.latency_ms
 
         # Update conversation history
         self.conversation_history.append({"role": "user", "content": user_input})
-        self.conversation_history.append({"role": "assistant", "content": response_text})
+        self.conversation_history.append(
+            {"role": "assistant", "content": response_text}
+        )
 
         return result
 
@@ -369,6 +432,7 @@ CONVERSATION HISTORY:
 # ============================================================================
 # Console Chat Interface
 # ============================================================================
+
 
 class ConsoleChatInterface:
     """Interactive console chat interface."""
@@ -393,9 +457,9 @@ class ConsoleChatInterface:
 
     def initialize(self) -> bool:
         """Initialize the Azure OpenAI client and pipeline."""
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("  Phase 3.5 Interactive Chat - Manual Testing Interface")
-        print("="*60)
+        print("=" * 60)
         print("\nInitializing Azure OpenAI connection...")
 
         try:
@@ -430,30 +494,30 @@ class ConsoleChatInterface:
 
     def print_help(self) -> None:
         """Print available commands."""
-        print("\n" + "-"*40)
+        print("\n" + "-" * 40)
         print("Available Commands:")
-        print("-"*40)
+        print("-" * 40)
         for cmd, desc in self.COMMANDS.items():
             print(f"  {cmd:20} - {desc}")
-        print("-"*40)
+        print("-" * 40)
         print("Context types: order, return, product, billing, empty")
-        print("-"*40 + "\n")
+        print("-" * 40 + "\n")
 
     def print_stats(self) -> None:
         """Print usage statistics."""
         stats = self.client.get_usage_stats()
         within_budget, budget_msg = self.client.check_budget()
 
-        print("\n" + "-"*40)
+        print("\n" + "-" * 40)
         print("Usage Statistics:")
-        print("-"*40)
+        print("-" * 40)
         print(f"  Requests:        {stats['request_count']}")
         print(f"  Input Tokens:    {stats['total_input_tokens']:,}")
         print(f"  Output Tokens:   {stats['total_output_tokens']:,}")
         print(f"  Total Cost:      ${stats['total_cost']:.4f}")
         print(f"  Session Time:    {stats['session_duration_seconds']:.1f}s")
         print(f"  Budget Status:   {budget_msg}")
-        print("-"*40 + "\n")
+        print("-" * 40 + "\n")
 
     def handle_command(self, command: str) -> bool:
         """
@@ -485,9 +549,9 @@ class ConsoleChatInterface:
                     print("Available: order, return, product, billing, empty\n")
             else:
                 print("\nCurrent Context:")
-                print("-"*40)
+                print("-" * 40)
                 print(self.pipeline.get_context_str())
-                print("-"*40 + "\n")
+                print("-" * 40 + "\n")
 
         elif cmd == "/debug":
             self.debug = not self.debug
@@ -509,7 +573,9 @@ class ConsoleChatInterface:
 
         # Show intent if not blocked
         if not result["blocked"] and result["intent"]:
-            lines.append(f"[Intent: {result['intent']} ({result['intent_confidence']:.0%})]")
+            lines.append(
+                f"[Intent: {result['intent']} ({result['intent_confidence']:.0%})]"
+            )
 
         # Show response
         lines.append("")
@@ -517,7 +583,9 @@ class ConsoleChatInterface:
         lines.append("")
 
         # Show metrics
-        lines.append(f"[Cost: ${result['total_cost']:.4f} | Latency: {result['total_latency_ms']:.0f}ms]")
+        lines.append(
+            f"[Cost: ${result['total_cost']:.4f} | Latency: {result['total_latency_ms']:.0f}ms]"
+        )
 
         return "\n".join(lines)
 
@@ -530,8 +598,10 @@ class ConsoleChatInterface:
         self.print_help()
 
         print("\nChat started. Type your message or /help for commands.\n")
-        print(f"Customer Context: {self.pipeline.context.get('customer_name', 'Customer')}")
-        print("-"*60 + "\n")
+        print(
+            f"Customer Context: {self.pipeline.context.get('customer_name', 'Customer')}"
+        )
+        print("-" * 60 + "\n")
 
         while self.running:
             try:
@@ -564,16 +634,17 @@ class ConsoleChatInterface:
                 print(f"\n[ERROR] {e}\n")
 
         # Print final stats
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("Session ended.")
         self.print_stats()
         print("Thank you for testing!")
-        print("="*60 + "\n")
+        print("=" * 60 + "\n")
 
 
 # ============================================================================
 # Main Entry Point
 # ============================================================================
+
 
 def main():
     """Main entry point."""
@@ -593,20 +664,22 @@ Context Types:
     product - Product catalog and shipping info
     billing - Subscription and billing questions
     empty   - No specific context (general assistance)
-"""
+""",
     )
 
     parser.add_argument(
-        "--debug", "-d",
+        "--debug",
+        "-d",
         action="store_true",
-        help="Enable debug mode (show agent pipeline details)"
+        help="Enable debug mode (show agent pipeline details)",
     )
 
     parser.add_argument(
-        "--context", "-c",
+        "--context",
+        "-c",
         choices=["order", "return", "product", "billing", "empty"],
         default="order",
-        help="Initial context type (default: order)"
+        help="Initial context type (default: order)",
     )
 
     args = parser.parse_args()

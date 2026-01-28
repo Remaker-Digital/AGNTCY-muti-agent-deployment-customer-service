@@ -52,47 +52,73 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 # Import connection pool (optional - graceful fallback if not available)
 try:
     from shared.openai_pool import (
-        init_openai_pool, get_openai_pool, close_openai_pool,
-        AzureOpenAIPool, PoolConfig
+        init_openai_pool,
+        get_openai_pool,
+        close_openai_pool,
+        AzureOpenAIPool,
+        PoolConfig,
     )
+
     CONNECTION_POOL_AVAILABLE = True
     logger.info("Connection pool module loaded successfully")
 except ImportError as e:
     CONNECTION_POOL_AVAILABLE = False
-    logger.warning(f"Connection pool not available: {e}. Using direct Azure OpenAI calls.")
+    logger.warning(
+        f"Connection pool not available: {e}. Using direct Azure OpenAI calls."
+    )
 
 # =============================================================================
 # Request/Response Models
 # =============================================================================
 
+
 class ChatRequest(BaseModel):
     """Request model for chat endpoint."""
-    message: str = Field(..., min_length=1, max_length=4096, description="Customer message")
-    session_id: Optional[str] = Field(default=None, description="Session ID for conversation continuity")
-    language: Optional[str] = Field(default="en", description="Language code (en, fr-CA, es)")
+
+    message: str = Field(
+        ..., min_length=1, max_length=4096, description="Customer message"
+    )
+    session_id: Optional[str] = Field(
+        default=None, description="Session ID for conversation continuity"
+    )
+    language: Optional[str] = Field(
+        default="en", description="Language code (en, fr-CA, es)"
+    )
 
 
 class ChatResponse(BaseModel):
     """Response model for chat endpoint."""
+
     response: str = Field(..., description="AI-generated response")
     session_id: str = Field(..., description="Session ID for this conversation")
     intent: Optional[str] = Field(default=None, description="Classified intent")
-    confidence: Optional[float] = Field(default=None, description="Intent confidence score")
-    escalated: bool = Field(default=False, description="Whether the message was escalated")
-    processing_time_ms: int = Field(..., description="Total processing time in milliseconds")
-    agents_involved: list = Field(default_factory=list, description="Agents that processed this message")
+    confidence: Optional[float] = Field(
+        default=None, description="Intent confidence score"
+    )
+    escalated: bool = Field(
+        default=False, description="Whether the message was escalated"
+    )
+    processing_time_ms: int = Field(
+        ..., description="Total processing time in milliseconds"
+    )
+    agents_involved: list = Field(
+        default_factory=list, description="Agents that processed this message"
+    )
+    language: str = Field(
+        default="en", description="Language used for response (en, fr-CA, es)"
+    )
 
 
 class HealthResponse(BaseModel):
     """Health check response model."""
+
     status: str = Field(..., description="Service status (healthy/unhealthy)")
     timestamp: str = Field(..., description="Current timestamp")
     version: str = Field(..., description="API version")
@@ -102,6 +128,7 @@ class HealthResponse(BaseModel):
 
 class StatusResponse(BaseModel):
     """System status response model."""
+
     status: str
     timestamp: str
     metrics: Dict[str, Any]
@@ -109,14 +136,19 @@ class StatusResponse(BaseModel):
 
 class PoolStatsResponse(BaseModel):
     """Connection pool statistics response model."""
+
     pool_enabled: bool = Field(..., description="Whether connection pooling is active")
     pool_size: int = Field(default=0, description="Current pool size")
     active_connections: int = Field(default=0, description="Active connections")
     available_connections: int = Field(default=0, description="Available connections")
     total_requests: int = Field(default=0, description="Total requests through pool")
     total_errors: int = Field(default=0, description="Total errors")
-    circuit_breaker_state: str = Field(default="unknown", description="Circuit breaker state")
-    avg_wait_time_ms: float = Field(default=0.0, description="Average connection wait time")
+    circuit_breaker_state: str = Field(
+        default="unknown", description="Circuit breaker state"
+    )
+    avg_wait_time_ms: float = Field(
+        default=0.0, description="Average connection wait time"
+    )
     timestamp: str = Field(..., description="Current timestamp")
 
 
@@ -124,8 +156,10 @@ class PoolStatsResponse(BaseModel):
 # Application State
 # =============================================================================
 
+
 class AppState:
     """Application state container."""
+
     def __init__(self):
         self.start_time = time.time()
         self.request_count = 0
@@ -143,6 +177,7 @@ app_state = AppState()
 # =============================================================================
 # FastAPI Application
 # =============================================================================
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -163,20 +198,30 @@ async def lifespan(app: FastAPI):
                 pool_config = PoolConfig(
                     min_connections=int(os.getenv("POOL_MIN_CONNECTIONS", "2")),
                     max_connections=int(os.getenv("POOL_MAX_CONNECTIONS", "10")),
-                    connection_timeout=float(os.getenv("POOL_CONNECTION_TIMEOUT", "30.0")),
+                    connection_timeout=float(
+                        os.getenv("POOL_CONNECTION_TIMEOUT", "30.0")
+                    ),
                     max_retries=int(os.getenv("POOL_MAX_RETRIES", "3")),
-                    circuit_breaker_threshold=int(os.getenv("POOL_CIRCUIT_BREAKER_THRESHOLD", "5")),
-                    circuit_breaker_timeout=float(os.getenv("POOL_CIRCUIT_BREAKER_TIMEOUT", "60.0"))
+                    circuit_breaker_threshold=int(
+                        os.getenv("POOL_CIRCUIT_BREAKER_THRESHOLD", "5")
+                    ),
+                    circuit_breaker_timeout=float(
+                        os.getenv("POOL_CIRCUIT_BREAKER_TIMEOUT", "60.0")
+                    ),
                 )
 
                 app_state.openai_pool = await init_openai_pool(
                     endpoint=endpoint,
                     api_key=api_key,
-                    api_version=os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview"),
-                    config=pool_config
+                    api_version=os.getenv(
+                        "AZURE_OPENAI_API_VERSION", "2024-02-15-preview"
+                    ),
+                    config=pool_config,
                 )
                 app_state.pool_enabled = True
-                logger.info(f"Connection pool initialized: min={pool_config.min_connections}, max={pool_config.max_connections}")
+                logger.info(
+                    f"Connection pool initialized: min={pool_config.min_connections}, max={pool_config.max_connections}"
+                )
             else:
                 logger.warning("Azure OpenAI credentials not found - pool disabled")
         except Exception as e:
@@ -193,14 +238,20 @@ async def lifespan(app: FastAPI):
             app_state.azure_available = success
             logger.info(f"Azure OpenAI mode initialized: {success} - {msg}")
         else:
-            logger.warning("Azure OpenAI mode not available - will use fallback responses")
+            logger.warning(
+                "Azure OpenAI mode not available - will use fallback responses"
+            )
     except Exception as e:
         logger.error(f"Failed to initialize Azure OpenAI: {e}")
         app_state.azure_available = False
 
     logger.info("API Gateway ready to accept requests")
-    logger.info(f"  - Connection pool: {'enabled' if app_state.pool_enabled else 'disabled'}")
-    logger.info(f"  - Azure OpenAI: {'available' if app_state.azure_available else 'unavailable'}")
+    logger.info(
+        f"  - Connection pool: {'enabled' if app_state.pool_enabled else 'disabled'}"
+    )
+    logger.info(
+        f"  - Azure OpenAI: {'available' if app_state.azure_available else 'unavailable'}"
+    )
     yield
 
     # Shutdown
@@ -219,7 +270,7 @@ app = FastAPI(
     title="AGNTCY Customer Service API",
     description="HTTP REST API Gateway for the multi-agent customer service platform",
     version="1.0.0",
-    lifespan=lifespan
+    lifespan=lifespan,
 )
 
 # CORS middleware for browser-based testing
@@ -235,6 +286,7 @@ app.add_middleware(
 # =============================================================================
 # Middleware for Request Tracking
 # =============================================================================
+
 
 @app.middleware("http")
 async def track_requests(request: Request, call_next):
@@ -258,6 +310,7 @@ async def track_requests(request: Request, call_next):
 # API Endpoints
 # =============================================================================
 
+
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
     """
@@ -271,7 +324,7 @@ async def health_check():
         timestamp=datetime.utcnow().isoformat(),
         version="1.0.0",
         azure_openai_available=app_state.azure_available,
-        uptime_seconds=time.time() - app_state.start_time
+        uptime_seconds=time.time() - app_state.start_time,
     )
 
 
@@ -302,9 +355,11 @@ async def process_chat(request: ChatRequest):
     try:
         if app_state.azure_available and app_state.azure_mode:
             # Use Azure OpenAI pipeline (real AI responses)
+            # Pass language parameter for multi-language support (Phase 4+)
             result = await app_state.azure_mode.process_message(
                 message=request.message,
-                session_id=session_id
+                session_id=session_id,
+                language=request.language or "en",
             )
 
             processing_time_ms = int((time.time() - start_time) * 1000)
@@ -316,7 +371,8 @@ async def process_chat(request: ChatRequest):
                 confidence=result.intent_confidence,
                 escalated=result.escalation_needed,
                 processing_time_ms=processing_time_ms,
-                agents_involved=[step.agent_name for step in result.pipeline_steps]
+                agents_involved=[step.agent_name for step in result.pipeline_steps],
+                language=request.language or "en",
             )
         else:
             # Fallback: Simple mock response
@@ -329,14 +385,14 @@ async def process_chat(request: ChatRequest):
                 confidence=0.7,
                 escalated=False,
                 processing_time_ms=processing_time_ms,
-                agents_involved=["fallback-handler"]
+                agents_involved=["fallback-handler"],
+                language=request.language or "en",
             )
 
     except Exception as e:
         logger.error(f"Error processing chat request: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500,
-            detail=f"Failed to process message: {str(e)}"
+            status_code=500, detail=f"Failed to process message: {str(e)}"
         )
 
 
@@ -353,8 +409,11 @@ async def get_status():
     - Connection pool status (for auto-scaling)
     """
     uptime = time.time() - app_state.start_time
-    avg_latency = (app_state.total_latency_ms / app_state.request_count
-                   if app_state.request_count > 0 else 0)
+    avg_latency = (
+        app_state.total_latency_ms / app_state.request_count
+        if app_state.request_count > 0
+        else 0
+    )
 
     # Build metrics dict
     metrics = {
@@ -364,7 +423,7 @@ async def get_status():
         "error_rate": app_state.error_count / max(app_state.request_count, 1),
         "avg_latency_ms": avg_latency,
         "azure_openai_available": app_state.azure_available,
-        "connection_pool_enabled": app_state.pool_enabled
+        "connection_pool_enabled": app_state.pool_enabled,
     }
 
     # Add pool metrics if available
@@ -376,13 +435,11 @@ async def get_status():
             "total_requests": pool_metrics.total_requests,
             "total_errors": pool_metrics.total_errors,
             "avg_wait_time_ms": pool_metrics.avg_wait_time_ms,
-            "circuit_breaker_state": pool_metrics.circuit_breaker_state
+            "circuit_breaker_state": pool_metrics.circuit_breaker_state,
         }
 
     return StatusResponse(
-        status="operational",
-        timestamp=datetime.utcnow().isoformat(),
-        metrics=metrics
+        status="operational", timestamp=datetime.utcnow().isoformat(), metrics=metrics
     )
 
 
@@ -400,8 +457,7 @@ async def get_pool_stats():
     """
     if not app_state.pool_enabled or not app_state.openai_pool:
         return PoolStatsResponse(
-            pool_enabled=False,
-            timestamp=datetime.utcnow().isoformat()
+            pool_enabled=False, timestamp=datetime.utcnow().isoformat()
         )
 
     pool_metrics = app_state.openai_pool.get_metrics()
@@ -415,7 +471,7 @@ async def get_pool_stats():
         total_errors=pool_metrics.total_errors,
         circuit_breaker_state=pool_metrics.circuit_breaker_state,
         avg_wait_time_ms=pool_metrics.avg_wait_time_ms,
-        timestamp=datetime.utcnow().isoformat()
+        timestamp=datetime.utcnow().isoformat(),
     )
 
 
@@ -423,30 +479,41 @@ async def get_pool_stats():
 # Helper Functions
 # =============================================================================
 
+
 def _generate_fallback_response(message: str) -> str:
     """Generate a simple fallback response when Azure OpenAI is unavailable."""
     message_lower = message.lower()
 
-    if any(word in message_lower for word in ['order', 'tracking', 'shipped', 'delivery']):
-        return ("Thank you for your inquiry about your order. "
-                "I'm currently operating in limited mode. "
-                "Please check your email for tracking information or "
-                "contact our support team at support@example.com.")
+    if any(
+        word in message_lower for word in ["order", "tracking", "shipped", "delivery"]
+    ):
+        return (
+            "Thank you for your inquiry about your order. "
+            "I'm currently operating in limited mode. "
+            "Please check your email for tracking information or "
+            "contact our support team at support@example.com."
+        )
 
-    elif any(word in message_lower for word in ['return', 'refund', 'exchange']):
-        return ("Thank you for reaching out about returns. "
-                "Our return policy allows returns within 30 days. "
-                "Please contact support@example.com for assistance.")
+    elif any(word in message_lower for word in ["return", "refund", "exchange"]):
+        return (
+            "Thank you for reaching out about returns. "
+            "Our return policy allows returns within 30 days. "
+            "Please contact support@example.com for assistance."
+        )
 
-    elif any(word in message_lower for word in ['product', 'coffee', 'roast', 'brew']):
-        return ("Thank you for your interest in our products! "
-                "We offer a wide variety of premium coffees. "
-                "Please visit our website for detailed product information.")
+    elif any(word in message_lower for word in ["product", "coffee", "roast", "brew"]):
+        return (
+            "Thank you for your interest in our products! "
+            "We offer a wide variety of premium coffees. "
+            "Please visit our website for detailed product information."
+        )
 
     else:
-        return ("Thank you for your message. "
-                "I'm currently operating in limited mode. "
-                "A customer service representative will follow up shortly.")
+        return (
+            "Thank you for your message. "
+            "I'm currently operating in limited mode. "
+            "A customer service representative will follow up shortly."
+        )
 
 
 # =============================================================================
@@ -463,5 +530,5 @@ if __name__ == "__main__":
         "main:app",
         host=host,
         port=port,
-        reload=os.getenv("DEBUG", "false").lower() == "true"
+        reload=os.getenv("DEBUG", "false").lower() == "true",
     )

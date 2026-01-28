@@ -27,12 +27,14 @@ from unittest.mock import patch, AsyncMock, MagicMock
 
 import sys
 from pathlib import Path
+
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 
 # =============================================================================
 # Test Fixtures
 # =============================================================================
+
 
 @pytest.fixture
 def test_client():
@@ -47,6 +49,7 @@ def test_client():
 @pytest.fixture
 def mock_pool_metrics():
     """Mock pool metrics for testing."""
+
     class MockMetrics:
         pool_size = 5
         active_connections = 2
@@ -76,7 +79,7 @@ def mock_openai_pool(mock_pool_metrics):
         "total_connections": 5,
         "max_connections": 50,
         "circuit_breaker_open": False,
-        "metrics": mock_pool_metrics.__dict__
+        "metrics": mock_pool_metrics.__dict__,
     }
     return pool
 
@@ -84,6 +87,7 @@ def mock_openai_pool(mock_pool_metrics):
 # =============================================================================
 # Test: Pool Stats Endpoint
 # =============================================================================
+
 
 class TestPoolStatsEndpoint:
     """Tests for /api/v1/pool/stats endpoint."""
@@ -95,8 +99,8 @@ class TestPoolStatsEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        assert 'pool_enabled' in data
-        assert 'timestamp' in data
+        assert "pool_enabled" in data
+        assert "timestamp" in data
 
     @pytest.mark.skip(reason="Requires mock pool injection")
     def test_pool_stats_with_metrics(self, test_client, mock_openai_pool):
@@ -113,14 +117,18 @@ class TestPoolStatsEndpoint:
         data = response.json()
 
         # Required fields
-        assert 'pool_enabled' in data
-        assert 'timestamp' in data
+        assert "pool_enabled" in data
+        assert "timestamp" in data
 
         # Optional fields when pool is enabled
         expected_fields = [
-            'pool_size', 'active_connections', 'available_connections',
-            'total_requests', 'total_errors', 'circuit_breaker_state',
-            'avg_wait_time_ms'
+            "pool_size",
+            "active_connections",
+            "available_connections",
+            "total_requests",
+            "total_errors",
+            "circuit_breaker_state",
+            "avg_wait_time_ms",
         ]
 
         # These fields should exist (may be 0 or default if pool disabled)
@@ -132,6 +140,7 @@ class TestPoolStatsEndpoint:
 # Test: Status Endpoint Pool Integration
 # =============================================================================
 
+
 class TestStatusEndpointPoolIntegration:
     """Tests for pool information in /api/v1/status endpoint."""
 
@@ -142,8 +151,8 @@ class TestStatusEndpointPoolIntegration:
         assert response.status_code == 200
         data = response.json()
 
-        assert 'metrics' in data
-        assert 'connection_pool_enabled' in data['metrics']
+        assert "metrics" in data
+        assert "connection_pool_enabled" in data["metrics"]
 
     def test_status_pool_metrics_when_disabled(self, test_client):
         """Verify status shows pool disabled when not configured."""
@@ -153,17 +162,18 @@ class TestStatusEndpointPoolIntegration:
         data = response.json()
 
         # When pool is disabled, pool metrics should not be present
-        metrics = data['metrics']
+        metrics = data["metrics"]
         # connection_pool_enabled should be False or the pool section absent
-        if 'pool' in metrics:
+        if "pool" in metrics:
             # If pool section exists, verify it has expected structure
-            pool_metrics = metrics['pool']
-            assert 'active_connections' in pool_metrics
+            pool_metrics = metrics["pool"]
+            assert "active_connections" in pool_metrics
 
 
 # =============================================================================
 # Test: Health Endpoint
 # =============================================================================
+
 
 class TestHealthEndpoint:
     """Tests for /health endpoint."""
@@ -174,7 +184,7 @@ class TestHealthEndpoint:
 
         assert response.status_code == 200
         data = response.json()
-        assert data['status'] == 'healthy'
+        assert data["status"] == "healthy"
 
     def test_health_includes_azure_status(self, test_client):
         """Verify health includes Azure OpenAI availability."""
@@ -183,8 +193,8 @@ class TestHealthEndpoint:
         assert response.status_code == 200
         data = response.json()
 
-        assert 'azure_openai_available' in data
-        assert isinstance(data['azure_openai_available'], bool)
+        assert "azure_openai_available" in data
+        assert isinstance(data["azure_openai_available"], bool)
 
     def test_health_includes_uptime(self, test_client):
         """Verify health includes uptime metric."""
@@ -193,13 +203,14 @@ class TestHealthEndpoint:
         assert response.status_code == 200
         data = response.json()
 
-        assert 'uptime_seconds' in data
-        assert data['uptime_seconds'] >= 0
+        assert "uptime_seconds" in data
+        assert data["uptime_seconds"] >= 0
 
 
 # =============================================================================
 # Test: Pool Configuration via Environment
 # =============================================================================
+
 
 class TestPoolConfiguration:
     """Tests for pool configuration via environment variables."""
@@ -207,27 +218,30 @@ class TestPoolConfiguration:
     def test_pool_env_vars_documented(self):
         """Verify expected environment variables are documented."""
         expected_vars = [
-            'USE_CONNECTION_POOL',
-            'POOL_MIN_CONNECTIONS',
-            'POOL_MAX_CONNECTIONS',
-            'POOL_CONNECTION_TIMEOUT',
-            'POOL_MAX_RETRIES',
-            'POOL_CIRCUIT_BREAKER_THRESHOLD',
-            'POOL_CIRCUIT_BREAKER_TIMEOUT'
+            "USE_CONNECTION_POOL",
+            "POOL_MIN_CONNECTIONS",
+            "POOL_MAX_CONNECTIONS",
+            "POOL_CONNECTION_TIMEOUT",
+            "POOL_MAX_RETRIES",
+            "POOL_CIRCUIT_BREAKER_THRESHOLD",
+            "POOL_CIRCUIT_BREAKER_TIMEOUT",
         ]
 
         # Read the main.py to verify these are documented
         main_path = Path(__file__).parent.parent.parent / "api_gateway" / "main.py"
-        with open(main_path, 'r') as f:
+        with open(main_path, "r") as f:
             content = f.read()
 
         for var in expected_vars:
-            assert var in content, f"Environment variable {var} not found in api_gateway/main.py"
+            assert (
+                var in content
+            ), f"Environment variable {var} not found in api_gateway/main.py"
 
 
 # =============================================================================
 # Test: Async Operations
 # =============================================================================
+
 
 @pytest.mark.asyncio
 class TestAsyncPoolOperations:
@@ -241,7 +255,7 @@ class TestAsyncPoolOperations:
             AzureOpenAIPool,
             init_openai_pool,
             get_openai_pool,
-            close_openai_pool
+            close_openai_pool,
         )
 
         assert PoolConfig is not None
@@ -256,7 +270,7 @@ class TestAsyncPoolOperations:
             min_connections=2,
             max_connections=10,
             connection_timeout=30.0,
-            enable_circuit_breaker=True
+            enable_circuit_breaker=True,
         )
 
         assert config.min_connections == 2
@@ -269,6 +283,7 @@ class TestAsyncPoolOperations:
 # Test: Circuit Breaker Integration
 # =============================================================================
 
+
 class TestCircuitBreakerIntegration:
     """Tests for circuit breaker behavior in API Gateway context."""
 
@@ -279,7 +294,7 @@ class TestCircuitBreakerIntegration:
         assert response.status_code == 200
         data = response.json()
 
-        assert 'circuit_breaker_state' in data
+        assert "circuit_breaker_state" in data
 
     @pytest.mark.skip(reason="Requires running pool with failures")
     def test_circuit_breaker_opens_on_failures(self):
@@ -292,6 +307,7 @@ class TestCircuitBreakerIntegration:
 # Test: KEDA Metrics Compatibility
 # =============================================================================
 
+
 class TestKEDAMetricsCompatibility:
     """Tests for KEDA scaling metrics compatibility."""
 
@@ -303,11 +319,7 @@ class TestKEDAMetricsCompatibility:
         data = response.json()
 
         # KEDA can use these metrics for scaling decisions
-        keda_relevant_metrics = [
-            'active_connections',
-            'total_requests',
-            'total_errors'
-        ]
+        keda_relevant_metrics = ["active_connections", "total_requests", "total_errors"]
 
         for metric in keda_relevant_metrics:
             assert metric in data, f"KEDA metric {metric} missing from pool stats"
@@ -320,19 +332,25 @@ class TestKEDAMetricsCompatibility:
         data = response.json()
 
         numeric_fields = [
-            'pool_size', 'active_connections', 'available_connections',
-            'total_requests', 'total_errors', 'avg_wait_time_ms'
+            "pool_size",
+            "active_connections",
+            "available_connections",
+            "total_requests",
+            "total_errors",
+            "avg_wait_time_ms",
         ]
 
         for field in numeric_fields:
             if field in data:
-                assert isinstance(data[field], (int, float)), \
-                    f"Field {field} should be numeric"
+                assert isinstance(
+                    data[field], (int, float)
+                ), f"Field {field} should be numeric"
 
 
 # =============================================================================
 # Test: Graceful Degradation
 # =============================================================================
+
 
 class TestGracefulDegradation:
     """Tests for graceful degradation when pool is unavailable."""
@@ -340,8 +358,7 @@ class TestGracefulDegradation:
     def test_chat_works_without_pool(self, test_client):
         """Verify chat endpoint works even without pool."""
         response = test_client.post(
-            "/api/v1/chat",
-            json={"message": "Hello, test message"}
+            "/api/v1/chat", json={"message": "Hello, test message"}
         )
 
         # Should not fail due to pool issues
@@ -356,4 +373,4 @@ class TestGracefulDegradation:
         data = response.json()
 
         # Status should indicate pool is disabled
-        assert 'metrics' in data
+        assert "metrics" in data

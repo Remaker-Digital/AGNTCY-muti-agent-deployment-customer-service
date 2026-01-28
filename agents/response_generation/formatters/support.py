@@ -11,19 +11,25 @@ from agents.response_generation.formatters.product import format_product_info
 
 def format_shipping_question(knowledge_context: List[Dict[str, Any]]) -> str:
     """Format shipping information response."""
-    shipping_items = [item for item in knowledge_context if "shipping" in item.get("source", "").lower()]
+    shipping_items = [
+        item
+        for item in knowledge_context
+        if "shipping" in item.get("source", "").lower()
+    ]
 
     if not shipping_items:
-        return ("I'm happy to help with shipping information!\n\n"
-               "**Standard Shipping (USPS Priority Mail):**\n"
-               "- FREE on orders over $75\n"
-               "- FREE for all auto-delivery subscribers\n"
-               "- 3-5 business days delivery\n"
-               "- $8.50 for orders under $75\n\n"
-               "**Express Shipping Options:**\n"
-               "- UPS 2-Day: $15\n"
-               "- UPS Next Day: $25\n\n"
-               "We also ship to Canada and Mexico! Do you have a specific shipping question?")
+        return (
+            "I'm happy to help with shipping information!\n\n"
+            "**Standard Shipping (USPS Priority Mail):**\n"
+            "- FREE on orders over $75\n"
+            "- FREE for all auto-delivery subscribers\n"
+            "- 3-5 business days delivery\n"
+            "- $8.50 for orders under $75\n\n"
+            "**Express Shipping Options:**\n"
+            "- UPS 2-Day: $15\n"
+            "- UPS Next Day: $25\n\n"
+            "We also ship to Canada and Mexico! Do you have a specific shipping question?"
+        )
 
     shipping_info = shipping_items[0]
     title = shipping_info.get("title", "")
@@ -36,7 +42,9 @@ def format_shipping_question(knowledge_context: List[Dict[str, Any]]) -> str:
 
 """
 
-    scenarios = [item for item in shipping_items if item.get("type") == "recommendation"]
+    scenarios = [
+        item for item in shipping_items if item.get("type") == "recommendation"
+    ]
     if scenarios:
         response += "**Recommendations:**\n"
         for scenario in scenarios[:2]:
@@ -52,7 +60,11 @@ def format_shipping_question(knowledge_context: List[Dict[str, Any]]) -> str:
 
 def format_subscription(knowledge_context: List[Dict[str, Any]]) -> str:
     """Format auto-delivery subscription response."""
-    sub_items = [item for item in knowledge_context if "subscription" in item.get("source", "").lower()]
+    sub_items = [
+        item
+        for item in knowledge_context
+        if "subscription" in item.get("source", "").lower()
+    ]
 
     if sub_items:
         sub_info = sub_items[0]
@@ -70,13 +82,15 @@ def format_subscription(knowledge_context: List[Dict[str, Any]]) -> str:
         response += "- Pause or cancel anytime\n\n"
         response += "Would you like help managing your subscription, or do you have questions about signing up?"
     else:
-        response = ("Our Auto-Delivery subscription ensures you never run out of your favorite coffee!\n\n"
-                   "**Benefits:**\n"
-                   "✓ Free shipping on every order\n"
-                   "✓ Flexible scheduling\n"
-                   "✓ Skip or modify anytime\n"
-                   "✓ No commitment - cancel anytime\n\n"
-                   "Would you like to set up auto-delivery for your favorite coffee?")
+        response = (
+            "Our Auto-Delivery subscription ensures you never run out of your favorite coffee!\n\n"
+            "**Benefits:**\n"
+            "✓ Free shipping on every order\n"
+            "✓ Flexible scheduling\n"
+            "✓ Skip or modify anytime\n"
+            "✓ No commitment - cancel anytime\n\n"
+            "Would you like to set up auto-delivery for your favorite coffee?"
+        )
 
     return response
 
@@ -90,7 +104,9 @@ def format_gift_card(knowledge_context: List[Dict[str, Any]]) -> str:
         return format_product_info(knowledge_context)
 
     # Policy information response
-    gift_items = [item for item in knowledge_context if "gift" in item.get("source", "").lower()]
+    gift_items = [
+        item for item in knowledge_context if "gift" in item.get("source", "").lower()
+    ]
 
     if gift_items:
         gift_info = gift_items[0]
@@ -109,13 +125,15 @@ def format_gift_card(knowledge_context: List[Dict[str, Any]]) -> str:
         response += "Gift cards never expire and can be used for any products on our site, including brewers, pods, and accessories.\n\n"
         response += "Would you like to purchase a gift card?"
     else:
-        response = ("Gift cards are a perfect gift for any coffee lover!\n\n"
-                   "**Options:**\n"
-                   "- Virtual Gift Card (instant email delivery)\n"
-                   "- Physical Gift Card (beautiful gift packaging, 2-5 business days)\n\n"
-                   "**Amounts:** $25 to $200\n"
-                   "**Expiration:** Never\n\n"
-                   "Would you like to purchase a gift card?")
+        response = (
+            "Gift cards are a perfect gift for any coffee lover!\n\n"
+            "**Options:**\n"
+            "- Virtual Gift Card (instant email delivery)\n"
+            "- Physical Gift Card (beautiful gift packaging, 2-5 business days)\n\n"
+            "**Amounts:** $25 to $200\n"
+            "**Expiration:** Never\n\n"
+            "Would you like to purchase a gift card?"
+        )
 
     return response
 
@@ -130,8 +148,11 @@ def format_loyalty(knowledge_context: List[Dict[str, Any]]) -> str:
             break
 
     # Extract program info
-    program_sections = [item for item in knowledge_context
-                      if item.get("type") == "policy" and "loyalty" in item.get("source", "").lower()]
+    program_sections = [
+        item
+        for item in knowledge_context
+        if item.get("type") == "policy" and "loyalty" in item.get("source", "").lower()
+    ]
 
     redemption_tiers = None
     membership_tiers = None
@@ -143,7 +164,11 @@ def format_loyalty(knowledge_context: List[Dict[str, Any]]) -> str:
 
     # Personalized response
     if balance_data:
-        customer_name = balance_data.get("customer_name", "").split()[0] if balance_data.get("customer_name") else ""
+        customer_name = (
+            balance_data.get("customer_name", "").split()[0]
+            if balance_data.get("customer_name")
+            else ""
+        )
         greeting = f"Hi {customer_name},\n\n" if customer_name else ""
 
         current_balance = balance_data.get("current_balance", 0)
@@ -168,20 +193,27 @@ def format_loyalty(knowledge_context: List[Dict[str, Any]]) -> str:
 **Tier:** {tier}{' 🌟' if tier == 'Gold' else ' ⭐' if tier == 'Silver' else ''}"""
 
         if next_tier and points_to_next_tier > 0:
-            response += f"\n**Progress to {next_tier}:** {points_to_next_tier} points away"
+            response += (
+                f"\n**Progress to {next_tier}:** {points_to_next_tier} points away"
+            )
 
         if auto_delivery:
             response += "\n**Status:** Auto-Delivery Subscriber (2X points!)"
 
         if points_expiring > 0:
-            response += f"\n⚠️ **Expiring Soon:** {points_expiring} points expire in 30 days"
+            response += (
+                f"\n⚠️ **Expiring Soon:** {points_expiring} points expire in 30 days"
+            )
 
         if available_redemptions:
             response += "\n\n**You Can Redeem:**\n"
             for option in available_redemptions[:3]:
                 response += f"✓ {option}\n"
         else:
-            if redemption_tiers and redemption_tiers[0].get("points_required", 0) > current_balance:
+            if (
+                redemption_tiers
+                and redemption_tiers[0].get("points_required", 0) > current_balance
+            ):
                 points_needed = redemption_tiers[0]["points_required"] - current_balance
                 response += f"\n\nYou need {points_needed} more points to redeem your first reward!"
 
@@ -221,18 +253,22 @@ def format_loyalty(knowledge_context: List[Dict[str, Any]]) -> str:
                 response += f"✓ **{tier_name}:** {earning_rate}x points per $1\n"
             response += "\n"
 
-        response += "**How to Join:** Automatic enrollment with your first purchase!\n\n"
+        response += (
+            "**How to Join:** Automatic enrollment with your first purchase!\n\n"
+        )
         response += "Check your points balance anytime in your account dashboard."
 
     # Fallback response
     else:
-        response = ("**Loyalty Rewards Program**\n\n"
-                   "Earn points with every purchase!\n\n"
-                   "✓ 1 point per $1 spent\n"
-                   "✓ 2x points for auto-delivery subscribers\n"
-                   "✓ 100 points = $5 reward\n"
-                   "✓ Birthday bonus points\n"
-                   "✓ Referral rewards\n\n"
-                   "You're automatically enrolled with your first purchase. Questions about your points?")
+        response = (
+            "**Loyalty Rewards Program**\n\n"
+            "Earn points with every purchase!\n\n"
+            "✓ 1 point per $1 spent\n"
+            "✓ 2x points for auto-delivery subscribers\n"
+            "✓ 100 points = $5 reward\n"
+            "✓ Birthday bonus points\n"
+            "✓ Referral rewards\n\n"
+            "You're automatically enrolled with your first purchase. Questions about your points?"
+        )
 
     return response
