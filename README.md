@@ -25,11 +25,13 @@ This project accompanies a blog post series and serves as a hands-on learning re
 ## Key Performance Indicators
 
 The platform demonstrates:
-- Response time: < 2 seconds P95 (achieved: 0.11ms local, <2s production)
+- Response time: < 30 seconds P95 (achieved: 14.9s with AI, 0.11ms infrastructure-only)*
 - CSAT score: > 80% target
 - Automation rate: > 70% of inquiries
 - Cost efficiency: 90-97% savings vs enterprise alternatives
 - Scalability: 10,000 daily users with auto-scaling
+
+*Note: Response times include 4 sequential Azure OpenAI API calls (Critic → Intent → Escalation → Response). Infrastructure latency is <100ms; AI inference adds 3-6 seconds per call. See [Load Test Report](tests/load/LOAD-TEST-REPORT-2026-01-27.md) for details.
 
 ## Architecture
 
@@ -91,7 +93,7 @@ The platform demonstrates:
 | Operational Dashboard | Azure Workbooks with 10 alert rules | ✅ Complete |
 | Security Remediation | 15 security findings addressed (BOLA, injection, rate limiting) | ✅ Complete |
 
-**Test Coverage:** 1,178 tests total (85% coverage)
+**Test Coverage:** 1,351 tests total (85% coverage)
 
 ### Phase 7: Platform Expansion (Planned)
 - **Budget**: +$27-60/month
@@ -234,8 +236,40 @@ pytest tests/ -v
 # Run with coverage
 pytest tests/ --cov=agents --cov=shared --cov-report=html
 
-# Current: 1,178 tests, 85% coverage
+# Current: 1,351 tests, 85% coverage
 ```
+
+### Building the Chat Widget
+
+```bash
+# Navigate to widget directory
+cd widget
+
+# Install dependencies
+npm ci
+
+# Run tests
+npm test
+
+# Build for production
+npm run build
+
+# Output: widget/dist/agntcy-chat.min.js
+```
+
+### Service Ports (Local Development)
+
+| Service | Port | Endpoint |
+|---------|------|----------|
+| SLIM Gateway | 46357 | http://localhost:46357 |
+| NATS | 4222 | nats://localhost:4222 |
+| Console (Streamlit) | 8501 | http://localhost:8501 |
+| Mock Shopify | 5001 | http://localhost:5001 |
+| Mock Zendesk | 5002 | http://localhost:5002 |
+| Mock Mailchimp | 5003 | http://localhost:5003 |
+| Mock Google Analytics | 5004 | http://localhost:5004 |
+
+**Source of truth:** `docker-compose.yml`
 
 ## Project Structure
 
@@ -248,6 +282,9 @@ pytest tests/ --cov=agents --cov=shared --cov-report=html
 │   ├── escalation/
 │   ├── analytics/
 │   └── critic_supervisor/
+├── api_gateway/                 # FastAPI gateway for HTTP→SLIM bridging
+│   ├── main.py                 # REST API endpoints
+│   └── Dockerfile              # Container configuration
 ├── mocks/                       # Mock APIs (Phase 1-3)
 ├── shared/                      # Shared utilities
 │   ├── factory.py              # AGNTCY factory singleton
@@ -255,11 +292,13 @@ pytest tests/ --cov=agents --cov=shared --cov-report=html
 │   ├── openai_pool.py          # Connection pooling
 │   └── cosmosdb_pool.py        # Database client
 ├── console/                     # Streamlit dev console
+├── config/                      # Configuration files
+│   └── content_policy.json     # Critic agent content policies
 ├── content/                     # RAG content and templates
 │   └── templates/              # Merchant content templates
 ├── scripts/                     # Operational scripts
 │   └── content_manager/        # RAG ingestion tool
-├── tests/                       # Test suites (1,178 tests)
+├── tests/                       # Test suites (1,351 tests)
 ├── terraform/                   # Infrastructure as Code
 │   └── phase4_prod/            # Azure production
 ├── evaluation/                  # AI model evaluation
@@ -378,4 +417,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Infrastructure**: 9/9 containers running, auto-scaling implemented, 10,000 daily user capacity
 
-**Test Count**: 1,178 tests (85% coverage)
+**Test Count**: 1,351 tests (85% coverage)

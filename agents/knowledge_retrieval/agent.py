@@ -66,7 +66,31 @@ class KnowledgeRetrievalAgent(BaseAgent):
             f"Phase 2 clients initialized (Shopify: {shopify_url}, KB: {kb_path})"
         )
 
-        # Phase 4+: Embedding cache for semantic search
+        # -------------------------------------------------------------------------
+        # Phase 4+: Embedding Cache for Semantic Search
+        # -------------------------------------------------------------------------
+        # Purpose: Reduces Azure OpenAI API calls by caching embeddings
+        #
+        # Cache Key Strategy: First 200 characters of text
+        # - Pros: Fast lookup, bounded memory, handles long documents
+        # - Cons: POTENTIAL COLLISION RISK if two different texts share the
+        #   same first 200 characters but differ later
+        #
+        # Collision Risk Assessment: LOW for production use case
+        # - Customer queries are typically <100 characters
+        # - Product descriptions rarely share 200-char prefixes
+        # - Policy documents have unique headers
+        #
+        # Mitigation (if collisions occur):
+        # 1. Use hash of full text as cache key: hashlib.sha256(text.encode()).hexdigest()
+        # 2. Add text length to cache key: f"{text[:200]}|{len(text)}"
+        # 3. Use LRU cache with full text comparison
+        #
+        # Monitoring: Track cache hit/miss ratio in Application Insights
+        # If miss ratio suddenly increases, investigate potential collisions.
+        #
+        # See: _generate_embedding() method for cache implementation
+        # -------------------------------------------------------------------------
         self._embedding_cache: Dict[str, List[float]] = {}
 
         # Additional counters for knowledge retrieval tracking
@@ -788,10 +812,26 @@ class KnowledgeRetrievalAgent(BaseAgent):
         return min(avg_relevance + diversity_boost, 1.0)
 
     async def _generate_embedding(self, text: str) -> Optional[List[float]]:
-        """Generate embedding for text using Azure OpenAI text-embedding-3-large."""
+        """
+        Generate embedding for text using Azure OpenAI text-embedding-3-large.
+
+        Caching Strategy:
+        - Uses first 200 characters as cache key for performance
+        - This is a tradeoff: O(1) lookup vs. potential collision risk
+        - See __init__ for detailed collision risk assessment
+
+        Args:
+            text: Text to generate embedding for
+
+        Returns:
+            List of floats (1536 dimensions for text-embedding-3-large)
+            or None if embedding generation fails
+        """
         if not self.openai_client:
             return None
 
+        # Cache key: first 200 chars (see __init__ for collision risk discussion)
+        # If collisions become an issue, change to: hashlib.sha256(text.encode()).hexdigest()
         cache_key = text[:200]
         if cache_key in self._embedding_cache:
             return self._embedding_cache[cache_key]

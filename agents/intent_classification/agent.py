@@ -119,7 +119,25 @@ Respond with ONLY a JSON object:
 No other text."""
 
 
-# Mapping from OpenAI intents to internal Intent enum
+# ============================================================================
+# Intent Mapping: OpenAI Classification → Internal Intent Enum
+# ============================================================================
+# Purpose: Maps the 17 intents recognized by the OpenAI classifier to our
+# internal Intent enum values for downstream agent routing.
+#
+# Design Rationale:
+# - OpenAI classifies into fine-grained intents (17 categories)
+# - Internal routing uses consolidated intents (fewer agents)
+# - Some OpenAI intents map to the same internal intent for efficiency
+#
+# Key Mappings Explained:
+# 1. EXCHANGE → RETURN_REQUEST: See detailed note below
+# 2. TRACKING_UPDATE → ORDER_STATUS: Both use the same order lookup flow
+# 3. COMPLAINT/BILLING_ISSUE → ESCALATION_NEEDED: Require human judgment
+# 4. ACCOUNT_HELP/FEEDBACK → GENERAL_INQUIRY: Handled by knowledge base
+#
+# See: docs/WIKI-Intent-Routing.md for complete routing decision tree
+# ============================================================================
 INTENT_MAPPING = {
     "ORDER_STATUS": Intent.ORDER_STATUS,
     "RETURN_REQUEST": Intent.RETURN_REQUEST,
@@ -135,7 +153,33 @@ INTENT_MAPPING = {
     "FEEDBACK": Intent.GENERAL_INQUIRY,
     "GENERAL_INQUIRY": Intent.GENERAL_INQUIRY,
     "CANCELLATION": Intent.ORDER_MODIFICATION,
-    "EXCHANGE": Intent.RETURN_REQUEST,  # Exchange handled through returns flow
+    # -------------------------------------------------------------------------
+    # EXCHANGE → RETURN_REQUEST Mapping
+    # -------------------------------------------------------------------------
+    # Business Rationale:
+    # Exchanges are processed through the returns flow because:
+    # 1. Both require order validation (confirm item was purchased)
+    # 2. Both require eligibility check (30-day window, item condition)
+    # 3. Both generate RMA numbers for tracking
+    # 4. Both may involve shipping labels and refund calculations
+    #
+    # Process Flow:
+    # - Customer requests exchange → Intent classified as EXCHANGE
+    # - Mapped to RETURN_REQUEST → Routed to knowledge-retrieval
+    # - Order data retrieved → Response generator creates return flow
+    # - format_return_request() in order.py handles both cases
+    #
+    # Future Enhancement:
+    # If exchange-specific logic is needed (e.g., different size availability
+    # check, direct swap without refund), create a separate EXCHANGE intent
+    # and dedicated handler in response_generation/formatters/.
+    #
+    # Related Files:
+    # - agents/response_generation/formatters/order.py (format_return_request)
+    # - evaluation/prompts/intent_classification_final.txt (classification rules)
+    # - docs/WIKI-Intent-Routing.md (routing documentation)
+    # -------------------------------------------------------------------------
+    "EXCHANGE": Intent.RETURN_REQUEST,
     "LOYALTY_PROGRAM": Intent.LOYALTY_PROGRAM,
     "ESCALATION_REQUEST": Intent.ESCALATION_NEEDED,
 }

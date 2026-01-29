@@ -2,13 +2,60 @@
 Product-related response formatters.
 
 Handles: PRODUCT_INFO, PRODUCT_RECOMMENDATION, PRODUCT_COMPARISON, BREWER_SUPPORT
+
+These formatters transform raw knowledge retrieval results into customer-friendly
+responses. Each formatter follows the same pattern:
+1. Extract relevant items from knowledge_context by type
+2. Handle empty/missing data with helpful fallback responses
+3. Format data into a conversational, informative response
+4. Include calls-to-action to guide the customer journey
+
+Educational Note:
+- All formatters receive knowledge_context from the KnowledgeRetrievalAgent
+- The context is a list of dicts, each with a "type" field for filtering
+- Responses use Markdown formatting for rich display in chat widgets
 """
 
 from typing import List, Dict, Any
 
 
 def format_product_info(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format detailed product information response."""
+    """
+    Format detailed product information response.
+
+    Extracts product data from knowledge context and creates a comprehensive
+    product information response including name, price, description, features,
+    and availability status.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected item format for products:
+            {
+                "type": "product",
+                "name": str,
+                "description": str,
+                "price": float,
+                "category": str,
+                "sku": str (optional),
+                "features": List[str] (optional),
+                "in_stock": bool,
+                "inventory_count": int (optional),
+                "variant_name": str (optional)
+            }
+
+    Returns:
+        str: Formatted product information response with:
+            - Product name, category, price, SKU
+            - Description and key features
+            - Stock availability with urgency messaging
+            - Related product suggestions if available
+            - Call-to-action for next steps
+
+    Business Logic:
+        - Low stock (<=5) triggers urgency messaging
+        - Out of stock offers notification signup
+        - Shows up to 2 related products from same query
+    """
     products = [item for item in knowledge_context if item.get("type") == "product"]
 
     if not products:
@@ -89,7 +136,36 @@ Price: ${price:.2f}"""
 
 
 def format_product_recommendation(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format personalized product recommendations."""
+    """
+    Format personalized product recommendations.
+
+    Creates a numbered list of product recommendations with explanations
+    for why each product was suggested based on customer preferences.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected item format for recommendations:
+            {
+                "type": "recommendation",
+                "name": str,
+                "price": float,
+                "description": str,
+                "why_recommended": str  # Personalization explanation
+            }
+
+    Returns:
+        str: Formatted recommendation response with:
+            - Numbered product list (up to 3)
+            - Price and truncated description for each
+            - Personalized "why I recommend this" explanation
+            - Brand messaging (Guilt Free Toss®)
+            - Call-to-action for cart or alternative suggestions
+
+    Business Logic:
+        - Shows max 3 recommendations to avoid overwhelming customer
+        - Descriptions truncated to 100 chars for readability
+        - Falls back to preference-gathering questions if no recommendations
+    """
     recommendations = [
         item for item in knowledge_context if item.get("type") == "recommendation"
     ]
@@ -125,7 +201,37 @@ Why I recommend this: {why}
 
 
 def format_product_comparison(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format product comparison response."""
+    """
+    Format product comparison response.
+
+    Creates a side-by-side comparison of multiple products to help
+    customers make informed purchasing decisions.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected item format for products:
+            {
+                "type": "product",
+                "name": str,
+                "price": float,
+                "category": str,
+                "features": List[str] (optional)
+            }
+
+    Returns:
+        str: Formatted comparison response with:
+            - Product name and price for each item
+            - Category classification
+            - Top 3 features per product
+            - Neutral recommendation (no bias)
+            - Offer for more details or decision help
+
+    Business Logic:
+        - Requires at least 2 products for comparison
+        - Shows max 3 products to keep comparison manageable
+        - Features limited to 3 per product for readability
+        - Avoids recommending specific product (customer choice)
+    """
     products = [item for item in knowledge_context if item.get("type") == "product"]
 
     if len(products) < 2:
@@ -156,7 +262,56 @@ Category: {category.title()}
 
 
 def format_brewer_support(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format brewer troubleshooting response."""
+    """
+    Format brewer troubleshooting response.
+
+    Handles technical support queries for coffee brewers, providing
+    step-by-step troubleshooting or maintenance instructions.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected item formats:
+
+            For troubleshooting:
+            {
+                "source": "brewer_support",
+                "type": "troubleshooting",
+                "issue": str,
+                "solutions": List[str],
+                "escalation_needed": bool
+            }
+
+            For maintenance:
+            {
+                "source": "brewer_support",
+                "type": "maintenance",
+                "title": str,
+                "instructions": str,
+                "product_recommendation": str
+            }
+
+            For general support:
+            {
+                "source": "brewer_support",
+                "type": "general",
+                "title": str,
+                "content": str,
+                "contact": str
+            }
+
+    Returns:
+        str: Formatted support response based on issue type:
+            - Troubleshooting: Numbered solution steps + escalation offer
+            - Maintenance: Instructions + product upsell
+            - General: Information + contact details
+
+    Business Logic:
+        - If products in context, delegates to format_product_info()
+          (handles "how much is the brewer" type queries)
+        - Escalation flag triggers warranty/replacement messaging
+        - Maintenance responses include product upsell opportunity
+        - 2-year warranty mentioned for escalation scenarios
+    """
     # Check if products are in context (product info query, not troubleshooting)
     products = [item for item in knowledge_context if item.get("type") == "product"]
 

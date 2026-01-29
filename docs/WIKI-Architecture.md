@@ -43,7 +43,7 @@ This is an **educational example project** demonstrating how to build a cost-eff
 
 ### Success Criteria
 
-- **Response Time:** <2 minutes for customer queries
+- **Response Time:** <30 seconds (P95) for customer queries (achieved: 14.9s with AI)*
 - **Automation Rate:** >70% of queries handled without human intervention
 - **Availability:** 99.9% uptime during business hours
 - **Cost Efficiency:** Operate within $310-360/month budget (Phase 4-5), optimize to $200-250/month post-Phase 5
@@ -120,10 +120,10 @@ This is an **educational example project** demonstrating how to build a cost-eff
 | SLIM Gateway | 10.0.1.4 | 8443 | ✅ Running | slim-gateway:latest (custom) |
 | NATS JetStream | 10.0.1.5 | 4222 | ✅ Running | nats:2.10-alpine |
 | Knowledge Retrieval | 10.0.1.6 | 8080 | ✅ Running | knowledge-retrieval:v1.1.1-fix |
-| Critic/Supervisor | 10.0.1.8 | 8080 | ✅ Running | critic-supervisor:v1.1.0-openai |
+| Critic/Supervisor | 10.0.1.7 | 8080 | ✅ Running | critic-supervisor:v1.1.0-openai |
+| Response Generator | 10.0.1.8 | 8080 | ✅ Running | response-generator:v1.1.0-openai |
 | Analytics | 10.0.1.9 | 8080 | ✅ Running | analytics:v1.1.0-openai |
-| Intent Classifier | 10.0.1.9 | 8080 | ✅ Running | intent-classifier:v1.1.0-openai |
-| Response Generator | 10.0.1.10 | 8080 | ✅ Running | response-generator:v1.1.0-openai |
+| Intent Classifier | 10.0.1.10 | 8080 | ✅ Running | intent-classifier:v1.1.0-openai |
 | Escalation | 10.0.1.11 | 8080 | ✅ Running | escalation:v1.1.0-openai |
 
 **Container Issues Fixed (2026-01-27):**
@@ -1516,7 +1516,7 @@ az cosmosdb list --resource-group agntcy-prod-rg
 
 | Metric | Target | Phase |
 |--------|--------|-------|
-| **Response Time** | <2 minutes | Phase 1-5 |
+| **Response Time** | <30 seconds (P95)* | Phase 1-5 |
 | **Automation Rate** | >70% | Phase 3-5 |
 | **Availability** | 99.9% (business hours) | Phase 5 |
 | **Intent Classification Latency** | <500ms | Phase 5 |
@@ -1528,6 +1528,8 @@ az cosmosdb list --resource-group agntcy-prod-rg
 | **Throughput** | 1000 requests/min | Phase 5 |
 | **Cold Start Time** | <10 seconds | Phase 5 |
 | **Scale-Up Time** | <2 minutes | Phase 5 |
+
+*Response time includes 4 sequential Azure OpenAI API calls. Achieved 14.9s P95 in load testing. Infrastructure latency is <100ms.
 
 ---
 

@@ -458,3 +458,65 @@ acr-credentials.json
 
 # Application Insights connection strings
 appinsights-connection-string.txt
+
+# =============================================================================
+# CURSOR/Claude AI Session Artifacts
+# =============================================================================
+
+# CURSOR evaluation reports (internal QA)
+CURSOR-EVALUATION-REPORT*.md
+CURSOR-*.md
+
+# Claude session transcripts
+*.jsonl
+
+# AI-generated planning files
+*-ASSESSMENT*.md
+*-AUDIT*.md
+
+# =============================================================================
+# Widget Development Artifacts
+# =============================================================================
+
+# Widget coverage reports
+widget/coverage/
+widget/.nyc_output/
+
+# Widget test results
+widget/test-results/
+
+# =============================================================================
+# Load Testing Artifacts
+# =============================================================================
+
+# Locust web UI assets
+tests/load/*.html
+tests/load/*.csv
+
+# Load test reports (except the main report)
+tests/load/LOAD-TEST-REPORT-*.md
+!tests/load/LOAD-TEST-REPORT-2026-01-27.md
+
+# =============================================================================
+# Miscellaneous Development Files
+# =============================================================================
+
+# Editor backup files
+*.orig
+*.bak
+*~
+
+# macOS resource forks
+._*
+
+# Windows shortcuts
+*.lnk
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# mypy cache
+.mypy_cache/
+
+# ruff cache
+.ruff_cache/

@@ -1,0 +1,28 @@
+{
+  "_comment": "Content policy configuration for Critic/Supervisor agent",
+  "_version": "1.0.0",
+  "_last_updated": "2026-01-28",
+  "_documentation": "See docs/POST-PHASE5-COST-OPTIMIZATION-PLAN.md (Initiative: Externalize profanity list)",
+
+  "profanity_words": [
+    "damn",
+    "hell",
+    "crap",
+    "shit",
+    "fuck",
+    "ass"
+  ],
+
+  "system_leak_patterns": [
+    "system prompt",
+    "my instructions are",
+    "i was told to",
+    "my configuration"
+  ],
+
+  "validation_settings": {
+    "profanity_confidence": 0.8,
+    "pii_confidence": 0.95,
+    "system_leak_confidence": 0.9
+  }
+}

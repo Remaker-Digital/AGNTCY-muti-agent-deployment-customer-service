@@ -29,10 +29,33 @@ terraform {
 
 provider "azurerm" {
   features {
+    # -------------------------------------------------------------------------
+    # Key Vault Settings - Non-Obvious Choices Explained
+    # -------------------------------------------------------------------------
+    # purge_soft_delete_on_destroy = false
+    #   - Key Vault soft-delete keeps deleted vaults recoverable for 90 days
+    #   - Setting to false prevents permanent deletion during terraform destroy
+    #   - Reason: Prevents accidental loss of secrets during dev/test cycles
+    #   - Production: Keep false to maintain audit trail and recovery option
+    #
+    # recover_soft_deleted_key_vaults = true
+    #   - Automatically recover a soft-deleted vault with same name
+    #   - Prevents "vault name already exists" errors on re-deploy
+    #   - Reason: Simplifies dev/test lifecycle (destroy → apply)
+    # -------------------------------------------------------------------------
     key_vault {
       purge_soft_delete_on_destroy    = false
       recover_soft_deleted_key_vaults = true
     }
+    # -------------------------------------------------------------------------
+    # Resource Group Settings
+    # -------------------------------------------------------------------------
+    # prevent_deletion_if_contains_resources = false
+    #   - Allows terraform destroy to delete RG even if it contains resources
+    #   - Default (true) would require manual cleanup of all resources first
+    #   - Reason: Educational project - simplifies full teardown
+    #   - Production: Set to true to prevent accidental data loss
+    # -------------------------------------------------------------------------
     resource_group {
       prevent_deletion_if_contains_resources = false
     }
@@ -85,35 +108,52 @@ locals {
   }
 
   # Agent configurations
+  # ============================================================================
+  # Container Right-Sizing (Post-Phase 5 Cost Optimization)
+  # ============================================================================
+  # These values have been optimized based on production load testing results.
+  # See: docs/POST-PHASE5-COST-OPTIMIZATION-PLAN.md (Initiative 2)
+  # See: tests/load/LOAD-TEST-REPORT-2026-01-27.md for profiling data
+  #
+  # Optimization Notes:
+  # - Analytics: Reduced to 0.25 vCPU / 0.5 GB (batch processing, not real-time)
+  # - Response Generator: Kept at 0.5 vCPU / 1.5 GB (handles larger context windows)
+  # - All others: 0.5 vCPU / 1.0 GB (standard configuration)
+  #
+  # To revert to original values, change var.enable_container_right_sizing to false
+  # ============================================================================
   agents = {
     intent-classifier = {
-      cpu    = 0.5
-      memory = 1.0
+      cpu    = var.enable_container_right_sizing ? 0.5 : 0.5
+      memory = var.enable_container_right_sizing ? 1.0 : 1.0
       port   = 8080
     }
     knowledge-retrieval = {
-      cpu    = 0.5
-      memory = 1.0
+      cpu    = var.enable_container_right_sizing ? 0.5 : 0.5
+      memory = var.enable_container_right_sizing ? 1.0 : 1.0
       port   = 8080
     }
     response-generator = {
-      cpu    = 0.5
-      memory = 1.5
+      # Response generator needs more memory for larger context windows
+      cpu    = var.enable_container_right_sizing ? 0.5 : 0.5
+      memory = var.enable_container_right_sizing ? 1.5 : 1.5
       port   = 8080
     }
     escalation = {
-      cpu    = 0.5
-      memory = 1.0
+      cpu    = var.enable_container_right_sizing ? 0.5 : 0.5
+      memory = var.enable_container_right_sizing ? 1.0 : 1.0
       port   = 8080
     }
     analytics = {
-      cpu    = 0.5
-      memory = 1.0
+      # Analytics is batch processing - reduced for cost optimization
+      # Savings: ~$4/month with 0.25 vCPU / 0.5 GB
+      cpu    = var.enable_container_right_sizing ? 0.25 : 0.5
+      memory = var.enable_container_right_sizing ? 0.5 : 1.0
       port   = 8080
     }
     critic-supervisor = {
-      cpu    = 0.5
-      memory = 1.0
+      cpu    = var.enable_container_right_sizing ? 0.5 : 0.5
+      memory = var.enable_container_right_sizing ? 1.0 : 1.0
       port   = 8080
     }
   }

@@ -2,6 +2,15 @@
 Escalation and general response formatters.
 
 Handles: ESCALATION_NEEDED, GENERAL_INQUIRY
+
+These formatters handle two important scenarios:
+1. Escalation: Customer needs human agent assistance
+2. General: Catch-all for ambiguous or broad inquiries
+
+Educational Note:
+- Escalation reasons come from the EscalationAgent's analysis
+- Response tone and urgency varies by escalation type
+- General inquiries fall back to a helpful menu of options
 """
 
 from typing import List, Dict, Any
@@ -10,7 +19,35 @@ from agents.response_generation.formatters.product import format_product_info
 
 
 def format_escalation(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format escalation response when routing to human agent."""
+    """
+    Format escalation response when routing to human agent.
+
+    Creates empathetic, appropriately urgent responses based on the
+    escalation reason. Different scenarios require different tones
+    and response times.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected item format for escalation:
+            {
+                "escalation_reason": str  # One of: health_safety,
+                                          # customer_frustration, brewer_defect,
+                                          # or None for default
+            }
+
+    Returns:
+        str: Formatted escalation response tailored to the reason:
+            - health_safety: Immediate concern, 15-min contact, 911 mention
+            - customer_frustration: Apology, senior specialist, 1-hour contact
+            - brewer_defect: Technical support, warranty mention, 2-hour contact
+            - default: Generic escalation with "shortly" timeframe
+
+    Business Logic:
+        - Health/safety is highest priority (15 min response)
+        - Frustrated customers get senior specialist + explicit apology
+        - Brewer defects mention 2-year warranty for reassurance
+        - Contact timeframes set realistic expectations
+    """
     escalation_reason = None
     for item in knowledge_context:
         if item.get("escalation_reason"):
@@ -52,7 +89,28 @@ def format_escalation(knowledge_context: List[Dict[str, Any]]) -> str:
 
 
 def format_general(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format general/fallback response."""
+    """
+    Format general/fallback response.
+
+    Handles ambiguous or broad customer inquiries by either:
+    1. Displaying product info if products were found in context
+    2. Showing a helpful menu of available services
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            May contain products (type="product") or be empty.
+
+    Returns:
+        str: Either:
+            - Product information (delegates to format_product_info)
+            - Service menu with available assistance topics
+
+    Business Logic:
+        - Acts as catch-all for GENERAL_INQUIRY intent
+        - Prioritizes showing product info if available
+        - Service menu covers all major support categories
+        - Uses checkmarks (✓) for visual appeal in chat
+    """
     # Check if products were found in knowledge context
     products = [item for item in knowledge_context if item.get("type") == "product"]
 

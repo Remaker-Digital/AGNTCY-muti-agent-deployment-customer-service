@@ -2,6 +2,20 @@
 Order-related response formatters.
 
 Handles: ORDER_STATUS, REFUND_STATUS, RETURN_REQUEST
+
+These formatters handle the most common customer service scenarios -
+order tracking, returns, and refunds. They transform raw order data
+into friendly, informative responses.
+
+Educational Note:
+- Order data comes from Shopify API via KnowledgeRetrievalAgent
+- Return requests have business logic for auto-approval threshold
+- All responses are designed to reduce follow-up questions
+
+Business Rules:
+- $50 auto-approval threshold for returns (no human review needed)
+- 30-day return window from delivery
+- Free return shipping labels provided
 """
 
 from datetime import datetime
@@ -11,7 +25,18 @@ from typing import List, Dict, Any, Tuple, Optional
 def extract_order_from_context(
     knowledge_context: List[Dict[str, Any]],
 ) -> Dict[str, Any]:
-    """Extract order data from knowledge context list."""
+    """
+    Extract order data from knowledge context list.
+
+    Helper function used by other formatters to find order information
+    in the knowledge context returned by KnowledgeRetrievalAgent.
+
+    Args:
+        knowledge_context: List of context items, each with a "type" field
+
+    Returns:
+        Dict containing order data if found, empty dict otherwise
+    """
     for item in knowledge_context:
         if item.get("type") == "order":
             return item
@@ -19,7 +44,47 @@ def extract_order_from_context(
 
 
 def format_order_status(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format detailed order status response with tracking info."""
+    """
+    Format detailed order status response with tracking info.
+
+    Creates a comprehensive order status response including shipping
+    status, tracking information, delivery estimates, and item details.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected order format:
+            {
+                "type": "order",
+                "order_number": str,
+                "status": str (Pending/Shipped/Delivered),
+                "fulfillment_status": str,
+                "shipping_address": {"name": str, ...},
+                "items": [{"name": str, "quantity": int}, ...],
+                "tracking": {
+                    "carrier": str,
+                    "tracking_number": str,
+                    "tracking_url": str,
+                    "expected_delivery": str (ISO date),
+                    "last_location": str,
+                    "shipped_date": str,
+                    "delivered_date": str,
+                    "delivery_note": str
+                }
+            }
+
+    Returns:
+        str: Formatted order status response tailored to status:
+            - Shipped: Full tracking details with link
+            - Delivered: Confirmation with delivery location
+            - Pending: Processing message with ship date estimate
+            - Other: Generic status display
+
+    Business Logic:
+        - Extracts customer first name for personalized greeting
+        - Formats dates for readability (e.g., "Jan 28")
+        - Provides carrier-specific tracking URL fallback
+        - Offers proactive help if delivery is delayed
+    """
     order_data = extract_order_from_context(knowledge_context)
 
     if not order_data:
@@ -65,7 +130,8 @@ def format_order_status(knowledge_context: List[Dict[str, Any]]) -> str:
                     expected_delivery.replace("Z", "+00:00")
                 )
                 delivery_str = delivery_date.strftime("%b %d")
-            except:
+            except (ValueError, TypeError):
+                # Invalid date format - fall back to generic message
                 delivery_str = "soon"
         else:
             delivery_str = "soon"
@@ -121,7 +187,26 @@ If you have specific questions about this order or need assistance, I'm here to 
 
 
 def format_refund_status(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format refund status response."""
+    """
+    Format refund status response.
+
+    Provides information about refund processing timeline and status.
+    Currently returns a generic response with refund timeline information.
+
+    Args:
+        knowledge_context: List of context items (currently unused,
+            but kept for API consistency with other formatters)
+
+    Returns:
+        str: Generic refund timeline information including:
+            - Request for order number
+            - Processing timeline (2 business days)
+            - Bank posting timeline (3-5 business days)
+
+    Future Enhancement:
+        Once refund tracking is integrated with payment processor,
+        this can show real-time refund status by order number.
+    """
     return (
         "I'd be happy to check on your refund status! To look this up for you, "
         "I'll need your order number or the email address associated with your order.\n\n"
@@ -135,14 +220,52 @@ def format_return_request(knowledge_context: List[Dict[str, Any]]) -> Tuple[str,
     """
     Format return/refund request response with $50 auto-approval threshold.
 
-    Business Logic (Issue #29):
-    - Orders ≤$50.00: Auto-approved with RMA number
-    - Orders >$50.00: Escalated to support team
-    - Return window: 30 days from delivery
-    - Eligible: Unopened products in original packaging
+    This formatter implements automated return processing logic that
+    reduces support workload while maintaining quality control for
+    higher-value orders.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected order format:
+            {
+                "type": "order",
+                "order_number": str,
+                "total": float,
+                "customer_name": str,
+                "shipping_address": {"name": str, ...},
+                "items": [{"name": str, "quantity": int}, ...]
+            }
 
     Returns:
-        Tuple of (response_text, requires_escalation)
+        Tuple[str, bool]: (response_text, requires_escalation)
+            - response_text: Formatted return response
+            - requires_escalation: True if order >$50 and needs human review
+
+    Business Logic (Issue #29):
+        Auto-Approval Path (order ≤ $50):
+        - Generates RMA number immediately
+        - Provides full refund amount
+        - Sends prepaid return label via email
+        - Customer drops at USPS
+
+        Escalation Path (order > $50):
+        - Forwards to support team
+        - 24-hour response commitment
+        - Human reviews before approval
+
+        Policy Rules:
+        - 30-day return window from delivery
+        - Items must be unopened, original packaging
+        - Free return shipping (prepaid USPS label)
+        - Refund to original payment method
+        - Processing: 2 business days after receipt
+        - Funds available: 3-5 business days after processing
+
+    Educational Note:
+        The $50 threshold balances automation benefits (faster service,
+        lower support costs) against fraud risk (higher-value returns
+        warrant human review). This threshold can be adjusted in
+        AUTO_APPROVAL_THRESHOLD constant based on business data.
     """
     order_data = extract_order_from_context(knowledge_context)
 

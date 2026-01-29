@@ -1055,20 +1055,116 @@
     // ========================================================================
 
     /**
-     * Expose public API.
+     * @namespace AGNTCYChat
+     * @description Public API for the AGNTCY Chat Widget.
+     *
+     * The widget exposes these methods for programmatic control:
+     * - init(): Initialize the widget with configuration
+     * - open(): Open the chat window
+     * - close(): Close the chat window
+     * - toggle(): Toggle chat window visibility
+     * - sendMessage(): Send a message programmatically
+     * - getSession(): Get current session information
+     * - clearSession(): Clear session and start fresh
+     *
+     * @example
+     * // Initialize with minimal config
+     * AGNTCYChat.init({ merchantId: 'shop-123' });
+     *
+     * @example
+     * // Initialize with full config
+     * AGNTCYChat.init({
+     *   merchantId: 'shop-123',
+     *   apiEndpoint: 'https://api.example.com/v1',
+     *   primaryColor: '#5c6ac4',
+     *   position: 'bottom-right',
+     *   language: 'en',
+     *   agentName: 'Support Bot'
+     * });
+     *
+     * @example
+     * // Programmatic control
+     * AGNTCYChat.open();    // Open chat window
+     * AGNTCYChat.close();   // Close chat window
+     * AGNTCYChat.sendMessage('Hello!');  // Send message
      */
     window.AGNTCYChat = {
+        /**
+         * Initialize the chat widget.
+         * @memberof AGNTCYChat
+         * @param {Object} options - Configuration options
+         * @param {string} options.merchantId - Required. Unique merchant identifier
+         * @param {string} [options.apiEndpoint] - API endpoint URL (auto-detected if omitted)
+         * @param {string} [options.primaryColor='#5c6ac4'] - Primary theme color
+         * @param {string} [options.secondaryColor='#ffffff'] - Secondary theme color
+         * @param {string} [options.position='bottom-right'] - Widget position (bottom-right, bottom-left, top-right, top-left)
+         * @param {string} [options.language='en'] - Language code (en, fr-CA, es)
+         * @param {string} [options.greeting] - Custom greeting message
+         * @param {string} [options.placeholder] - Input placeholder text
+         * @param {string} [options.agentName='Support Assistant'] - Agent display name
+         * @param {string} [options.agentAvatar] - Agent avatar image URL
+         * @param {boolean} [options.showTimestamps=true] - Show message timestamps
+         * @param {boolean} [options.autoOpen=false] - Auto-open chat on load
+         * @param {boolean} [options.showPoweredBy=true] - Show "Powered by AGNTCY" footer
+         * @param {number} [options.zIndex=999999] - Widget z-index
+         */
         init,
+
+        /**
+         * Open the chat window.
+         * @memberof AGNTCYChat
+         * @returns {void}
+         */
         open: openChat,
+
+        /**
+         * Close the chat window.
+         * @memberof AGNTCYChat
+         * @returns {void}
+         */
         close: closeChat,
+
+        /**
+         * Toggle chat window visibility.
+         * @memberof AGNTCYChat
+         * @returns {void}
+         */
         toggle: () => isOpen ? closeChat() : openChat(),
+
+        /**
+         * Send a message programmatically.
+         * @memberof AGNTCYChat
+         * @param {string} text - Message text to send
+         * @returns {void}
+         * @example
+         * AGNTCYChat.sendMessage('What are your shipping rates?');
+         */
         sendMessage: (text) => {
             if (text) {
                 inputField.value = text;
                 sendMessage();
             }
         },
+
+        /**
+         * Get current session information.
+         * @memberof AGNTCYChat
+         * @returns {Object} Session object
+         * @returns {string} return.sessionId - Current session ID
+         * @returns {string} return.authLevel - Auth level (anonymous, identified, authenticated)
+         * @example
+         * const session = AGNTCYChat.getSession();
+         * console.log(session.sessionId);  // 'widget-abc123-xyz'
+         * console.log(session.authLevel);  // 'anonymous'
+         */
         getSession: () => ({ sessionId, authLevel }),
+
+        /**
+         * Clear session and start fresh conversation.
+         * Removes stored session from localStorage and resets messages.
+         * @memberof AGNTCYChat
+         * @returns {void}
+         */
         clearSession: () => {
             localStorage.removeItem(config.sessionStorageKey);
             createNewSession();
@@ -1078,6 +1174,12 @@
                 addMessage('agent', strings.greeting);
             }
         },
+
+        /**
+         * Widget version.
+         * @memberof AGNTCYChat
+         * @type {string}
+         */
         version: VERSION,
     };
 

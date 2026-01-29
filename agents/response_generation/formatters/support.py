@@ -2,6 +2,15 @@
 Support-related response formatters.
 
 Handles: SHIPPING_QUESTION, AUTO_DELIVERY_MANAGEMENT, GIFT_CARD, LOYALTY_PROGRAM
+
+These formatters handle common customer support inquiries that don't
+involve orders or products directly. They provide policy information,
+account details, and service explanations.
+
+Educational Note:
+- These responses often combine policy info with personalization
+- Fallback responses ensure customers always get helpful information
+- Business rules (pricing, timelines) are hardcoded as constants
 """
 
 from typing import List, Dict, Any
@@ -10,7 +19,35 @@ from agents.response_generation.formatters.product import format_product_info
 
 
 def format_shipping_question(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format shipping information response."""
+    """
+    Format shipping information response.
+
+    Provides shipping rates, delivery times, and carrier information.
+    Can include personalized recommendations based on context.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected item format for shipping:
+            {
+                "source": str containing "shipping",
+                "title": str,
+                "content": str,
+                "quick_answer": str (optional),
+                "type": "recommendation" (optional, for specific scenarios)
+            }
+
+    Returns:
+        str: Formatted shipping response with:
+            - Standard shipping rates and thresholds
+            - Express shipping options
+            - International availability
+            - Personalized recommendations if applicable
+
+    Business Logic:
+        - Free shipping threshold: $75
+        - Auto-delivery subscribers always get free shipping
+        - Supports US, Canada, and Mexico
+    """
     shipping_items = [
         item
         for item in knowledge_context
@@ -59,7 +96,31 @@ def format_shipping_question(knowledge_context: List[Dict[str, Any]]) -> str:
 
 
 def format_subscription(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format auto-delivery subscription response."""
+    """
+    Format auto-delivery subscription response.
+
+    Explains subscription benefits and management options.
+    Handles both existing subscriber inquiries and new signup questions.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected item format for subscription:
+            {
+                "source": str containing "subscription",
+                "benefits": List[str]
+            }
+
+    Returns:
+        str: Formatted subscription response with:
+            - List of subscription benefits
+            - Management options (frequency, skip, swap, pause, cancel)
+            - Call-to-action for signup or management
+
+    Business Logic:
+        - No commitment, cancel anytime policy
+        - Frequency options: weekly, bi-weekly, monthly
+        - Key benefits: free shipping, flexibility
+    """
     sub_items = [
         item
         for item in knowledge_context
@@ -96,7 +157,31 @@ def format_subscription(knowledge_context: List[Dict[str, Any]]) -> str:
 
 
 def format_gift_card(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format gift card information response."""
+    """
+    Format gift card information response.
+
+    Provides gift card options, denominations, and purchasing information.
+    Delegates to product formatter if gift card products are in context.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            May contain:
+            - Products (type="product") → delegates to format_product_info
+            - Policy info (source contains "gift") → shows policy response
+
+    Returns:
+        str: Formatted gift card response with:
+            - Virtual vs physical card options
+            - Available denominations ($25-$200)
+            - Expiration policy (never expires)
+            - Call-to-action for purchase
+
+    Business Logic:
+        - Gift cards never expire
+        - Virtual cards: instant email delivery
+        - Physical cards: 2-5 business day shipping
+        - Valid for all products (brewers, pods, accessories)
+    """
     # Check if products are in context (product info query)
     products = [item for item in knowledge_context if item.get("type") == "product"]
 
@@ -139,7 +224,73 @@ def format_gift_card(knowledge_context: List[Dict[str, Any]]) -> str:
 
 
 def format_loyalty(knowledge_context: List[Dict[str, Any]]) -> str:
-    """Format loyalty program information response with personalized balance."""
+    """
+    Format loyalty program information response with personalized balance.
+
+    The most complex formatter - handles both personalized account inquiries
+    (showing points balance, tier, redemption options) and general program
+    information requests.
+
+    Args:
+        knowledge_context: List of context items from KnowledgeRetrievalAgent.
+            Expected item formats:
+
+            For personalized response (customer balance):
+            {
+                "type": "customer_balance",
+                "customer_name": str,
+                "current_balance": int,
+                "tier": str (Bronze/Silver/Gold),
+                "points_to_next_tier": int,
+                "next_tier": str,
+                "points_expiring_30_days": int,
+                "auto_delivery_subscriber": bool
+            }
+
+            For redemption tiers:
+            {
+                "type": "redemption_tiers",
+                "tiers": [{"points_required": int, "discount_display": str}, ...]
+            }
+
+            For membership tiers:
+            {
+                "type": "membership_tiers",
+                "tiers": [{"tier_name": str, "earning_rate": float}, ...]
+            }
+
+            For program policies:
+            {
+                "type": "policy",
+                "source": str containing "loyalty",
+                "section_id": str,
+                "title": str,
+                "quick_answer": str
+            }
+
+    Returns:
+        str: Formatted loyalty response with either:
+            Personalized (has customer_balance):
+            - Current points balance
+            - Membership tier with emoji
+            - Progress to next tier
+            - Auto-delivery bonus status
+            - Expiring points warning
+            - Available redemption options
+
+            General (no customer_balance):
+            - Program overview
+            - Redemption tiers
+            - Membership tier benefits
+            - How to join information
+
+    Business Logic:
+        - Tiers: Bronze → Silver → Gold
+        - Auto-delivery subscribers earn 2x points
+        - Points expire if not used (30-day warning)
+        - Automatic enrollment on first purchase
+        - Shows up to 3 redemption options customer can afford
+    """
     # Extract customer balance
     balance_data = None
     for item in knowledge_context:

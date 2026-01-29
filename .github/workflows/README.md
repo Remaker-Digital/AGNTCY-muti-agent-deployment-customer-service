@@ -35,7 +35,7 @@ This directory contains GitHub Actions workflows for continuous integration and 
 3. **Integration Tests** (`integration-tests`)
    - Tests: `tests/integration/`
    - Coverage: `agents/` module
-   - Docker services: SLIM, mock-shopify, mock-zendesk, mock-mailchimp, mock-analytics
+   - Docker services: slim, mock-shopify, mock-zendesk, mock-mailchimp, mock-google-analytics
    - Runs on: All triggers
    - Artifacts: Coverage reports (30-day), Docker logs on failure (7-day retention)
 
@@ -123,18 +123,18 @@ Cache invalidates when `requirements.txt` changes.
 
 ## Environment Variables
 
-- `PYTHON_VERSION`: `3.14` (required by AGNTCY SDK)
+- `PYTHON_VERSION`: `3.12` (required by AGNTCY SDK)
 
 ## Docker Services
 
 Integration, multi-turn, and agent communication tests require Docker services:
 
 **Started services**:
-- `slim-service` (AGNTCY transport layer)
+- `slim` (AGNTCY transport layer)
 - `mock-shopify` (Shopify API mock)
 - `mock-zendesk` (Zendesk API mock)
 - `mock-mailchimp` (Mailchimp API mock)
-- `mock-analytics` (Google Analytics mock)
+- `mock-google-analytics` (Google Analytics mock)
 
 **Startup wait**: 10 seconds (allows services to initialize)
 
