@@ -314,11 +314,18 @@ class CriticSupervisorAgent(BaseAgent):
             self.inputs_blocked += 1
             self.logger.warning(f"INPUT BLOCKED: {result.get('reason')}")
 
+        # Use conservative default confidence (0.5) when missing - don't assume high confidence
+        # This ensures uncertain validations are flagged for review rather than auto-trusted
+        confidence = result.get("confidence")
+        if confidence is None:
+            self.logger.warning("Validation result missing confidence score, using default 0.5")
+            confidence = 0.5
+
         return {
             "validation_type": "input",
             "action": result.get("action", "ALLOW"),
             "reason": result.get("reason", ""),
-            "confidence": result.get("confidence", 1.0),
+            "confidence": confidence,
             "original_message": text,
         }
 
@@ -340,11 +347,18 @@ class CriticSupervisorAgent(BaseAgent):
             self.outputs_blocked += 1
             self.logger.warning(f"OUTPUT BLOCKED: {result.get('reason')}")
 
+        # Use conservative default confidence (0.5) when missing - don't assume high confidence
+        # This ensures uncertain validations are flagged for review rather than auto-trusted
+        confidence = result.get("confidence")
+        if confidence is None:
+            self.logger.warning("Validation result missing confidence score, using default 0.5")
+            confidence = 0.5
+
         return {
             "validation_type": "output",
             "action": result.get("action", "ALLOW"),
             "reason": result.get("reason", ""),
-            "confidence": result.get("confidence", 1.0),
+            "confidence": confidence,
             "regenerate_count": message.get("regenerate_count", 0),
         }
 

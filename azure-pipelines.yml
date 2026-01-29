@@ -66,7 +66,9 @@ variables:
   containerAppsEnv: 'agntcy-cs-prod-cae'
 
   # Python version (must match AGNTCY SDK requirements)
-  pythonVersion: '3.14'
+  # Note: Python 3.14 is not available on Azure DevOps hosted agents as of 2026-01
+  # Using 3.12 which is the minimum version required by AGNTCY SDK
+  pythonVersion: '3.12'
 
   # Image tag (uses Build.BuildId for unique versioning)
   imageTag: '$(Build.BuildId)'

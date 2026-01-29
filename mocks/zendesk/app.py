@@ -118,13 +118,36 @@ async def get_tickets(
 
 
 @app.get("/api/v2/tickets/{ticket_id}.json")
-async def get_ticket(ticket_id: int, authorization: str = Header(None)):
-    """Get single ticket by ID."""
+async def get_ticket(
+    ticket_id: int,
+    authorization: str = Header(None),
+    x_requester_id: Optional[int] = Header(None, alias="X-Requester-ID"),
+):
+    """
+    Get single ticket by ID.
+
+    Security (BOLA Protection):
+    - If X-Requester-ID header is provided, validates the requester owns this ticket
+    - Prevents unauthorized access to other users' tickets
+    - In production, authentication would be required
+
+    Args:
+        ticket_id: The ticket ID to retrieve
+        x_requester_id: Optional header to verify ticket ownership
+    """
     tickets_data = load_fixture("tickets.json")
     tickets = tickets_data.get("tickets", [])
 
     for ticket in tickets:
         if ticket.get("id") == ticket_id:
+            # BOLA Protection: Verify requester owns this ticket
+            if x_requester_id is not None:
+                ticket_requester = ticket.get("requester_id")
+                if ticket_requester and ticket_requester != x_requester_id:
+                    raise HTTPException(
+                        status_code=403,
+                        detail="Access denied: Ticket belongs to a different user"
+                    )
             return {"ticket": ticket}
 
     raise HTTPException(status_code=404, detail="Ticket not found")

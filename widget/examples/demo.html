@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGNTCY Chat Widget Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #5c6ac4 0%, #4959bd 100%);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .demo-section {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .demo-section h2 {
+            color: #212b36;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .control-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .control-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #637381;
+        }
+
+        .control-group input,
+        .control-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #dfe3e8;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .control-group input:focus,
+        .control-group select:focus {
+            outline: none;
+            border-color: #5c6ac4;
+            box-shadow: 0 0 0 3px rgba(92, 106, 196, 0.1);
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background-color: #5c6ac4;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #4959bd;
+        }
+
+        .btn-secondary {
+            background-color: #f4f6f8;
+            color: #212b36;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e4e7eb;
+        }
+
+        .code-block {
+            background-color: #1a1a2e;
+            color: #e0e0e0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+
+        .code-block .comment {
+            color: #6b7280;
+        }
+
+        .code-block .string {
+            color: #a5d6ff;
+        }
+
+        .code-block .keyword {
+            color: #ff79c6;
+        }
+
+        .event-log {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .event-log .event {
+            padding: 5px 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .event-log .event:last-child {
+            border-bottom: none;
+        }
+
+        .event-log .timestamp {
+            color: #6b7280;
+            margin-right: 10px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+
+        .product-card h3 {
+            margin-bottom: 10px;
+        }
+
+        .product-card p {
+            color: #637381;
+            margin-bottom: 15px;
+        }
+
+        .product-card .price {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #5c6ac4;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.75rem;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>AGNTCY Chat Widget</h1>
+        <p>Interactive demo for the embedded customer service widget</p>
+    </header>
+
+    <main class="container">
+        <!-- Configuration Section -->
+        <section class="demo-section">
+            <h2>Widget Configuration</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="primaryColor">Primary Color</label>
+                    <input type="color" id="primaryColor" value="#5c6ac4">
+                </div>
+                <div class="control-group">
+                    <label for="position">Position</label>
+                    <select id="position">
+                        <option value="bottom-right">Bottom Right</option>
+                        <option value="bottom-left">Bottom Left</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="language">Language</label>
+                    <select id="language">
+                        <option value="en">English</option>
+                        <option value="fr-CA">French (Canadian)</option>
+                        <option value="es">Spanish</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="updateWidget()">Apply Changes</button>
+                <button class="btn btn-secondary" onclick="toggleWidget()">Toggle Widget</button>
+                <button class="btn btn-secondary" onclick="sendTestMessage()">Send Test Message</button>
+            </div>
+        </section>
+
+        <!-- Event Log Section -->
+        <section class="demo-section">
+            <h2>Event Log</h2>
+            <div class="event-log" id="eventLog">
+                <div class="event">
+                    <span class="timestamp">[--:--:--]</span>
+                    Waiting for events...
+                </div>
+            </div>
+        </section>
+
+        <!-- Embed Code Section -->
+        <section class="demo-section">
+            <h2>Embed Code</h2>
+            <div class="code-block" id="embedCode">
+<span class="comment">&lt;!-- AGNTCY Chat Widget --&gt;</span>
+<span class="keyword">&lt;script</span> src="<span class="string">../dist/agntcy-chat.js</span>" async<span class="keyword">&gt;&lt;/script&gt;</span>
+<span class="keyword">&lt;script&gt;</span>
+  window.addEventListener('load', function() {
+    AGNTCYChat.init({
+      merchantId: "<span class="string">demo-merchant</span>",
+      primaryColor: "<span class="string">#5c6ac4</span>",
+      position: "<span class="string">bottom-right</span>",
+      language: "<span class="string">en</span>"
+    });
+  });
+<span class="keyword">&lt;/script&gt;</span>
+<span class="comment">&lt;!-- End AGNTCY Chat Widget --&gt;</span>
+            </div>
+        </section>
+
+        <!-- Sample Store Content -->
+        <section class="demo-section">
+            <h2>Sample Store - Coffee Shop</h2>
+            <p>This demo simulates a coffee e-commerce store. Try asking the widget about products, orders, or returns!</p>
+
+            <div class="product-grid">
+                <div class="product-card">
+                    <h3>Ethiopian Yirgacheffe</h3>
+                    <p>Light roast with bright citrus notes and floral aroma. Single origin.</p>
+                    <span class="price">$18.99</span>
+                </div>
+                <div class="product-card">
+                    <h3>Colombian Supremo</h3>
+                    <p>Medium roast with rich caramel sweetness and nutty undertones.</p>
+                    <span class="price">$16.99</span>
+                </div>
+                <div class="product-card">
+                    <h3>Sumatra Mandheling</h3>
+                    <p>Dark roast with earthy, full body and low acidity. Indonesian origin.</p>
+                    <span class="price">$19.99</span>
+                </div>
+                <div class="product-card">
+                    <h3>House Blend</h3>
+                    <p>Our signature medium roast blend. Balanced and smooth for everyday enjoyment.</p>
+                    <span class="price">$14.99</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Load the widget (local development version) -->
+    <script src="../dist/agntcy-chat.js"></script>
+
+    <script>
+        // Initialize widget on load
+        window.addEventListener('load', function() {
+            // For demo, use a mock API endpoint
+            AGNTCYChat.init({
+                merchantId: 'demo-merchant',
+                apiEndpoint: 'http://localhost:8080',
+                primaryColor: '#5c6ac4',
+                position: 'bottom-right',
+                language: 'en',
+                greeting: 'Welcome to our coffee shop! How can I help you today?',
+                agentName: 'Coffee Support',
+            });
+
+            logEvent('Widget initialized');
+        });
+
+        // Event listeners
+        window.addEventListener('agntcy:widget:opened', () => logEvent('Widget opened'));
+        window.addEventListener('agntcy:widget:closed', () => logEvent('Widget closed'));
+        window.addEventListener('agntcy:message:sent', (e) => logEvent(`Message sent: "${e.detail?.message || 'unknown'}"`));
+        window.addEventListener('agntcy:message:received', (e) => logEvent(`Message received: "${e.detail?.message?.substring(0, 50) || 'unknown'}..."`));
+        window.addEventListener('agntcy:session:created', (e) => logEvent(`Session created: ${e.detail?.sessionId || 'unknown'}`));
+        window.addEventListener('agntcy:session:authenticated', (e) => logEvent(`User authenticated: ${e.detail?.customerName || 'unknown'}`));
+
+        // Helper functions
+        function logEvent(message) {
+            const log = document.getElementById('eventLog');
+            const timestamp = new Date().toLocaleTimeString();
+            const eventDiv = document.createElement('div');
+            eventDiv.className = 'event';
+            eventDiv.innerHTML = `<span class="timestamp">[${timestamp}]</span> ${message}`;
+
+            // Remove "waiting" message if present
+            if (log.children.length === 1 && log.children[0].textContent.includes('Waiting')) {
+                log.innerHTML = '';
+            }
+
+            log.insertBefore(eventDiv, log.firstChild);
+
+            // Keep only last 20 events
+            while (log.children.length > 20) {
+                log.removeChild(log.lastChild);
+            }
+        }
+
+        function updateWidget() {
+            const primaryColor = document.getElementById('primaryColor').value;
+            const position = document.getElementById('position').value;
+            const language = document.getElementById('language').value;
+
+            AGNTCYChat.updateConfig({
+                primaryColor: primaryColor,
+                position: position,
+                language: language,
+            });
+
+            logEvent(`Config updated: color=${primaryColor}, pos=${position}, lang=${language}`);
+            updateEmbedCode(primaryColor, position, language);
+        }
+
+        function toggleWidget() {
+            AGNTCYChat.toggle();
+        }
+
+        function sendTestMessage() {
+            AGNTCYChat.open();
+            setTimeout(() => {
+                AGNTCYChat.sendMessage('Hello! I have a question about my order.');
+            }, 500);
+        }
+
+        function updateEmbedCode(color, position, language) {
+            document.getElementById('embedCode').innerHTML = `
+<span class="comment">&lt;!-- AGNTCY Chat Widget --&gt;</span>
+<span class="keyword">&lt;script</span> src="<span class="string">https://cdn.agntcy.io/widget/agntcy-chat.min.js</span>" async<span class="keyword">&gt;&lt;/script&gt;</span>
+<span class="keyword">&lt;script&gt;</span>
+  window.addEventListener('load', function() {
+    AGNTCYChat.init({
+      merchantId: "<span class="string">demo-merchant</span>",
+      primaryColor: "<span class="string">${color}</span>",
+      position: "<span class="string">${position}</span>",
+      language: "<span class="string">${language}</span>"
+    });
+  });
+<span class="keyword">&lt;/script&gt;</span>
+<span class="comment">&lt;!-- End AGNTCY Chat Widget --&gt;</span>`;
+        }
+    </script>
+</body>
+</html>

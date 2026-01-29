@@ -283,3 +283,64 @@ docs/archive/
 
 # Knowledge base content (functional)
 !docs/knowledge-base/
+
+# Security remediation (keep for audit trail)
+!docs/SECURITY-REMEDIATION-*.md
+
+# =============================================================================
+# Phase 6 Artifacts
+# =============================================================================
+
+# Widget build artifacts (regenerated from source)
+widget/dist/
+widget/node_modules/
+widget/*.min.js
+widget/*.min.css
+
+# WhatsApp mock data (regenerated)
+mocks/whatsapp/data/*.json
+
+# Session manager cache (runtime)
+.session_cache/
+
+# =============================================================================
+# Evaluation and Test Artifacts
+# =============================================================================
+
+# Evaluation datasets (large files, regenerate from scripts)
+evaluation/datasets/*.jsonl
+evaluation/results/*.json
+
+# Load test results (regenerated each run)
+tests/load/results/
+locust_results/
+
+# Performance benchmark outputs
+benchmarks/
+
+# =============================================================================
+# IDE and Editor Artifacts
+# =============================================================================
+
+# Cursor AI artifacts
+.cursor/
+.cursorignore
+
+# Claude session files
+.claude/
+
+# =============================================================================
+# Azure and Cloud Artifacts
+# =============================================================================
+
+# Azure CLI configuration
+.azure/
+
+# Terraform lock files (regenerated)
+.terraform.lock.hcl
+
+# Azure Container Registry credentials (sensitive)
+acr-credentials.json
+
+# Application Insights connection strings
+appinsights-connection-string.txt

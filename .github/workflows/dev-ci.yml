@@ -122,7 +122,7 @@ jobs:
 
       - name: Validate documentation
         run: |
+          # Only validate files that are NOT in .gitignore
+          # PHASE1-STATUS.md and PROJECT-SUMMARY.md are intentionally gitignored (internal tracking docs)
           test -f README.md && echo "✓ README.md" || (echo "✗ README.md missing" && exit 1)
           test -f SETUP-GUIDE.md && echo "✓ SETUP-GUIDE.md" || (echo "✗ SETUP-GUIDE.md missing" && exit 1)
-          test -f PHASE1-STATUS.md && echo "✓ PHASE1-STATUS.md" || (echo "✗ PHASE1-STATUS.md missing" && exit 1)
-          test -f PROJECT-SUMMARY.md && echo "✓ PROJECT-SUMMARY.md" || (echo "✗ PROJECT-SUMMARY.md missing" && exit 1)

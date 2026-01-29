@@ -182,6 +182,37 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
     restart: unless-stopped
 
+  # Mock Shopify Customer Accounts API (Phase 6)
+  # Simulates OAuth 2.0 authentication flow for customer sessions
+  mock-shopify-customer:
+    build:
+      context: ./mocks/shopify-customer
+      dockerfile: Dockerfile
+    container_name: agntcy-mock-shopify-customer
+    ports:
+      - "8010:8010"
+    networks:
+      - agntcy-network
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    restart: unless-stopped
+
+  # Mock WhatsApp Business Cloud API (Phase 6)
+  # Simulates WhatsApp Cloud API for multi-channel support development
+  mock-whatsapp:
+    build:
+      context: ./mocks/whatsapp
+      dockerfile: Dockerfile
+    container_name: agntcy-mock-whatsapp
+    ports:
+      - "8011:8011"
+    networks:
+      - agntcy-network
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - MOCK_WHATSAPP_PORT=8011
+    restart: unless-stopped
+
   # ==========================================================================
   # Development Console (Phase 2+)
   # ==========================================================================

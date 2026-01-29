@@ -93,22 +93,83 @@ resource "azurerm_cosmosdb_sql_database" "conversations" {
   account_name        = azurerm_cosmosdb_account.main.name
 }
 
-# Container: Sessions
+# ============================================================================
+# Container: Customer Sessions (Phase 6 - Customer Authentication)
+# ============================================================================
+# Purpose: Store customer sessions for authenticated interactions
+#
+# Partition Key: /customer_id
+# - Enables efficient cross-device session lookup
+# - All sessions for a customer are colocated
+# - Supports "Continue conversation" on new device
+#
+# TTL: 7 days (604800 seconds)
+# - Automatic cleanup of expired sessions
+# - Aligns with session expiry in application code
+#
+# Indexing Strategy:
+# - Index session_id for direct lookup
+# - Index device_id for anonymous session linking
+# - Index auth_level for analytics queries
+# - Exclude token data from indexing (security)
+#
+# Related Documentation:
+# - Session Manager: shared/auth/session_manager.py
+# - Phase 6-7 Planning: docs/PHASE-6-7-PLANNING-DECISIONS.md (Q5.C)
+# ============================================================================
 resource "azurerm_cosmosdb_sql_container" "sessions" {
   name                = "sessions"
   resource_group_name = data.azurerm_resource_group.main.name
   account_name        = azurerm_cosmosdb_account.main.name
   database_name       = azurerm_cosmosdb_sql_database.conversations.name
-  partition_key_path  = "/sessionId"
 
-  # TTL: 30 days for session cleanup
-  default_ttl = 2592000
+  # Partition by customer_id for cross-device session lookup
+  # Anonymous sessions use device_id as customer_id
+  partition_key_path = "/customer_id"
+
+  # TTL: 7 days for session cleanup (matches application session expiry)
+  default_ttl = 604800
 
   indexing_policy {
     indexing_mode = "consistent"
 
+    # Index key fields for queries
     included_path {
-      path = "/*"
+      path = "/session_id/?"
+    }
+
+    included_path {
+      path = "/device_id/?"
+    }
+
+    included_path {
+      path = "/auth_level/?"
+    }
+
+    included_path {
+      path = "/state/?"
+    }
+
+    included_path {
+      path = "/created_at/?"
+    }
+
+    included_path {
+      path = "/updated_at/?"
+    }
+
+    included_path {
+      path = "/channel/?"
+    }
+
+    # Exclude token data from indexing (security - reduce attack surface)
+    excluded_path {
+      path = "/token/*"
+    }
+
+    # Exclude customer profile from indexing (large nested object)
+    excluded_path {
+      path = "/customer/*"
     }
 
     excluded_path {

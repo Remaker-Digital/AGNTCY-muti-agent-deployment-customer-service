@@ -21,6 +21,17 @@ from shared.models import (
     generate_message_id,
 )
 
+# Import PII scrubber for log sanitization
+try:
+    from shared.security import scrub_pii
+    PII_SCRUBBER_AVAILABLE = True
+except ImportError:
+    PII_SCRUBBER_AVAILABLE = False
+
+    def scrub_pii(text: str) -> str:
+        """Fallback - return text as-is if scrubber not available."""
+        return text
+
 
 class AnalyticsAgent(BaseAgent):
     """Passive listener collecting metrics from all agent communication."""
@@ -72,9 +83,11 @@ class AnalyticsAgent(BaseAgent):
             metadata=content.get("metadata", {}),
         )
 
+        # Log event info without PII (scrub context_id which may correlate to customer data)
         self.logger.debug(
             f"Collected event: {event.event_type} from {event.agent_source}"
         )
+        # Note: context_id is opaque and not logged in production to prevent PII correlation
 
         # Update KPIs based on event type
         self._update_kpis(event)
@@ -222,7 +235,8 @@ class AnalyticsAgent(BaseAgent):
         if event_type == "conversation_started":
             self.kpis["total_conversations"] += 1
             self.conversation_start_times[context_id] = datetime.now()
-            self.logger.debug(f"New conversation started: {context_id}")
+            # Log without full context_id to prevent PII correlation in logs
+            self.logger.debug(f"New conversation started (id:{context_id[:8]}...)")
 
         # Track intent classification
         elif event_type == "intent_classified":
@@ -265,8 +279,9 @@ class AnalyticsAgent(BaseAgent):
                 start_time = self.conversation_start_times[context_id]
                 response_time_ms = (datetime.now() - start_time).total_seconds() * 1000
                 self.kpis["total_response_time_ms"] += response_time_ms
+                # Log without full context_id to prevent PII correlation
                 self.logger.debug(
-                    f"Response time for {context_id}: {response_time_ms:.2f}ms"
+                    f"Response time (id:{context_id[:8]}...): {response_time_ms:.2f}ms"
                 )
 
         # Log KPI summary periodically (every 10 events)

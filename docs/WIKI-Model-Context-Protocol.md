@@ -496,9 +496,10 @@ async def call_tool(self, tool_name: str, arguments: dict) -> dict:
 
 | Phase | MCP Capabilities | Status |
 |-------|------------------|--------|
-| **Phase 1-3** | MCP factory method, mock clients | ✅ Complete |
-| **Phase 4** | Shopify MCP integration, UCP Catalog | ⏳ Planned |
-| **Phase 5** | Full UCP support, checkout flows | ⏳ Planned |
+| **Phase 1-5** | MCP factory method, mock clients, A2A protocol | ✅ Complete |
+| **Phase 6** | Shopify MCP integration, UCP Catalog, Model Router | ⏳ Planned |
+| **Phase 7** | WooCommerce MCP, Headless API, Google Gemini adapter | ⏳ Planned |
+| **Phase 8** | Full UCP checkout, voice channel, in-chat transactions | ⏳ Planned |
 
 ---
 

@@ -4,12 +4,19 @@ Routes incoming customer requests to appropriate handlers based on intent analys
 
 Phase 1-3: Mock classification logic with keyword matching
 Phase 4+: Azure OpenAI GPT-4o-mini for real intent classification
+Phase 6+: Session-aware routing with tiered access control
+
+Session Integration (Phase 6):
+- Receives session context with each message
+- Routes based on auth level (Anonymous/Identified/Authenticated)
+- Extracts customer info for personalized classification
+- Upgrades sessions to Identified when email/phone detected
 
 Refactored to use BaseAgent pattern for reduced code duplication.
 """
 
 import re
-from typing import Tuple, Dict, Any, List
+from typing import Tuple, Dict, Any, List, Optional
 
 from shared.base_agent import BaseAgent, run_agent
 from shared.models import (
@@ -22,6 +29,17 @@ from shared.models import (
     generate_message_id,
     generate_context_id,
 )
+
+# Session integration (Phase 6)
+try:
+    from shared.auth.models import AuthLevel, CustomerSession
+    from shared.auth.session_manager import get_session_manager
+
+    SESSION_SUPPORT = True
+except ImportError:
+    SESSION_SUPPORT = False
+    AuthLevel = None
+    CustomerSession = None
 
 # Production intent classification prompt from Phase 3.5 optimization
 # Achieved 98% accuracy in evaluation (target was >85%)
@@ -129,6 +147,13 @@ class IntentClassificationAgent(BaseAgent):
 
     Uses AGNTCY SDK A2A protocol over SLIM transport for agent-to-agent communication.
     Phase 4+: Uses Azure OpenAI GPT-4o-mini for intent classification.
+    Phase 6+: Session-aware routing with tiered access control.
+
+    Session Integration:
+    - Receives session_id in message metadata
+    - Retrieves session for auth level context
+    - Adjusts routing based on permissions
+    - Extracts email/phone to upgrade anonymous sessions
     """
 
     agent_name = "intent-classification-agent"
@@ -140,17 +165,24 @@ class IntentClassificationAgent(BaseAgent):
         # Additional counters for classification tracking
         self.openai_classifications = 0
         self.mock_classifications = 0
+        # Session manager (Phase 6)
+        self._session_manager = None
 
     async def process_message(self, content: dict, message: dict) -> dict:
         """
         Process customer message and classify intent.
+
+        Phase 6 Enhancement: Session-aware processing
+        - Retrieves session context for auth level
+        - Extracts email/phone to upgrade anonymous sessions
+        - Includes session info in classification result
 
         Args:
             content: Extracted message content
             message: Full A2A message
 
         Returns:
-            IntentClassificationResult as dict
+            IntentClassificationResult as dict with session context
         """
         # Parse as CustomerMessage
         customer_msg = CustomerMessage(
@@ -167,6 +199,10 @@ class IntentClassificationAgent(BaseAgent):
             f"Processing message {customer_msg.message_id} from customer {customer_msg.customer_id}"
         )
 
+        # Phase 6: Get session context if available
+        session = await self._get_session_context(content, message)
+        auth_level = self._get_auth_level(session)
+
         # Classify intent using Azure OpenAI or mock
         if self.openai_client:
             intent, confidence, entities = await self._classify_intent_openai(
@@ -179,6 +215,12 @@ class IntentClassificationAgent(BaseAgent):
             )
             self.mock_classifications += 1
 
+        # Phase 6: Check if extracted email/phone should upgrade session
+        await self._maybe_upgrade_session(session, entities)
+
+        # Phase 6: Adjust routing based on auth level and intent permissions
+        routing = self._determine_routing(intent, auth_level, session)
+
         # Create classification result
         result = IntentClassificationResult(
             message_id=customer_msg.message_id,
@@ -187,15 +229,108 @@ class IntentClassificationAgent(BaseAgent):
             confidence=confidence,
             extracted_entities=entities,
             language=customer_msg.language,
-            routing_suggestion=self._determine_routing(intent),
+            routing_suggestion=routing,
         )
 
+        # Phase 6: Add session context to result
+        if session:
+            result.extracted_entities["session_id"] = session.session_id
+            result.extracted_entities["auth_level"] = auth_level
+            if session.customer:
+                result.extracted_entities["customer_name"] = session.customer.full_name
+                result.extracted_entities["is_vip"] = session.customer.is_vip
+
         self.logger.info(
-            f"Classified intent: {intent.value} (confidence: {confidence:.2f}) "
-            f"-> route to: {result.routing_suggestion}"
+            f"Classified intent: {intent.value} (confidence: {confidence:.2f}, "
+            f"auth={auth_level}) -> route to: {result.routing_suggestion}"
         )
 
         return result
+
+    async def _get_session_context(
+        self, content: dict, message: dict
+    ) -> Optional["CustomerSession"]:
+        """
+        Retrieve session context from session manager.
+
+        Args:
+            content: Message content (may contain session_id)
+            message: Full message (may contain session_id in metadata)
+
+        Returns:
+            CustomerSession if found, None otherwise
+        """
+        if not SESSION_SUPPORT:
+            return None
+
+        # Look for session_id in multiple places
+        session_id = (
+            content.get("session_id")
+            or content.get("metadata", {}).get("session_id")
+            or message.get("metadata", {}).get("session_id")
+        )
+
+        if not session_id:
+            return None
+
+        try:
+            # Get or initialize session manager
+            if self._session_manager is None:
+                try:
+                    self._session_manager = get_session_manager()
+                except RuntimeError:
+                    # Session manager not initialized
+                    self.logger.debug("Session manager not available")
+                    return None
+
+            session = await self._session_manager.get_session(session_id)
+            if session:
+                self.logger.debug(
+                    f"Session context: {session_id} (auth={session.auth_level.value})"
+                )
+            return session
+
+        except Exception as e:
+            self.logger.warning(f"Failed to get session context: {e}")
+            return None
+
+    def _get_auth_level(self, session: Optional["CustomerSession"]) -> str:
+        """Get auth level string from session or default to anonymous."""
+        if session and SESSION_SUPPORT:
+            return session.auth_level.value
+        return "anonymous"
+
+    async def _maybe_upgrade_session(
+        self, session: Optional["CustomerSession"], entities: Dict[str, Any]
+    ) -> None:
+        """
+        Upgrade session to IDENTIFIED if email/phone extracted.
+
+        This enables order lookup without requiring full authentication.
+        """
+        if not session or not SESSION_SUPPORT or not self._session_manager:
+            return
+
+        # Only upgrade if currently anonymous
+        if session.auth_level != AuthLevel.ANONYMOUS:
+            return
+
+        email = entities.get("email")
+        phone = entities.get("phone")
+
+        if email or phone:
+            try:
+                await self._session_manager.upgrade_to_identified(
+                    session.session_id,
+                    email=email,
+                    phone=phone,
+                )
+                self.logger.info(
+                    f"Upgraded session {session.session_id} to IDENTIFIED "
+                    f"(email={bool(email)}, phone={bool(phone)})"
+                )
+            except Exception as e:
+                self.logger.warning(f"Failed to upgrade session: {e}")
 
     def get_demo_messages(self) -> List[dict]:
         """Return sample messages for demo mode."""
@@ -482,12 +617,24 @@ class IntentClassificationAgent(BaseAgent):
         # General inquiry - catch-all
         return Intent.GENERAL_INQUIRY, 0.50, entities
 
-    def _determine_routing(self, intent: Intent) -> str:
+    def _determine_routing(
+        self,
+        intent: Intent,
+        auth_level: str = "anonymous",
+        session: Optional["CustomerSession"] = None,
+    ) -> str:
         """
-        Determine which agent topic to route to based on intent.
+        Determine which agent topic to route to based on intent and auth level.
+
+        Phase 6 Enhancement: Auth-aware routing
+        - Order modifications require authentication
+        - Anonymous users prompted to authenticate for sensitive operations
+        - VIP customers can have priority routing
 
         Args:
             intent: Classified intent
+            auth_level: Current authentication level
+            session: Optional session for additional context
 
         Returns:
             Target agent topic name
@@ -495,6 +642,43 @@ class IntentClassificationAgent(BaseAgent):
         # Immediate escalation intents
         if intent == Intent.ESCALATION_NEEDED:
             return "escalation"
+
+        # Phase 6: Intents requiring authentication
+        # These need at least IDENTIFIED level for order lookup
+        order_intents = [
+            Intent.ORDER_STATUS,
+            Intent.ORDER_MODIFICATION,
+            Intent.RETURN_REQUEST,
+            Intent.REFUND_STATUS,
+            Intent.AUTO_DELIVERY_MANAGEMENT,
+        ]
+
+        # Phase 6: Check if intent requires auth but user is anonymous
+        if intent in order_intents and auth_level == "anonymous":
+            # Route to knowledge-retrieval which will prompt for email
+            # The response will ask for email to look up their order
+            self.logger.debug(
+                f"Intent {intent.value} requires identification, routing to knowledge-retrieval"
+            )
+            return "knowledge-retrieval"
+
+        # Phase 6: Intents that require AUTHENTICATED (not just IDENTIFIED)
+        modify_intents = [
+            Intent.ORDER_MODIFICATION,
+        ]
+
+        if intent in modify_intents and auth_level != "authenticated":
+            # Route to escalation which can handle auth flow
+            self.logger.debug(
+                f"Intent {intent.value} requires authentication, routing to auth-prompt"
+            )
+            return "knowledge-retrieval"  # Will prompt for login
+
+        # Phase 6: VIP priority routing (future enhancement)
+        if session and SESSION_SUPPORT and session.customer and session.customer.is_vip:
+            # VIP customers could get priority routing
+            self.logger.debug(f"VIP customer detected, applying priority routing")
+            # For now, same routing - future: dedicated VIP agent queue
 
         # Intents requiring knowledge retrieval (most common path)
         knowledge_intents = [

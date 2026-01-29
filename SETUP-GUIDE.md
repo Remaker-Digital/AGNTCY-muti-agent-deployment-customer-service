@@ -540,6 +540,46 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 3. Check if services are running: `docker-compose ps`
 4. Review test error messages for specific issues
 
+### Windows/OneDrive Permission Issues
+
+**Symptom**: `PermissionError: [WinError 5] Access is denied: '...\\.coverage'` or similar errors with `__pycache__` files.
+
+**Cause**: OneDrive file sync can lock `.coverage` and `__pycache__` files, preventing pytest from writing or deleting them. This is especially common when running tests on a project folder synced with OneDrive.
+
+**Solution - Quick Cleanup Script:**
+```powershell
+# 1. Kill all Python processes
+Get-Process python* | Stop-Process -Force -ErrorAction SilentlyContinue
+
+# 2. Delete locked files
+Remove-Item -Path .coverage -Force -ErrorAction SilentlyContinue
+Get-ChildItem -Path . -Directory -Recurse -Filter "__pycache__" | Remove-Item -Recurse -Force -ErrorAction SilentlyContinue
+
+# 3. Wait for OneDrive sync (if applicable)
+Start-Sleep -Seconds 2
+
+# 4. Run tests again
+pytest tests/ -v
+```
+
+**Alternative Solutions:**
+1. **Relocate the repository** outside of OneDrive-synced folders
+2. **Pause OneDrive sync** temporarily while running tests
+3. **Run pytest without coverage** (default behavior after CI/CD fix):
+   ```powershell
+   pytest tests/ -v  # Coverage is no longer required by default
+   ```
+4. **Add coverage flags manually** when needed:
+   ```powershell
+   pytest tests/ -v --cov=shared --cov=agents --cov-report=term-missing
+   ```
+
+**Why this happens:**
+- OneDrive maintains file locks for sync purposes
+- `.coverage` is a SQLite database that gets locked during writes
+- `__pycache__` bytecode files can also be locked during compilation
+- Multiple pytest runs in quick succession can conflict with OneDrive sync
+
 ---
 
 ## Getting Help
