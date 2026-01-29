@@ -318,6 +318,120 @@ locust_results/
 # Performance benchmark outputs
 benchmarks/
 
+# pytest artifacts
+.pytest_cache/
+pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+*.cover
+.hypothesis/
+
+# Test output files
+test-output/
+test_results/
+junit.xml
+
+# =============================================================================
+# Build and Packaging Artifacts
+# =============================================================================
+
+# Python build artifacts
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.egg-info/
+dist/
+build/
+*.whl
+
+# Node.js artifacts (widget)
+node_modules/
+package-lock.json
+yarn.lock
+.npm/
+
+# =============================================================================
+# Runtime and Cache Artifacts
+# =============================================================================
+
+# Python cache
+*.py[cod]
+*$py.class
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Streamlit cache
+.streamlit/secrets.toml
+
+# SQLite databases (development)
+*.sqlite3
+*.db
+
+# Session files
+.session/
+session_data/
+
+# =============================================================================
+# CI/CD Artifacts
+# =============================================================================
+
+# GitHub Actions artifacts
+.github/workflows/*.log
+
+# Azure DevOps artifacts
+.azure-pipelines/
+azure-pipelines-*.log
+
+# Terraform provider cache
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+
+# =============================================================================
+# Documentation Build Artifacts
+# =============================================================================
+
+# Sphinx documentation
+docs/_build/
+docs/api/
+
+# MkDocs
+site/
+
+# =============================================================================
+# Large Binary Files
+# =============================================================================
+
+# Avoid committing large files
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.bak
+*.backup
+
+# Model files
+*.onnx
+*.pt
+*.pth
+*.h5
+*.pkl
+*.pickle
+
+# Media files (except templates)
+*.mp4
+*.mp3
+*.wav
+*.avi
+
 # =============================================================================
 # IDE and Editor Artifacts
 # =============================================================================

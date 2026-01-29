@@ -115,8 +115,8 @@ class TestResponseGenerationAgent:
         assert agent.logger is not None
 
     @pytest.mark.asyncio
-    async def test_generate_canned_response(self):
-        """Test canned response generation."""
+    async def test_generate_template_response(self):
+        """Test template response generation (Phase 2 canned responses)."""
         from agents.response_generation.agent import ResponseGenerationAgent
         from shared.models import ResponseRequest, Intent
 
@@ -125,13 +125,20 @@ class TestResponseGenerationAgent:
         request = ResponseRequest(
             request_id="req-001",
             context_id="ctx-001",
-            customer_message="Test",
+            customer_message="Test order status query",
             intent=Intent.ORDER_STATUS,
         )
 
-        response_text = agent._generate_canned_response(request)
-        assert isinstance(response_text, str)
-        assert len(response_text) > 0
+        # Use template response (renamed from canned response in Phase 4)
+        response_data = agent._generate_template_response(request)
+        # Template response returns dict with response_text
+        if isinstance(response_data, dict):
+            assert "response_text" in response_data
+            assert len(response_data["response_text"]) > 0
+        else:
+            # May return string directly in some modes
+            assert isinstance(response_data, str)
+            assert len(response_data) > 0
 
 
 @pytest.mark.integration

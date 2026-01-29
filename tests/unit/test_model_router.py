@@ -786,3 +786,582 @@ class TestModelCostTracker:
 
         summary = tracker.get_provider_summary(LLMProvider.AZURE_OPENAI)
         assert summary["total_requests"] == 0
+
+
+# ============================================================================
+# Test Router Additional Coverage
+# ============================================================================
+
+
+class TestModelRouterAdditionalCoverage:
+    """Additional tests for ModelRouter coverage."""
+
+    @pytest.fixture
+    def mock_config(self):
+        """Create mock provider config."""
+        return ProviderConfig(
+            provider=LLMProvider.LOCAL,
+            endpoint="mock://localhost",
+            priority=1,
+            extra_config={"latency_ms": 0, "error_rate": 0.0},
+        )
+
+    @pytest.mark.asyncio
+    async def test_initialize_already_initialized(self, mock_config):
+        """Test initialize returns True when already initialized."""
+        router = ModelRouter()
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        # Call again
+        result = await router.initialize()
+
+        assert result is True
+        assert router._initialized is True
+
+    @pytest.mark.asyncio
+    async def test_initialize_no_providers_uses_mock(self):
+        """Test initialize with no providers defaults to mock."""
+        router = ModelRouter()
+        # Don't add any providers
+
+        result = await router.initialize()
+
+        assert result is True
+        assert LLMProvider.LOCAL in router._providers
+
+    @pytest.mark.asyncio
+    async def test_initialize_skips_disabled_providers(self):
+        """Test initialize skips disabled providers."""
+        disabled_config = ProviderConfig(
+            provider=LLMProvider.LOCAL,
+            endpoint="mock://localhost",
+            enabled=False,  # Disabled
+        )
+
+        router = ModelRouter()
+        router.add_provider(disabled_config)
+        result = await router.initialize()
+
+        # Should fail because only provider is disabled
+        assert result is False
+
+    @pytest.mark.asyncio
+    async def test_initialize_handles_provider_init_failure(self):
+        """Test initialize handles provider init failure gracefully."""
+        router = ModelRouter()
+
+        # Create a config that will fail to create a provider
+        bad_config = ProviderConfig(
+            provider=LLMProvider.AZURE_OPENAI,
+            endpoint="https://bad.openai.azure.com",
+            priority=1,
+        )
+        router.add_provider(bad_config)
+
+        # Mock the provider creation to return something that fails init
+        mock_provider = MagicMock()
+        mock_provider.initialize = AsyncMock(return_value=False)
+
+        with patch.object(router, "_create_provider", return_value=mock_provider):
+            result = await router.initialize()
+
+        assert result is False
+
+    def test_create_provider_azure_openai(self):
+        """Test _create_provider for Azure OpenAI."""
+        router = ModelRouter()
+        config = ProviderConfig(
+            provider=LLMProvider.AZURE_OPENAI,
+            endpoint="https://test.openai.azure.com",
+        )
+
+        provider = router._create_provider(config)
+
+        from shared.model_router.providers import AzureOpenAIProvider
+
+        assert isinstance(provider, AzureOpenAIProvider)
+
+    def test_create_provider_anthropic(self):
+        """Test _create_provider for Anthropic."""
+        router = ModelRouter()
+        config = ProviderConfig(
+            provider=LLMProvider.ANTHROPIC,
+            endpoint="https://api.anthropic.com",
+        )
+
+        provider = router._create_provider(config)
+
+        from shared.model_router.providers import AnthropicProvider
+
+        assert isinstance(provider, AnthropicProvider)
+
+    def test_create_provider_local_mock(self):
+        """Test _create_provider for local/mock."""
+        router = ModelRouter()
+        config = ProviderConfig(
+            provider=LLMProvider.LOCAL,
+            endpoint="mock://localhost",
+        )
+
+        provider = router._create_provider(config)
+
+        assert isinstance(provider, MockProvider)
+
+    def test_create_provider_handles_exception(self):
+        """Test _create_provider handles exceptions."""
+        router = ModelRouter()
+        config = ProviderConfig(
+            provider=LLMProvider.LOCAL,
+            endpoint="mock://localhost",
+        )
+
+        with patch.object(
+            MockProvider, "__init__", side_effect=Exception("Creation failed")
+        ):
+            provider = router._create_provider(config)
+
+        assert provider is None
+
+    @pytest.mark.asyncio
+    async def test_select_provider_round_robin(self, mock_config):
+        """Test _select_provider with round robin strategy."""
+        router = ModelRouter(fallback_strategy=FallbackStrategy.ROUND_ROBIN)
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        # Select multiple times
+        provider1 = await router._select_provider()
+        provider2 = await router._select_provider()
+
+        # With single provider, should return same one
+        assert provider1 == provider2
+
+    @pytest.mark.asyncio
+    async def test_select_provider_preferred_not_available(self, mock_config):
+        """Test _select_provider when preferred provider not available."""
+        router = ModelRouter()
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        # Make the mock provider unavailable
+        router._providers[LLMProvider.LOCAL]._circuit_open = True
+
+        # Request Azure (not configured), should try to get alternative
+        with pytest.raises(RuntimeError, match="No LLM providers available"):
+            await router._select_provider(preferred_provider=LLMProvider.AZURE_OPENAI)
+
+    @pytest.mark.asyncio
+    async def test_chat_completion_specific_provider_not_configured(self, mock_config):
+        """Test chat_completion fails when requesting unconfigured provider."""
+        router = ModelRouter()
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "Hello"}],
+            model="gpt-4o-mini",
+        )
+
+        with pytest.raises(RuntimeError, match="not configured"):
+            await router.chat_completion(request, provider=LLMProvider.AZURE_OPENAI)
+
+    @pytest.mark.asyncio
+    async def test_chat_completion_failover_only_reraises_non_rate_limit(self):
+        """Test FAILOVER_ONLY strategy re-raises non-rate-limit errors."""
+        primary_config = ProviderConfig(
+            provider=LLMProvider.LOCAL,
+            endpoint="mock://primary",
+            priority=1,
+        )
+
+        router = ModelRouter(fallback_strategy=FallbackStrategy.FAILOVER_ONLY)
+        router.add_provider(primary_config)
+        await router.initialize()
+
+        # Make provider throw a non-rate-limit error
+        router._providers[LLMProvider.LOCAL].chat_completion = AsyncMock(
+            side_effect=RuntimeError("Some other error")
+        )
+
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "Hello"}],
+            model="gpt-4o-mini",
+        )
+
+        with pytest.raises(RuntimeError, match="Some other error"):
+            await router.chat_completion(request)
+
+    @pytest.mark.asyncio
+    async def test_chat_completion_failover_only_fallback_on_rate_limit(self):
+        """Test FAILOVER_ONLY strategy falls back on rate limit."""
+        primary_config = ProviderConfig(
+            provider=LLMProvider.LOCAL,
+            endpoint="mock://primary",
+            priority=1,
+        )
+        secondary_config = ProviderConfig(
+            provider=LLMProvider.ANTHROPIC,
+            endpoint="mock://secondary",
+            priority=2,
+        )
+
+        router = ModelRouter(fallback_strategy=FallbackStrategy.FAILOVER_ONLY)
+
+        # Create mock providers
+        mock_primary = MockProvider(primary_config)
+        mock_secondary = MockProvider(secondary_config)
+        await mock_primary.initialize()
+        await mock_secondary.initialize()
+
+        router._providers = {
+            LLMProvider.LOCAL: mock_primary,
+            LLMProvider.ANTHROPIC: mock_secondary,
+        }
+        router._provider_configs = {
+            LLMProvider.LOCAL: primary_config,
+            LLMProvider.ANTHROPIC: secondary_config,
+        }
+        router._initialized = True
+
+        # Make primary throw rate limit error
+        mock_primary.chat_completion = AsyncMock(
+            side_effect=RuntimeError("rate limit exceeded")
+        )
+
+        request = LLMRequest(
+            messages=[{"role": "user", "content": "Hello"}],
+            model="mock-gpt-4o-mini",
+        )
+
+        # Should fall back to secondary
+        response = await router.chat_completion(request)
+        assert response.provider == LLMProvider.LOCAL  # MockProvider returns LOCAL
+
+    @pytest.mark.asyncio
+    async def test_generate_embeddings_not_initialized(self):
+        """Test embeddings fail when not initialized."""
+        router = ModelRouter()
+
+        request = EmbeddingRequest(
+            texts=["Hello"],
+            model="embedding-model",
+        )
+
+        with pytest.raises(RuntimeError, match="not initialized"):
+            await router.generate_embeddings(request)
+
+    @pytest.mark.asyncio
+    async def test_generate_embeddings_specific_provider_not_configured(
+        self, mock_config
+    ):
+        """Test embeddings fail for unconfigured provider."""
+        router = ModelRouter()
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        request = EmbeddingRequest(
+            texts=["Hello"],
+            model="embedding-model",
+        )
+
+        with pytest.raises(RuntimeError, match="not configured"):
+            await router.generate_embeddings(request, provider=LLMProvider.AZURE_OPENAI)
+
+    @pytest.mark.asyncio
+    async def test_generate_embeddings_handles_not_implemented(self, mock_config):
+        """Test embeddings handles NotImplementedError from provider."""
+        router = ModelRouter()
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        # Make generate_embeddings raise NotImplementedError
+        router._providers[LLMProvider.LOCAL].generate_embeddings = AsyncMock(
+            side_effect=NotImplementedError("Not supported")
+        )
+
+        request = EmbeddingRequest(
+            texts=["Hello"],
+            model="embedding-model",
+        )
+
+        # Should fail since we only have one provider that doesn't support it
+        with pytest.raises(RuntimeError, match="Embedding generation failed"):
+            await router.generate_embeddings(request)
+
+    @pytest.mark.asyncio
+    async def test_generate_embeddings_handles_exception(self, mock_config):
+        """Test embeddings handles generic exceptions."""
+        router = ModelRouter()
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        # Make generate_embeddings raise an exception
+        router._providers[LLMProvider.LOCAL].generate_embeddings = AsyncMock(
+            side_effect=RuntimeError("DB Error")
+        )
+
+        request = EmbeddingRequest(
+            texts=["Hello"],
+            model="embedding-model",
+        )
+
+        with pytest.raises(RuntimeError, match="Embedding generation failed.*DB Error"):
+            await router.generate_embeddings(request)
+
+    @pytest.mark.asyncio
+    async def test_generate_embeddings_with_cost_callback(self, mock_config):
+        """Test embeddings calls cost callback."""
+        router = ModelRouter()
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        costs_recorded = []
+
+        async def cost_callback(**kwargs):
+            costs_recorded.append(kwargs)
+
+        router.set_cost_callback(cost_callback)
+
+        request = EmbeddingRequest(
+            texts=["Hello"],
+            model="mock-embedding",
+            agent_name="test_agent",
+        )
+
+        await router.generate_embeddings(request)
+
+        assert len(costs_recorded) == 1
+        assert costs_recorded[0]["agent_name"] == "test_agent"
+
+    @pytest.mark.asyncio
+    async def test_get_available_models_handles_exception(self, mock_config):
+        """Test get_available_models handles provider exceptions."""
+        router = ModelRouter()
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        # Make get_available_models raise an exception
+        router._providers[LLMProvider.LOCAL].get_available_models = AsyncMock(
+            side_effect=RuntimeError("Error")
+        )
+
+        # Should not raise, just return empty
+        models = await router.get_available_models()
+
+        assert models == []
+
+    @pytest.mark.asyncio
+    async def test_shutdown_handles_provider_exception(self, mock_config):
+        """Test shutdown handles provider shutdown exceptions."""
+        router = ModelRouter()
+        router.add_provider(mock_config)
+        await router.initialize()
+
+        # Make shutdown raise an exception
+        router._providers[LLMProvider.LOCAL].shutdown = AsyncMock(
+            side_effect=RuntimeError("Shutdown error")
+        )
+
+        # Should not raise
+        await router.shutdown()
+
+        assert router._initialized is False
+
+
+# ============================================================================
+# Test Global Router Functions
+# ============================================================================
+
+
+class TestGlobalRouterFunctions:
+    """Tests for global router singleton functions."""
+
+    @pytest.mark.asyncio
+    async def test_init_model_router_returns_existing(self):
+        """Test init returns existing initialized router."""
+        import shared.model_router.router as router_module
+
+        # Create existing router
+        existing = ModelRouter()
+        existing._initialized = True
+        router_module._global_router = existing
+
+        result = await router_module.init_model_router()
+
+        assert result is existing
+
+        # Cleanup
+        router_module._global_router = None
+
+    @pytest.mark.asyncio
+    async def test_init_model_router_with_providers(self):
+        """Test init with explicit provider list."""
+        import shared.model_router.router as router_module
+
+        router_module._global_router = None
+
+        config = ProviderConfig(
+            provider=LLMProvider.LOCAL,
+            endpoint="mock://localhost",
+        )
+
+        router = await router_module.init_model_router(providers=[config])
+
+        assert router._initialized is True
+        assert LLMProvider.LOCAL in router._providers
+
+        # Cleanup
+        await router_module.shutdown_model_router()
+
+    @pytest.mark.asyncio
+    async def test_init_model_router_auto_configure(self):
+        """Test init with auto-configuration from environment."""
+        import shared.model_router.router as router_module
+
+        router_module._global_router = None
+
+        # No env vars set, should use mock
+        with patch.dict("os.environ", {}, clear=True):
+            router = await router_module.init_model_router()
+
+        assert router._initialized is True
+        assert LLMProvider.LOCAL in router._providers
+
+        # Cleanup
+        await router_module.shutdown_model_router()
+
+    def test_get_model_router_raises_when_not_initialized(self):
+        """Test get_model_router raises when not initialized."""
+        import shared.model_router.router as router_module
+
+        router_module._global_router = None
+
+        with pytest.raises(RuntimeError, match="not initialized"):
+            router_module.get_model_router()
+
+    def test_get_model_router_returns_router(self):
+        """Test get_model_router returns initialized router."""
+        import shared.model_router.router as router_module
+
+        existing = ModelRouter()
+        router_module._global_router = existing
+
+        result = router_module.get_model_router()
+
+        assert result is existing
+
+        # Cleanup
+        router_module._global_router = None
+
+    @pytest.mark.asyncio
+    async def test_shutdown_model_router_clears_global(self):
+        """Test shutdown clears global router."""
+        import shared.model_router.router as router_module
+
+        existing = ModelRouter()
+        existing._initialized = True
+        router_module._global_router = existing
+
+        await router_module.shutdown_model_router()
+
+        assert router_module._global_router is None
+
+
+class TestAutoConfigureProviders:
+    """Tests for _auto_configure_providers function."""
+
+    def test_auto_configure_azure_openai(self):
+        """Test auto-configuration for Azure OpenAI."""
+        import shared.model_router.router as router_module
+
+        router = ModelRouter()
+
+        with patch.dict(
+            "os.environ",
+            {
+                "AZURE_OPENAI_ENDPOINT": "https://test.openai.azure.com",
+                "AZURE_OPENAI_API_KEY": "test-key",
+            },
+            clear=True,
+        ):
+            router_module._auto_configure_providers(router)
+
+        assert LLMProvider.AZURE_OPENAI in router._provider_configs
+        assert (
+            router._provider_configs[LLMProvider.AZURE_OPENAI].endpoint
+            == "https://test.openai.azure.com"
+        )
+
+    def test_auto_configure_anthropic(self):
+        """Test auto-configuration for Anthropic."""
+        import shared.model_router.router as router_module
+
+        router = ModelRouter()
+
+        with patch.dict(
+            "os.environ",
+            {
+                "ANTHROPIC_API_KEY": "test-key",
+            },
+            clear=True,
+        ):
+            router_module._auto_configure_providers(router)
+
+        assert LLMProvider.ANTHROPIC in router._provider_configs
+
+    def test_auto_configure_mock_explicit(self):
+        """Test auto-configuration for mock when USE_MOCK_LLM is true."""
+        import shared.model_router.router as router_module
+
+        router = ModelRouter()
+
+        with patch.dict(
+            "os.environ",
+            {
+                "USE_MOCK_LLM": "true",
+            },
+            clear=True,
+        ):
+            router_module._auto_configure_providers(router)
+
+        assert LLMProvider.LOCAL in router._provider_configs
+
+    def test_auto_configure_mock_fallback(self):
+        """Test auto-configuration for mock when no providers available."""
+        import shared.model_router.router as router_module
+
+        router = ModelRouter()
+
+        with patch.dict("os.environ", {}, clear=True):
+            router_module._auto_configure_providers(router)
+
+        # Should add mock as fallback
+        assert LLMProvider.LOCAL in router._provider_configs
+
+    def test_auto_configure_all_providers(self):
+        """Test auto-configuration with all environment variables."""
+        import shared.model_router.router as router_module
+
+        router = ModelRouter()
+
+        with patch.dict(
+            "os.environ",
+            {
+                "AZURE_OPENAI_ENDPOINT": "https://test.openai.azure.com",
+                "AZURE_OPENAI_API_KEY": "azure-key",
+                "ANTHROPIC_API_KEY": "anthropic-key",
+                "USE_MOCK_LLM": "true",
+            },
+            clear=True,
+        ):
+            router_module._auto_configure_providers(router)
+
+        assert LLMProvider.AZURE_OPENAI in router._provider_configs
+        assert LLMProvider.ANTHROPIC in router._provider_configs
+        assert LLMProvider.LOCAL in router._provider_configs
+
+        # Check priorities
+        assert router._provider_configs[LLMProvider.AZURE_OPENAI].priority == 1
+        assert router._provider_configs[LLMProvider.ANTHROPIC].priority == 2
+        assert router._provider_configs[LLMProvider.LOCAL].priority == 99
